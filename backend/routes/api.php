@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 
+use App\Http\Controllers\Api\UserController;
+
 /*
 |--------------------------------------------------------------------------
 | AUTH PUBLIC
@@ -32,3 +34,18 @@ Route::middleware('auth:sanctum')
 
         Route::post('/change-password', [AuthController::class, 'changePassword']);
     });
+
+/*
+    
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::apiResource('usuarios', UserController::class);
+
+    Route::patch(
+        'usuarios/{user}/estado',
+        [UserController::class, 'changeStatus']
+    );
+
+});
