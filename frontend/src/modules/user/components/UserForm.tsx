@@ -1,20 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 
-import { createUser } from "../services/userService";
+import { createUser, getRoles } from "../services/userService";
+import { Role } from "../types/role";
+import { UserCreateRequest } from "../types/user";
+import Select from "@/components/form/Select";
 
 export default function UserForm() {
 
-  const [form, setForm] = useState({
-    nombre: "",
-    apellido: "",
-    email: "",
-    telefono: "",
-    password: "",
-  });
+  const [form, setForm] =
+    useState<UserCreateRequest>({
+      nombre: "",
+      apellido: "",
+      email: "",
+      telefono: "",
+      password: "",
+      roles: [],
+    });
+
+  const [roles, setRoles] = useState<Role[]>([]);
+
+  useEffect(() => {
+    const loadRoles = async () => {
+      const data = await getRoles();
+      setRoles(data);
+    };
+    loadRoles();
+  }, []);
+
+  const roleOptions = roles.map((role) => ({
+    value: role.name,
+    label: role.name,
+  }));
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -45,6 +65,7 @@ export default function UserForm() {
         email: "",
         telefono: "",
         password: "",
+        roles: [],
       });
 
     } catch (error) {
@@ -112,6 +133,25 @@ export default function UserForm() {
             name="password"
             value={form.password}
             onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <Label>Rol</Label>
+
+          <Select
+            value={form.roles[0] || ""}
+            placeholder="Seleccione un rol"
+            options={roles.map((role) => ({
+              value: role.name,
+              label: role.name,
+            }))}
+            onChange={(value) =>
+              setForm({
+                ...form,
+                roles: [value],
+              })
+            }
           />
         </div>
 

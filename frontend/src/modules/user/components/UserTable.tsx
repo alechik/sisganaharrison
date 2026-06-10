@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/table";
 
 import Badge from "@/components/ui/badge/Badge";
+import { Link } from "react-router-dom";
 
 import {
   PencilIcon,
@@ -35,6 +36,22 @@ const UserTable = ({ users }: Props) => {
             Lista general de usuarios registrados
           </p>
         </div>
+        
+        <Link
+            to="/usuarios/crear"
+            className="
+            inline-flex items-center gap-2
+            rounded-lg
+            bg-brand-500
+            px-4 py-2
+            text-sm font-medium
+            text-white
+            hover:bg-brand-600
+            transition
+            "
+        >
+            + Nuevo Usuario
+        </Link>
       </div>
 
       {/* TABLA */}

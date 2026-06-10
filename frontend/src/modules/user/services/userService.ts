@@ -1,5 +1,5 @@
 import api from "@/api/axios";
-import { User } from "../types/user";
+import { User, UserCreateRequest } from "../types/user";
 
 export interface UserResponse {
   data: User[];
@@ -11,7 +11,9 @@ export const getUsers = async (): Promise<User[]> => {
   return response.data.data;
 };
 
-export const createUser = async (data: User) => {
+export const createUser = async (
+  data: UserCreateRequest
+) => {
   const response = await api.post("/usuarios", data);
   return response.data;
 };
@@ -26,5 +28,10 @@ export const updateUser = async (
 
 export const deleteUser = async (id: number) => {
   const response = await api.delete(`/usuarios/${id}`);
+  return response.data;
+};
+
+export const getRoles = async () => {
+  const response = await api.get("/roles");
   return response.data;
 };
