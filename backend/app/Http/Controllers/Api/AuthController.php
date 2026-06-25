@@ -3,12 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -46,7 +43,8 @@ class AuthController extends Controller
             'message' => 'Login correcto',
             'token' => $token,
             'user' => $user,
-            'roles' => $user->getRoleNames()
+            'roles' => $user->getRoleNames(),
+            'permissions' => $user->getAllPermissions()->pluck('name')->values(),
         ]);
     }
 
@@ -58,38 +56,9 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:100',
-            'apellido' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'telefono' => 'nullable|string|max:20',
-            'password' => 'required|min:8|confirmed'
-        ]);
-
-        $user = User::create([
-            'nombre' => $request->nombre,
-            'apellido' => $request->apellido,
-            'email' => $request->email,
-            'telefono' => $request->telefono,
-            'password' => Hash::make($request->password),
-        ]);
-
-        /*
-        |---------------------------------------
-        | Rol por defecto
-        |---------------------------------------
-        */
-
-        $user->assignRole('trabajador');
-
-        $token = $user->createToken('api-token')->plainTextToken;
-
         return response()->json([
-            'message' => 'Usuario registrado correctamente',
-            'token' => $token,
-            'user' => $user,
-            'roles' => $user->getRoleNames()
-        ], 201);
+            'message' => 'Registro público deshabilitado. Solicite acceso al administrador o use el módulo de usuarios.',
+        ], 403);
     }
 
     /*
@@ -110,7 +79,8 @@ class AuthController extends Controller
 
         return response()->json([
             'user' => $user,
-            'roles' => $user->getRoleNames()
+            'roles' => $user->getRoleNames(),
+            'permissions' => $user->getAllPermissions()->pluck('name')->values(),
         ]);
     }
 

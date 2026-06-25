@@ -12,7 +12,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('usuarios.update') ?? false;
     }
 
     /**
@@ -25,7 +25,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'nombre' => 'required|string|max:100',
             'apellido' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email,' . $this->user,
+            'email' => 'required|email|unique:users,email,' . $this->route('user')->id,
             'telefono' => 'nullable|string|max:20',
             'password' => 'nullable|min:6',
             'roles' => 'required|array'

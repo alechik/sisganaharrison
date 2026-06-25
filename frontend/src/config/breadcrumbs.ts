@@ -35,4 +35,17 @@ export const breadcrumbs = {
     },
   ],
 
+  usuariosEliminados: [
+    {
+      title: "Gestión de Personal",
+    },
+    {
+      title: "Usuarios",
+      path: "/usuarios",
+    },
+    {
+      title: "Eliminados",
+    },
+  ],
+
 };

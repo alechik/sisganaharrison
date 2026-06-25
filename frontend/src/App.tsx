@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -20,6 +20,8 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import UserCreate from "./modules/user/pages/UserCreate";
+import UserDeleted from "./modules/user/pages/UserDeleted";
+import UserEdit from "./modules/user/pages/UserEdit";
 import UserList from "./modules/user/pages/UserList";
 
 
@@ -42,6 +44,8 @@ export default function App() {
             <Route index element={<Home />} />
             <Route path="/usuarios" element={<UserList />}/>
             <Route path="/usuarios/crear" element={<UserCreate />} />
+            <Route path="/usuarios/eliminados" element={<UserDeleted />} />
+            <Route path="/usuarios/:id/editar" element={<UserEdit />} />
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />
