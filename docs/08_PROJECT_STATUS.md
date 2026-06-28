@@ -1,10 +1,8 @@
 # Estado del Proyecto
 
-> Snapshot al **2026-06-28**, tras implementación módulo **Razas** (Fase G1).
+> Snapshot tras implementación **Categorías de Animales** (Fase G1.2).
 
-**Estado global:** Primer módulo de dominio operativo — plantilla patrón establecida.
-
-**Avance estimado:** ~25–30% del alcance funcional total.
+**Avance estimado:** ~28–32% del alcance funcional total.
 
 ---
 
@@ -17,15 +15,15 @@
 | Framework | Laravel 12, PHP 8.2+ |
 | Auth | Sanctum 4 — token Bearer |
 | RBAC | Spatie Permission 6 — 43 permisos, 4 roles |
-| Modelos | `User`, **`Raza`** |
-| Controladores | `AuthController`, `UserController`, **`RazaController`** |
-| Policies | `UserPolicy`, **`RazaPolicy`** |
-| Services | `UserProtectionService`, **`RazaService`** |
-| Form Requests | Usuario + **Razas** (Store/Update) |
-| Resources | `UserResource`, **`RazaResource`** |
-| Migraciones | 7 archivos → **15 tablas** |
-| Seeders | Permission, Role, User, **Raza** |
-| Rutas API | **23 endpoints** (auth + usuarios + roles + razas) |
+| Modelos | `User`, `Raza`, **`CategoriaAnimal`** |
+| Controladores | `AuthController`, `UserController`, `RazaController`, **`CategoriaAnimalController`** |
+| Policies | `UserPolicy`, `RazaPolicy`, **`CategoriaAnimalPolicy`** |
+| Services | `UserProtectionService`, `RazaService`, **`CategoriaAnimalService`** |
+| Form Requests | Usuario + Razas + **CategoriasAnimales** |
+| Resources | `UserResource`, `RazaResource`, **`CategoriaAnimalResource`** |
+| Migraciones | 8 archivos → **16 tablas** |
+| Seeders | Permission, Role, User, Raza, **CategoriaAnimal** |
+| Rutas API | **32 endpoints** |
 | Tests | Solo ExampleTest (smoke) |
 
 ### Frontend
@@ -36,7 +34,7 @@
 | Estilos | Tailwind CSS 4 |
 | Routing | React Router 7 |
 | HTTP | Axios con interceptor de token (request) |
-| Módulos negocio | `modules/user/`, **`modules/razas/`** (patrón oficial) |
+| Módulos negocio | `modules/user/`, `modules/razas/`, **`modules/categorias-animales/`** |
 | Contextos | ThemeContext, SidebarContext |
 | Layout | AppLayout, AppSidebar, Header |
 | Auth UI | SignIn, ProtectedRoute, UserDropdown, **PermissionGate** |
@@ -45,8 +43,8 @@
 ### Base de datos
 
 - PostgreSQL configurado en `.env.example`
-- 15 tablas migradas (incluye `razas`)
-- 10 razas demo en RazaSeeder
+- 16 tablas migradas
+- 10 razas + 9 categorías en seeders
 - Soft deletes en `users`
 
 ---
@@ -72,7 +70,7 @@ Verificado por implementación en código:
 | Asignar roles | ✅ | ✅ (selector single role) |
 | CRUD Razas completo | ✅ | ✅ |
 | Filtros/búsqueda/orden razas | ✅ | ✅ |
-| PermissionGate en UI razas | N/A | ✅ |
+| CRUD Categorías Animales | ✅ | ✅ |
 | RBAC middleware | ✅ | N/A |
 | Protección super-admin | ✅ | N/A |
 | Protección auto-eliminación | ✅ | 🟡 UI parcial (currentUserId) |
@@ -101,6 +99,7 @@ Verificado por implementación en código:
 ### Dominio ganadero
 
 - [x] Tabla y CRUD **Razas**
+- [x] Tabla y CRUD **Categorías de Animales**
 - [ ] Tablas: lotes, animales, sanitario, movimientos, reproducción, indicadores, alertas, reportes, auditoría
 - [ ] Modelos Eloquent de dominio
 - [ ] Controladores, requests, resources, policies por módulo
@@ -174,5 +173,3 @@ Este commit es la fuente confiable del código analizado para reconstruir esta d
 ## 7. Próximo paso recomendado
 
 **Fase 2.1 — Módulo Lotes** replicando [11_MODULE_TEMPLATE.md](./11_MODULE_TEMPLATE.md).
-
-Esperar nueva instrucción antes de comenzar implementación.

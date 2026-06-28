@@ -57,6 +57,10 @@ const navItems: NavItem[] = [
         name: "Razas",
         path: "/razas",
       },
+      {
+        name: "Categorías",
+        path: "/categorias-animales",
+      },
     ],
   },
 

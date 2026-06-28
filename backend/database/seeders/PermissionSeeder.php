@@ -31,6 +31,14 @@ class PermissionSeeder extends Seeder
         'razas.restore',
         'razas.activate',
 
+        // Categorías de animales
+        'categorias_animales.view',
+        'categorias_animales.create',
+        'categorias_animales.update',
+        'categorias_animales.delete',
+        'categorias_animales.restore',
+        'categorias_animales.activate',
+
         // Lotes
         'lotes.view',
         'lotes.create',

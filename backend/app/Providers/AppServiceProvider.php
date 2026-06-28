@@ -4,9 +4,12 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Models\Raza;
+use App\Models\CategoriaAnimal;
 use App\Policies\UserPolicy;
 use App\Policies\RazaPolicy;
+use App\Policies\CategoriaAnimalPolicy;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Raza::class, RazaPolicy::class);
+        Gate::policy(CategoriaAnimal::class, CategoriaAnimalPolicy::class);
+
+        Route::bind('categoria', fn (string $value) => CategoriaAnimal::query()->findOrFail($value));
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;

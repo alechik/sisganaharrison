@@ -76,14 +76,12 @@
 
 ---
 
-## Fase G1 — Primer módulo patrón (Razas) ✅ COMPLETADA
+## Fase G1.2 — Categorías de Animales ✅ COMPLETADA
 
-- [x] Backend normalizado: Controller/Requests/Resources/Services/Policies
-- [x] Tabla `razas` + Model + Factory + Seeder (10 razas reales)
-- [x] API CRUD completa + soft delete + restore + activate
-- [x] Frontend `modules/razas/` — estructura patrón obligatoria
-- [x] PermissionGate + persistencia de permisos en login
-- [x] Documentación `11_MODULE_TEMPLATE.md`
+- [x] Tabla `categorias_animales` + Model + Factory + Seeder (9 categorías reales)
+- [x] Backend normalizado (patrón Razas)
+- [x] API CRUD completa + permisos `categorias_animales.*`
+- [x] Frontend `modules/categorias-animales/`
 
 ---
 
@@ -94,7 +92,8 @@
 | Orden | Módulo | Alcance | Estado |
 |-------|--------|---------|--------|
 | 2.0 | **Razas** | CRUD backend + frontend | ✅ Completado |
-| 2.1 | Lotes | CRUD — replicar plantilla Razas | ⏳ Pendiente |
+| 2.0b | **Categorías Animales** | CRUD backend + frontend | ✅ Completado |
+| 2.1 | Lotes | CRUD — replicar plantilla | ⏳ Pendiente |
 | 2.2 | Animales | CRUD + identificación básica | ⏳ Pendiente |
 | 2.3 | Pesos | Registro básico de peso | ⏳ Pendiente |
 

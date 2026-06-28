@@ -12,6 +12,30 @@ _Pendiente: módulo Lotes (Fase 2.1)._
 
 ---
 
+## [2026-06-28] — Fase G1.2: Categorías de Animales
+
+### Added
+
+**Backend:**
+- Migración `categorias_animales` (codigo, nombre, descripcion, activo, soft deletes)
+- Model `CategoriaAnimal`, Factory, `CategoriaAnimalSeeder` (9 categorías reales)
+- `CategoriaAnimalService`, Policy, Requests, Resource, Controller
+- 9 endpoints REST en `/api/categorias-animales`
+- Permisos `categorias_animales.*` (6 permisos) — asignados a `administrador` y `super-admin`
+
+**Frontend:**
+- Módulo `modules/categorias-animales/` (patrón idéntico a Razas)
+- Rutas integradas en App + sidebar + breadcrumbs
+
+**Documentación:** Actualizados `02`, `06`, `07`, `08`
+
+### Notes
+
+- Campo de estado: `activo` (vs `estado` en Razas) según especificación del módulo.
+- Ejecutar `php artisan migrate` y seeders de permisos/categorías.
+
+---
+
 ## [2026-06-28] — Fase G1: Módulo patrón Razas
 
 ### Added

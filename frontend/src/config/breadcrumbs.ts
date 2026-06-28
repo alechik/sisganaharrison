@@ -77,4 +77,33 @@ export const breadcrumbs = {
     { title: "Eliminadas" },
   ],
 
+  categoriasAnimales: [
+    { title: "Ganadería" },
+    { title: "Categorías de Animales" },
+  ],
+
+  categoriaAnimalCrear: [
+    { title: "Ganadería" },
+    { title: "Categorías de Animales", path: "/categorias-animales" },
+    { title: "Nueva Categoría" },
+  ],
+
+  categoriaAnimalEditar: [
+    { title: "Ganadería" },
+    { title: "Categorías de Animales", path: "/categorias-animales" },
+    { title: "Editar Categoría" },
+  ],
+
+  categoriaAnimalDetalle: [
+    { title: "Ganadería" },
+    { title: "Categorías de Animales", path: "/categorias-animales" },
+    { title: "Detalle" },
+  ],
+
+  categoriasAnimalesEliminadas: [
+    { title: "Ganadería" },
+    { title: "Categorías de Animales", path: "/categorias-animales" },
+    { title: "Eliminadas" },
+  ],
+
 };

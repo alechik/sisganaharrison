@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Razas\RazaController;
+use App\Http\Controllers\Api\CategoriasAnimales\CategoriaAnimalController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -103,4 +104,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('razas/{raza}/estado', [RazaController::class, 'changeStatus'])
         ->middleware('permission:razas.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| CATEGORÍAS DE ANIMALES
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('categorias-animales/eliminados', [CategoriaAnimalController::class, 'deleted'])
+        ->middleware('permission:categorias_animales.view');
+
+    Route::post('categorias-animales/{id}/restaurar', [CategoriaAnimalController::class, 'restore'])
+        ->middleware('permission:categorias_animales.restore');
+
+    Route::get('categorias-animales', [CategoriaAnimalController::class, 'index'])
+        ->middleware('permission:categorias_animales.view');
+
+    Route::post('categorias-animales', [CategoriaAnimalController::class, 'store'])
+        ->middleware('permission:categorias_animales.create');
+
+    Route::get('categorias-animales/{categoria}', [CategoriaAnimalController::class, 'show'])
+        ->middleware('permission:categorias_animales.view');
+
+    Route::put('categorias-animales/{categoria}', [CategoriaAnimalController::class, 'update'])
+        ->middleware('permission:categorias_animales.update');
+
+    Route::patch('categorias-animales/{categoria}', [CategoriaAnimalController::class, 'update'])
+        ->middleware('permission:categorias_animales.update');
+
+    Route::delete('categorias-animales/{categoria}', [CategoriaAnimalController::class, 'destroy'])
+        ->middleware('permission:categorias_animales.delete');
+
+    Route::patch('categorias-animales/{categoria}/estado', [CategoriaAnimalController::class, 'changeStatus'])
+        ->middleware('permission:categorias_animales.activate');
 });

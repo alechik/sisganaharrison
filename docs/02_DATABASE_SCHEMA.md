@@ -3,8 +3,8 @@
 > Documenta **únicamente** las tablas existentes en las migraciones del commit `50ab065`.  
 > Motor configurado: **PostgreSQL** (`DB_CONNECTION=pgsql` en `.env.example`).
 
-**Total de tablas:** 15  
-**Migraciones:** 7 archivos en `backend/database/migrations/`
+**Total de tablas:** 16  
+**Migraciones:** 8 archivos en `backend/database/migrations/`
 
 ---
 
@@ -289,6 +289,35 @@ cache, cache_locks, jobs, job_batches, failed_jobs, password_reset_tokens
 
 ---
 
+## 16. categorias_animales
+
+**Propósito:** Catálogo de categorías ganaderas (Ternero, Vaca, Toro, etc.).
+
+**Migración:** `2026_06_28_000002_create_categorias_animales_table.php`
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | bigint PK | Auto-increment |
+| codigo | string(20) | UNIQUE |
+| nombre | string(100) | Indexed |
+| descripcion | text | Nullable |
+| activo | boolean | Default `true` |
+| created_at, updated_at | timestamps | |
+| deleted_at | timestamp | **SoftDeletes** |
+
+**Relaciones:** Ninguna aún (futuro: `animales.categoria_id`).
+
+**Índices importantes:**
+- UNIQUE en `codigo`
+- INDEX en `activo`, `nombre`
+
+**Modelo:** `App\Models\CategoriaAnimal` — `$table = 'categorias_animales'`  
+**Scope:** `activos()` — filtra `activo = true`
+
+**Datos seed:** 9 categorías reales en `CategoriaAnimalSeeder`
+
+---
+
 ## Resumen
 
 | Tabla | SoftDeletes | Dominio |
@@ -304,6 +333,7 @@ cache, cache_locks, jobs, job_batches, failed_jobs, password_reset_tokens
 | role_has_permissions | No | RBAC |
 | cache, cache_locks | No | Infraestructura |
 | jobs, job_batches, failed_jobs | No | Infraestructura |
-| **razas** | **Sí** | **Dominio ganadero (catálogo)** |
+| razas | Sí | Dominio ganadero (catálogo) |
+| **categorias_animales** | **Sí** | **Dominio ganadero (catálogo)** |
 
 **Pendientes:** lotes, animales y demás tablas de dominio.

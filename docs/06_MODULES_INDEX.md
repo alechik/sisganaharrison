@@ -119,7 +119,25 @@
 
 ---
 
-### 2.2 Otros módulos — permisos definidos, sin implementación
+### 2.2 Categorías de Animales — ✅ IMPLEMENTADO
+
+| Aspecto | Detalle |
+|---------|---------|
+| **Descripción** | Catálogo CRUD de categorías ganaderas (Ternero, Vaca, Toro, etc.) |
+| **Estado general** | ✅ Implementado (~95%) |
+| **Backend** | ✅ CategoriaAnimalController, CategoriaAnimalService, Requests, Resource, Policy, Seeder |
+| **Frontend** | ✅ `modules/categorias-animales/` — réplica patrón Razas |
+| **Base de datos** | ✅ tabla `categorias_animales` (campo `activo`, soft deletes) |
+| **Permisos** | `categorias_animales.view`, `.create`, `.update`, `.delete`, `.restore`, `.activate` |
+| **Dependencias** | Auth, RBAC |
+
+**Rutas frontend:** `/categorias-animales`, `/categorias-animales/crear`, `/categorias-animales/:id`, `/categorias-animales/:id/editar`, `/categorias-animales/eliminados`
+
+**API:** `GET/POST /api/categorias-animales`, `GET/PUT/PATCH/DELETE /api/categorias-animales/{categoria}`, `PATCH .../estado`, `GET .../eliminados`, `POST .../restaurar`
+
+---
+
+### 2.3 Otros módulos — permisos definidos, sin implementación
 
 Los siguientes módulos tienen **permisos en seeders** y/o **enlaces en sidebar**, pero **sin** tablas, modelos, controladores, rutas API y módulos frontend (excepto Razas).
 
@@ -199,7 +217,8 @@ Páginas demo incluidas en `App.tsx` sin valor de negocio:
 | RBAC | ✅ | ❌ UI | ✅ | ✅ | Parcial |
 | Layout | N/A | 🟡 | N/A | ❌ | Parcial |
 | Dashboard | ❌ | 🟡 Demo | ❌ | N/A | Demo |
-| Razas | ✅ | ✅ | ✅ | ✅ | **Patrón implementado** |
+| Razas | ✅ | ✅ | ✅ | ✅ | Patrón implementado |
+| Categorías Animales | ✅ | ✅ | ✅ | ✅ | Implementado (G1.2) |
 | Lotes | ❌ | ❌ | ❌ | 📋 | Pendiente |
 | Animales | ❌ | ❌ | ❌ | 📋 | Pendiente |
 | Sanitario | ❌ | ❌ | ❌ | 📋 | Pendiente |
@@ -219,7 +238,7 @@ Páginas demo incluidas en `App.tsx` sin valor de negocio:
 ```
 Plataforma (Auth + Usuarios + RBAC)
     ↓
-Razas ✅
+Razas ✅ → Categorías Animales ✅
     ↓
 Lotes → Animales
     ↓
