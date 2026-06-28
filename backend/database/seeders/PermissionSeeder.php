@@ -28,6 +28,8 @@ class PermissionSeeder extends Seeder
         'razas.create',
         'razas.update',
         'razas.delete',
+        'razas.restore',
+        'razas.activate',
 
         // Lotes
         'lotes.view',

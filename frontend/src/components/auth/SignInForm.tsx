@@ -38,6 +38,11 @@ export default function SignInForm() {
         JSON.stringify(response.data.user)
       );
 
+      localStorage.setItem(
+        "permissions",
+        JSON.stringify(response.data.permissions ?? [])
+      );
+
       navigate("/");
 
     } catch (error: any) {

@@ -76,16 +76,27 @@
 
 ---
 
-## Fase 2 — Catálogos base ⏳ PENDIENTE
+## Fase G1 — Primer módulo patrón (Razas) ✅ COMPLETADA
 
-**Prerequisito:** Fase 1 completa.
+- [x] Backend normalizado: Controller/Requests/Resources/Services/Policies
+- [x] Tabla `razas` + Model + Factory + Seeder (10 razas reales)
+- [x] API CRUD completa + soft delete + restore + activate
+- [x] Frontend `modules/razas/` — estructura patrón obligatoria
+- [x] PermissionGate + persistencia de permisos en login
+- [x] Documentación `11_MODULE_TEMPLATE.md`
 
-| Orden | Módulo | Alcance |
-|-------|--------|---------|
-| 2.1 | Razas | CRUD backend + frontend |
-| 2.2 | Lotes | CRUD backend + frontend |
-| 2.3 | Animales | CRUD + identificación básica |
-| 2.4 | Pesos | Registro básico de peso |
+---
+
+## Fase 2 — Catálogos base ⏳ EN CURSO
+
+**Prerequisito:** Fase G1 ✅
+
+| Orden | Módulo | Alcance | Estado |
+|-------|--------|---------|--------|
+| 2.0 | **Razas** | CRUD backend + frontend | ✅ Completado |
+| 2.1 | Lotes | CRUD — replicar plantilla Razas | ⏳ Pendiente |
+| 2.2 | Animales | CRUD + identificación básica | ⏳ Pendiente |
+| 2.3 | Pesos | Registro básico de peso | ⏳ Pendiente |
 
 Cada módulo debe replicar patrón `modules/user/` con permisos RBAC ya definidos en seeders.
 
@@ -139,9 +150,6 @@ Cada módulo debe replicar patrón `modules/user/` con permisos RBAC ya definido
 
 ## Orden recomendado inmediato
 
-1. **Fase 1.3** — AuthContext + interceptor 401 + PermissionGate
-2. **Fase 1.5** — Limpieza UI (paralelo parcial posible)
-3. **Fase 1.4** — Esquema BD ganadero
-4. **Fase 2** — Primer módulo de dominio (Razas)
-
-**No iniciar Fase 2** hasta cerrar Fase 1.3 (permisos en frontend bloquean desarrollo seguro).
+1. **Fase 2.1 — Lotes** — replicar plantilla de Razas ([11_MODULE_TEMPLATE.md](./11_MODULE_TEMPLATE.md))
+2. **Fase 1.3** — AuthContext + interceptor 401 (paralelo recomendado)
+3. **Fase 2.2 — Animales** — tras Lotes operativo

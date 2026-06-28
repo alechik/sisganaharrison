@@ -23,6 +23,7 @@ import UserCreate from "./modules/user/pages/UserCreate";
 import UserDeleted from "./modules/user/pages/UserDeleted";
 import UserEdit from "./modules/user/pages/UserEdit";
 import UserList from "./modules/user/pages/UserList";
+import { razaRoutes } from "./modules/razas/routes";
 
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="/usuarios/crear" element={<UserCreate />} />
             <Route path="/usuarios/eliminados" element={<UserDeleted />} />
             <Route path="/usuarios/:id/editar" element={<UserEdit />} />
+            {razaRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

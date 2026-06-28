@@ -32,6 +32,8 @@ class RoleSeeder extends Seeder
             'razas.create',
             'razas.update',
             'razas.delete',
+            'razas.restore',
+            'razas.activate',
             'lotes.view',
             'lotes.create',
             'lotes.update',

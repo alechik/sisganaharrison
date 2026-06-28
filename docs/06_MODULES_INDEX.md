@@ -1,6 +1,6 @@
 # Índice de Módulos
 
-> Estado real al commit `50ab065`. Solo módulos detectados en código.
+> Estado actualizado tras implementación del módulo **Razas** (Fase G1).
 
 **Leyenda de estado:**
 - ✅ Implementado
@@ -19,7 +19,7 @@
 | **Descripción** | Login, logout, perfil, cambio de contraseña. Registro público bloqueado. |
 | **Estado general** | 🟡 Parcial (~75%) |
 | **Backend** | ✅ AuthController — login, me, logout, changePassword, register (403) |
-| **Frontend** | 🟡 SignInForm, ProtectedRoute, UserDropdown logout. Sin AuthContext, sin interceptor 401 |
+| **Frontend** | 🟡 SignInForm, ProtectedRoute, PermissionGate, permisos en localStorage |
 | **Base de datos** | ✅ users, personal_access_tokens, sessions |
 | **Permisos** | N/A (auth base) |
 | **Dependencias** | Sanctum, User model |
@@ -56,10 +56,10 @@
 
 | Aspecto | Estado |
 |---------|--------|
-| **Descripción** | Sistema RBAC con Spatie. 43 permisos, 4 roles. |
-| **Estado general** | 🟡 Parcial (~60%) |
+| **Descripción** | Sistema RBAC con Spatie. 45 permisos, 4 roles. |
+| **Estado general** | 🟡 Parcial (~70%) |
 | **Backend** | ✅ PermissionSeeder, RoleSeeder, middleware, Gate::before, policies |
-| **Frontend** | ❌ Sin PermissionGate. Roles solo para selector en formulario de usuario |
+| **Frontend** | 🟡 PermissionGate implementado; sidebar aún sin filtro global por permisos |
 | **Base de datos** | ✅ permissions, roles, model_has_*, role_has_permissions |
 | **Permisos** | Catálogo completo en PermissionSeeder |
 | **Dependencias** | Auth |
@@ -98,16 +98,32 @@
 
 ---
 
-## 2. Dominio ganadero — permisos definidos, sin implementación
+## 2. Dominio ganadero
 
-Los siguientes módulos tienen **permisos en seeders** y/o **enlaces en sidebar**, pero **cero** tablas, modelos, controladores, rutas API y módulos frontend.
+### 2.1 Razas — ✅ IMPLEMENTADO (módulo patrón)
 
-### 2.1 Razas — 📋 ❌
+| Aspecto | Detalle |
+|---------|---------|
+| **Descripción** | Catálogo CRUD de razas bovinas — referencia para futuros catálogos |
+| **Estado general** | ✅ Implementado (~95%) |
+| **Backend** | ✅ RazaController, RazaService, Store/UpdateRazaRequest, RazaResource, RazaPolicy, RazaSeeder |
+| **Frontend** | ✅ `modules/razas/` — estructura completa patrón (5 páginas, hooks, PermissionGate) |
+| **Base de datos** | ✅ tabla `razas` (soft deletes) |
+| **Permisos** | `razas.view`, `.create`, `.update`, `.delete`, `.restore`, `.activate` |
+| **Dependencias** | Auth, RBAC |
+| **Plantilla** | Ver [11_MODULE_TEMPLATE.md](./11_MODULE_TEMPLATE.md) |
 
-| Permisos seed | `razas.view`, `.create`, `.update`, `.delete` |
-| Sidebar | `/razas` (404) |
+**Rutas frontend:** `/razas`, `/razas/crear`, `/razas/:id`, `/razas/:id/editar`, `/razas/eliminados`
 
-### 2.2 Lotes — 📋 ❌
+**API:** `GET/POST /api/razas`, `GET/PUT/PATCH/DELETE /api/razas/{raza}`, `PATCH /api/razas/{raza}/estado`, `GET /api/razas/eliminados`, `POST /api/razas/{id}/restaurar`
+
+---
+
+### 2.2 Otros módulos — permisos definidos, sin implementación
+
+Los siguientes módulos tienen **permisos en seeders** y/o **enlaces en sidebar**, pero **sin** tablas, modelos, controladores, rutas API y módulos frontend (excepto Razas).
+
+#### Lotes — 📋 ❌
 
 | Permisos seed | `lotes.view`, `.create`, `.update`, `.delete`, `.manage` |
 | Sidebar | `/lotes` (404) |
@@ -183,7 +199,7 @@ Páginas demo incluidas en `App.tsx` sin valor de negocio:
 | RBAC | ✅ | ❌ UI | ✅ | ✅ | Parcial |
 | Layout | N/A | 🟡 | N/A | ❌ | Parcial |
 | Dashboard | ❌ | 🟡 Demo | ❌ | N/A | Demo |
-| Razas | ❌ | ❌ | ❌ | 📋 | Pendiente |
+| Razas | ✅ | ✅ | ✅ | ✅ | **Patrón implementado** |
 | Lotes | ❌ | ❌ | ❌ | 📋 | Pendiente |
 | Animales | ❌ | ❌ | ❌ | 📋 | Pendiente |
 | Sanitario | ❌ | ❌ | ❌ | 📋 | Pendiente |
@@ -203,13 +219,13 @@ Páginas demo incluidas en `App.tsx` sin valor de negocio:
 ```
 Plataforma (Auth + Usuarios + RBAC)
     ↓
-Razas + Lotes
+Razas ✅
     ↓
-Animales
+Lotes → Animales
     ↓
 Sanitario | Movimientos | Reproducción
     ↓
 Indicadores + Alertas + Reportes + Auditoría
 ```
 
-Actualmente solo la **Plataforma** tiene código funcional.
+**Razas** es el primer módulo de dominio operativo y sirve de plantilla oficial.

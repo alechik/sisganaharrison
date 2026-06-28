@@ -3,8 +3,8 @@
 > Documenta **únicamente** las tablas existentes en las migraciones del commit `50ab065`.  
 > Motor configurado: **PostgreSQL** (`DB_CONNECTION=pgsql` en `.env.example`).
 
-**Total de tablas:** 14  
-**Migraciones:** 6 archivos en `backend/database/migrations/`
+**Total de tablas:** 15  
+**Migraciones:** 7 archivos en `backend/database/migrations/`
 
 ---
 
@@ -258,6 +258,37 @@ cache, cache_locks, jobs, job_batches, failed_jobs, password_reset_tokens
 
 ---
 
+---
+
+## 15. razas
+
+**Propósito:** Catálogo de razas bovinas. Primer módulo de dominio ganadero (patrón para catálogos).
+
+**Migración:** `2026_06_28_000001_create_razas_table.php`
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | bigint PK | Auto-increment |
+| nombre | string(100) | Indexed |
+| codigo | string(20) | UNIQUE — identificador corto (ej: `BRAHMAN`) |
+| descripcion | text | Nullable |
+| estado | boolean | Default `true`. Activo/inactivo |
+| created_at, updated_at | timestamps | |
+| deleted_at | timestamp | **SoftDeletes** |
+
+**Relaciones:** Ninguna aún (futuro: `animales.raza_id`).
+
+**Índices importantes:**
+- UNIQUE en `codigo`
+- INDEX en `estado`, `nombre`
+
+**Modelo:** `App\Models\Raza` — traits: `HasFactory`, `SoftDeletes`  
+**Scope:** `activos()` — filtra `estado = true`
+
+**Datos seed:** 10 razas reales en `RazaSeeder` (Brahman, Nelore, Angus, etc.)
+
+---
+
 ## Resumen
 
 | Tabla | SoftDeletes | Dominio |
@@ -273,5 +304,6 @@ cache, cache_locks, jobs, job_batches, failed_jobs, password_reset_tokens
 | role_has_permissions | No | RBAC |
 | cache, cache_locks | No | Infraestructura |
 | jobs, job_batches, failed_jobs | No | Infraestructura |
+| **razas** | **Sí** | **Dominio ganadero (catálogo)** |
 
-**No existen tablas de dominio ganadero** (razas, lotes, animales, etc.).
+**Pendientes:** lotes, animales y demás tablas de dominio.

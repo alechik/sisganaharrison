@@ -8,7 +8,35 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente de desarrollo. Ver [07_ROADMAP.md](./07_ROADMAP.md)._
+_Pendiente: módulo Lotes (Fase 2.1)._
+
+---
+
+## [2026-06-28] — Fase G1: Módulo patrón Razas
+
+### Added
+
+**Backend:**
+- Migración `razas` (nombre, codigo, descripcion, estado, soft deletes)
+- Model `Raza`, Factory, `RazaSeeder` (10 razas reales)
+- `RazaService`, `RazaPolicy`, `StoreRazaRequest`, `UpdateRazaRequest`, `RazaResource`
+- `RazaController` en `Api/Razas/` — 9 endpoints REST
+- Permisos `razas.restore`, `razas.activate` en PermissionSeeder
+
+**Frontend:**
+- Módulo completo `modules/razas/` (estructura patrón oficial)
+- `PermissionGate` + `utils/permissions.ts`
+- Persistencia de permisos en login (SignInForm)
+- Rutas: `/razas`, `/razas/crear`, `/razas/:id`, `/razas/:id/editar`, `/razas/eliminados`
+
+**Documentación:**
+- `docs/11_MODULE_TEMPLATE.md` — plantilla obligatoria para módulos futuros
+- Actualizados: `02`, `06`, `07`, `08`
+
+### Notes
+
+- Ejecutar `php artisan migrate` y `php artisan db:seed` para aplicar cambios.
+- Re-login necesario para cargar permisos en localStorage.
 
 ---
 

@@ -1,10 +1,10 @@
 # Estado del Proyecto
 
-> Snapshot al **2026-06-28**, reconstruido desde commit `50ab065`.
+> Snapshot al **2026-06-28**, tras implementación módulo **Razas** (Fase G1).
 
-**Estado global:** DOCUMENTACIÓN CONSOLIDADA — Plataforma base parcial operativa.
+**Estado global:** Primer módulo de dominio operativo — plantilla patrón establecida.
 
-**Avance estimado:** ~18–22% del alcance funcional total.
+**Avance estimado:** ~25–30% del alcance funcional total.
 
 ---
 
@@ -17,15 +17,15 @@
 | Framework | Laravel 12, PHP 8.2+ |
 | Auth | Sanctum 4 — token Bearer |
 | RBAC | Spatie Permission 6 — 43 permisos, 4 roles |
-| Modelos | `User` (único modelo de aplicación) |
-| Controladores | `AuthController`, `UserController` |
-| Policies | `UserPolicy` |
-| Services | `UserProtectionService` |
-| Form Requests | `StoreUserRequest`, `UpdateUserRequest` |
-| Resources | `UserResource` |
-| Migraciones | 6 archivos → 14 tablas |
-| Seeders | Permission, Role, User |
-| Rutas API | 14 endpoints (auth + usuarios + roles) |
+| Modelos | `User`, **`Raza`** |
+| Controladores | `AuthController`, `UserController`, **`RazaController`** |
+| Policies | `UserPolicy`, **`RazaPolicy`** |
+| Services | `UserProtectionService`, **`RazaService`** |
+| Form Requests | Usuario + **Razas** (Store/Update) |
+| Resources | `UserResource`, **`RazaResource`** |
+| Migraciones | 7 archivos → **15 tablas** |
+| Seeders | Permission, Role, User, **Raza** |
+| Rutas API | **23 endpoints** (auth + usuarios + roles + razas) |
 | Tests | Solo ExampleTest (smoke) |
 
 ### Frontend
@@ -36,17 +36,17 @@
 | Estilos | Tailwind CSS 4 |
 | Routing | React Router 7 |
 | HTTP | Axios con interceptor de token (request) |
-| Módulos negocio | `modules/user/` (completo) |
+| Módulos negocio | `modules/user/`, **`modules/razas/`** (patrón oficial) |
 | Contextos | ThemeContext, SidebarContext |
 | Layout | AppLayout, AppSidebar, Header |
-| Auth UI | SignIn, ProtectedRoute, UserDropdown |
+| Auth UI | SignIn, ProtectedRoute, UserDropdown, **PermissionGate** |
 | Demo | ~15 rutas TailAdmin |
 
 ### Base de datos
 
 - PostgreSQL configurado en `.env.example`
-- 14 tablas migradas
-- 3 usuarios demo en seeder
+- 15 tablas migradas (incluye `razas`)
+- 10 razas demo en RazaSeeder
 - Soft deletes en `users`
 
 ---
@@ -70,6 +70,9 @@ Verificado por implementación en código:
 | Activar/desactivar usuario | ✅ | ✅ |
 | Filtrar por search/estado | ✅ | 🟡 Parcial en UI |
 | Asignar roles | ✅ | ✅ (selector single role) |
+| CRUD Razas completo | ✅ | ✅ |
+| Filtros/búsqueda/orden razas | ✅ | ✅ |
+| PermissionGate en UI razas | N/A | ✅ |
 | RBAC middleware | ✅ | N/A |
 | Protección super-admin | ✅ | N/A |
 | Protección auto-eliminación | ✅ | 🟡 UI parcial (currentUserId) |
@@ -95,9 +98,10 @@ Verificado por implementación en código:
 - [ ] Unificar idioma (es/en)
 - [ ] Unificar validación password (min 6 vs min 8)
 
-### Dominio ganadero (prioridad post-plataforma)
+### Dominio ganadero
 
-- [ ] Tablas: razas, lotes, animales, sanitario, movimientos, reproducción, indicadores, alertas, reportes, auditoría
+- [x] Tabla y CRUD **Razas**
+- [ ] Tablas: lotes, animales, sanitario, movimientos, reproducción, indicadores, alertas, reportes, auditoría
 - [ ] Modelos Eloquent de dominio
 - [ ] Controladores, requests, resources, policies por módulo
 - [ ] Módulos frontend por dominio
@@ -111,7 +115,7 @@ Verificado por implementación en código:
 | # | Riesgo | Impacto | Mitigación |
 |---|--------|---------|------------|
 | R1 | Sin interceptor 401 — token inválido no redirige | Medio | Fase 1.3 |
-| R2 | Permisos no consumidos en frontend — UI no refleja RBAC | Alto | PermissionGate en Fase 1.3 |
+| R2 | Permisos parciales en frontend — PermissionGate solo en Razas | Medio | Extender a Usuarios + sidebar |
 | R3 | Tokens Sanctum sin expiración | Medio | Configurar sanctum.expiration |
 | R4 | Sidebar con rutas 404 (/animales, /lotes, etc.) | Bajo | Fase 1.5 o deshabilitar enlaces |
 | R5 | Sin tests automatizados | Alto | Tests Feature antes de Fase 2 |
@@ -129,13 +133,17 @@ Verificado por implementación en código:
 ### Entorno de desarrollo
 
 ```bash
-# Backend — requerido antes de probar
+# Backend — incluye tabla razas y seeders
 cd backend
 composer install
 cp .env.example .env   # Configurar PostgreSQL
 php artisan key:generate
 php artisan migrate
 php artisan db:seed
+# Permisos nuevos razas.restore / razas.activate (si BD ya existía):
+php artisan db:seed --class=PermissionSeeder
+php artisan db:seed --class=RoleSeeder
+php artisan db:seed --class=RazaSeeder
 
 # Frontend
 cd frontend
@@ -165,8 +173,6 @@ Este commit es la fuente confiable del código analizado para reconstruir esta d
 
 ## 7. Próximo paso recomendado
 
-**Fase 1.3 — Robustecimiento de autenticación**
-
-Motivo: el backend ya expone `permissions` en login/me, pero el frontend no los consume. Sin AuthContext e interceptor 401, el desarrollo seguro de módulos posteriores queda incompleto.
+**Fase 2.1 — Módulo Lotes** replicando [11_MODULE_TEMPLATE.md](./11_MODULE_TEMPLATE.md).
 
 Esperar nueva instrucción antes de comenzar implementación.

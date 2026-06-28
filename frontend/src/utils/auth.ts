@@ -1,6 +1,7 @@
-export const saveAuth = (token: string, user: any) => {
+export const saveAuth = (token: string, user: any, permissions: string[] = []) => {
   localStorage.setItem("token", token);
   localStorage.setItem("user", JSON.stringify(user));
+  localStorage.setItem("permissions", JSON.stringify(permissions));
 };
 
 export const getUser = () => {
@@ -16,6 +17,7 @@ export const getToken = () => {
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  localStorage.removeItem("permissions");
 };
 
 export const isAuthenticated = () => {

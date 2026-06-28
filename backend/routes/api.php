@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\Razas\RazaController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -67,4 +68,39 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/roles', function () {
         return Role::all();
     })->middleware('permission:usuarios.view');
+});
+
+/*
+|--------------------------------------------------------------------------
+| RAZAS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('razas/eliminados', [RazaController::class, 'deleted'])
+        ->middleware('permission:razas.view');
+
+    Route::post('razas/{id}/restaurar', [RazaController::class, 'restore'])
+        ->middleware('permission:razas.restore');
+
+    Route::get('razas', [RazaController::class, 'index'])
+        ->middleware('permission:razas.view');
+
+    Route::post('razas', [RazaController::class, 'store'])
+        ->middleware('permission:razas.create');
+
+    Route::get('razas/{raza}', [RazaController::class, 'show'])
+        ->middleware('permission:razas.view');
+
+    Route::put('razas/{raza}', [RazaController::class, 'update'])
+        ->middleware('permission:razas.update');
+
+    Route::patch('razas/{raza}', [RazaController::class, 'update'])
+        ->middleware('permission:razas.update');
+
+    Route::delete('razas/{raza}', [RazaController::class, 'destroy'])
+        ->middleware('permission:razas.delete');
+
+    Route::patch('razas/{raza}/estado', [RazaController::class, 'changeStatus'])
+        ->middleware('permission:razas.activate');
 });
