@@ -61,6 +61,10 @@ const navItems: NavItem[] = [
         name: "Categorías",
         path: "/categorias-animales",
       },
+      {
+        name: "Vacunas",
+        path: "/vacunas",
+      },
     ],
   },
 

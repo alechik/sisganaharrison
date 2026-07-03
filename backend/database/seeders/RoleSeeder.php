@@ -40,6 +40,12 @@ class RoleSeeder extends Seeder
             'categorias_animales.delete',
             'categorias_animales.restore',
             'categorias_animales.activate',
+            'vacunas.view',
+            'vacunas.create',
+            'vacunas.update',
+            'vacunas.delete',
+            'vacunas.restore',
+            'vacunas.activate',
             'lotes.view',
             'lotes.create',
             'lotes.update',
@@ -77,6 +83,7 @@ class RoleSeeder extends Seeder
 
         $veterinario->syncPermissions([
             'razas.view',
+            'vacunas.view',
             'lotes.view',
             'animales.view',
             'animales.create',
@@ -99,6 +106,7 @@ class RoleSeeder extends Seeder
 
         $trabajador->syncPermissions([
             'razas.view',
+            'vacunas.view',
             'lotes.view',
             'animales.view',
             'animales.create',

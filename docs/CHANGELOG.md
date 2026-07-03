@@ -12,6 +12,42 @@ _Pendiente: módulo Lotes (Fase 2.1)._
 
 ---
 
+## [2026-06-28] — Fase G1.3: Vacunas
+
+### Added
+
+**Backend:**
+- Migración `vacunas` (codigo, nombre, laboratorio, descripcion, activo, soft deletes)
+- Model `Vacuna`, Factory, `VacunaSeeder` (10 vacunas ganaderas)
+- `VacunaService`, Policy, Requests, Resource, Controller
+- 9 endpoints REST en `/api/vacunas`
+- Permisos `vacunas.*` (6 permisos) — asignados a `administrador` y `super-admin`; `vacunas.view` a `veterinario` y `trabajador`
+
+**Frontend:**
+- Módulo `modules/vacunas/` (patrón idéntico a Razas/Categorías)
+- Rutas integradas en App + sidebar + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
+## [2026-06-28] — Reorganización permanente de conocimiento
+
+### Changed
+
+- **Arquitectura de conocimiento:** convenciones permanentes → `.cursor/rules/` (4 reglas)
+- **`docs/00_PROJECT_CONTEXT.md`** — contexto operativo mínimo (reemplaza `00_CONTEXTO_PROYECTO.md`)
+- **`docs/02_DATABASE_SCHEMA.md`** — solo índice hacia `12_DATABASE/`
+- **`docs/11_MODULE_TEMPLATE.md`** — checklist y flujo (sin duplicar rules)
+- **`docs/06_MODULES_INDEX.md`**, **`docs/08_PROJECT_STATUS.md`** — versiones resumidas
+- **`docs/README.md`** — guía de lectura para Agent
+
+### Archived
+
+- Documentos históricos movidos a `docs/_archive/` (arquitectura, standards, API detallada, roadmap, workflow)
+
+---
+
 ## [2026-06-28] — Fase G1.2: Categorías de Animales
 
 ### Added

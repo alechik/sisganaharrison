@@ -1,0 +1,38 @@
+---
+description: PostgreSQL — migraciones, seeders y fuente oficial del modelo
+globs: backend/database/**/*
+alwaysApply: false
+---
+
+# Base de datos — sisganaderia
+
+## Fuente oficial
+
+**Única spec de tablas:** `docs/12_DATABASE/{Dominio}.md`
+
+- `00_Plataforma.md` — users, RBAC, Sanctum, infra Laravel
+- `01_Catalogos.md` — razas, categorías, catálogos maestros
+- `02_Infraestructura.md`, `03_Nucleo_Ganadero.md`, `04_Reproduccion.md`, `05_Gestion.md`
+
+`docs/02_DATABASE_SCHEMA.md` es solo índice de navegación — **no documentar tablas ahí**.
+
+## Convenciones
+
+- Motor: PostgreSQL 17+
+- PK: BIGINT identity
+- Catálogos: SoftDeletes + campo lógico `activo` BOOLEAN (spec) — verificar módulos legacy (`razas` usa `estado`)
+- Auditoría: `created_at`, `updated_at`, `deleted_at`
+- Una migración por cambio de esquema
+- Seeders idempotentes: `firstOrCreate`, `syncPermissions`
+- Factory alineada al esquema real
+
+## Permisos catálogo estándar
+
+`{modulo}.view|create|update|delete|restore|activate`
+
+## Post-cambio
+
+```bash
+php artisan migrate
+php artisan db:seed   # si cambiaron permisos/roles/catálogos
+```

@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             RazaSeeder::class,
             CategoriaAnimalSeeder::class,
+            VacunaSeeder::class,
         ]);
     }
 }

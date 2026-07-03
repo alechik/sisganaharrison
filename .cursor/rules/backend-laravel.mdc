@@ -1,0 +1,88 @@
+---
+description: Backend Laravel — estructura, capas, RBAC y convenciones
+alwaysApply: true
+---
+
+# Backend Laravel — sisganaderia
+
+## Estructura oficial por módulo
+
+```
+app/
+  Http/
+    Controllers/Api/{Modulo}/{Entidad}Controller.php
+    Requests/{Modulo}/Store{Entidad}Request.php
+    Requests/{Modulo}/Update{Entidad}Request.php
+    Resources/{Modulo}/{Entidad}Resource.php
+  Models/{Entidad}.php
+  Policies/{Entidad}Policy.php
+  Services/{Modulo}/{Entidad}Service.php
+  Actions/{Modulo}/          # opcional
+database/
+  migrations/
+  factories/
+  seeders/
+routes/api.php               # rutas específicas ANTES de {param}
+```
+
+## Capas obligatorias
+
+- **Controller delgado** — orquesta, `$this->authorize()`, delega al Service
+- **FormRequest** — `authorize()` con permiso Spatie + `rules()`
+- **Policy** — viewAny, view, create, update, delete, restore, activate
+- **Service** — queries, filtros, reglas de negocio
+- **Resource** — transformación JSON
+- **Middleware `permission:`** en rutas + Policy + FormRequest (triple capa)
+
+## Registro obligatorio
+
+- `AppServiceProvider::boot()` → `Gate::policy(Entidad::class, EntidadPolicy::class)`
+- Permisos en `PermissionSeeder`: `{modulo}.{accion}` → asignar en `RoleSeeder`
+- Seeder de catálogo en `DatabaseSeeder`
+- `Route::bind()` si el parámetro de ruta difiere del nombre del modelo
+
+## API REST — catálogos CRUD
+
+Orden en `routes/api.php`:
+
+```
+GET    /{recurso}/eliminados       → deleted()       permission:{modulo}.view
+POST   /{recurso}/{id}/restaurar   → restore()       permission:{modulo}.restore
+GET    /{recurso}                  → index()
+POST   /{recurso}                  → store()         permission:{modulo}.create
+GET    /{recurso}/{entidad}        → show()
+PUT|PATCH /{recurso}/{entidad}     → update()        permission:{modulo}.update
+DELETE /{recurso}/{entidad}        → destroy()       permission:{modulo}.delete
+PATCH  /{recurso}/{entidad}/estado → changeStatus()  permission:{modulo}.activate
+```
+
+## Respuestas
+
+- Listados: `{ data: [], meta: {}, links: {} }`
+- Acciones: `{ message, data? }` — mensajes en **español**
+- Query params listados: `page`, `per_page`, `search`, `estado`/`activo`, `sort_by`, `sort_dir`
+
+## Service — métodos estándar catálogo
+
+`paginate`, `paginateDeleted`, `find`, `create`, `update`, `delete`, `restore`, `toggleStatus`, `buildQuery` (privado)
+
+## Auth / RBAC
+
+- Header: `Authorization: Bearer {token}`
+- Spatie `guard_name = 'web'` (no `api`)
+- `Gate::before` bypass para `super-admin`
+- Registro público: 403 (mantener ruta)
+- Soft delete en maestros; separar `estado`/`activo` de `deleted_at`
+- Revocar tokens al eliminar/desactivar usuario
+
+## Modelos
+
+- `$fillable` explícito (no `$guarded = []`)
+- Traits: `SoftDeletes`, `HasFactory` según aplique
+- Scopes útiles: `activos`, búsqueda
+
+## Prohibiciones
+
+- Lógica de negocio compleja en controllers
+- Endpoints sin permiso en seeders
+- Inventar módulos no respaldados por spec o código

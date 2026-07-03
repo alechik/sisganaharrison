@@ -1,0 +1,53 @@
+---
+description: Frontend React — estructura modular, hooks, permisos UI
+alwaysApply: true
+---
+
+# Frontend React — sisganaderia
+
+## Stack
+
+React 19, TypeScript, Vite, Tailwind 4, React Router 7, Axios. Alias `@/` → `src/`.
+
+## Estructura oficial por módulo
+
+```
+frontend/src/modules/{modulo}/
+  pages/           # List, Create, Edit, Detail, Deleted
+  components/      # Table, Form, FiltersBar, Toolbar, StatusBadge, index.ts
+  hooks/           # use{Entidades}, useCreate, useUpdate, useDelete, index.ts
+  services/        # {entidad}Service.ts, index.ts
+  types/           # {entidad}.ts, filters.ts, index.ts
+  utils/           # defaultFilters.ts, index.ts
+  routes/          # export {modulo}Routes fragment
+  permissions/     # constantes PERMISSIONS
+  constants/       # rutas UI, page size, sort options
+  index.ts
+```
+
+## Integración
+
+- `App.tsx` — importar `{modulo}Routes` dentro de `ProtectedRoute` > `AppLayout`
+- `config/breadcrumbs.ts` — entradas del módulo
+- `layout/AppSidebar.tsx` — enlace con permiso (opcional)
+
+## Convenciones
+
+- **FiltersBar** — nombre del componente (evitar colisión con tipo `{Entidad}Filters`)
+- **PermissionGate** — ocultar acciones según permisos en `localStorage` (persistidos en login)
+- **ConfirmDialog** — delete, toggle status, restore
+- Reutilizar: `Pagination`, `PageBreadCrumb`, `ComponentCard`
+- API base en `api/axios.ts` — no hardcodear URLs fuera
+- Servicios por módulo; hooks separados por operación
+
+## PermissionGate
+
+```tsx
+<PermissionGate permission={MODULO_PERMISSIONS.create}>
+  <Link to="/ruta/crear">+ Nuevo</Link>
+</PermissionGate>
+```
+
+## Referencia
+
+Copiar estructura de `frontend/src/modules/razas/` (módulo patrón oficial).

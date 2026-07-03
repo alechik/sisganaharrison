@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Razas\RazaController;
 use App\Http\Controllers\Api\CategoriasAnimales\CategoriaAnimalController;
+use App\Http\Controllers\Api\Vacunas\VacunaController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -139,4 +140,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('categorias-animales/{categoria}/estado', [CategoriaAnimalController::class, 'changeStatus'])
         ->middleware('permission:categorias_animales.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| VACUNAS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('vacunas/eliminados', [VacunaController::class, 'deleted'])
+        ->middleware('permission:vacunas.view');
+
+    Route::post('vacunas/{id}/restaurar', [VacunaController::class, 'restore'])
+        ->middleware('permission:vacunas.restore');
+
+    Route::get('vacunas', [VacunaController::class, 'index'])
+        ->middleware('permission:vacunas.view');
+
+    Route::post('vacunas', [VacunaController::class, 'store'])
+        ->middleware('permission:vacunas.create');
+
+    Route::get('vacunas/{vacuna}', [VacunaController::class, 'show'])
+        ->middleware('permission:vacunas.view');
+
+    Route::put('vacunas/{vacuna}', [VacunaController::class, 'update'])
+        ->middleware('permission:vacunas.update');
+
+    Route::patch('vacunas/{vacuna}', [VacunaController::class, 'update'])
+        ->middleware('permission:vacunas.update');
+
+    Route::delete('vacunas/{vacuna}', [VacunaController::class, 'destroy'])
+        ->middleware('permission:vacunas.delete');
+
+    Route::patch('vacunas/{vacuna}/estado', [VacunaController::class, 'changeStatus'])
+        ->middleware('permission:vacunas.activate');
 });

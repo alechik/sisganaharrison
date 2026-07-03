@@ -1,0 +1,46 @@
+---
+description: Arquitectura de conocimiento del proyecto — qué leer y qué ignorar
+alwaysApply: true
+---
+
+# Arquitectura de conocimiento — sisganaderia
+
+## Tipos de conocimiento
+
+| Tipo | Ubicación | Cuándo leer |
+|------|-----------|-------------|
+| Permanente | `.cursor/rules/` | Automático (esta carpeta) |
+| Operativo | `docs/` (mínimo) | Solo según la tarea |
+| Modelo de datos | `docs/12_DATABASE/` | Migraciones / nuevo módulo con tablas |
+| Histórico | `docs/_archive/` | **Nunca** salvo petición explícita del usuario |
+
+## NO leer por defecto
+
+- `docs/_archive/` completa
+- `docs/07_ROADMAP.md`, `docs/09_*`, `docs/10_*` (archivados)
+- Toda la carpeta `docs/` de forma indiscriminada
+
+## Lectura mínima por tarea
+
+| Tarea | Leer |
+|-------|------|
+| Nuevo módulo CRUD | Rules + `docs/00_PROJECT_CONTEXT.md` + `docs/11_MODULE_TEMPLATE.md` + `docs/12_DATABASE/{Dominio}.md` + código ref. `modules/razas/` |
+| Migración / tabla | `docs/12_DATABASE/{Dominio}.md` + migraciones existentes del mismo patrón |
+| Bug en módulo existente | Rules + código del módulo + `docs/06_MODULES_INDEX.md` (1 fila) |
+| Nueva API | Rules + controller/service del módulo patrón |
+| Pantalla React | Rules + `frontend/src/modules/razas/` |
+
+## Proyecto
+
+- Monorepo: `backend/` (Laravel 12 API) + `frontend/` (React 19 SPA)
+- BD: **PostgreSQL** (`DB_CONNECTION=pgsql`)
+- Auth: Sanctum Bearer + Spatie Permission (`guard_name = web`)
+- Módulo patrón: **Razas** (`backend/app/.../Razas/`, `frontend/src/modules/razas/`)
+
+## Tras implementar un módulo
+
+Actualizar solo: `docs/06_MODULES_INDEX.md`, `docs/08_PROJECT_STATUS.md`, `docs/CHANGELOG.md`, y la spec en `docs/12_DATABASE/` si aplica. **No** duplicar tablas en otros docs.
+
+## Commits
+
+Solo cuando el usuario lo solicite explícitamente.

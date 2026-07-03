@@ -106,4 +106,33 @@ export const breadcrumbs = {
     { title: "Eliminadas" },
   ],
 
+  vacunas: [
+    { title: "Ganadería" },
+    { title: "Vacunas" },
+  ],
+
+  vacunaCrear: [
+    { title: "Ganadería" },
+    { title: "Vacunas", path: "/vacunas" },
+    { title: "Nueva Vacuna" },
+  ],
+
+  vacunaEditar: [
+    { title: "Ganadería" },
+    { title: "Vacunas", path: "/vacunas" },
+    { title: "Editar Vacuna" },
+  ],
+
+  vacunaDetalle: [
+    { title: "Ganadería" },
+    { title: "Vacunas", path: "/vacunas" },
+    { title: "Detalle" },
+  ],
+
+  vacunasEliminadas: [
+    { title: "Ganadería" },
+    { title: "Vacunas", path: "/vacunas" },
+    { title: "Eliminadas" },
+  ],
+
 };
