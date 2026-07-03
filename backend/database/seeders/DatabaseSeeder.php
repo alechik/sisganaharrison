@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             RazaSeeder::class,
             CategoriaAnimalSeeder::class,
             VacunaSeeder::class,
+            EstadoProductivoSeeder::class,
         ]);
     }
 }

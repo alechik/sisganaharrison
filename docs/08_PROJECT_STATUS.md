@@ -1,8 +1,8 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-06-28** — post módulo Vacunas.
+> Snapshot mínimo. **2026-07-03** — post módulo Estados Productivos.
 
-**Avance estimado:** ~32–36%
+**Avance estimado:** ~34–38%
 
 ---
 
@@ -10,11 +10,11 @@
 
 | Capa | Qué hay |
 |------|---------|
-| Backend | Laravel 12, Sanctum, Spatie (~57 permisos, 4 roles), 5 controllers dominio |
-| Modelos | User, Raza, CategoriaAnimal, **Vacuna** |
-| Frontend | `user`, `razas`, `categorias-animales`, **`vacunas`** + PermissionGate |
-| BD | **17 tablas** (9 migraciones), PostgreSQL |
-| API | **~41 endpoints** |
+| Backend | Laravel 12, Sanctum, Spatie (~63 permisos, 4 roles), 6 controllers dominio |
+| Modelos | User, Raza, CategoriaAnimal, Vacuna, **EstadoProductivo** |
+| Frontend | `user`, `razas`, `categorias-animales`, `vacunas`, **`estados-productivos`** + PermissionGate |
+| BD | **18 tablas** (10 migraciones), PostgreSQL |
+| API | **~50 endpoints** |
 
 ## Pendiente prioritario
 

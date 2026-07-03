@@ -26,6 +26,7 @@ import UserList from "./modules/user/pages/UserList";
 import { razaRoutes } from "./modules/razas/routes";
 import { categoriaAnimalRoutes } from "./modules/categorias-animales/routes";
 import { vacunaRoutes } from "./modules/vacunas/routes";
+import { estadoProductivoRoutes } from "./modules/estados-productivos/routes";
 
 
 export default function App() {
@@ -52,6 +53,7 @@ export default function App() {
             {razaRoutes}
             {categoriaAnimalRoutes}
             {vacunaRoutes}
+            {estadoProductivoRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

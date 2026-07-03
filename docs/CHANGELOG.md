@@ -12,6 +12,25 @@ _Pendiente: módulo Lotes (Fase 2.1)._
 
 ---
 
+## [2026-07-03] — Fase G1.4: Estados Productivos
+
+### Added
+
+**Backend:**
+- Migración `estados_productivos` (patrón común: codigo, nombre, descripcion, activo, soft deletes)
+- Model `EstadoProductivo`, Factory, `EstadoProductivoSeeder` (8 estados ganaderos)
+- `EstadoProductivoService`, Policy, Requests, Resource, Controller
+- 9 endpoints REST en `/api/estados-productivos`
+- Permisos `estados_productivos.*` (6 permisos) — CRUD en `administrador`; `view` en `veterinario` y `trabajador`
+
+**Frontend:**
+- Módulo `modules/estados-productivos/` (patrón idéntico a Razas)
+- Rutas integradas en App + sidebar + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-06-28] — Fase G1.3: Vacunas
 
 ### Added

@@ -65,6 +65,10 @@ const navItems: NavItem[] = [
         name: "Vacunas",
         path: "/vacunas",
       },
+      {
+        name: "Estados Productivos",
+        path: "/estados-productivos",
+      },
     ],
   },
 

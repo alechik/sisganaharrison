@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Razas\RazaController;
 use App\Http\Controllers\Api\CategoriasAnimales\CategoriaAnimalController;
 use App\Http\Controllers\Api\Vacunas\VacunaController;
+use App\Http\Controllers\Api\EstadosProductivos\EstadoProductivoController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -175,4 +176,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('vacunas/{vacuna}/estado', [VacunaController::class, 'changeStatus'])
         ->middleware('permission:vacunas.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| ESTADOS PRODUCTIVOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('estados-productivos/eliminados', [EstadoProductivoController::class, 'deleted'])
+        ->middleware('permission:estados_productivos.view');
+
+    Route::post('estados-productivos/{id}/restaurar', [EstadoProductivoController::class, 'restore'])
+        ->middleware('permission:estados_productivos.restore');
+
+    Route::get('estados-productivos', [EstadoProductivoController::class, 'index'])
+        ->middleware('permission:estados_productivos.view');
+
+    Route::post('estados-productivos', [EstadoProductivoController::class, 'store'])
+        ->middleware('permission:estados_productivos.create');
+
+    Route::get('estados-productivos/{estado_productivo}', [EstadoProductivoController::class, 'show'])
+        ->middleware('permission:estados_productivos.view');
+
+    Route::put('estados-productivos/{estado_productivo}', [EstadoProductivoController::class, 'update'])
+        ->middleware('permission:estados_productivos.update');
+
+    Route::patch('estados-productivos/{estado_productivo}', [EstadoProductivoController::class, 'update'])
+        ->middleware('permission:estados_productivos.update');
+
+    Route::delete('estados-productivos/{estado_productivo}', [EstadoProductivoController::class, 'destroy'])
+        ->middleware('permission:estados_productivos.delete');
+
+    Route::patch('estados-productivos/{estado_productivo}/estado', [EstadoProductivoController::class, 'changeStatus'])
+        ->middleware('permission:estados_productivos.activate');
 });

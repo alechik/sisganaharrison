@@ -11,6 +11,7 @@
 | Razas | ✅ | `/api/razas` | `razas.*` | `modules/razas/` **← patrón** |
 | Categorías Animales | ✅ | `/api/categorias-animales` | `categorias_animales.*` | `modules/categorias-animales/` |
 | Vacunas | ✅ | `/api/vacunas` | `vacunas.*` | `modules/vacunas/` |
+| Estados Productivos | ✅ | `/api/estados-productivos` | `estados_productivos.*` | `modules/estados-productivos/` |
 | Lotes | ❌ | — | `lotes.*` (seed) | — |
 | Animales | ❌ | — | `animales.*` (seed) | — |
 | Sanitario | ❌ | — | permisos seed | — |

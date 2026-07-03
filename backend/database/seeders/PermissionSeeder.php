@@ -47,6 +47,14 @@ class PermissionSeeder extends Seeder
         'vacunas.restore',
         'vacunas.activate',
 
+        // Estados productivos
+        'estados_productivos.view',
+        'estados_productivos.create',
+        'estados_productivos.update',
+        'estados_productivos.delete',
+        'estados_productivos.restore',
+        'estados_productivos.activate',
+
         // Lotes
         'lotes.view',
         'lotes.create',

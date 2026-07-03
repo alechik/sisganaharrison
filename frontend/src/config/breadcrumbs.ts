@@ -135,4 +135,33 @@ export const breadcrumbs = {
     { title: "Eliminadas" },
   ],
 
+  estadosProductivos: [
+    { title: "Ganadería" },
+    { title: "Estados Productivos" },
+  ],
+
+  estadoProductivoCrear: [
+    { title: "Ganadería" },
+    { title: "Estados Productivos", path: "/estados-productivos" },
+    { title: "Nuevo Estado" },
+  ],
+
+  estadoProductivoEditar: [
+    { title: "Ganadería" },
+    { title: "Estados Productivos", path: "/estados-productivos" },
+    { title: "Editar Estado" },
+  ],
+
+  estadoProductivoDetalle: [
+    { title: "Ganadería" },
+    { title: "Estados Productivos", path: "/estados-productivos" },
+    { title: "Detalle" },
+  ],
+
+  estadosProductivosEliminados: [
+    { title: "Ganadería" },
+    { title: "Estados Productivos", path: "/estados-productivos" },
+    { title: "Eliminados" },
+  ],
+
 };
