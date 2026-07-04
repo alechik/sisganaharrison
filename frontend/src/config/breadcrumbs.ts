@@ -164,4 +164,33 @@ export const breadcrumbs = {
     { title: "Eliminados" },
   ],
 
+  tiposEventosSanitarios: [
+    { title: "Ganadería" },
+    { title: "Tipos de Eventos Sanitarios" },
+  ],
+
+  tipoEventoSanitarioCrear: [
+    { title: "Ganadería" },
+    { title: "Tipos de Eventos Sanitarios", path: "/tipos-eventos-sanitarios" },
+    { title: "Nuevo Tipo" },
+  ],
+
+  tipoEventoSanitarioEditar: [
+    { title: "Ganadería" },
+    { title: "Tipos de Eventos Sanitarios", path: "/tipos-eventos-sanitarios" },
+    { title: "Editar Tipo" },
+  ],
+
+  tipoEventoSanitarioDetalle: [
+    { title: "Ganadería" },
+    { title: "Tipos de Eventos Sanitarios", path: "/tipos-eventos-sanitarios" },
+    { title: "Detalle" },
+  ],
+
+  tiposEventosSanitariosEliminados: [
+    { title: "Ganadería" },
+    { title: "Tipos de Eventos Sanitarios", path: "/tipos-eventos-sanitarios" },
+    { title: "Eliminados" },
+  ],
+
 };

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Razas\RazaController;
 use App\Http\Controllers\Api\CategoriasAnimales\CategoriaAnimalController;
 use App\Http\Controllers\Api\Vacunas\VacunaController;
 use App\Http\Controllers\Api\EstadosProductivos\EstadoProductivoController;
+use App\Http\Controllers\Api\TiposEventosSanitarios\TipoEventoSanitarioController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -211,4 +212,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('estados-productivos/{estado_productivo}/estado', [EstadoProductivoController::class, 'changeStatus'])
         ->middleware('permission:estados_productivos.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| TIPOS DE EVENTOS SANITARIOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('tipos-eventos-sanitarios/eliminados', [TipoEventoSanitarioController::class, 'deleted'])
+        ->middleware('permission:tipos_eventos_sanitarios.view');
+
+    Route::post('tipos-eventos-sanitarios/{id}/restaurar', [TipoEventoSanitarioController::class, 'restore'])
+        ->middleware('permission:tipos_eventos_sanitarios.restore');
+
+    Route::get('tipos-eventos-sanitarios', [TipoEventoSanitarioController::class, 'index'])
+        ->middleware('permission:tipos_eventos_sanitarios.view');
+
+    Route::post('tipos-eventos-sanitarios', [TipoEventoSanitarioController::class, 'store'])
+        ->middleware('permission:tipos_eventos_sanitarios.create');
+
+    Route::get('tipos-eventos-sanitarios/{tipo_evento_sanitario}', [TipoEventoSanitarioController::class, 'show'])
+        ->middleware('permission:tipos_eventos_sanitarios.view');
+
+    Route::put('tipos-eventos-sanitarios/{tipo_evento_sanitario}', [TipoEventoSanitarioController::class, 'update'])
+        ->middleware('permission:tipos_eventos_sanitarios.update');
+
+    Route::patch('tipos-eventos-sanitarios/{tipo_evento_sanitario}', [TipoEventoSanitarioController::class, 'update'])
+        ->middleware('permission:tipos_eventos_sanitarios.update');
+
+    Route::delete('tipos-eventos-sanitarios/{tipo_evento_sanitario}', [TipoEventoSanitarioController::class, 'destroy'])
+        ->middleware('permission:tipos_eventos_sanitarios.delete');
+
+    Route::patch('tipos-eventos-sanitarios/{tipo_evento_sanitario}/estado', [TipoEventoSanitarioController::class, 'changeStatus'])
+        ->middleware('permission:tipos_eventos_sanitarios.activate');
 });

@@ -12,6 +12,25 @@ _Pendiente: módulo Lotes (Fase 2.1)._
 
 ---
 
+## [2026-07-03] — Fase G1.5: Tipos de Eventos Sanitarios
+
+### Added
+
+**Backend:**
+- Migración `tipos_eventos_sanitarios` (patrón común: codigo, nombre, descripcion, activo, soft deletes)
+- Model `TipoEventoSanitario`, Factory, `TipoEventoSanitarioSeeder` (6 tipos de la spec)
+- `TipoEventoSanitarioService`, Policy, Requests, Resource, Controller
+- 9 endpoints REST en `/api/tipos-eventos-sanitarios`
+- Permisos `tipos_eventos_sanitarios.*` — CRUD en `administrador`; `view` en `veterinario` y `trabajador`
+
+**Frontend:**
+- Módulo `modules/tipos-eventos-sanitarios/` (patrón idéntico a Razas)
+- Rutas integradas en App + sidebar + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-07-03] — Fase G1.4: Estados Productivos
 
 ### Added

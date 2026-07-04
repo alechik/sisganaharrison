@@ -55,6 +55,14 @@ class PermissionSeeder extends Seeder
         'estados_productivos.restore',
         'estados_productivos.activate',
 
+        // Tipos de eventos sanitarios
+        'tipos_eventos_sanitarios.view',
+        'tipos_eventos_sanitarios.create',
+        'tipos_eventos_sanitarios.update',
+        'tipos_eventos_sanitarios.delete',
+        'tipos_eventos_sanitarios.restore',
+        'tipos_eventos_sanitarios.activate',
+
         // Lotes
         'lotes.view',
         'lotes.create',

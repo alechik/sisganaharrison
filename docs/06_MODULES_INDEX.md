@@ -12,6 +12,7 @@
 | Categorías Animales | ✅ | `/api/categorias-animales` | `categorias_animales.*` | `modules/categorias-animales/` |
 | Vacunas | ✅ | `/api/vacunas` | `vacunas.*` | `modules/vacunas/` |
 | Estados Productivos | ✅ | `/api/estados-productivos` | `estados_productivos.*` | `modules/estados-productivos/` |
+| Tipos Eventos Sanitarios | ✅ | `/api/tipos-eventos-sanitarios` | `tipos_eventos_sanitarios.*` | `modules/tipos-eventos-sanitarios/` |
 | Lotes | ❌ | — | `lotes.*` (seed) | — |
 | Animales | ❌ | — | `animales.*` (seed) | — |
 | Sanitario | ❌ | — | permisos seed | — |

@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             CategoriaAnimalSeeder::class,
             VacunaSeeder::class,
             EstadoProductivoSeeder::class,
+            TipoEventoSanitarioSeeder::class,
         ]);
     }
 }
