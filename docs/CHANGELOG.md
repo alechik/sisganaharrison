@@ -12,6 +12,25 @@ _Pendiente: módulo Lotes (Fase 2.1)._
 
 ---
 
+## [2026-07-06] — Fase G1.7: Tipos de Alerta
+
+### Added
+
+**Backend:**
+- Migración `tipos_alertas` (patrón común: codigo, nombre, descripcion, activo, soft deletes)
+- Model `TipoAlerta`, Factory, `TipoAlertaSeeder` (5 tipos: Vacunación pendiente, Peso bajo, Parto próximo, Animal enfermo, Servicio vencido)
+- `TipoAlertaService`, Policy, Requests, Resource, Controller
+- 9 endpoints REST en `/api/tipos-alertas`
+- Permisos `tipos_alertas.*` — CRUD en `administrador`; `view` en `veterinario` y `trabajador`
+
+**Frontend:**
+- Módulo `modules/tipos-alertas/` (patrón idéntico a Razas)
+- Rutas integradas en App + sidebar + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-07-04] — Fase G1.6: Tipos de Movimiento
 
 ### Added

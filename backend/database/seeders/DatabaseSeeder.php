@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             EstadoProductivoSeeder::class,
             TipoEventoSanitarioSeeder::class,
             TipoMovimientoSeeder::class,
+            TipoAlertaSeeder::class,
         ]);
     }
 }

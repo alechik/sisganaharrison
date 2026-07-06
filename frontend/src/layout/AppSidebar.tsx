@@ -77,6 +77,10 @@ const navItems: NavItem[] = [
         name: "Tipos Movimiento",
         path: "/tipos-movimientos",
       },
+      {
+        name: "Tipos Alerta",
+        path: "/tipos-alertas",
+      },
     ],
   },
 

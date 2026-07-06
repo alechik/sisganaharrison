@@ -14,6 +14,7 @@
 | Estados Productivos | ✅ | `/api/estados-productivos` | `estados_productivos.*` | `modules/estados-productivos/` |
 | Tipos Eventos Sanitarios | ✅ | `/api/tipos-eventos-sanitarios` | `tipos_eventos_sanitarios.*` | `modules/tipos-eventos-sanitarios/` |
 | Tipos Movimientos | ✅ | `/api/tipos-movimientos` | `tipos_movimientos.*` | `modules/tipos-movimientos/` |
+| Tipos Alertas | ✅ | `/api/tipos-alertas` | `tipos_alertas.*` | `modules/tipos-alertas/` |
 | Lotes | ❌ | — | `lotes.*` (seed) | — |
 | Animales | ❌ | — | `animales.*` (seed) | — |
 | Sanitario | ❌ | — | permisos seed | — |

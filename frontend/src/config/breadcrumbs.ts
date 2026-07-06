@@ -222,4 +222,33 @@ export const breadcrumbs = {
     { title: "Eliminados" },
   ],
 
+  tiposAlertas: [
+    { title: "Ganadería" },
+    { title: "Tipos de Alerta" },
+  ],
+
+  tipoAlertaCrear: [
+    { title: "Ganadería" },
+    { title: "Tipos de Alerta", path: "/tipos-alertas" },
+    { title: "Nuevo Tipo" },
+  ],
+
+  tipoAlertaEditar: [
+    { title: "Ganadería" },
+    { title: "Tipos de Alerta", path: "/tipos-alertas" },
+    { title: "Editar Tipo" },
+  ],
+
+  tipoAlertaDetalle: [
+    { title: "Ganadería" },
+    { title: "Tipos de Alerta", path: "/tipos-alertas" },
+    { title: "Detalle" },
+  ],
+
+  tiposAlertasEliminados: [
+    { title: "Ganadería" },
+    { title: "Tipos de Alerta", path: "/tipos-alertas" },
+    { title: "Eliminados" },
+  ],
+
 };

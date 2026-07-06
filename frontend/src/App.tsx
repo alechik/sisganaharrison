@@ -29,6 +29,7 @@ import { vacunaRoutes } from "./modules/vacunas/routes";
 import { estadoProductivoRoutes } from "./modules/estados-productivos/routes";
 import { tipoEventoSanitarioRoutes } from "./modules/tipos-eventos-sanitarios/routes";
 import { tipoMovimientoRoutes } from "./modules/tipos-movimientos/routes";
+import { tipoAlertaRoutes } from "./modules/tipos-alertas/routes";
 
 
 export default function App() {
@@ -58,6 +59,7 @@ export default function App() {
             {estadoProductivoRoutes}
             {tipoEventoSanitarioRoutes}
             {tipoMovimientoRoutes}
+            {tipoAlertaRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

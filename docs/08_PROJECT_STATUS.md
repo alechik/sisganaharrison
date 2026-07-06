@@ -1,8 +1,8 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-07-04** — post módulo Tipos de Movimiento.
+> Snapshot mínimo. **2026-07-06** — post módulo Tipos de Alerta.
 
-**Avance estimado:** ~38–42%
+**Avance estimado:** ~40–44%
 
 ---
 
@@ -10,11 +10,11 @@
 
 | Capa | Qué hay |
 |------|---------|
-| Backend | Laravel 12, Sanctum, Spatie (~75 permisos, 4 roles), 8 controllers dominio |
-| Modelos | User, Raza, CategoriaAnimal, Vacuna, EstadoProductivo, TipoEventoSanitario, **TipoMovimiento** |
-| Frontend | `user`, `razas`, `categorias-animales`, `vacunas`, `estados-productivos`, `tipos-eventos-sanitarios`, **`tipos-movimientos`** + PermissionGate |
-| BD | **20 tablas** (12 migraciones), PostgreSQL |
-| API | **~68 endpoints** |
+| Backend | Laravel 12, Sanctum, Spatie (~81 permisos, 4 roles), 9 controllers dominio |
+| Modelos | User, Raza, CategoriaAnimal, Vacuna, EstadoProductivo, TipoEventoSanitario, TipoMovimiento, **TipoAlerta** |
+| Frontend | `user`, `razas`, `categorias-animales`, `vacunas`, `estados-productivos`, `tipos-eventos-sanitarios`, `tipos-movimientos`, **`tipos-alertas`** + PermissionGate |
+| BD | **21 tablas** (13 migraciones), PostgreSQL |
+| API | **~77 endpoints** |
 
 ## Pendiente prioritario
 

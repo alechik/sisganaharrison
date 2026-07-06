@@ -71,6 +71,14 @@ class PermissionSeeder extends Seeder
         'tipos_movimientos.restore',
         'tipos_movimientos.activate',
 
+        // Tipos de alertas
+        'tipos_alertas.view',
+        'tipos_alertas.create',
+        'tipos_alertas.update',
+        'tipos_alertas.delete',
+        'tipos_alertas.restore',
+        'tipos_alertas.activate',
+
         // Lotes
         'lotes.view',
         'lotes.create',

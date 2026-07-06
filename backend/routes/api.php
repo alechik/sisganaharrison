@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Vacunas\VacunaController;
 use App\Http\Controllers\Api\EstadosProductivos\EstadoProductivoController;
 use App\Http\Controllers\Api\TiposEventosSanitarios\TipoEventoSanitarioController;
 use App\Http\Controllers\Api\TiposMovimientos\TipoMovimientoController;
+use App\Http\Controllers\Api\TiposAlertas\TipoAlertaController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -283,4 +284,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('tipos-movimientos/{tipo_movimiento}/estado', [TipoMovimientoController::class, 'changeStatus'])
         ->middleware('permission:tipos_movimientos.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| TIPOS DE ALERTAS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('tipos-alertas/eliminados', [TipoAlertaController::class, 'deleted'])
+        ->middleware('permission:tipos_alertas.view');
+
+    Route::post('tipos-alertas/{id}/restaurar', [TipoAlertaController::class, 'restore'])
+        ->middleware('permission:tipos_alertas.restore');
+
+    Route::get('tipos-alertas', [TipoAlertaController::class, 'index'])
+        ->middleware('permission:tipos_alertas.view');
+
+    Route::post('tipos-alertas', [TipoAlertaController::class, 'store'])
+        ->middleware('permission:tipos_alertas.create');
+
+    Route::get('tipos-alertas/{tipo_alerta}', [TipoAlertaController::class, 'show'])
+        ->middleware('permission:tipos_alertas.view');
+
+    Route::put('tipos-alertas/{tipo_alerta}', [TipoAlertaController::class, 'update'])
+        ->middleware('permission:tipos_alertas.update');
+
+    Route::patch('tipos-alertas/{tipo_alerta}', [TipoAlertaController::class, 'update'])
+        ->middleware('permission:tipos_alertas.update');
+
+    Route::delete('tipos-alertas/{tipo_alerta}', [TipoAlertaController::class, 'destroy'])
+        ->middleware('permission:tipos_alertas.delete');
+
+    Route::patch('tipos-alertas/{tipo_alerta}/estado', [TipoAlertaController::class, 'changeStatus'])
+        ->middleware('permission:tipos_alertas.activate');
 });
