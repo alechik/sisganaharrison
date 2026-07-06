@@ -63,6 +63,14 @@ class PermissionSeeder extends Seeder
         'tipos_eventos_sanitarios.restore',
         'tipos_eventos_sanitarios.activate',
 
+        // Tipos de movimientos
+        'tipos_movimientos.view',
+        'tipos_movimientos.create',
+        'tipos_movimientos.update',
+        'tipos_movimientos.delete',
+        'tipos_movimientos.restore',
+        'tipos_movimientos.activate',
+
         // Lotes
         'lotes.view',
         'lotes.create',

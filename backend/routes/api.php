@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CategoriasAnimales\CategoriaAnimalController;
 use App\Http\Controllers\Api\Vacunas\VacunaController;
 use App\Http\Controllers\Api\EstadosProductivos\EstadoProductivoController;
 use App\Http\Controllers\Api\TiposEventosSanitarios\TipoEventoSanitarioController;
+use App\Http\Controllers\Api\TiposMovimientos\TipoMovimientoController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -247,4 +248,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('tipos-eventos-sanitarios/{tipo_evento_sanitario}/estado', [TipoEventoSanitarioController::class, 'changeStatus'])
         ->middleware('permission:tipos_eventos_sanitarios.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| TIPOS DE MOVIMIENTOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('tipos-movimientos/eliminados', [TipoMovimientoController::class, 'deleted'])
+        ->middleware('permission:tipos_movimientos.view');
+
+    Route::post('tipos-movimientos/{id}/restaurar', [TipoMovimientoController::class, 'restore'])
+        ->middleware('permission:tipos_movimientos.restore');
+
+    Route::get('tipos-movimientos', [TipoMovimientoController::class, 'index'])
+        ->middleware('permission:tipos_movimientos.view');
+
+    Route::post('tipos-movimientos', [TipoMovimientoController::class, 'store'])
+        ->middleware('permission:tipos_movimientos.create');
+
+    Route::get('tipos-movimientos/{tipo_movimiento}', [TipoMovimientoController::class, 'show'])
+        ->middleware('permission:tipos_movimientos.view');
+
+    Route::put('tipos-movimientos/{tipo_movimiento}', [TipoMovimientoController::class, 'update'])
+        ->middleware('permission:tipos_movimientos.update');
+
+    Route::patch('tipos-movimientos/{tipo_movimiento}', [TipoMovimientoController::class, 'update'])
+        ->middleware('permission:tipos_movimientos.update');
+
+    Route::delete('tipos-movimientos/{tipo_movimiento}', [TipoMovimientoController::class, 'destroy'])
+        ->middleware('permission:tipos_movimientos.delete');
+
+    Route::patch('tipos-movimientos/{tipo_movimiento}/estado', [TipoMovimientoController::class, 'changeStatus'])
+        ->middleware('permission:tipos_movimientos.activate');
 });

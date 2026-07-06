@@ -193,4 +193,33 @@ export const breadcrumbs = {
     { title: "Eliminados" },
   ],
 
+  tiposMovimientos: [
+    { title: "Ganadería" },
+    { title: "Tipos de Movimiento" },
+  ],
+
+  tipoMovimientoCrear: [
+    { title: "Ganadería" },
+    { title: "Tipos de Movimiento", path: "/tipos-movimientos" },
+    { title: "Nuevo Tipo" },
+  ],
+
+  tipoMovimientoEditar: [
+    { title: "Ganadería" },
+    { title: "Tipos de Movimiento", path: "/tipos-movimientos" },
+    { title: "Editar Tipo" },
+  ],
+
+  tipoMovimientoDetalle: [
+    { title: "Ganadería" },
+    { title: "Tipos de Movimiento", path: "/tipos-movimientos" },
+    { title: "Detalle" },
+  ],
+
+  tiposMovimientosEliminados: [
+    { title: "Ganadería" },
+    { title: "Tipos de Movimiento", path: "/tipos-movimientos" },
+    { title: "Eliminados" },
+  ],
+
 };

@@ -28,6 +28,7 @@ import { categoriaAnimalRoutes } from "./modules/categorias-animales/routes";
 import { vacunaRoutes } from "./modules/vacunas/routes";
 import { estadoProductivoRoutes } from "./modules/estados-productivos/routes";
 import { tipoEventoSanitarioRoutes } from "./modules/tipos-eventos-sanitarios/routes";
+import { tipoMovimientoRoutes } from "./modules/tipos-movimientos/routes";
 
 
 export default function App() {
@@ -56,6 +57,7 @@ export default function App() {
             {vacunaRoutes}
             {estadoProductivoRoutes}
             {tipoEventoSanitarioRoutes}
+            {tipoMovimientoRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

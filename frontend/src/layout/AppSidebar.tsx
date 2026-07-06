@@ -73,6 +73,10 @@ const navItems: NavItem[] = [
         name: "Tipos Sanitarios",
         path: "/tipos-eventos-sanitarios",
       },
+      {
+        name: "Tipos Movimiento",
+        path: "/tipos-movimientos",
+      },
     ],
   },
 

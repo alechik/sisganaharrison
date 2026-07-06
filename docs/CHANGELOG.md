@@ -12,6 +12,25 @@ _Pendiente: módulo Lotes (Fase 2.1)._
 
 ---
 
+## [2026-07-04] — Fase G1.6: Tipos de Movimiento
+
+### Added
+
+**Backend:**
+- Migración `tipos_movimientos` (patrón común: codigo, nombre, descripcion, activo, soft deletes)
+- Model `TipoMovimiento`, Factory, `TipoMovimientoSeeder` (6 tipos: Traslado, Compra, Venta, Nacimiento, Muerte, Baja)
+- `TipoMovimientoService`, Policy, Requests, Resource, Controller
+- 9 endpoints REST en `/api/tipos-movimientos`
+- Permisos `tipos_movimientos.*` — CRUD en `administrador`; `view` en `veterinario` y `trabajador`
+
+**Frontend:**
+- Módulo `modules/tipos-movimientos/` (patrón idéntico a Razas)
+- Rutas integradas en App + sidebar + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-07-03] — Fase G1.5: Tipos de Eventos Sanitarios
 
 ### Added
