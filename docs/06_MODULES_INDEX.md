@@ -15,6 +15,8 @@
 | Tipos Eventos Sanitarios | ✅ | `/api/tipos-eventos-sanitarios` | `tipos_eventos_sanitarios.*` | `modules/tipos-eventos-sanitarios/` |
 | Tipos Movimientos | ✅ | `/api/tipos-movimientos` | `tipos_movimientos.*` | `modules/tipos-movimientos/` |
 | Tipos Alertas | ✅ | `/api/tipos-alertas` | `tipos_alertas.*` | `modules/tipos-alertas/` |
+| Establecimientos | ✅ | `/api/establecimientos` | `establecimientos.*` | `modules/establecimientos/` |
+| Potreros | ✅ | `/api/potreros` | `potreros.*` | `modules/potreros/` |
 | Lotes | ❌ | — | `lotes.*` (seed) | — |
 | Animales | ❌ | — | `animales.*` (seed) | — |
 | Sanitario | ❌ | — | permisos seed | — |

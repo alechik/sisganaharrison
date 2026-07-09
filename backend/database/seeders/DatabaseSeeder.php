@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
             TipoEventoSanitarioSeeder::class,
             TipoMovimientoSeeder::class,
             TipoAlertaSeeder::class,
+            EstablecimientoSeeder::class,
+            PotreroSeeder::class,
         ]);
     }
 }

@@ -79,6 +79,22 @@ class PermissionSeeder extends Seeder
         'tipos_alertas.restore',
         'tipos_alertas.activate',
 
+        // Establecimientos
+        'establecimientos.view',
+        'establecimientos.create',
+        'establecimientos.update',
+        'establecimientos.delete',
+        'establecimientos.restore',
+        'establecimientos.activate',
+
+        // Potreros
+        'potreros.view',
+        'potreros.create',
+        'potreros.update',
+        'potreros.delete',
+        'potreros.restore',
+        'potreros.activate',
+
         // Lotes
         'lotes.view',
         'lotes.create',

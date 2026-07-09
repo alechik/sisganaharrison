@@ -251,4 +251,62 @@ export const breadcrumbs = {
     { title: "Eliminados" },
   ],
 
+  establecimientos: [
+    { title: "Infraestructura" },
+    { title: "Establecimientos" },
+  ],
+
+  establecimientoCrear: [
+    { title: "Infraestructura" },
+    { title: "Establecimientos", path: "/establecimientos" },
+    { title: "Nuevo Establecimiento" },
+  ],
+
+  establecimientoEditar: [
+    { title: "Infraestructura" },
+    { title: "Establecimientos", path: "/establecimientos" },
+    { title: "Editar Establecimiento" },
+  ],
+
+  establecimientoDetalle: [
+    { title: "Infraestructura" },
+    { title: "Establecimientos", path: "/establecimientos" },
+    { title: "Detalle" },
+  ],
+
+  establecimientosEliminados: [
+    { title: "Infraestructura" },
+    { title: "Establecimientos", path: "/establecimientos" },
+    { title: "Eliminados" },
+  ],
+
+  potreros: [
+    { title: "Infraestructura" },
+    { title: "Potreros" },
+  ],
+
+  potreroCrear: [
+    { title: "Infraestructura" },
+    { title: "Potreros", path: "/potreros" },
+    { title: "Nuevo Potrero" },
+  ],
+
+  potreroEditar: [
+    { title: "Infraestructura" },
+    { title: "Potreros", path: "/potreros" },
+    { title: "Editar Potrero" },
+  ],
+
+  potreroDetalle: [
+    { title: "Infraestructura" },
+    { title: "Potreros", path: "/potreros" },
+    { title: "Detalle" },
+  ],
+
+  potrerosEliminados: [
+    { title: "Infraestructura" },
+    { title: "Potreros", path: "/potreros" },
+    { title: "Eliminados" },
+  ],
+
 };

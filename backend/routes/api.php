@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\EstadosProductivos\EstadoProductivoController;
 use App\Http\Controllers\Api\TiposEventosSanitarios\TipoEventoSanitarioController;
 use App\Http\Controllers\Api\TiposMovimientos\TipoMovimientoController;
 use App\Http\Controllers\Api\TiposAlertas\TipoAlertaController;
+use App\Http\Controllers\Api\Establecimientos\EstablecimientoController;
+use App\Http\Controllers\Api\Potreros\PotreroController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -319,4 +321,74 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('tipos-alertas/{tipo_alerta}/estado', [TipoAlertaController::class, 'changeStatus'])
         ->middleware('permission:tipos_alertas.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| ESTABLECIMIENTOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('establecimientos/eliminados', [EstablecimientoController::class, 'deleted'])
+        ->middleware('permission:establecimientos.view');
+
+    Route::post('establecimientos/{id}/restaurar', [EstablecimientoController::class, 'restore'])
+        ->middleware('permission:establecimientos.restore');
+
+    Route::get('establecimientos', [EstablecimientoController::class, 'index'])
+        ->middleware('permission:establecimientos.view');
+
+    Route::post('establecimientos', [EstablecimientoController::class, 'store'])
+        ->middleware('permission:establecimientos.create');
+
+    Route::get('establecimientos/{establecimiento}', [EstablecimientoController::class, 'show'])
+        ->middleware('permission:establecimientos.view');
+
+    Route::put('establecimientos/{establecimiento}', [EstablecimientoController::class, 'update'])
+        ->middleware('permission:establecimientos.update');
+
+    Route::patch('establecimientos/{establecimiento}', [EstablecimientoController::class, 'update'])
+        ->middleware('permission:establecimientos.update');
+
+    Route::delete('establecimientos/{establecimiento}', [EstablecimientoController::class, 'destroy'])
+        ->middleware('permission:establecimientos.delete');
+
+    Route::patch('establecimientos/{establecimiento}/estado', [EstablecimientoController::class, 'changeStatus'])
+        ->middleware('permission:establecimientos.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| POTREROS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('potreros/eliminados', [PotreroController::class, 'deleted'])
+        ->middleware('permission:potreros.view');
+
+    Route::post('potreros/{id}/restaurar', [PotreroController::class, 'restore'])
+        ->middleware('permission:potreros.restore');
+
+    Route::get('potreros', [PotreroController::class, 'index'])
+        ->middleware('permission:potreros.view');
+
+    Route::post('potreros', [PotreroController::class, 'store'])
+        ->middleware('permission:potreros.create');
+
+    Route::get('potreros/{potrero}', [PotreroController::class, 'show'])
+        ->middleware('permission:potreros.view');
+
+    Route::put('potreros/{potrero}', [PotreroController::class, 'update'])
+        ->middleware('permission:potreros.update');
+
+    Route::patch('potreros/{potrero}', [PotreroController::class, 'update'])
+        ->middleware('permission:potreros.update');
+
+    Route::delete('potreros/{potrero}', [PotreroController::class, 'destroy'])
+        ->middleware('permission:potreros.delete');
+
+    Route::patch('potreros/{potrero}/estado', [PotreroController::class, 'changeStatus'])
+        ->middleware('permission:potreros.activate');
 });

@@ -8,7 +8,49 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: módulo Lotes (Fase 2.1)._
+_Pendiente: módulo Lotes (Fase I2.3)._
+
+---
+
+## [2026-07-08] — Fase I2.2: Potreros
+
+### Added
+
+**Backend:**
+- Migración `potreros` con FK `establecimiento_id → establecimientos.id`
+- Model `Potrero` (BelongsTo Establecimiento), Factory, `PotreroSeeder` (8 registros)
+- `PotreroService` con eager load de establecimiento y bloqueo de eliminación si hay lotes asociados
+- Policy, Requests, Resource (`establecimiento_nombre`), Controller
+- 9 endpoints REST en `/api/potreros`
+- Permisos `potreros.*` — CRUD en `administrador`; `view` en `veterinario` y `trabajador`
+- Relación `hasMany potreros` en model `Establecimiento`
+
+**Frontend:**
+- Módulo `modules/potreros/` con Select de establecimientos activos (API) en crear/editar
+- Listado y detalle muestran nombre del establecimiento
+- Rutas integradas en App + sidebar + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
+## [2026-07-07] — Fase I2.1: Establecimientos
+
+### Added
+
+**Backend:**
+- Migración `establecimientos` (codigo, nombre, propietario, telefono, direccion, municipio, departamento, pais, area_total_ha, descripcion, activo, soft deletes)
+- Model `Establecimiento`, Factory, `EstablecimientoSeeder` (8 registros de la spec y región)
+- `EstablecimientoService` con validación de potreros asociados al eliminar
+- Policy, Requests, Resource, Controller
+- 9 endpoints REST en `/api/establecimientos`
+- Permisos `establecimientos.*` — CRUD en `administrador`; `view` en `veterinario` y `trabajador`
+
+**Frontend:**
+- Módulo `modules/establecimientos/` (patrón idéntico a Razas, formulario extendido)
+- Rutas integradas en App + sidebar (sección Infraestructura) + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
 
 ---
 

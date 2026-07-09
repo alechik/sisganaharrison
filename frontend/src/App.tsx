@@ -30,6 +30,8 @@ import { estadoProductivoRoutes } from "./modules/estados-productivos/routes";
 import { tipoEventoSanitarioRoutes } from "./modules/tipos-eventos-sanitarios/routes";
 import { tipoMovimientoRoutes } from "./modules/tipos-movimientos/routes";
 import { tipoAlertaRoutes } from "./modules/tipos-alertas/routes";
+import { establecimientoRoutes } from "./modules/establecimientos/routes";
+import { potreroRoutes } from "./modules/potreros/routes";
 
 
 export default function App() {
@@ -60,6 +62,8 @@ export default function App() {
             {tipoEventoSanitarioRoutes}
             {tipoMovimientoRoutes}
             {tipoAlertaRoutes}
+            {establecimientoRoutes}
+            {potreroRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

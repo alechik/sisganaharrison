@@ -1,8 +1,8 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-07-06** — post módulo Tipos de Alerta.
+> Snapshot mínimo. **2026-07-08** — post módulo Potreros.
 
-**Avance estimado:** ~40–44%
+**Avance estimado:** ~44–48%
 
 ---
 
@@ -10,15 +10,15 @@
 
 | Capa | Qué hay |
 |------|---------|
-| Backend | Laravel 12, Sanctum, Spatie (~81 permisos, 4 roles), 9 controllers dominio |
-| Modelos | User, Raza, CategoriaAnimal, Vacuna, EstadoProductivo, TipoEventoSanitario, TipoMovimiento, **TipoAlerta** |
-| Frontend | `user`, `razas`, `categorias-animales`, `vacunas`, `estados-productivos`, `tipos-eventos-sanitarios`, `tipos-movimientos`, **`tipos-alertas`** + PermissionGate |
-| BD | **21 tablas** (13 migraciones), PostgreSQL |
-| API | **~77 endpoints** |
+| Backend | Laravel 12, Sanctum, Spatie (~93 permisos, 4 roles), 11 controllers dominio |
+| Modelos | User, catálogos G1, Establecimiento, **Potrero** |
+| Frontend | `user`, catálogos G1, `establecimientos`, **`potreros`** + PermissionGate |
+| BD | **23 tablas** (15 migraciones), PostgreSQL |
+| API | **~95 endpoints** |
 
 ## Pendiente prioritario
 
-- Lotes → Animales (cadena núcleo ganadero)
+- Lotes → Animales (cadena infraestructura y núcleo ganadero)
 - Tests Feature auth/usuarios/permisos
 - AuthContext frontend (mejora sobre localStorage)
 
