@@ -83,7 +83,7 @@ export default function RazaListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Catálogo de Razas</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Catálogo de Razas</h1>
           <PageBreadCrumb pageTitle="Razas" items={breadcrumbs.razas} />
         </div>
         <RazaToolbar />

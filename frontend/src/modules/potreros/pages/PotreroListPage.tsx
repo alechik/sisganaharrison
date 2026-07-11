@@ -84,7 +84,7 @@ export default function PotreroListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Potreros</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Potreros</h1>
           <PageBreadCrumb pageTitle="Potreros" items={breadcrumbs.potreros} />
         </div>
         <PotreroToolbar />

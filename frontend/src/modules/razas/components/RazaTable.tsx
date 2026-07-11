@@ -41,19 +41,19 @@ export default function RazaTable({
         <Table>
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Raza
               </TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Código
               </TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Descripción
               </TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Estado
               </TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-center">
+              <TableCell isHeader className="px-5 py-4 font-semibold text-center text-gray-800 dark:text-white">
                 Opciones
               </TableCell>
             </TableRow>
