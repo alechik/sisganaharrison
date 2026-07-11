@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\TiposMovimientos\TipoMovimientoController;
 use App\Http\Controllers\Api\TiposAlertas\TipoAlertaController;
 use App\Http\Controllers\Api\Establecimientos\EstablecimientoController;
 use App\Http\Controllers\Api\Potreros\PotreroController;
+use App\Http\Controllers\Api\Lotes\LoteController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -391,4 +392,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('potreros/{potrero}/estado', [PotreroController::class, 'changeStatus'])
         ->middleware('permission:potreros.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| LOTES
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('lotes/eliminados', [LoteController::class, 'deleted'])
+        ->middleware('permission:lotes.view');
+
+    Route::post('lotes/{id}/restaurar', [LoteController::class, 'restore'])
+        ->middleware('permission:lotes.restore');
+
+    Route::get('lotes', [LoteController::class, 'index'])
+        ->middleware('permission:lotes.view');
+
+    Route::post('lotes', [LoteController::class, 'store'])
+        ->middleware('permission:lotes.create');
+
+    Route::get('lotes/{lote}', [LoteController::class, 'show'])
+        ->middleware('permission:lotes.view');
+
+    Route::put('lotes/{lote}', [LoteController::class, 'update'])
+        ->middleware('permission:lotes.update');
+
+    Route::patch('lotes/{lote}', [LoteController::class, 'update'])
+        ->middleware('permission:lotes.update');
+
+    Route::delete('lotes/{lote}', [LoteController::class, 'destroy'])
+        ->middleware('permission:lotes.delete');
+
+    Route::patch('lotes/{lote}/estado', [LoteController::class, 'changeStatus'])
+        ->middleware('permission:lotes.activate');
 });

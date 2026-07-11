@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -55,6 +56,14 @@ class Potrero extends Model
     public function establecimiento(): BelongsTo
     {
         return $this->belongsTo(Establecimiento::class);
+    }
+
+    /**
+     * @return HasMany<Lote, $this>
+     */
+    public function lotes(): HasMany
+    {
+        return $this->hasMany(Lote::class);
     }
 
     /**

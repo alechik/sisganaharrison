@@ -100,7 +100,8 @@ class PermissionSeeder extends Seeder
         'lotes.create',
         'lotes.update',
         'lotes.delete',
-        'lotes.manage',
+        'lotes.restore',
+        'lotes.activate',
 
         // Animales
         'animales.view',

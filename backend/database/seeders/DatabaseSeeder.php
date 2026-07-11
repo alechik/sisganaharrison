@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             TipoAlertaSeeder::class,
             EstablecimientoSeeder::class,
             PotreroSeeder::class,
+            LoteSeeder::class,
         ]);
     }
 }
