@@ -8,7 +8,29 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: módulo Lotes (Fase I2.3)._
+_Pendiente: módulo Animales (Fase G1)._
+
+---
+
+## [2026-07-11] — Fase I2.3: Lotes
+
+### Added
+
+**Backend:**
+- Migración `lotes` con FK `potrero_id → potreros.id`
+- Model `Lote` (BelongsTo Potrero), Factory, `LoteSeeder` (8 registros)
+- `LoteService` con eager load de potrero, bloqueo de eliminación si hay animales asignados y validación de capacidad
+- Policy, Requests, Resource (`potrero_nombre`), Controller
+- 9 endpoints REST en `/api/lotes`
+- Permisos `lotes.*` (restore/activate) — CRUD en `administrador`; `view` en `veterinario` y `trabajador`
+- Relación `hasMany lotes` en model `Potrero`
+
+**Frontend:**
+- Módulo `modules/lotes/` con Select de potreros activos (API) en crear/editar
+- Listado y detalle muestran nombre del potrero
+- Rutas integradas en App + breadcrumbs (sidebar ya existente)
+
+**Documentación:** Actualizados `06`, `08`
 
 ---
 

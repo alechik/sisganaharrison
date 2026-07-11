@@ -32,6 +32,7 @@ import { tipoMovimientoRoutes } from "./modules/tipos-movimientos/routes";
 import { tipoAlertaRoutes } from "./modules/tipos-alertas/routes";
 import { establecimientoRoutes } from "./modules/establecimientos/routes";
 import { potreroRoutes } from "./modules/potreros/routes";
+import { loteRoutes } from "./modules/lotes/routes";
 
 
 export default function App() {
@@ -64,6 +65,7 @@ export default function App() {
             {tipoAlertaRoutes}
             {establecimientoRoutes}
             {potreroRoutes}
+            {loteRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

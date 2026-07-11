@@ -309,4 +309,33 @@ export const breadcrumbs = {
     { title: "Eliminados" },
   ],
 
+  lotes: [
+    { title: "Ganadería" },
+    { title: "Lotes" },
+  ],
+
+  loteCrear: [
+    { title: "Ganadería" },
+    { title: "Lotes", path: "/lotes" },
+    { title: "Nuevo Lote" },
+  ],
+
+  loteEditar: [
+    { title: "Ganadería" },
+    { title: "Lotes", path: "/lotes" },
+    { title: "Editar Lote" },
+  ],
+
+  loteDetalle: [
+    { title: "Ganadería" },
+    { title: "Lotes", path: "/lotes" },
+    { title: "Detalle" },
+  ],
+
+  lotesEliminados: [
+    { title: "Ganadería" },
+    { title: "Lotes", path: "/lotes" },
+    { title: "Eliminados" },
+  ],
+
 };

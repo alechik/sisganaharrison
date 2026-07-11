@@ -53,6 +53,10 @@ const navItems: NavItem[] = [
         name: "Potreros",
         path: "/potreros",
       },
+      {
+        name: "Lotes",
+        path: "/lotes",
+      },
     ],
   },
 
@@ -63,10 +67,6 @@ const navItems: NavItem[] = [
       {
         name: "Animales",
         path: "/animales",
-      },
-      {
-        name: "Lotes",
-        path: "/lotes",
       },
       {
         name: "Razas",

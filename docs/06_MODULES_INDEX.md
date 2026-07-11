@@ -17,7 +17,7 @@
 | Tipos Alertas | ✅ | `/api/tipos-alertas` | `tipos_alertas.*` | `modules/tipos-alertas/` |
 | Establecimientos | ✅ | `/api/establecimientos` | `establecimientos.*` | `modules/establecimientos/` |
 | Potreros | ✅ | `/api/potreros` | `potreros.*` | `modules/potreros/` |
-| Lotes | ❌ | — | `lotes.*` (seed) | — |
+| Lotes | ✅ | `/api/lotes` | `lotes.*` | `modules/lotes/` |
 | Animales | ❌ | — | `animales.*` (seed) | — |
 | Sanitario | ❌ | — | permisos seed | — |
 | Movimientos | ❌ | — | permisos seed | — |
