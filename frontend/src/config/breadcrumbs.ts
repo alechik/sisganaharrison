@@ -338,4 +338,33 @@ export const breadcrumbs = {
     { title: "Eliminados" },
   ],
 
+  animales: [
+    { title: "Ganadería" },
+    { title: "Animales" },
+  ],
+
+  animalCrear: [
+    { title: "Ganadería" },
+    { title: "Animales", path: "/animales" },
+    { title: "Nuevo Animal" },
+  ],
+
+  animalEditar: [
+    { title: "Ganadería" },
+    { title: "Animales", path: "/animales" },
+    { title: "Editar Animal" },
+  ],
+
+  animalDetalle: [
+    { title: "Ganadería" },
+    { title: "Animales", path: "/animales" },
+    { title: "Detalle" },
+  ],
+
+  animalesEliminados: [
+    { title: "Ganadería" },
+    { title: "Animales", path: "/animales" },
+    { title: "Eliminados" },
+  ],
+
 };

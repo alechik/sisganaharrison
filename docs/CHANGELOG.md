@@ -8,7 +8,29 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: módulo Animales (Fase G1)._
+_Pendiente: módulos transaccionales (Sanitario, Movimientos)._
+
+---
+
+## [2026-07-11] — Fase G1: Animales
+
+### Added
+
+**Backend:**
+- Migración `animales` con FKs a razas, categorías, estados productivos, lotes y autorreferencias madre/padre
+- Model `Animal`, Factory, `AnimalSeeder` (8 registros)
+- `AnimalService` con eager load de relaciones, validación de capacidad del lote y soft delete
+- Policy, Requests, Resource (nombres de relaciones), Controller
+- 9 endpoints REST en `/api/animales`
+- Permiso `animales.activate` — CRUD en `administrador`; permisos parciales en `veterinario` y `trabajador`
+- Relación `hasMany animales` en model `Lote`
+
+**Frontend:**
+- Módulo `modules/animales/` con Selects de razas, categorías, estados productivos, lotes y padres activos (API)
+- Listado y detalle muestran nombres de relaciones en lugar de IDs
+- Rutas integradas en App + breadcrumbs (sidebar ya existente)
+
+**Documentación:** Actualizados `06`, `08`
 
 ---
 

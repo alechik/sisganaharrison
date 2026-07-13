@@ -109,6 +109,7 @@ class PermissionSeeder extends Seeder
         'animales.update',
         'animales.delete',
         'animales.restore',
+        'animales.activate',
         'animales.export',
 
         // Historial sanitario

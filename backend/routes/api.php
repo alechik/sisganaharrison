@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\TiposAlertas\TipoAlertaController;
 use App\Http\Controllers\Api\Establecimientos\EstablecimientoController;
 use App\Http\Controllers\Api\Potreros\PotreroController;
 use App\Http\Controllers\Api\Lotes\LoteController;
+use App\Http\Controllers\Api\Animales\AnimalController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -427,4 +428,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('lotes/{lote}/estado', [LoteController::class, 'changeStatus'])
         ->middleware('permission:lotes.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| ANIMALES
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('animales/eliminados', [AnimalController::class, 'deleted'])
+        ->middleware('permission:animales.view');
+
+    Route::post('animales/{id}/restaurar', [AnimalController::class, 'restore'])
+        ->middleware('permission:animales.restore');
+
+    Route::get('animales', [AnimalController::class, 'index'])
+        ->middleware('permission:animales.view');
+
+    Route::post('animales', [AnimalController::class, 'store'])
+        ->middleware('permission:animales.create');
+
+    Route::get('animales/{animal}', [AnimalController::class, 'show'])
+        ->middleware('permission:animales.view');
+
+    Route::put('animales/{animal}', [AnimalController::class, 'update'])
+        ->middleware('permission:animales.update');
+
+    Route::patch('animales/{animal}', [AnimalController::class, 'update'])
+        ->middleware('permission:animales.update');
+
+    Route::delete('animales/{animal}', [AnimalController::class, 'destroy'])
+        ->middleware('permission:animales.delete');
+
+    Route::patch('animales/{animal}/estado', [AnimalController::class, 'changeStatus'])
+        ->middleware('permission:animales.activate');
 });

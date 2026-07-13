@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             EstablecimientoSeeder::class,
             PotreroSeeder::class,
             LoteSeeder::class,
+            AnimalSeeder::class,
         ]);
     }
 }

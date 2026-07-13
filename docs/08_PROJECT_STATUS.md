@@ -1,8 +1,8 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-07-11** — post módulo Lotes.
+> Snapshot mínimo. **2026-07-11** — post módulo Animales.
 
-**Avance estimado:** ~46–50%
+**Avance estimado:** ~48–52%
 
 ---
 
@@ -10,15 +10,15 @@
 
 | Capa | Qué hay |
 |------|---------|
-| Backend | Laravel 12, Sanctum, Spatie (~95 permisos, 4 roles), 12 controllers dominio |
-| Modelos | User, catálogos G1, Establecimiento, Potrero, **Lote** |
-| Frontend | `user`, catálogos G1, `establecimientos`, `potreros`, **`lotes`** + PermissionGate |
-| BD | **24 tablas** (16 migraciones), PostgreSQL |
-| API | **~104 endpoints** |
+| Backend | Laravel 12, Sanctum, Spatie (~96 permisos, 4 roles), 13 controllers dominio |
+| Modelos | User, catálogos G1, Establecimiento, Potrero, Lote, **Animal** |
+| Frontend | `user`, catálogos G1, infraestructura, **`animales`** + PermissionGate |
+| BD | **25 tablas** (17 migraciones), PostgreSQL |
+| API | **~113 endpoints** |
 
 ## Pendiente prioritario
 
-- Animales (núcleo ganadero)
+- Sanitario / Movimientos (transaccionales sobre animales)
 - Tests Feature auth/usuarios/permisos
 - AuthContext frontend (mejora sobre localStorage)
 

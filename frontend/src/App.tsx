@@ -33,6 +33,7 @@ import { tipoAlertaRoutes } from "./modules/tipos-alertas/routes";
 import { establecimientoRoutes } from "./modules/establecimientos/routes";
 import { potreroRoutes } from "./modules/potreros/routes";
 import { loteRoutes } from "./modules/lotes/routes";
+import { animalRoutes } from "./modules/animales/routes";
 
 
 export default function App() {
@@ -66,6 +67,7 @@ export default function App() {
             {establecimientoRoutes}
             {potreroRoutes}
             {loteRoutes}
+            {animalRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

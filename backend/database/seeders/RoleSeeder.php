@@ -93,6 +93,7 @@ class RoleSeeder extends Seeder
             'animales.update',
             'animales.delete',
             'animales.restore',
+            'animales.activate',
             'animales.export',
             'sanitario.view',
             'sanitario.create',

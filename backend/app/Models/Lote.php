@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -53,6 +54,14 @@ class Lote extends Model
     public function potrero(): BelongsTo
     {
         return $this->belongsTo(Potrero::class);
+    }
+
+    /**
+     * @return HasMany<Animal, $this>
+     */
+    public function animales(): HasMany
+    {
+        return $this->hasMany(Animal::class);
     }
 
     /**

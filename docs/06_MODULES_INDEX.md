@@ -18,7 +18,7 @@
 | Establecimientos | ✅ | `/api/establecimientos` | `establecimientos.*` | `modules/establecimientos/` |
 | Potreros | ✅ | `/api/potreros` | `potreros.*` | `modules/potreros/` |
 | Lotes | ✅ | `/api/lotes` | `lotes.*` | `modules/lotes/` |
-| Animales | ❌ | — | `animales.*` (seed) | — |
+| Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` |
 | Sanitario | ❌ | — | permisos seed | — |
 | Movimientos | ❌ | — | permisos seed | — |
 | Reproducción | ❌ | — | permisos seed | — |
