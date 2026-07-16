@@ -4,7 +4,9 @@
 
 Define las tablas encargadas de la supervisión, monitoreo, indicadores, alertas y generación de información estratégica del sistema ganadero.
 
-Este dominio consolida la información generada por el resto de módulos para apoyar la toma de decisiones operativas y gerenciales.
+Este dominio consolida la información generada por el resto de módulos para apoyar la toma de decisiones operativas y gerenciales (RF-15 a RF-18).
+
+No introduce tablas de inventario ni de movimientos; consume los datos transaccionales de Núcleo Ganadero y Reproducción.
 
 ---
 
@@ -85,6 +87,7 @@ tipo_alerta_id → tipos_alertas.id
 - Las alertas nunca se eliminan físicamente.
 - Una alerta puede cerrarse únicamente marcándola como atendida.
 - El historial debe conservarse.
+- Pueden generarse alertas por parto próximo (gestaciones), vacunación pendiente, peso bajo, mortalidad reciente y existencia por lote.
 
 ---
 
@@ -94,14 +97,14 @@ tipo_alerta_id → tipos_alertas.id
 
 Almacena indicadores calculados para cada animal o proceso productivo.
 
-Los indicadores son generados automáticamente a partir de la información registrada en el sistema.
+Los indicadores son generados automáticamente a partir de la información registrada en el sistema (RF-18).
 
 ## Campos
 
 | Campo | Tipo | Restricciones |
 |--------|------|---------------|
 | id | BIGINT | PK |
-| animal_id | BIGINT | FK |
+| animal_id | BIGINT | FK, NULL |
 | fecha_calculo | DATE | NOT NULL |
 | ganancia_peso | NUMERIC(10,2) | NULL |
 | edad_meses | INTEGER | NULL |
@@ -109,6 +112,22 @@ Los indicadores son generados automáticamente a partir de la información regis
 | indice_productivo | NUMERIC(8,2) | NULL |
 | metadata | JSONB | NULL |
 | created_at | TIMESTAMP | |
+
+El campo `metadata` puede almacenar indicadores agregados sin duplicar tablas, por ejemplo:
+
+- `establecimiento_id`
+- `lote_id`
+- `total_existencias`
+- `ingresos_nacimiento`
+- `ingresos_compra`
+- `salidas_venta`
+- `salidas_muerte`
+- `salidas_perdida`
+- `natalidad_periodo`
+- `mortalidad_periodo`
+- `tasa_mortalidad`
+- `compras_periodo`
+- `ventas_periodo`
 
 ## Relaciones
 
@@ -129,6 +148,8 @@ animal_id → animales.id
 - Cada cálculo genera un nuevo registro.
 - Nunca actualizar indicadores históricos.
 - Nunca eliminar registros.
+- `animal_id` NULL indica indicador agregado (establecimiento, lote o global) almacenado en `metadata`.
+- Fuentes de cálculo: `animales`, `pesajes`, `gestaciones`, `nacimientos`, `movimientos_animales`, `eventos_sanitarios`.
 
 ---
 
@@ -138,7 +159,7 @@ animal_id → animales.id
 
 Registra el historial de reportes generados por los usuarios.
 
-Permite controlar la generación y descarga de información del sistema.
+Permite controlar la generación y descarga de información del sistema (RF-16, RF-17).
 
 ## Campos
 
@@ -153,6 +174,24 @@ Permite controlar la generación y descarga de información del sistema.
 | archivo | VARCHAR(255) | NULL |
 | generado_en | TIMESTAMP | NOT NULL |
 | created_at | TIMESTAMP | |
+
+Ejemplos de `tipo`:
+
+- EXISTENCIAS
+- MOVIMIENTOS
+- SANITARIO
+- REPRODUCCION
+- NATALIDAD
+- MORTALIDAD
+- COMPRAS_VENTAS
+- INDICADORES
+- HISTORIAL_ANIMAL
+
+Ejemplos de `formato`:
+
+- PDF
+- XLSX
+- CSV
 
 ## Relaciones
 
@@ -173,6 +212,8 @@ usuario_id → users.id
 - Tabla histórica.
 - Nunca modificar registros.
 - Mantener trazabilidad de todos los reportes generados.
+- Soporta exportaciones mediante el campo `archivo` y `formato` (RF-17).
+
 ---
 
 # Resumen
@@ -182,8 +223,11 @@ usuario_id → users.id
 | alertas | No | Sí | Sí |
 | indicadores_productivos | No | No | Sí |
 | reportes_generados | No | No | Sí |
+
 ---
+
 # Relaciones principales
+
 Animales
     │
     ├────────────► Alertas
@@ -193,13 +237,88 @@ Animales
     ▼
 Dashboard
 
+Nacimientos
+    │
+    └────────────► Indicadores / Reportes (natalidad, mortalidad al nacer)
+
+Movimientos Animales
+    │
+    └────────────► Indicadores / Reportes (compras, ventas, mortalidad, pérdidas)
+
 Usuarios
     │
     ▼
 Reportes Generados
+
 ---
+
+# Cobertura funcional
+
+| RF | Soporte en el modelo |
+|----|----------------------|
+| RF-15 Control de existencias | Cálculo sobre `animales`, `nacimientos` y `movimientos_animales` |
+| RF-16 Reportes | `reportes_generados` + consultas transaccionales |
+| RF-17 Exportaciones | `reportes_generados.formato` + `archivo` |
+| RF-18 Dashboard e indicadores | `indicadores_productivos` + `alertas` + agregaciones en `metadata` |
+
+---
+
+# Reglas de cálculo — existencias (RF-15)
+
+## Existencia vigente
+
+Animales con `activo = true` y sin `deleted_at`.
+
+## Agrupaciones
+
+- **Por ubicación:** `lote_id` → `potrero_id` → `establecimiento_id`.
+- **Por clasificación:** `categoria_id`, `sexo`, `raza_id`, `estado_productivo_id`.
+
+## Ingresos
+
+| Tipo | Fuente |
+|------|--------|
+| Nacimiento | `nacimientos` con `estado_nacimiento = VIVO` y `animal_id` vinculado |
+| Compra | `movimientos_animales` con tipo Compra |
+
+## Salidas
+
+| Tipo | Fuente |
+|------|--------|
+| Venta | `movimientos_animales` con tipo Venta |
+| Muerte | `movimientos_animales` con tipo Muerte |
+| Pérdida | `movimientos_animales` con tipo Baja |
+
+## Movimientos excluidos del inventario
+
+- Traslados internos entre lotes.
+- Registros sanitarios, pesajes y eventos informativos.
+
+## Indicadores complementarios
+
+- **Natalidad:** contar `nacimientos` VIVO en el período.
+- **Mortalidad al nacer:** contar `nacimientos` MUERTO en el período.
+- **Mortalidad del rodeo:** contar movimientos tipo Muerte.
+- **Pérdidas:** contar movimientos tipo Baja.
+- **Compras / Ventas:** contar y sumar `valor` por tipo.
+
+---
+
+# Reglas de cálculo — dashboard (RF-18)
+
+- Ganancia de peso: derivada de `pesajes`.
+- Edad: derivada de `animales.fecha_nacimiento`.
+- Gestación: derivada de `gestaciones`.
+- Productividad reproductiva: derivada de `servicios_reproductivos`, `gestaciones`, `partos` y `nacimientos`.
+- Inventario histórico: snapshots en `indicadores_productivos.metadata`.
+- No crear tablas de resumen; persistir snapshots calculados cuando se requiera histórico de dashboard.
+
+---
+
 # Dependencias
+
 Este dominio depende de:
+
 - Plataforma
 - Catálogos
 - Núcleo Ganadero
@@ -212,11 +331,17 @@ Y es utilizado por:
 - BI (Business Intelligence)
 - Estadísticas
 - Exportaciones
+
 No deben existir registros huérfanos.
+
 Toda la integridad se controla mediante claves foráneas y reglas de negocio.
+
 ---
+
 # Patrón reutilizable
+
 ## Backend
+
 - Migration
 - Model
 - Factory
@@ -226,8 +351,11 @@ Toda la integridad se controla mediante claves foráneas y reglas de negocio.
 - FormRequest
 - Resource
 - Controller API
+
 ## Frontend
+
 modules/{modulo}/
+
 - pages/
 - components/
 - hooks/
@@ -238,12 +366,21 @@ modules/{modulo}/
 - permissions/
 - constants/
 - index.ts
+
 ## API REST
+
 GET /api/{modulo}
+
 POST /api/{modulo}
+
 GET /api/{modulo}/{id}
+
 PUT /api/{modulo}/{id}
+
 DELETE /api/{modulo}/{id}
+
 GET /api/{modulo}/eliminados
+
 POST /api/{modulo}/{id}/restaurar
+
 PATCH /api/{modulo}/{id}/estado
