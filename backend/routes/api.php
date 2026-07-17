@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Potreros\PotreroController;
 use App\Http\Controllers\Api\Lotes\LoteController;
 use App\Http\Controllers\Api\Animales\AnimalController;
 use App\Http\Controllers\Api\Pesajes\PesajeController;
+use App\Http\Controllers\Api\EventosSanitarios\EventoSanitarioController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -481,4 +482,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('pesajes/{pesaje}', [PesajeController::class, 'show'])
         ->middleware('permission:pesajes.view');
+});
+
+/*
+|--------------------------------------------------------------------------
+| EVENTOS SANITARIOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('eventos-sanitarios', [EventoSanitarioController::class, 'index'])
+        ->middleware('permission:sanitario.view');
+
+    Route::post('eventos-sanitarios', [EventoSanitarioController::class, 'store'])
+        ->middleware('permission:sanitario.create');
+
+    Route::get('eventos-sanitarios/{evento_sanitario}', [EventoSanitarioController::class, 'show'])
+        ->middleware('permission:sanitario.view');
 });

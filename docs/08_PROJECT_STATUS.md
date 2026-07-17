@@ -1,8 +1,8 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-06-28** — post módulo Pesajes.
+> Snapshot mínimo. **2026-06-28** — post módulo Eventos Sanitarios.
 
-**Avance estimado:** ~50–54%
+**Avance estimado:** ~52–56%
 
 ---
 
@@ -10,15 +10,15 @@
 
 | Capa | Qué hay |
 |------|---------|
-| Backend | Laravel 12, Sanctum, Spatie (~98 permisos, 4 roles), 14 controllers dominio |
-| Modelos | User, catálogos G1, Establecimiento, Potrero, Lote, Animal, **Pesaje** |
-| Frontend | `user`, catálogos G1, infraestructura, **`animales`**, **`pesajes`** + PermissionGate |
-| BD | **26 tablas** (18 migraciones), PostgreSQL |
-| API | **~116 endpoints** |
+| Backend | Laravel 12, Sanctum, Spatie (~98 permisos, 4 roles), 15 controllers dominio |
+| Modelos | User, catálogos G1, Establecimiento, Potrero, Lote, Animal, Pesaje, **EventoSanitario** |
+| Frontend | `user`, catálogos G1, infraestructura, **`animales`**, **`pesajes`**, **`eventos-sanitarios`** + PermissionGate |
+| BD | **27 tablas** (19 migraciones), PostgreSQL |
+| API | **~119 endpoints** |
 
 ## Pendiente prioritario
 
-- Sanitario / Movimientos (transaccionales sobre animales)
+- Movimientos (transaccionales sobre animales)
 - Tests Feature auth/usuarios/permisos
 - AuthContext frontend (mejora sobre localStorage)
 

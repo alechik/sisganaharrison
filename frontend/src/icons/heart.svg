@@ -1,0 +1,16 @@
+<svg
+  className="size-6"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M12 20.25C12 20.25 4.5 14.5 4.5 9.75C4.5 7.26472 6.51472 5.25 9 5.25C10.5913 5.25 12.1173 6.00736 13 7.22705C13.8827 6.00736 15.4087 5.25 17 5.25C19.4853 5.25 21.5 7.26472 21.5 9.75C21.5 14.5 12 20.25 12 20.25Z"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+</svg>

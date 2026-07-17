@@ -8,7 +8,32 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: módulos transaccionales (Sanitario, Movimientos)._
+_Pendiente: módulos transaccionales (Movimientos)._
+
+---
+
+## [2026-06-28] — Fase G1: Eventos Sanitarios
+
+### Added
+
+**Backend:**
+- Migración `eventos_sanitarios` con FKs a `animales`, `tipos_eventos_sanitarios` y `vacunas` (nullable)
+- Model `EventoSanitario` (append only, solo `created_at`), Factory, `EventoSanitarioSeeder` (10 registros)
+- `EventoSanitarioService` con eager load, filtros y validación de animal/tipo/vacuna activos
+- Vacuna obligatoria cuando el tipo es `VACUNACION` (`TipoEventoSanitario::requiereVacuna()`)
+- Policy, `StoreEventoSanitarioRequest`, Resource (`animal_codigo`, `animal_arete`, `tipo_evento_nombre`, `vacuna_nombre`), Controller
+- 3 endpoints REST en `/api/eventos-sanitarios` (index, show, store — sin update/delete)
+- Permisos existentes `sanitario.view`, `sanitario.create` — ya asignados en roles
+- Relación `hasMany eventosSanitarios` en model `Animal`
+
+**Frontend:**
+- Módulo `modules/eventos-sanitarios/` con Selects de animales, tipos y vacunas activos (API)
+- Vacuna condicional según tipo de evento (obligatoria en vacunación)
+- Listado y detalle muestran código/arete, nombre del tipo y nombre de vacuna
+- Sin edición ni eliminación (historial append only)
+- Rutas integradas en App + sidebar (grupo Sanidad con HeartIcon) + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
 
 ---
 

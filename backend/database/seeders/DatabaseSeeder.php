@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             LoteSeeder::class,
             AnimalSeeder::class,
             PesajeSeeder::class,
+            EventoSanitarioSeeder::class,
         ]);
     }
 }

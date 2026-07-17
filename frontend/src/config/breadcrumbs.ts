@@ -384,4 +384,21 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  eventosSanitarios: [
+    { title: "Sanidad" },
+    { title: "Eventos Sanitarios" },
+  ],
+
+  eventoSanitarioCrear: [
+    { title: "Sanidad" },
+    { title: "Eventos Sanitarios", path: "/eventos-sanitarios" },
+    { title: "Nuevo Evento Sanitario" },
+  ],
+
+  eventoSanitarioDetalle: [
+    { title: "Sanidad" },
+    { title: "Eventos Sanitarios", path: "/eventos-sanitarios" },
+    { title: "Detalle" },
+  ],
+
 };

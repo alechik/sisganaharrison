@@ -20,7 +20,7 @@
 | Lotes | ✅ | `/api/lotes` | `lotes.*` | `modules/lotes/` |
 | Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` |
 | Pesajes | ✅ | `/api/pesajes` | `pesajes.view`, `pesajes.create` | `modules/pesajes/` (append only) |
-| Sanitario | ❌ | — | permisos seed | — |
+| Eventos Sanitarios | ✅ | `/api/eventos-sanitarios` | `sanitario.view`, `sanitario.create` | `modules/eventos-sanitarios/` (append only) |
 | Movimientos | ❌ | — | permisos seed | — |
 | Reproducción | ❌ | — | permisos seed | — |
 | Reportes | ❌ | — | permisos seed | — |

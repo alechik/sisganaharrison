@@ -46,4 +46,9 @@ class TipoEventoSanitario extends Model
     {
         return $query->where('activo', true);
     }
+
+    public function requiereVacuna(): bool
+    {
+        return $this->codigo === 'VACUNACION';
+    }
 }

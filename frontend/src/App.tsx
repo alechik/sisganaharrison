@@ -35,6 +35,7 @@ import { potreroRoutes } from "./modules/potreros/routes";
 import { loteRoutes } from "./modules/lotes/routes";
 import { animalRoutes } from "./modules/animales/routes";
 import { pesajeRoutes } from "./modules/pesajes/routes";
+import { eventoSanitarioRoutes } from "./modules/eventos-sanitarios/routes";
 
 
 export default function App() {
@@ -70,6 +71,7 @@ export default function App() {
             {loteRoutes}
             {animalRoutes}
             {pesajeRoutes}
+            {eventoSanitarioRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

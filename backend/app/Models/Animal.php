@@ -118,6 +118,14 @@ class Animal extends Model
     }
 
     /**
+     * @return HasMany<EventoSanitario, $this>
+     */
+    public function eventosSanitarios(): HasMany
+    {
+        return $this->hasMany(EventoSanitario::class);
+    }
+
+    /**
      * @param  Builder<Animal>  $query
      * @return Builder<Animal>
      */
