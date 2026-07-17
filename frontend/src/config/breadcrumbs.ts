@@ -339,32 +339,49 @@ export const breadcrumbs = {
   ],
 
   animales: [
-    { title: "Ganadería" },
+    { title: "Núcleo Ganadero" },
     { title: "Animales" },
   ],
 
   animalCrear: [
-    { title: "Ganadería" },
+    { title: "Núcleo Ganadero" },
     { title: "Animales", path: "/animales" },
     { title: "Nuevo Animal" },
   ],
 
   animalEditar: [
-    { title: "Ganadería" },
+    { title: "Núcleo Ganadero" },
     { title: "Animales", path: "/animales" },
     { title: "Editar Animal" },
   ],
 
   animalDetalle: [
-    { title: "Ganadería" },
+    { title: "Núcleo Ganadero" },
     { title: "Animales", path: "/animales" },
     { title: "Detalle" },
   ],
 
   animalesEliminados: [
-    { title: "Ganadería" },
+    { title: "Núcleo Ganadero" },
     { title: "Animales", path: "/animales" },
     { title: "Eliminados" },
+  ],
+
+  pesajes: [
+    { title: "Núcleo Ganadero" },
+    { title: "Pesajes" },
+  ],
+
+  pesajeCrear: [
+    { title: "Núcleo Ganadero" },
+    { title: "Pesajes", path: "/pesajes" },
+    { title: "Nuevo Pesaje" },
+  ],
+
+  pesajeDetalle: [
+    { title: "Núcleo Ganadero" },
+    { title: "Pesajes", path: "/pesajes" },
+    { title: "Detalle" },
   ],
 
 };

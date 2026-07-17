@@ -14,6 +14,7 @@ use App\Models\Establecimiento;
 use App\Models\Potrero;
 use App\Models\Lote;
 use App\Models\Animal;
+use App\Models\Pesaje;
 use App\Policies\UserPolicy;
 use App\Policies\RazaPolicy;
 use App\Policies\CategoriaAnimalPolicy;
@@ -26,6 +27,7 @@ use App\Policies\EstablecimientoPolicy;
 use App\Policies\PotreroPolicy;
 use App\Policies\LotePolicy;
 use App\Policies\AnimalPolicy;
+use App\Policies\PesajePolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -57,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Potrero::class, PotreroPolicy::class);
         Gate::policy(Lote::class, LotePolicy::class);
         Gate::policy(Animal::class, AnimalPolicy::class);
+        Gate::policy(Pesaje::class, PesajePolicy::class);
 
         Route::bind('categoria', fn (string $value) => CategoriaAnimal::query()->findOrFail($value));
         Route::bind('vacuna', fn (string $value) => Vacuna::query()->findOrFail($value));
@@ -68,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('potrero', fn (string $value) => Potrero::query()->findOrFail($value));
         Route::bind('lote', fn (string $value) => Lote::query()->findOrFail($value));
         Route::bind('animal', fn (string $value) => Animal::query()->findOrFail($value));
+        Route::bind('pesaje', fn (string $value) => Pesaje::query()->findOrFail($value));
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;

@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Establecimientos\EstablecimientoController;
 use App\Http\Controllers\Api\Potreros\PotreroController;
 use App\Http\Controllers\Api\Lotes\LoteController;
 use App\Http\Controllers\Api\Animales\AnimalController;
+use App\Http\Controllers\Api\Pesajes\PesajeController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -463,4 +464,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('animales/{animal}/estado', [AnimalController::class, 'changeStatus'])
         ->middleware('permission:animales.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| PESAJES
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('pesajes', [PesajeController::class, 'index'])
+        ->middleware('permission:pesajes.view');
+
+    Route::post('pesajes', [PesajeController::class, 'store'])
+        ->middleware('permission:pesajes.create');
+
+    Route::get('pesajes/{pesaje}', [PesajeController::class, 'show'])
+        ->middleware('permission:pesajes.view');
 });

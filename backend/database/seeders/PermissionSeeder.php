@@ -112,6 +112,10 @@ class PermissionSeeder extends Seeder
         'animales.activate',
         'animales.export',
 
+        // Pesajes
+        'pesajes.view',
+        'pesajes.create',
+
         // Historial sanitario
         'sanitario.view',
         'sanitario.create',

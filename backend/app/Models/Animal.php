@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -106,6 +107,14 @@ class Animal extends Model
     public function padre(): BelongsTo
     {
         return $this->belongsTo(Animal::class, 'padre_id');
+    }
+
+    /**
+     * @return HasMany<Pesaje, $this>
+     */
+    public function pesajes(): HasMany
+    {
+        return $this->hasMany(Pesaje::class);
     }
 
     /**

@@ -12,6 +12,29 @@ _Pendiente: módulos transaccionales (Sanitario, Movimientos)._
 
 ---
 
+## [2026-06-28] — Fase G1: Pesajes
+
+### Added
+
+**Backend:**
+- Migración `pesajes` con FK `animal_id → animales.id`, índices en `animal_id` y `fecha`
+- Model `Pesaje` (append only, solo `created_at`), Factory, `PesajeSeeder` (10 registros)
+- `PesajeService` con eager load de animal, filtros por animal/fecha y validación de animal activo
+- Policy, `StorePesajeRequest` (peso > 0, fecha obligatoria), Resource (`animal_codigo`, `animal_arete`), Controller
+- 3 endpoints REST en `/api/pesajes` (index, show, store — sin update/delete)
+- Permisos `pesajes.view`, `pesajes.create` — en `administrador`, `veterinario` y `trabajador`
+- Relación `hasMany pesajes` en model `Animal`
+
+**Frontend:**
+- Módulo `modules/pesajes/` con Select de animales activos (código y arete vía API)
+- Listado y detalle muestran código y arete del animal (no ID)
+- Sin edición ni eliminación (historial append only)
+- Rutas integradas en App + sidebar (grupo Núcleo Ganadero) + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-07-11] — Fase G1: Animales
 
 ### Added

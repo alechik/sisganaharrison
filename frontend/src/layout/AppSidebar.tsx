@@ -62,12 +62,23 @@ const navItems: NavItem[] = [
 
   {
     icon: <BoxCubeIcon />,
-    name: "Catalogos",
+    name: "Núcleo Ganadero",
     subItems: [
       {
         name: "Animales",
         path: "/animales",
       },
+      {
+        name: "Pesajes",
+        path: "/pesajes",
+      },
+    ],
+  },
+
+  {
+    icon: <BoxCubeIcon />,
+    name: "Catalogos",
+    subItems: [
       {
         name: "Razas",
         path: "/razas",
