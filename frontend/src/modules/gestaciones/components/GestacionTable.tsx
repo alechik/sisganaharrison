@@ -15,7 +15,6 @@ import { GESTACION_ROUTES } from "../constants";
 import { GESTACIONES_PERMISSIONS } from "../permissions";
 import { Gestacion } from "../types";
 import {
-  formatAnimalLabel,
   formatDate,
   formatServicioResumen,
   getResultadoLabel,
@@ -34,13 +33,16 @@ export default function GestacionTable({ gestaciones, meta, onPageChange }: Prop
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
         <Table>
-          <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Servicio
+                Código hembra
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Hembra
+                Arete hembra
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Servicio
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Fecha servicio
@@ -66,7 +68,7 @@ export default function GestacionTable({ gestaciones, meta, onPageChange }: Prop
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {gestaciones.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={8}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={9}>
                   No hay gestaciones para mostrar.
                 </TableCell>
               </TableRow>
@@ -77,19 +79,22 @@ export default function GestacionTable({ gestaciones, meta, onPageChange }: Prop
                   className="transition hover:bg-gray-50 dark:hover:bg-white/[0.02]"
                 >
                   <TableCell className="px-5 py-4">
-                    <span
-                      className="block max-w-xs truncate font-medium text-gray-800 text-theme-sm dark:text-white/90"
-                      title={formatServicioResumen(gestacion)}
-                    >
-                      {formatServicioResumen(gestacion)}
+                    <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                      {gestacion.servicio_hembra_codigo || "—"}
                     </span>
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {formatAnimalLabel(
-                      gestacion.servicio_hembra_codigo,
-                      gestacion.servicio_hembra_arete
-                    )}
+                    {gestacion.servicio_hembra_arete || "—"}
+                  </TableCell>
+
+                  <TableCell className="px-5 py-4">
+                    <span
+                      className="block max-w-xs truncate text-theme-sm text-gray-500 dark:text-gray-400"
+                      title={formatServicioResumen(gestacion)}
+                    >
+                      #{gestacion.servicio_id}
+                    </span>
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">

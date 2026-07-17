@@ -86,6 +86,12 @@ export default function GestacionDetailPage() {
             <dt className="text-sm text-gray-500 dark:text-gray-400">Servicio reproductivo</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               #{gestacion.servicio_id}
+              {gestacion.servicio_fecha_servicio && (
+                <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                  · {formatDate(gestacion.servicio_fecha_servicio)}
+                  · {getTipoServicioLabel(gestacion.servicio_tipo_servicio)}
+                </span>
+              )}
             </dd>
           </div>
           <div>
@@ -95,12 +101,15 @@ export default function GestacionDetailPage() {
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Hembra</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Código hembra</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {formatAnimalLabel(
-                gestacion.servicio_hembra_codigo,
-                gestacion.servicio_hembra_arete
-              )}
+              {gestacion.servicio_hembra_codigo || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Arete hembra</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {gestacion.servicio_hembra_arete || "—"}
             </dd>
           </div>
           <div>

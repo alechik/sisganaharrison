@@ -33,6 +33,7 @@ class GestacionController extends Controller
         $this->authorize('view', $gestacion);
 
         $gestacion->load([
+            'servicio:id,hembra_id,macho_id,fecha_servicio,tipo_servicio,resultado',
             'servicio.hembra:id,codigo,arete',
             'servicio.macho:id,codigo,arete',
         ]);

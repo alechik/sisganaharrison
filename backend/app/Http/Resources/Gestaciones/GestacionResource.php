@@ -28,19 +28,19 @@ class GestacionResource extends JsonResource
                 fn () => $this->servicio->resultado
             ),
             'servicio_hembra_codigo' => $this->whenLoaded(
-                'servicio.hembra',
+                'servicio',
                 fn () => $this->servicio->hembra?->codigo
             ),
             'servicio_hembra_arete' => $this->whenLoaded(
-                'servicio.hembra',
+                'servicio',
                 fn () => $this->servicio->hembra?->arete
             ),
             'servicio_macho_codigo' => $this->whenLoaded(
-                'servicio.macho',
+                'servicio',
                 fn () => $this->servicio->macho?->codigo
             ),
             'servicio_macho_arete' => $this->whenLoaded(
-                'servicio.macho',
+                'servicio',
                 fn () => $this->servicio->macho?->arete
             ),
             'fecha_confirmacion' => $this->fecha_confirmacion?->format('Y-m-d'),
