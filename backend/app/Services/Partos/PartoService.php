@@ -14,6 +14,8 @@ class PartoService
     private const SORTABLE_COLUMNS = ['fecha_parto', 'created_at'];
 
     private const RELATIONS = [
+        'gestacion:id,servicio_id,estado,fecha_confirmacion,fecha_probable_parto',
+        'gestacion.servicio:id,hembra_id,macho_id,fecha_servicio,tipo_servicio,resultado',
         'gestacion.servicio.hembra:id,codigo,arete',
         'gestacion.servicio.macho:id,codigo,arete',
     ];

@@ -15,7 +15,6 @@ import { PARTO_ROUTES } from "../constants";
 import { PARTOS_PERMISSIONS } from "../permissions";
 import { Parto } from "../types";
 import {
-  formatAnimalLabel,
   formatDate,
   formatGestacionResumen,
   getEstadoGestacionLabel,
@@ -37,10 +36,19 @@ export default function PartoTable({ partos, meta, onPageChange }: Props) {
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Gestación
+                Código hembra
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Hembra
+                Arete hembra
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Código macho
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Arete macho
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Gestación
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Servicio
@@ -60,7 +68,7 @@ export default function PartoTable({ partos, meta, onPageChange }: Props) {
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {partos.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={6}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={9}>
                   No hay partos para mostrar.
                 </TableCell>
               </TableRow>
@@ -71,19 +79,30 @@ export default function PartoTable({ partos, meta, onPageChange }: Props) {
                   className="transition hover:bg-gray-50 dark:hover:bg-white/[0.02]"
                 >
                   <TableCell className="px-5 py-4">
-                    <span
-                      className="block max-w-xs truncate font-medium text-gray-800 text-theme-sm dark:text-white/90"
-                      title={formatGestacionResumen(parto)}
-                    >
-                      {formatGestacionResumen(parto)}
+                    <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                      {parto.gestacion_servicio_hembra_codigo || "—"}
                     </span>
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {formatAnimalLabel(
-                      parto.gestacion_servicio_hembra_codigo,
-                      parto.gestacion_servicio_hembra_arete
-                    )}
+                    {parto.gestacion_servicio_hembra_arete || "—"}
+                  </TableCell>
+
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {parto.gestacion_servicio_macho_codigo || "—"}
+                  </TableCell>
+
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {parto.gestacion_servicio_macho_arete || "—"}
+                  </TableCell>
+
+                  <TableCell className="px-5 py-4">
+                    <span
+                      className="block max-w-xs truncate text-theme-sm text-gray-500 dark:text-gray-400"
+                      title={formatGestacionResumen(parto)}
+                    >
+                      #{parto.gestacion_id}
+                    </span>
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">

@@ -28,32 +28,32 @@ class PartoResource extends JsonResource
                 fn () => $this->gestacion->fecha_probable_parto?->format('Y-m-d')
             ),
             'gestacion_servicio_fecha_servicio' => $this->whenLoaded(
-                'gestacion.servicio',
-                fn () => $this->gestacion->servicio->fecha_servicio?->format('Y-m-d')
+                'gestacion',
+                fn () => $this->gestacion->servicio?->fecha_servicio?->format('Y-m-d')
             ),
             'gestacion_servicio_tipo_servicio' => $this->whenLoaded(
-                'gestacion.servicio',
-                fn () => $this->gestacion->servicio->tipo_servicio
+                'gestacion',
+                fn () => $this->gestacion->servicio?->tipo_servicio
             ),
             'gestacion_servicio_resultado' => $this->whenLoaded(
-                'gestacion.servicio',
-                fn () => $this->gestacion->servicio->resultado
+                'gestacion',
+                fn () => $this->gestacion->servicio?->resultado
             ),
             'gestacion_servicio_hembra_codigo' => $this->whenLoaded(
-                'gestacion.servicio.hembra',
-                fn () => $this->gestacion->servicio->hembra?->codigo
+                'gestacion',
+                fn () => $this->gestacion->servicio?->hembra?->codigo
             ),
             'gestacion_servicio_hembra_arete' => $this->whenLoaded(
-                'gestacion.servicio.hembra',
-                fn () => $this->gestacion->servicio->hembra?->arete
+                'gestacion',
+                fn () => $this->gestacion->servicio?->hembra?->arete
             ),
             'gestacion_servicio_macho_codigo' => $this->whenLoaded(
-                'gestacion.servicio.macho',
-                fn () => $this->gestacion->servicio->macho?->codigo
+                'gestacion',
+                fn () => $this->gestacion->servicio?->macho?->codigo
             ),
             'gestacion_servicio_macho_arete' => $this->whenLoaded(
-                'gestacion.servicio.macho',
-                fn () => $this->gestacion->servicio->macho?->arete
+                'gestacion',
+                fn () => $this->gestacion->servicio?->macho?->arete
             ),
             'fecha_parto' => $this->fecha_parto?->format('Y-m-d'),
             'observaciones' => $this->observaciones,

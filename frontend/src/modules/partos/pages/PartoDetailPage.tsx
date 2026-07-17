@@ -10,7 +10,6 @@ import { PARTOS_PERMISSIONS } from "../permissions";
 import { getParto } from "../services";
 import { Parto } from "../types";
 import {
-  formatAnimalLabel,
   formatDate,
   formatGestacionResumen,
   getEstadoGestacionLabel,
@@ -102,23 +101,27 @@ export default function PartoDetailPage() {
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Hembra</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Código hembra</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {formatAnimalLabel(
-                parto.gestacion_servicio_hembra_codigo,
-                parto.gestacion_servicio_hembra_arete
-              )}
+              {parto.gestacion_servicio_hembra_codigo || "—"}
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Macho</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Arete hembra</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {parto.gestacion_servicio_macho_codigo
-                ? formatAnimalLabel(
-                    parto.gestacion_servicio_macho_codigo,
-                    parto.gestacion_servicio_macho_arete
-                  )
-                : "Sin macho registrado"}
+              {parto.gestacion_servicio_hembra_arete || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Código macho</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {parto.gestacion_servicio_macho_codigo || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Arete macho</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {parto.gestacion_servicio_macho_arete || "—"}
             </dd>
           </div>
           <div>
