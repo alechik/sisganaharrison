@@ -401,4 +401,27 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  serviciosReproductivos: [
+    { title: "Reproducción" },
+    { title: "Servicios Reproductivos" },
+  ],
+
+  servicioReproductivoCrear: [
+    { title: "Reproducción" },
+    { title: "Servicios Reproductivos", path: "/servicios-reproductivos" },
+    { title: "Nuevo Servicio" },
+  ],
+
+  servicioReproductivoEditar: [
+    { title: "Reproducción" },
+    { title: "Servicios Reproductivos", path: "/servicios-reproductivos" },
+    { title: "Editar Servicio" },
+  ],
+
+  servicioReproductivoDetalle: [
+    { title: "Reproducción" },
+    { title: "Servicios Reproductivos", path: "/servicios-reproductivos" },
+    { title: "Detalle" },
+  ],
+
 };

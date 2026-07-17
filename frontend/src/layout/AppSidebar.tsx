@@ -88,6 +88,17 @@ const navItems: NavItem[] = [
   },
 
   {
+    icon: <HeartIcon />,
+    name: "Reproducción",
+    subItems: [
+      {
+        name: "Servicios Reproductivos",
+        path: "/servicios-reproductivos",
+      },
+    ],
+  },
+
+  {
     icon: <BoxCubeIcon />,
     name: "Catalogos",
     subItems: [

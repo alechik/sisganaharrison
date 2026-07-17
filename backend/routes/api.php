@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Lotes\LoteController;
 use App\Http\Controllers\Api\Animales\AnimalController;
 use App\Http\Controllers\Api\Pesajes\PesajeController;
 use App\Http\Controllers\Api\EventosSanitarios\EventoSanitarioController;
+use App\Http\Controllers\Api\ServiciosReproductivos\ServicioReproductivoController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -499,4 +500,27 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('eventos-sanitarios/{evento_sanitario}', [EventoSanitarioController::class, 'show'])
         ->middleware('permission:sanitario.view');
+});
+
+/*
+|--------------------------------------------------------------------------
+| SERVICIOS REPRODUCTIVOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('servicios-reproductivos', [ServicioReproductivoController::class, 'index'])
+        ->middleware('permission:reproduccion.view');
+
+    Route::post('servicios-reproductivos', [ServicioReproductivoController::class, 'store'])
+        ->middleware('permission:reproduccion.create');
+
+    Route::get('servicios-reproductivos/{servicio_reproductivo}', [ServicioReproductivoController::class, 'show'])
+        ->middleware('permission:reproduccion.view');
+
+    Route::put('servicios-reproductivos/{servicio_reproductivo}', [ServicioReproductivoController::class, 'update'])
+        ->middleware('permission:reproduccion.update');
+
+    Route::patch('servicios-reproductivos/{servicio_reproductivo}', [ServicioReproductivoController::class, 'update'])
+        ->middleware('permission:reproduccion.update');
 });

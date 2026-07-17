@@ -126,6 +126,22 @@ class Animal extends Model
     }
 
     /**
+     * @return HasMany<ServicioReproductivo, $this>
+     */
+    public function serviciosComoHembra(): HasMany
+    {
+        return $this->hasMany(ServicioReproductivo::class, 'hembra_id');
+    }
+
+    /**
+     * @return HasMany<ServicioReproductivo, $this>
+     */
+    public function serviciosComoMacho(): HasMany
+    {
+        return $this->hasMany(ServicioReproductivo::class, 'macho_id');
+    }
+
+    /**
      * @param  Builder<Animal>  $query
      * @return Builder<Animal>
      */

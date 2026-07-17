@@ -12,6 +12,29 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-06-28] — Fase R1: Servicios Reproductivos
+
+### Added
+
+**Backend:**
+- Migración `servicios_reproductivos` con FKs `hembra_id` y `macho_id` (nullable) → `animales`
+- Model `ServicioReproductivo`, Factory, `ServicioReproductivoSeeder` (10 registros)
+- `ServicioReproductivoService` con validación de sexo (H/M), animal activo y macho opcional
+- Policy, Store/Update Requests, Resource (`hembra_codigo`, `hembra_arete`, `macho_codigo`, `macho_arete`), Controller
+- 5 endpoints REST en `/api/servicios-reproductivos` (index, show, store, update — sin delete)
+- Permisos existentes `reproduccion.view`, `reproduccion.create`, `reproduccion.update`
+- Relaciones `serviciosComoHembra` y `serviciosComoMacho` en model `Animal`
+
+**Frontend:**
+- Módulo `modules/servicios-reproductivos/` con Selects de hembras (sexo H) y machos (sexo M) activos
+- Macho opcional; listado y detalle muestran código y arete
+- Edición permitida; sin eliminación (historial protegido)
+- Rutas integradas en App + sidebar (grupo Reproducción con HeartIcon) + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-06-28] — Fase G1: Eventos Sanitarios
 
 ### Added

@@ -21,8 +21,8 @@
 | Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` |
 | Pesajes | ✅ | `/api/pesajes` | `pesajes.view`, `pesajes.create` | `modules/pesajes/` (append only) |
 | Eventos Sanitarios | ✅ | `/api/eventos-sanitarios` | `sanitario.view`, `sanitario.create` | `modules/eventos-sanitarios/` (append only) |
+| Servicios Reproductivos | ✅ | `/api/servicios-reproductivos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/servicios-reproductivos/` |
 | Movimientos | ❌ | — | permisos seed | — |
-| Reproducción | ❌ | — | permisos seed | — |
 | Reportes | ❌ | — | permisos seed | — |
 | Auditoría | ❌ | — | permisos seed | — |
 
