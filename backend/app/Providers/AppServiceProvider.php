@@ -17,6 +17,7 @@ use App\Models\Animal;
 use App\Models\Pesaje;
 use App\Models\EventoSanitario;
 use App\Models\Gestacion;
+use App\Models\Parto;
 use App\Models\ServicioReproductivo;
 use App\Policies\UserPolicy;
 use App\Policies\RazaPolicy;
@@ -34,6 +35,7 @@ use App\Policies\PesajePolicy;
 use App\Policies\EventoSanitarioPolicy;
 use App\Policies\ServicioReproductivoPolicy;
 use App\Policies\GestacionPolicy;
+use App\Policies\PartoPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -69,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(EventoSanitario::class, EventoSanitarioPolicy::class);
         Gate::policy(ServicioReproductivo::class, ServicioReproductivoPolicy::class);
         Gate::policy(Gestacion::class, GestacionPolicy::class);
+        Gate::policy(Parto::class, PartoPolicy::class);
 
         Route::bind('categoria', fn (string $value) => CategoriaAnimal::query()->findOrFail($value));
         Route::bind('vacuna', fn (string $value) => Vacuna::query()->findOrFail($value));
@@ -84,6 +87,7 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('evento_sanitario', fn (string $value) => EventoSanitario::query()->findOrFail($value));
         Route::bind('servicio_reproductivo', fn (string $value) => ServicioReproductivo::query()->findOrFail($value));
         Route::bind('gestacion', fn (string $value) => Gestacion::query()->findOrFail($value));
+        Route::bind('parto', fn (string $value) => Parto::query()->findOrFail($value));
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;

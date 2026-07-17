@@ -6,6 +6,7 @@ use Database\Factories\GestacionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Seguimiento de gestación originada por un servicio reproductivo.
@@ -55,6 +56,14 @@ class Gestacion extends Model
     public function servicio(): BelongsTo
     {
         return $this->belongsTo(ServicioReproductivo::class, 'servicio_id');
+    }
+
+    /**
+     * @return HasOne<Parto, $this>
+     */
+    public function parto(): HasOne
+    {
+        return $this->hasOne(Parto::class, 'gestacion_id');
     }
 
     public function esActiva(): bool

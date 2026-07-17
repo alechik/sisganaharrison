@@ -99,6 +99,10 @@ const navItems: NavItem[] = [
         name: "Gestaciones",
         path: "/gestaciones",
       },
+      {
+        name: "Partos",
+        path: "/partos",
+      },
     ],
   },
 

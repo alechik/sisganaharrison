@@ -447,4 +447,27 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  partos: [
+    { title: "Reproducción" },
+    { title: "Partos" },
+  ],
+
+  partoCrear: [
+    { title: "Reproducción" },
+    { title: "Partos", path: "/partos" },
+    { title: "Nuevo Parto" },
+  ],
+
+  partoEditar: [
+    { title: "Reproducción" },
+    { title: "Partos", path: "/partos" },
+    { title: "Editar Parto" },
+  ],
+
+  partoDetalle: [
+    { title: "Reproducción" },
+    { title: "Partos", path: "/partos" },
+    { title: "Detalle" },
+  ],
+
 };

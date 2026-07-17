@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Pesajes\PesajeController;
 use App\Http\Controllers\Api\EventosSanitarios\EventoSanitarioController;
 use App\Http\Controllers\Api\ServiciosReproductivos\ServicioReproductivoController;
 use App\Http\Controllers\Api\Gestaciones\GestacionController;
+use App\Http\Controllers\Api\Partos\PartoController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -546,5 +547,28 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('permission:reproduccion.update');
 
     Route::patch('gestaciones/{gestacion}', [GestacionController::class, 'update'])
+        ->middleware('permission:reproduccion.update');
+});
+
+/*
+|--------------------------------------------------------------------------
+| PARTOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('partos', [PartoController::class, 'index'])
+        ->middleware('permission:reproduccion.view');
+
+    Route::post('partos', [PartoController::class, 'store'])
+        ->middleware('permission:reproduccion.create');
+
+    Route::get('partos/{parto}', [PartoController::class, 'show'])
+        ->middleware('permission:reproduccion.view');
+
+    Route::put('partos/{parto}', [PartoController::class, 'update'])
+        ->middleware('permission:reproduccion.update');
+
+    Route::patch('partos/{parto}', [PartoController::class, 'update'])
         ->middleware('permission:reproduccion.update');
 });

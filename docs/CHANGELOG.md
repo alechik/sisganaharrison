@@ -12,6 +12,29 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-06-28] — Fase R3: Partos
+
+### Added
+
+**Backend:**
+- Migración `partos` con FK `gestacion_id` → `gestaciones` (unique)
+- Model `Parto`, Factory, `PartoSeeder` (6 registros)
+- `PartoService` con validación de gestación existente, un parto por gestación y finalización automática de gestación
+- Policy, Store/Update Requests, Resource (datos anidados de gestación y servicio), Controller
+- 5 endpoints REST en `/api/partos` (index, show, store, update — sin delete)
+- Permisos existentes `reproduccion.view`, `reproduccion.create`, `reproduccion.update`
+- Relación `hasOne parto` en model `Gestacion`
+
+**Frontend:**
+- Módulo `modules/partos/` con Select de gestaciones (API)
+- Listado y detalle muestran hembra, servicio, estado de gestación y fecha de parto
+- Edición permitida; sin eliminación (historial protegido)
+- Rutas integradas en App + sidebar (grupo Reproducción) + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-06-28] — Fase R2: Gestaciones
 
 ### Added

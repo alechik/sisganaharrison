@@ -38,6 +38,7 @@ import { pesajeRoutes } from "./modules/pesajes/routes";
 import { eventoSanitarioRoutes } from "./modules/eventos-sanitarios/routes";
 import { servicioReproductivoRoutes } from "./modules/servicios-reproductivos/routes";
 import { gestacionRoutes } from "./modules/gestaciones/routes";
+import { partoRoutes } from "./modules/partos/routes";
 
 
 export default function App() {
@@ -76,6 +77,7 @@ export default function App() {
             {eventoSanitarioRoutes}
             {servicioReproductivoRoutes}
             {gestacionRoutes}
+            {partoRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

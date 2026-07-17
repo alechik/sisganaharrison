@@ -1,8 +1,8 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-06-28** — post módulo Gestaciones.
+> Snapshot mínimo. **2026-06-28** — post módulo Partos.
 
-**Avance estimado:** ~56–60%
+**Avance estimado:** ~58–62%
 
 ---
 
@@ -10,11 +10,11 @@
 
 | Capa | Qué hay |
 |------|---------|
-| Backend | Laravel 12, Sanctum, Spatie (~98 permisos, 4 roles), **17 controllers dominio** |
-| Modelos | User, catálogos G1, Establecimiento, Potrero, Lote, Animal, Pesaje, EventoSanitario, ServicioReproductivo, **Gestacion** |
-| Frontend | `user`, catálogos G1, infraestructura, **`animales`**, **`pesajes`**, **`eventos-sanitarios`**, **`servicios-reproductivos`**, **`gestaciones`** + PermissionGate |
-| BD | **29 tablas** (21 migraciones), PostgreSQL |
-| API | **~129 endpoints** |
+| Backend | Laravel 12, Sanctum, Spatie (~98 permisos, 4 roles), **18 controllers dominio** |
+| Modelos | User, catálogos G1, Establecimiento, Potrero, Lote, Animal, Pesaje, EventoSanitario, ServicioReproductivo, Gestacion, **Parto** |
+| Frontend | `user`, catálogos G1, infraestructura, **`animales`**, **`pesajes`**, **`eventos-sanitarios`**, **`servicios-reproductivos`**, **`gestaciones`**, **`partos`** + PermissionGate |
+| BD | **30 tablas** (22 migraciones), PostgreSQL |
+| API | **~134 endpoints** |
 
 ## Pendiente prioritario
 
