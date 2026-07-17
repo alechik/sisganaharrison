@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             PesajeSeeder::class,
             EventoSanitarioSeeder::class,
             ServicioReproductivoSeeder::class,
+            GestacionSeeder::class,
         ]);
     }
 }

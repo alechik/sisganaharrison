@@ -95,6 +95,10 @@ const navItems: NavItem[] = [
         name: "Servicios Reproductivos",
         path: "/servicios-reproductivos",
       },
+      {
+        name: "Gestaciones",
+        path: "/gestaciones",
+      },
     ],
   },
 

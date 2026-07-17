@@ -424,4 +424,27 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  gestaciones: [
+    { title: "Reproducción" },
+    { title: "Gestaciones" },
+  ],
+
+  gestacionCrear: [
+    { title: "Reproducción" },
+    { title: "Gestaciones", path: "/gestaciones" },
+    { title: "Nueva Gestación" },
+  ],
+
+  gestacionEditar: [
+    { title: "Reproducción" },
+    { title: "Gestaciones", path: "/gestaciones" },
+    { title: "Editar Gestación" },
+  ],
+
+  gestacionDetalle: [
+    { title: "Reproducción" },
+    { title: "Gestaciones", path: "/gestaciones" },
+    { title: "Detalle" },
+  ],
+
 };

@@ -12,6 +12,29 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-06-28] — Fase R2: Gestaciones
+
+### Added
+
+**Backend:**
+- Migración `gestaciones` con FK `servicio_id` → `servicios_reproductivos` (unique)
+- Model `Gestacion`, Factory, `GestacionSeeder` (10 registros)
+- `GestacionService` con validación de servicio existente, una gestación por servicio y una activa por servicio
+- Policy, Store/Update Requests, Resource (datos anidados del servicio), Controller
+- 5 endpoints REST en `/api/gestaciones` (index, show, store, update — sin delete)
+- Permisos existentes `reproduccion.view`, `reproduccion.create`, `reproduccion.update`
+- Relación `hasOne gestacion` en model `ServicioReproductivo`
+
+**Frontend:**
+- Módulo `modules/gestaciones/` con Select de servicios reproductivos (API)
+- Listado y detalle muestran hembra, fecha, tipo y resultado del servicio
+- Edición permitida; sin eliminación (historial protegido)
+- Rutas integradas en App + sidebar (grupo Reproducción) + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-06-28] — Fase R1: Servicios Reproductivos
 
 ### Added

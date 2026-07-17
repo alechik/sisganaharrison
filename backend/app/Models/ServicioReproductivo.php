@@ -6,6 +6,7 @@ use Database\Factories\ServicioReproductivoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Registro de servicio reproductivo entre hembra y macho.
@@ -68,5 +69,13 @@ class ServicioReproductivo extends Model
     public function macho(): BelongsTo
     {
         return $this->belongsTo(Animal::class, 'macho_id');
+    }
+
+    /**
+     * @return HasOne<Gestacion, $this>
+     */
+    public function gestacion(): HasOne
+    {
+        return $this->hasOne(Gestacion::class, 'servicio_id');
     }
 }
