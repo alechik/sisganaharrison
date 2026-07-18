@@ -12,6 +12,31 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-06-28] — Fase R4: Nacimientos
+
+### Added
+
+**Backend:**
+- Migración `nacimientos` con FKs `parto_id`, `animal_id` (nullable) y `registrado_por` (nullable)
+- Model `Nacimiento`, Factory, `NacimientoSeeder` (8 registros)
+- `NacimientoService` con validación VIVO/MUERTO, causa_muerte obligatoria y animal_id prohibido en muertos
+- Policy, Store/Update Requests, Resource (cadena parto→gestación→servicio→hembra/macho + animal + registrador), Controller
+- 5 endpoints REST en `/api/nacimientos` (index, show, store, update — sin delete)
+- Permisos existentes `reproduccion.view`, `reproduccion.create`, `reproduccion.update`
+- Relación `hasMany nacimientos` en model `Parto`
+- Eager loading completo para evitar N+1
+
+**Frontend:**
+- Módulo `modules/nacimientos/` con Selects de partos (resumen fecha + hembra), animales y usuarios
+- Formulario condicional VIVO/MUERTO; animal opcional solo en vivos
+- Listado y detalle muestran cadena reproductiva completa y datos del animal vinculado
+- Edición permitida; sin eliminación (historial protegido)
+- Rutas integradas en App + sidebar (grupo Reproducción) + breadcrumbs
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-06-28] — Fase R3: Partos
 
 ### Added

@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             ServicioReproductivoSeeder::class,
             GestacionSeeder::class,
             PartoSeeder::class,
+            NacimientoSeeder::class,
         ]);
     }
 }

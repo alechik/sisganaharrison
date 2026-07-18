@@ -470,4 +470,27 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  nacimientos: [
+    { title: "Reproducción" },
+    { title: "Nacimientos" },
+  ],
+
+  nacimientoCrear: [
+    { title: "Reproducción" },
+    { title: "Nacimientos", path: "/nacimientos" },
+    { title: "Nuevo Nacimiento" },
+  ],
+
+  nacimientoEditar: [
+    { title: "Reproducción" },
+    { title: "Nacimientos", path: "/nacimientos" },
+    { title: "Editar Nacimiento" },
+  ],
+
+  nacimientoDetalle: [
+    { title: "Reproducción" },
+    { title: "Nacimientos", path: "/nacimientos" },
+    { title: "Detalle" },
+  ],
+
 };

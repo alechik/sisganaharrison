@@ -103,6 +103,10 @@ const navItems: NavItem[] = [
         name: "Partos",
         path: "/partos",
       },
+      {
+        name: "Nacimientos",
+        path: "/nacimientos",
+      },
     ],
   },
 

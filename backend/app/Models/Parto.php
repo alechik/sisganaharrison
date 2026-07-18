@@ -6,6 +6,7 @@ use Database\Factories\PartoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Evento reproductivo de parto asociado a una gestación.
@@ -41,5 +42,13 @@ class Parto extends Model
     public function gestacion(): BelongsTo
     {
         return $this->belongsTo(Gestacion::class, 'gestacion_id');
+    }
+
+    /**
+     * @return HasMany<Nacimiento, $this>
+     */
+    public function nacimientos(): HasMany
+    {
+        return $this->hasMany(Nacimiento::class, 'parto_id');
     }
 }
