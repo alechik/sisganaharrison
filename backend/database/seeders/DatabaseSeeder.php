@@ -35,6 +35,8 @@ class DatabaseSeeder extends Seeder
             GestacionSeeder::class,
             PartoSeeder::class,
             NacimientoSeeder::class,
+            TipoPersonaSeeder::class,
+            PersonaSeeder::class,
         ]);
     }
 }

@@ -36,8 +36,12 @@ const navItems: NavItem[] = [
         path: "/usuarios",
       },
       {
-        name: "Trabajadores",
-        path: "/trabajadores",
+        name: "Clientes",
+        path: "/socios-de-negocio/clientes",
+      },
+      {
+        name: "Proveedores",
+        path: "/socios-de-negocio/proveedores",
       },
     ],
   },

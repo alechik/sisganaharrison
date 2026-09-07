@@ -23,6 +23,20 @@ class PermissionSeeder extends Seeder
         'usuarios.restore',
         'usuarios.activate',
 
+        // Socios de negocio
+        'socios.view',
+        'socios.create',
+        'socios.update',
+        'socios.delete',
+        'socios.restore',
+        'socios.activate',
+
+        // Tipos de persona
+        'tipos_persona.view',
+        'tipos_persona.create',
+        'tipos_persona.update',
+        'tipos_persona.delete',
+
         // Razas
         'razas.view',
         'razas.create',

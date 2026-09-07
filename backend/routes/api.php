@@ -20,6 +20,8 @@ use App\Http\Controllers\Api\ServiciosReproductivos\ServicioReproductivoControll
 use App\Http\Controllers\Api\Gestaciones\GestacionController;
 use App\Http\Controllers\Api\Partos\PartoController;
 use App\Http\Controllers\Api\Nacimientos\NacimientoController;
+use App\Http\Controllers\Api\SociosDeNegocio\PersonaController;
+use App\Http\Controllers\Api\SociosDeNegocio\TipoPersonaController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -595,4 +597,65 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('nacimientos/{nacimiento}', [NacimientoController::class, 'update'])
         ->middleware('permission:reproduccion.update');
+});
+
+/*
+|--------------------------------------------------------------------------
+| TIPOS DE PERSONA
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('tipos-persona', [TipoPersonaController::class, 'index'])
+        ->middleware('permission:tipos_persona.view');
+
+    Route::post('tipos-persona', [TipoPersonaController::class, 'store'])
+        ->middleware('permission:tipos_persona.create');
+
+    Route::get('tipos-persona/{tipo_persona}', [TipoPersonaController::class, 'show'])
+        ->middleware('permission:tipos_persona.view');
+
+    Route::put('tipos-persona/{tipo_persona}', [TipoPersonaController::class, 'update'])
+        ->middleware('permission:tipos_persona.update');
+
+    Route::patch('tipos-persona/{tipo_persona}', [TipoPersonaController::class, 'update'])
+        ->middleware('permission:tipos_persona.update');
+
+    Route::delete('tipos-persona/{tipo_persona}', [TipoPersonaController::class, 'destroy'])
+        ->middleware('permission:tipos_persona.delete');
+});
+
+/*
+|--------------------------------------------------------------------------
+| SOCIOS DE NEGOCIO
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('socios/eliminados', [PersonaController::class, 'deleted'])
+        ->middleware('permission:socios.view');
+
+    Route::post('socios/{id}/restaurar', [PersonaController::class, 'restore'])
+        ->middleware('permission:socios.restore');
+
+    Route::get('socios', [PersonaController::class, 'index'])
+        ->middleware('permission:socios.view');
+
+    Route::post('socios', [PersonaController::class, 'store'])
+        ->middleware('permission:socios.create');
+
+    Route::get('socios/{persona}', [PersonaController::class, 'show'])
+        ->middleware('permission:socios.view');
+
+    Route::put('socios/{persona}', [PersonaController::class, 'update'])
+        ->middleware('permission:socios.update');
+
+    Route::patch('socios/{persona}', [PersonaController::class, 'update'])
+        ->middleware('permission:socios.update');
+
+    Route::delete('socios/{persona}', [PersonaController::class, 'destroy'])
+        ->middleware('permission:socios.delete');
+
+    Route::patch('socios/{persona}/estado', [PersonaController::class, 'changeStatus'])
+        ->middleware('permission:socios.activate');
 });

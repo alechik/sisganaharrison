@@ -8,6 +8,7 @@
 |--------|--------|------------|----------|------------|
 | Auth | 🟡 | `/api/auth` | — | `AuthController`, `SignInForm` |
 | Usuarios | ✅ | `/api/usuarios` | `usuarios.*` | `modules/user/` |
+| Socios de Negocio | ✅ | `/api/socios`, `/api/tipos-persona` | `socios.*`, `tipos_persona.*` | `modules/socios-de-negocio/` |
 | Razas | ✅ | `/api/razas` | `razas.*` | `modules/razas/` **← patrón** |
 | Categorías Animales | ✅ | `/api/categorias-animales` | `categorias_animales.*` | `modules/categorias-animales/` |
 | Vacunas | ✅ | `/api/vacunas` | `vacunas.*` | `modules/vacunas/` |

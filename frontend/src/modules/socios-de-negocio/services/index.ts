@@ -1,0 +1,16 @@
+export {
+  getSocios,
+  getDeletedSocios,
+  getSocio,
+  createSocio,
+  updateSocio,
+  deleteSocio,
+  changeSocioStatus,
+  restoreSocio,
+  getTiposPersona,
+  getTiposPersonaOptions,
+  getTipoPersona,
+  createTipoPersona,
+  updateTipoPersona,
+  deleteTipoPersona,
+} from "./socioService";

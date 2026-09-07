@@ -12,6 +12,28 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-06] — Socios de Negocio
+
+### Added
+
+**Backend:**
+- Migración de tablas reutilizadas `tipo`, `personas` y `personas_tipo` (unique `persona_id + rol_id`)
+- Models `TipoPersona` y `Persona` (soft delete, sin borrado físico)
+- Factory + `TipoPersonaSeeder` (CLIENTE, PROVEEDOR) + `PersonaSeeder` (8 registros)
+- `PersonaService` / `TipoPersonaService`, Policies, FormRequests, Resources y Controllers
+- Endpoints `/api/socios` (CRUD + restore + estado) y `/api/tipos-persona`
+- Permisos `socios.*` y `tipos_persona.*` (admin completo; trabajador/veterinario: view + create)
+
+**Frontend:**
+- Módulo `modules/socios-de-negocio/` con listados separados de Clientes y Proveedores
+- MultiSelect de tipos; una persona puede ser cliente y proveedor a la vez
+- Gestión de tipos de persona para administrador
+- Integración en App, breadcrumbs y sidebar (Gestión de Personal)
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-06-28] — Fase R4: Nacimientos
 
 ### Added

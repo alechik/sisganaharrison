@@ -1,0 +1,8 @@
+export { default as SocioTable } from "./SocioTable";
+export { default as SocioForm } from "./SocioForm";
+export { default as SocioFiltersBar } from "./SocioFiltersBar";
+export { default as SocioToolbar } from "./SocioToolbar";
+export { default as SocioStatusBadge } from "./SocioStatusBadge";
+export { default as TipoPersonaTable } from "./TipoPersonaTable";
+export { default as TipoPersonaForm } from "./TipoPersonaForm";
+export { default as TipoPersonaToolbar } from "./TipoPersonaToolbar";

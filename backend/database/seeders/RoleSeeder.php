@@ -28,6 +28,16 @@ class RoleSeeder extends Seeder
             'usuarios.delete',
             'usuarios.restore',
             'usuarios.activate',
+            'socios.view',
+            'socios.create',
+            'socios.update',
+            'socios.delete',
+            'socios.restore',
+            'socios.activate',
+            'tipos_persona.view',
+            'tipos_persona.create',
+            'tipos_persona.update',
+            'tipos_persona.delete',
             'razas.view',
             'razas.create',
             'razas.update',
@@ -122,6 +132,9 @@ class RoleSeeder extends Seeder
         ]);
 
         $veterinario->syncPermissions([
+            'socios.view',
+            'socios.create',
+            'tipos_persona.view',
             'razas.view',
             'vacunas.view',
             'estados_productivos.view',
@@ -153,6 +166,9 @@ class RoleSeeder extends Seeder
         ]);
 
         $trabajador->syncPermissions([
+            'socios.view',
+            'socios.create',
+            'tipos_persona.view',
             'razas.view',
             'vacunas.view',
             'estados_productivos.view',

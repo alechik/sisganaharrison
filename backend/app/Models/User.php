@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -57,5 +58,13 @@ class User extends Authenticatable
     public function getNombreCompletoAttribute()
     {
         return $this->nombre . ' ' . $this->apellido;
+    }
+
+    /**
+     * @return HasMany<Persona, $this>
+     */
+    public function personas(): HasMany
+    {
+        return $this->hasMany(Persona::class, 'user_id');
     }
 }
