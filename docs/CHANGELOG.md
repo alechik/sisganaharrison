@@ -12,6 +12,20 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-09] — Unificación Socios de Negocios
+
+### Changed
+
+- Listado único de socios (`/socios-de-negocio`) en lugar de menús separados de Clientes y Proveedores
+- Filtros por razón social, CI/NIT, tipo (Cliente / Proveedor / Ambos) y estado
+- Badges de tipo derivados de `personas_tipo`
+- Formulario único para crear/editar con selección de uno o ambos tipos
+- Menú: **Gestión de Personal → Socios de Negocios**
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-09-06] — Socios de Negocio
 
 ### Added

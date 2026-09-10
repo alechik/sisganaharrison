@@ -30,6 +30,7 @@ export const getSocios = async (
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
       search: params.search || undefined,
+      documento: params.documento || undefined,
       estado: params.estado,
       tipo: params.tipo || undefined,
       tipo_id: params.tipo_id,

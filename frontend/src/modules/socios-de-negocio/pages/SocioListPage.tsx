@@ -4,18 +4,13 @@ import ConfirmDialog from "@/components/common/ConfirmDialog";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import { SocioFiltersBar, SocioTable, SocioToolbar } from "../components";
-import { TIPO_CLIENTE, TIPO_PROVEEDOR } from "../constants";
 import { useDeleteSocio, useSocios } from "../hooks";
 import { Socio } from "../types";
-import { getTipoLabel, isSocioActivo } from "../utils";
-
-interface Props {
-  tipo: typeof TIPO_CLIENTE | typeof TIPO_PROVEEDOR;
-}
+import { isSocioActivo } from "../utils";
 
 type DialogAction = "delete" | "toggleStatus";
 
-export default function SocioListPage({ tipo }: Props) {
+export default function SocioListPage() {
   const {
     socios,
     loading,
@@ -28,15 +23,12 @@ export default function SocioListPage({ tipo }: Props) {
     refresh,
     showSuccess,
     clearSuccess,
-  } = useSocios({ initialFilters: { tipo } });
+  } = useSocios();
   const { execute, loading: processing, error: actionError, setError } = useDeleteSocio();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogAction, setDialogAction] = useState<DialogAction>("delete");
   const [selected, setSelected] = useState<Socio | null>(null);
-
-  const title = tipo === TIPO_CLIENTE ? "Clientes" : "Proveedores";
-  const breadcrumbItems = tipo === TIPO_CLIENTE ? breadcrumbs.sociosClientes : breadcrumbs.sociosProveedores;
 
   const openDialog = (action: DialogAction, socio: Socio) => {
     setDialogAction(action);
@@ -70,7 +62,7 @@ export default function SocioListPage({ tipo }: Props) {
   };
 
   if (loading && socios.length === 0) {
-    return <div>Cargando {title.toLowerCase()}...</div>;
+    return <div>Cargando socios de negocios...</div>;
   }
 
   const dialogCopy =
@@ -92,13 +84,13 @@ export default function SocioListPage({ tipo }: Props) {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{title}</h1>
-          <PageBreadCrumb pageTitle={title} items={breadcrumbItems} />
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Socios de Negocios</h1>
+          <PageBreadCrumb pageTitle="Socios de Negocios" items={breadcrumbs.socios} />
           <p className="mt-1 text-sm text-gray-500">
-            Socios de negocio con tipo {getTipoLabel(tipo)}. Una persona puede ser cliente y proveedor a la vez.
+            Un socio puede ser Cliente, Proveedor o ambos, según los tipos asignados.
           </p>
         </div>
-        <SocioToolbar tipo={tipo} />
+        <SocioToolbar />
       </div>
 
       {successMessage && (
@@ -116,7 +108,7 @@ export default function SocioListPage({ tipo }: Props) {
         </div>
       )}
 
-      <SocioFiltersBar filters={filters} onChange={updateFilters} lockTipo />
+      <SocioFiltersBar filters={filters} onChange={updateFilters} />
 
       <SocioTable
         socios={socios}

@@ -14,8 +14,9 @@ import { EyeIcon, PencilIcon, TrashBinIcon } from "@/icons";
 import { SOCIO_ROUTES } from "../constants";
 import { SOCIOS_PERMISSIONS } from "../permissions";
 import { Socio } from "../types";
-import { getTipoLabel, isSocioActivo } from "../utils";
+import { isSocioActivo } from "../utils";
 import SocioStatusBadge from "./SocioStatusBadge";
+import SocioTipoBadges from "./SocioTipoBadges";
 
 interface Props {
   socios: Socio[];
@@ -44,7 +45,8 @@ export default function SocioTable({
             <TableRow>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Razón social</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Responsable</TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Tipos</TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">CI / NIT</TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Tipo</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Email</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Celular</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Registrado por</TableCell>
@@ -55,7 +57,7 @@ export default function SocioTable({
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {socios.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={8}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={9}>
                   No hay socios de negocio para mostrar.
                 </TableCell>
               </TableRow>
@@ -65,7 +67,10 @@ export default function SocioTable({
                   <TableCell className="px-5 py-4 font-medium text-gray-800 text-theme-sm dark:text-white/90">{socio.razon_social}</TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">{socio.responsable || "—"}</TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {(socio.tipos ?? []).map((tipo) => getTipoLabel(tipo.nombre)).join(", ") || "—"}
+                    {[socio.ci, socio.nit].filter(Boolean).join(" / ") || "—"}
+                  </TableCell>
+                  <TableCell className="px-5 py-4">
+                    <SocioTipoBadges tipos={socio.tipos} />
                   </TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">{socio.email || "—"}</TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">{socio.celular ?? "—"}</TableCell>

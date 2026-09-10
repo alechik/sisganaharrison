@@ -1,5 +1,5 @@
 import { Route } from "react-router-dom";
-import { SOCIO_ROUTES, TIPO_CLIENTE, TIPO_PROVEEDOR } from "../constants";
+import { SOCIO_ROUTES } from "../constants";
 import SocioCreatePage from "../pages/SocioCreatePage";
 import SocioDeletedPage from "../pages/SocioDeletedPage";
 import SocioDetailPage from "../pages/SocioDetailPage";
@@ -11,10 +11,8 @@ import TipoPersonaListPage from "../pages/TipoPersonaListPage";
 
 export const sociosDeNegocioRoutes = (
   <>
-    <Route path={SOCIO_ROUTES.clientes} element={<SocioListPage tipo={TIPO_CLIENTE} />} />
-    <Route path={SOCIO_ROUTES.clientesCreate} element={<SocioCreatePage tipo={TIPO_CLIENTE} />} />
-    <Route path={SOCIO_ROUTES.proveedores} element={<SocioListPage tipo={TIPO_PROVEEDOR} />} />
-    <Route path={SOCIO_ROUTES.proveedoresCreate} element={<SocioCreatePage tipo={TIPO_PROVEEDOR} />} />
+    <Route path={SOCIO_ROUTES.list} element={<SocioListPage />} />
+    <Route path={SOCIO_ROUTES.create} element={<SocioCreatePage />} />
     <Route path={SOCIO_ROUTES.deleted} element={<SocioDeletedPage />} />
     <Route path={SOCIO_ROUTES.tipos} element={<TipoPersonaListPage />} />
     <Route path={SOCIO_ROUTES.tiposCreate} element={<TipoPersonaCreatePage />} />

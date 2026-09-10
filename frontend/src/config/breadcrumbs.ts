@@ -48,66 +48,51 @@ export const breadcrumbs = {
     },
   ],
 
-  sociosClientes: [
+  socios: [
     { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
-    { title: "Clientes" },
+    { title: "Socios de Negocios" },
   ],
 
-  sociosProveedores: [
+  socioCrear: [
     { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
-    { title: "Proveedores" },
-  ],
-
-  socioClienteCrear: [
-    { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
-    { title: "Clientes", path: "/socios-de-negocio/clientes" },
-    { title: "Nuevo Cliente" },
-  ],
-
-  socioProveedorCrear: [
-    { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
-    { title: "Proveedores", path: "/socios-de-negocio/proveedores" },
-    { title: "Nuevo Proveedor" },
+    { title: "Socios de Negocios", path: "/socios-de-negocio" },
+    { title: "Nuevo socio" },
   ],
 
   socioEditar: [
     { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
+    { title: "Socios de Negocios", path: "/socios-de-negocio" },
     { title: "Editar socio" },
   ],
 
   socioDetalle: [
     { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
+    { title: "Socios de Negocios", path: "/socios-de-negocio" },
     { title: "Detalle" },
   ],
 
   sociosEliminados: [
     { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
+    { title: "Socios de Negocios", path: "/socios-de-negocio" },
     { title: "Desactivados" },
   ],
 
   tiposPersona: [
     { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
+    { title: "Socios de Negocios", path: "/socios-de-negocio" },
     { title: "Tipos de persona" },
   ],
 
   tipoPersonaCrear: [
     { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
+    { title: "Socios de Negocios", path: "/socios-de-negocio" },
     { title: "Tipos de persona", path: "/socios-de-negocio/tipos" },
     { title: "Nuevo tipo" },
   ],
 
   tipoPersonaEditar: [
     { title: "Gestión de Personal" },
-    { title: "Socios de Negocio" },
+    { title: "Socios de Negocios", path: "/socios-de-negocio" },
     { title: "Tipos de persona", path: "/socios-de-negocio/tipos" },
     { title: "Editar tipo" },
   ],

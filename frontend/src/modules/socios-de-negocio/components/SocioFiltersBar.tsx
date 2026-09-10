@@ -1,49 +1,49 @@
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
-import { SOCIO_SORT_OPTIONS } from "../constants";
-import { useTipoPersonaOptions } from "../hooks";
+import { SOCIO_SORT_OPTIONS, TIPO_FILTRO_OPTIONS } from "../constants";
 import { SocioFilters, SocioSortDirection } from "../types";
-import { getTipoLabel } from "../utils";
 
 interface Props {
   filters: SocioFilters;
   onChange: (partial: Partial<SocioFilters>) => void;
-  lockTipo?: boolean;
 }
 
-export default function SocioFiltersBar({ filters, onChange, lockTipo = false }: Props) {
-  const { tipos } = useTipoPersonaOptions();
-
+export default function SocioFiltersBar({ filters, onChange }: Props) {
   return (
-    <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-3">
       <div>
-        <Label>Búsqueda</Label>
+        <Label>Nombre / Razón social</Label>
         <InputField
           type="text"
-          placeholder="Razón social, responsable, email, NIT o CI"
+          placeholder="Buscar por nombre o razón social"
           value={filters.search ?? ""}
           onChange={(e) => onChange({ search: e.target.value })}
         />
       </div>
 
-      {!lockTipo && (
-        <div>
-          <Label>Tipo</Label>
-          <Select
-            value={filters.tipo ?? "all"}
-            placeholder="Todos"
-            options={[
-              { value: "all", label: "Todos" },
-              ...tipos.map((tipo) => ({
-                value: tipo.nombre,
-                label: getTipoLabel(tipo.nombre),
-              })),
-            ]}
-            onChange={(value) => onChange({ tipo: value === "all" ? undefined : value })}
-          />
-        </div>
-      )}
+      <div>
+        <Label>CI / NIT</Label>
+        <InputField
+          type="text"
+          placeholder="Buscar por CI o NIT"
+          value={filters.documento ?? ""}
+          onChange={(e) => onChange({ documento: e.target.value })}
+        />
+      </div>
+
+      <div>
+        <Label>Tipo</Label>
+        <Select
+          value={filters.tipo ?? "all"}
+          placeholder="Todos"
+          options={TIPO_FILTRO_OPTIONS.map((option) => ({
+            value: option.value,
+            label: option.label,
+          }))}
+          onChange={(value) => onChange({ tipo: value === "all" ? undefined : value })}
+        />
+      </div>
 
       <div>
         <Label>Estado</Label>

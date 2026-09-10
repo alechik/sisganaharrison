@@ -1,8 +1,6 @@
 export const SOCIO_ROUTES = {
-  clientes: "/socios-de-negocio/clientes",
-  clientesCreate: "/socios-de-negocio/clientes/crear",
-  proveedores: "/socios-de-negocio/proveedores",
-  proveedoresCreate: "/socios-de-negocio/proveedores/crear",
+  list: "/socios-de-negocio",
+  create: "/socios-de-negocio/crear",
   deleted: "/socios-de-negocio/eliminados",
   detail: (id: number | string) => `/socios-de-negocio/${id}`,
   edit: (id: number | string) => `/socios-de-negocio/${id}/editar`,
@@ -27,6 +25,14 @@ export const TIPO_PERSONA_SORT_OPTIONS = [
 
 export const TIPO_CLIENTE = "CLIENTE";
 export const TIPO_PROVEEDOR = "PROVEEDOR";
+export const TIPO_AMBOS = "AMBOS";
+
+export const TIPO_FILTRO_OPTIONS = [
+  { value: "all", label: "Todos" },
+  { value: TIPO_CLIENTE, label: "Cliente" },
+  { value: TIPO_PROVEEDOR, label: "Proveedor" },
+  { value: TIPO_AMBOS, label: "Ambos" },
+] as const;
 
 export const SEXO_OPTIONS = [
   { value: "M", label: "Masculino" },

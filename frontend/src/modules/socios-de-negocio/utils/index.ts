@@ -7,10 +7,11 @@ import {
   TipoPersonaSortField,
 } from "../types";
 
-export const defaultSocioFilters = (tipo?: string): SocioFilters => ({
+export const defaultSocioFilters = (): SocioFilters => ({
   search: "",
+  documento: "",
   estado: undefined,
-  tipo,
+  tipo: undefined,
   tipo_id: undefined,
   sort_by: "razon_social" as SocioSortField,
   sort_dir: "asc" as SocioSortDirection,
@@ -67,3 +68,12 @@ export const getTipoLabel = (value?: string | null): string => {
 };
 
 export const isSocioActivo = (estado?: string | null): boolean => estado === "ACTIVO";
+
+export const getSocioTipoNombres = (tipos?: { nombre: string }[] | null): string[] =>
+  (tipos ?? []).map((tipo) => tipo.nombre);
+
+export const esCliente = (tipos?: { nombre: string }[] | null): boolean =>
+  getSocioTipoNombres(tipos).includes("CLIENTE");
+
+export const esProveedor = (tipos?: { nombre: string }[] | null): boolean =>
+  getSocioTipoNombres(tipos).includes("PROVEEDOR");

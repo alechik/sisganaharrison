@@ -6,14 +6,13 @@ import Label from "@/components/form/Label";
 import MultiSelect from "@/components/form/MultiSelect";
 import Select from "@/components/form/Select";
 import Button from "@/components/ui/button/Button";
-import { ESTADO_CIVIL_OPTIONS, SEXO_OPTIONS, SOCIO_ROUTES, TIPO_CLIENTE, TIPO_PROVEEDOR } from "../constants";
+import { ESTADO_CIVIL_OPTIONS, SEXO_OPTIONS, SOCIO_ROUTES } from "../constants";
 import { useCreateSocio, useTipoPersonaOptions, useUpdateSocio } from "../hooks";
 import { getSocio } from "../services";
 import { SocioCreateRequest } from "../types";
 
 interface Props {
   socioId?: number;
-  defaultTipoNombre?: typeof TIPO_CLIENTE | typeof TIPO_PROVEEDOR;
 }
 
 const emptyForm: SocioCreateRequest = {
@@ -30,10 +29,10 @@ const emptyForm: SocioCreateRequest = {
   tipo_ids: [],
 };
 
-export default function SocioForm({ socioId, defaultTipoNombre }: Props) {
+export default function SocioForm({ socioId }: Props) {
   const navigate = useNavigate();
   const isEdit = Boolean(socioId);
-  const { tipoOptions, tipos, loading: loadingTipos, error: tiposError } = useTipoPersonaOptions();
+  const { tipoOptions, loading: loadingTipos, error: tiposError } = useTipoPersonaOptions();
   const { create, loading: creating, error: createError, setError: setCreateError } = useCreateSocio();
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateSocio();
 
@@ -42,16 +41,6 @@ export default function SocioForm({ socioId, defaultTipoNombre }: Props) {
 
   const saving = creating || updating;
   const error = createError || updateError || tiposError;
-  const listPath = defaultTipoNombre === TIPO_PROVEEDOR ? SOCIO_ROUTES.proveedores : SOCIO_ROUTES.clientes;
-
-  useEffect(() => {
-    if (!isEdit && tipos.length > 0 && form.tipo_ids.length === 0 && defaultTipoNombre) {
-      const tipo = tipos.find((item) => item.nombre === defaultTipoNombre);
-      if (tipo) {
-        setForm((current) => ({ ...current, tipo_ids: [tipo.id] }));
-      }
-    }
-  }, [defaultTipoNombre, form.tipo_ids.length, isEdit, tipos]);
 
   useEffect(() => {
     if (!socioId) {
@@ -139,7 +128,7 @@ export default function SocioForm({ socioId, defaultTipoNombre }: Props) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
           <MultiSelect
-            label="Tipos de persona"
+            label="Tipos de persona (Cliente, Proveedor o ambos)"
             options={tipoOptions}
             value={form.tipo_ids.map(String)}
             placeholder="Seleccione uno o más tipos"
@@ -208,7 +197,7 @@ export default function SocioForm({ socioId, defaultTipoNombre }: Props) {
         <Button size="sm" type="submit" disabled={saving}>
           {saving ? "Guardando..." : isEdit ? "Actualizar socio" : "Guardar socio"}
         </Button>
-        <Button size="sm" variant="outline" type="button" onClick={() => navigate(listPath)}>
+        <Button size="sm" variant="outline" type="button" onClick={() => navigate(SOCIO_ROUTES.list)}>
           Cancelar
         </Button>
       </div>

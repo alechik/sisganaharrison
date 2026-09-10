@@ -5,12 +5,12 @@ import PermissionGate from "@/components/auth/PermissionGate";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
-import { SocioStatusBadge } from "../components";
-import { SOCIO_ROUTES, TIPO_CLIENTE } from "../constants";
+import { SocioStatusBadge, SocioTipoBadges } from "../components";
+import { SOCIO_ROUTES } from "../constants";
 import { SOCIOS_PERMISSIONS } from "../permissions";
 import { getSocio } from "../services";
 import { Socio } from "../types";
-import { formatDate, getEstadoCivilLabel, getSexoLabel, getTipoLabel, isSocioActivo } from "../utils";
+import { formatDate, getEstadoCivilLabel, getSexoLabel, isSocioActivo } from "../utils";
 
 export default function SocioDetailPage() {
   const { id } = useParams();
@@ -48,16 +48,13 @@ export default function SocioDetailPage() {
     );
   }
 
-  const esCliente = (socio.tipos ?? []).some((tipo) => tipo.nombre === TIPO_CLIENTE);
-  const listPath = esCliente ? SOCIO_ROUTES.clientes : SOCIO_ROUTES.proveedores;
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <PageBreadCrumb pageTitle={socio.razon_social} items={breadcrumbs.socioDetalle} />
         <div className="flex gap-3">
           <Link
-            to={listPath}
+            to={SOCIO_ROUTES.list}
             className="inline-flex items-center justify-center rounded-lg bg-white px-4 py-3 text-sm text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700"
           >
             Volver al listado
@@ -80,10 +77,8 @@ export default function SocioDetailPage() {
             <dd className="font-medium text-gray-800 dark:text-white/90">{socio.razon_social}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500">Tipos</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {(socio.tipos ?? []).map((tipo) => getTipoLabel(tipo.nombre)).join(", ") || "—"}
-            </dd>
+            <dt className="text-sm text-gray-500">Tipo</dt>
+            <dd className="mt-1"><SocioTipoBadges tipos={socio.tipos} /></dd>
           </div>
           <div>
             <dt className="text-sm text-gray-500">Responsable</dt>

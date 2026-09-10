@@ -1,6 +1,6 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-09-06** — post módulo Socios de Negocio.
+> Snapshot mínimo. **2026-09-09** — unificación Socios de Negocios.
 
 **Avance estimado:** ~62–66%
 

@@ -48,6 +48,7 @@ export interface SocioListParams {
   page?: number;
   per_page?: number;
   search?: string;
+  documento?: string;
   estado?: boolean | string;
   tipo?: string;
   tipo_id?: number;

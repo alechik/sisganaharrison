@@ -1,17 +1,10 @@
 import { Link } from "react-router-dom";
 
 import PermissionGate from "@/components/auth/PermissionGate";
-import { SOCIO_ROUTES, TIPO_CLIENTE, TIPO_PROVEEDOR } from "../constants";
+import { SOCIO_ROUTES } from "../constants";
 import { SOCIOS_PERMISSIONS, TIPOS_PERSONA_PERMISSIONS } from "../permissions";
 
-interface Props {
-  tipo: typeof TIPO_CLIENTE | typeof TIPO_PROVEEDOR;
-}
-
-export default function SocioToolbar({ tipo }: Props) {
-  const createPath = tipo === TIPO_CLIENTE ? SOCIO_ROUTES.clientesCreate : SOCIO_ROUTES.proveedoresCreate;
-  const createLabel = tipo === TIPO_CLIENTE ? "+ Nuevo Cliente" : "+ Nuevo Proveedor";
-
+export default function SocioToolbar() {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <PermissionGate permission={TIPOS_PERSONA_PERMISSIONS.update}>
@@ -34,10 +27,10 @@ export default function SocioToolbar({ tipo }: Props) {
 
       <PermissionGate permission={SOCIOS_PERMISSIONS.create}>
         <Link
-          to={createPath}
+          to={SOCIO_ROUTES.create}
           className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
         >
-          {createLabel}
+          + Nuevo socio
         </Link>
       </PermissionGate>
     </div>

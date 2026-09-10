@@ -20,7 +20,7 @@ interface UseSociosOptions {
 
 export const useSocios = ({ deleted = false, initialFilters = {} }: UseSociosOptions = {}) => {
   const [filters, setFilters] = useState<SocioFilters>({
-    ...defaultSocioFilters(initialFilters.tipo),
+    ...defaultSocioFilters(),
     ...initialFilters,
   });
   const [socios, setSocios] = useState<Socio[]>([]);
@@ -64,6 +64,7 @@ export const useSocios = ({ deleted = false, initialFilters = {} }: UseSociosOpt
     filters.page,
     filters.per_page,
     filters.search,
+    filters.documento,
     filters.estado,
     filters.tipo,
     filters.tipo_id,

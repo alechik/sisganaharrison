@@ -137,13 +137,18 @@ class PersonaService
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('razon_social', 'like', "%{$search}%")
                     ->orWhere('responsable', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('nit', 'like', "%{$search}%")
-                    ->orWhere('direccion', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
 
-                if (is_numeric($search)) {
-                    $builder->orWhere('ci', (int) $search)
-                        ->orWhere('celular', (int) $search);
+        if (! empty($filters['documento'])) {
+            $documento = (string) $filters['documento'];
+
+            $query->where(function (Builder $builder) use ($documento) {
+                $builder->where('nit', 'like', "%{$documento}%");
+
+                if (is_numeric($documento)) {
+                    $builder->orWhere('ci', (int) $documento);
                 }
             });
         }
@@ -154,8 +159,7 @@ class PersonaService
         }
 
         if (! empty($filters['tipo'])) {
-            $tipoNombre = strtoupper((string) $filters['tipo']);
-            $query->whereHas('tipos', fn (Builder $builder) => $builder->where('tipo.nombre', $tipoNombre));
+            $this->applyTipoFilter($query, strtoupper((string) $filters['tipo']));
         }
 
         if (array_key_exists('estado', $filters) && $filters['estado'] !== null && $filters['estado'] !== '') {
@@ -201,5 +205,30 @@ class PersonaService
         }
 
         return $ids;
+    }
+
+    /**
+     * @param  Builder<Persona>  $query
+     */
+    private function applyTipoFilter(Builder $query, string $tipo): void
+    {
+        if ($tipo === 'AMBOS') {
+            $query->whereHas('tipos', fn (Builder $builder) => $builder->where('tipo.nombre', TipoPersona::CLIENTE))
+                ->whereHas('tipos', fn (Builder $builder) => $builder->where('tipo.nombre', TipoPersona::PROVEEDOR));
+
+            return;
+        }
+
+        if ($tipo === TipoPersona::CLIENTE) {
+            $query->whereHas('tipos', fn (Builder $builder) => $builder->where('tipo.nombre', TipoPersona::CLIENTE))
+                ->whereDoesntHave('tipos', fn (Builder $builder) => $builder->where('tipo.nombre', TipoPersona::PROVEEDOR));
+
+            return;
+        }
+
+        if ($tipo === TipoPersona::PROVEEDOR) {
+            $query->whereHas('tipos', fn (Builder $builder) => $builder->where('tipo.nombre', TipoPersona::PROVEEDOR))
+                ->whereDoesntHave('tipos', fn (Builder $builder) => $builder->where('tipo.nombre', TipoPersona::CLIENTE));
+        }
     }
 }
