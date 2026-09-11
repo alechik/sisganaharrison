@@ -52,6 +52,7 @@ export interface SocioListParams {
   estado?: boolean | string;
   tipo?: string;
   tipo_id?: number;
+  tiene_tipo?: string;
   sort_by?: string;
   sort_dir?: "asc" | "desc";
 }

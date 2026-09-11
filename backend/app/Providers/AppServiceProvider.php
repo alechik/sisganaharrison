@@ -19,6 +19,7 @@ use App\Models\EventoSanitario;
 use App\Models\Gestacion;
 use App\Models\Parto;
 use App\Models\Nacimiento;
+use App\Models\OrdenCompra;
 use App\Models\Persona;
 use App\Models\ServicioReproductivo;
 use App\Models\TipoPersona;
@@ -40,6 +41,7 @@ use App\Policies\ServicioReproductivoPolicy;
 use App\Policies\GestacionPolicy;
 use App\Policies\PartoPolicy;
 use App\Policies\NacimientoPolicy;
+use App\Policies\OrdenCompraPolicy;
 use App\Policies\PersonaPolicy;
 use App\Policies\TipoPersonaPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -81,6 +83,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Nacimiento::class, NacimientoPolicy::class);
         Gate::policy(Persona::class, PersonaPolicy::class);
         Gate::policy(TipoPersona::class, TipoPersonaPolicy::class);
+        Gate::policy(OrdenCompra::class, OrdenCompraPolicy::class);
 
         Route::bind('categoria', fn (string $value) => CategoriaAnimal::query()->findOrFail($value));
         Route::bind('vacuna', fn (string $value) => Vacuna::query()->findOrFail($value));
@@ -100,6 +103,7 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('nacimiento', fn (string $value) => Nacimiento::query()->findOrFail($value));
         Route::bind('persona', fn (string $value) => Persona::query()->findOrFail($value));
         Route::bind('tipo_persona', fn (string $value) => TipoPersona::query()->findOrFail($value));
+        Route::bind('orden_compra', fn (string $value) => OrdenCompra::query()->findOrFail($value));
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;

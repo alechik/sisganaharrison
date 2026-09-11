@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\Partos\PartoController;
 use App\Http\Controllers\Api\Nacimientos\NacimientoController;
 use App\Http\Controllers\Api\SociosDeNegocio\PersonaController;
 use App\Http\Controllers\Api\SociosDeNegocio\TipoPersonaController;
+use App\Http\Controllers\Api\Compras\OrdenCompraController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -658,4 +659,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('socios/{persona}/estado', [PersonaController::class, 'changeStatus'])
         ->middleware('permission:socios.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| COMPRAS — ORDENES DE COMPRA
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('compras/ordenes-compra/pendientes', [OrdenCompraController::class, 'pendientes'])
+        ->middleware('permission:compras.view');
+
+    Route::get('compras/ordenes-compra/{orden_compra}/pdf', [OrdenCompraController::class, 'pdf'])
+        ->middleware('permission:compras.view');
+
+    Route::post('compras/ordenes-compra/{orden_compra}/autorizar', [OrdenCompraController::class, 'autorizar'])
+        ->middleware('permission:compras.authorize');
+
+    Route::post('compras/ordenes-compra/{orden_compra}/rechazar', [OrdenCompraController::class, 'rechazar'])
+        ->middleware('permission:compras.authorize');
+
+    Route::get('compras/ordenes-compra', [OrdenCompraController::class, 'index'])
+        ->middleware('permission:compras.view');
+
+    Route::post('compras/ordenes-compra', [OrdenCompraController::class, 'store'])
+        ->middleware('permission:compras.create');
+
+    Route::get('compras/ordenes-compra/{orden_compra}', [OrdenCompraController::class, 'show'])
+        ->middleware('permission:compras.view');
+
+    Route::put('compras/ordenes-compra/{orden_compra}', [OrdenCompraController::class, 'update'])
+        ->middleware('permission:compras.update');
+
+    Route::patch('compras/ordenes-compra/{orden_compra}', [OrdenCompraController::class, 'update'])
+        ->middleware('permission:compras.update');
 });

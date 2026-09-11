@@ -8,7 +8,27 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: módulos transaccionales (Movimientos)._
+_Pendiente: Cuarentena, Ingreso y módulos transaccionales (Movimientos)._
+
+---
+
+## [2026-09-10] — Compras: Órdenes de Compra
+
+### Added
+
+**Backend:**
+- Tablas `orden_compras` y `detalle_orden_compra` (sin alta automática de animales; `animal_id` queda nulo)
+- Models, factory, seeder (6 órdenes), Service con transiciones PENDIENTE → AUTORIZADA/RECHAZADA
+- PDF reutilizable (`PdfGenerator` + DomPDF) para la orden de compra
+- Permisos `compras.view|create|update|authorize` (trabajador: view+create; admin: todos)
+- Notificación de órdenes pendientes en login/`me` para quien puede autorizar
+
+**Frontend:**
+- Módulo `modules/compras/` (listado, alta, edición de pendientes, detalle, PDF)
+- Filtros por código, proveedor, fecha, estado y usuario
+- Campana de notificaciones reutilizada: enlace a `/compras/ordenes-compra?estado=PENDIENTE`
+
+**Documentación:** Actualizados `06`, `08`
 
 ---
 

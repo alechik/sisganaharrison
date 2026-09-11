@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -108,5 +109,13 @@ class Persona extends Model
     public function estaActivo(): bool
     {
         return $this->estado === self::ESTADO_ACTIVO;
+    }
+
+    /**
+     * @return HasMany<OrdenCompra, $this>
+     */
+    public function ordenesCompra(): HasMany
+    {
+        return $this->hasMany(OrdenCompra::class, 'proveedor_id');
     }
 }

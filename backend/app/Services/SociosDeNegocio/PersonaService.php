@@ -162,6 +162,11 @@ class PersonaService
             $this->applyTipoFilter($query, strtoupper((string) $filters['tipo']));
         }
 
+        if (! empty($filters['tiene_tipo'])) {
+            $tipoNombre = strtoupper((string) $filters['tiene_tipo']);
+            $query->whereHas('tipos', fn (Builder $builder) => $builder->where('tipo.nombre', $tipoNombre));
+        }
+
         if (array_key_exists('estado', $filters) && $filters['estado'] !== null && $filters['estado'] !== '') {
             $estado = $filters['estado'];
 

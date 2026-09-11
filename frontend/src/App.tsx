@@ -41,6 +41,7 @@ import { gestacionRoutes } from "./modules/gestaciones/routes";
 import { partoRoutes } from "./modules/partos/routes";
 import { nacimientoRoutes } from "./modules/nacimientos/routes";
 import { sociosDeNegocioRoutes } from "./modules/socios-de-negocio/routes";
+import { comprasRoutes } from "./modules/compras/routes";
 
 
 export default function App() {
@@ -82,6 +83,7 @@ export default function App() {
             {partoRoutes}
             {nacimientoRoutes}
             {sociosDeNegocioRoutes}
+            {comprasRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

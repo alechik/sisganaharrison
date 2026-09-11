@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
             NacimientoSeeder::class,
             TipoPersonaSeeder::class,
             PersonaSeeder::class,
+            OrdenCompraSeeder::class,
         ]);
     }
 }

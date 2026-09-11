@@ -34,6 +34,7 @@ export const getSocios = async (
       estado: params.estado,
       tipo: params.tipo || undefined,
       tipo_id: params.tipo_id,
+      tiene_tipo: params.tiene_tipo,
       sort_by: params.sort_by,
       sort_dir: params.sort_dir,
     },

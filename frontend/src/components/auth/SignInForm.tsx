@@ -43,7 +43,13 @@ export default function SignInForm() {
         JSON.stringify(response.data.permissions ?? [])
       );
 
-      navigate("/");
+      const notificaciones = response.data.notificaciones ?? [];
+      localStorage.setItem("notificaciones", JSON.stringify(notificaciones));
+
+      const pendiente = notificaciones.find(
+        (item: { tipo?: string; ruta?: string }) => item?.tipo === "orden_compra_pendiente" && item?.ruta
+      );
+      navigate(pendiente?.ruta || "/");
 
     } catch (error: any) {
 

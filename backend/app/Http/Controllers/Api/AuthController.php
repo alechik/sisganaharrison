@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrdenCompra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -45,6 +46,7 @@ class AuthController extends Controller
             'user' => $user,
             'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name')->values(),
+            'notificaciones' => $this->buildNotificaciones($user),
         ]);
     }
 
@@ -81,6 +83,7 @@ class AuthController extends Controller
             'user' => $user,
             'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name')->values(),
+            'notificaciones' => $this->buildNotificaciones($user),
         ]);
     }
 
@@ -128,5 +131,32 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Contraseña actualizada correctamente'
         ]);
+    }
+
+    /**
+     * @return list<array{tipo: string, titulo: string, mensaje: string, ruta: string}>
+     */
+    private function buildNotificaciones($user): array
+    {
+        if (! $user->can('compras.authorize')) {
+            return [];
+        }
+
+        $pendientes = OrdenCompra::query()
+            ->where('estado', OrdenCompra::ESTADO_PENDIENTE)
+            ->count();
+
+        if ($pendientes === 0) {
+            return [];
+        }
+
+        return [[
+            'tipo' => 'orden_compra_pendiente',
+            'titulo' => 'Órdenes de compra pendientes',
+            'mensaje' => $pendientes === 1
+                ? 'Hay 1 orden de compra pendiente de autorización.'
+                : "Hay {$pendientes} órdenes de compra pendientes de autorización.",
+            'ruta' => '/compras/ordenes-compra?estado=PENDIENTE',
+        ]];
     }
 }

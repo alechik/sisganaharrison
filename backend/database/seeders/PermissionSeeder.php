@@ -37,6 +37,12 @@ class PermissionSeeder extends Seeder
         'tipos_persona.update',
         'tipos_persona.delete',
 
+        // Compras
+        'compras.view',
+        'compras.create',
+        'compras.update',
+        'compras.authorize',
+
         // Razas
         'razas.view',
         'razas.create',

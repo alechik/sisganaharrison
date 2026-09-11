@@ -542,4 +542,27 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  ordenesCompra: [
+    { title: "Compras" },
+    { title: "Órdenes de Compra" },
+  ],
+
+  ordenCompraCrear: [
+    { title: "Compras" },
+    { title: "Órdenes de Compra", path: "/compras/ordenes-compra" },
+    { title: "Nueva Orden" },
+  ],
+
+  ordenCompraEditar: [
+    { title: "Compras" },
+    { title: "Órdenes de Compra", path: "/compras/ordenes-compra" },
+    { title: "Editar Orden" },
+  ],
+
+  ordenCompraDetalle: [
+    { title: "Compras" },
+    { title: "Órdenes de Compra", path: "/compras/ordenes-compra" },
+    { title: "Detalle" },
+  ],
+
 };

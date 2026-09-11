@@ -111,6 +111,17 @@ const navItems: NavItem[] = [
   },
 
   {
+    icon: <ListIcon />,
+    name: "Compras",
+    subItems: [
+      {
+        name: "Órdenes de Compra",
+        path: "/compras/ordenes-compra",
+      },
+    ],
+  },
+
+  {
     icon: <BoxCubeIcon />,
     name: "Catalogos",
     subItems: [

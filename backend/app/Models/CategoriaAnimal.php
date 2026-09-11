@@ -6,6 +6,7 @@ use Database\Factories\CategoriaAnimalFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -45,5 +46,13 @@ class CategoriaAnimal extends Model
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('activo', true);
+    }
+
+    /**
+     * @return HasMany<DetalleOrdenCompra, $this>
+     */
+    public function detallesOrdenCompra(): HasMany
+    {
+        return $this->hasMany(DetalleOrdenCompra::class, 'categoria_animal_id');
     }
 }
