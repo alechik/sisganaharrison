@@ -38,4 +38,14 @@ export const getEstadoLabel = (value?: string | null): string => {
   return value ? labels[value] ?? value : "—";
 };
 
+export const formatPeso = (value?: number | null): string => {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+  return `${new Intl.NumberFormat("es-PY", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)} kg`;
+};
+
 export const isPendiente = (estado?: string | null): boolean => estado === "PENDIENTE";

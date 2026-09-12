@@ -11,7 +11,7 @@ import { ORDEN_COMPRA_ROUTES } from "../constants";
 import { useCreateOrdenCompra, useUpdateOrdenCompra } from "../hooks";
 import { getOrdenCompra } from "../services";
 import { OrdenCompraCreateRequest, OrdenCompraDetalleRequest } from "../types";
-import { formatMoney } from "../utils";
+import { formatMoney, formatPeso } from "../utils";
 
 interface Props {
   ordenId?: number;
@@ -20,6 +20,7 @@ interface Props {
 const emptyLine = (): OrdenCompraDetalleRequest => ({
   categoria_animal_id: 0,
   cantidad: 1,
+  peso: 0,
   precio: 0,
   descuento: 0,
 });
@@ -40,7 +41,6 @@ export default function OrdenCompraForm({ ordenId }: Props) {
     proveedor_id: 0,
     fecha: today(),
     descuento: 0,
-    total_peso: null,
     detalles: [emptyLine()],
   });
   const [loading, setLoading] = useState(isEdit);
@@ -88,10 +88,10 @@ export default function OrdenCompraForm({ ordenId }: Props) {
           proveedor_id: orden.proveedor_id,
           fecha: orden.fecha,
           descuento: orden.descuento,
-          total_peso: orden.total_peso,
           detalles: (orden.detalles ?? []).map((detalle) => ({
             categoria_animal_id: detalle.categoria_animal_id,
             cantidad: detalle.cantidad,
+            peso: detalle.peso,
             precio: detalle.precio,
             descuento: detalle.descuento,
           })),
@@ -112,9 +112,14 @@ export default function OrdenCompraForm({ ordenId }: Props) {
 
   const preview = useMemo(() => {
     const suma = form.detalles.reduce((acc, line) => acc + lineSubtotal(line), 0);
+    const totalPeso = form.detalles.reduce(
+      (acc, line) => acc + (line.cantidad || 0) * (line.peso || 0),
+      0
+    );
     const descuentoCabecera = form.descuento ?? 0;
     return {
       suma,
+      totalPeso,
       total: Math.max(suma - descuentoCabecera, 0),
     };
   }, [form.detalles, form.descuento]);
@@ -145,15 +150,14 @@ export default function OrdenCompraForm({ ordenId }: Props) {
       return;
     }
 
-    if (form.detalles.some((line) => !line.categoria_animal_id || line.cantidad < 1)) {
-      setCreateError("Cada línea debe tener categoría y cantidad mayor a cero.");
+    if (form.detalles.some((line) => !line.categoria_animal_id || line.cantidad < 1 || !line.peso || line.peso <= 0)) {
+      setCreateError("Cada línea debe tener categoría, cantidad y peso del ejemplar mayor a cero.");
       return;
     }
 
     const payload: OrdenCompraCreateRequest = {
       ...form,
       descuento: form.descuento ?? 0,
-      total_peso: form.total_peso || null,
     };
 
     try {
@@ -208,19 +212,6 @@ export default function OrdenCompraForm({ ordenId }: Props) {
             }
           />
         </div>
-        <div>
-          <Label>Total peso (opcional)</Label>
-          <InputField
-            type="number"
-            value={form.total_peso == null ? "" : String(form.total_peso)}
-            onChange={(e) =>
-              setForm((current) => ({
-                ...current,
-                total_peso: e.target.value === "" ? null : Number(e.target.value),
-              }))
-            }
-          />
-        </div>
       </div>
 
       <div className="space-y-3">
@@ -236,7 +227,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
         {form.detalles.map((line, index) => (
           <div
             key={index}
-            className="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 p-4 dark:border-white/[0.05] md:grid-cols-5"
+            className="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 p-4 dark:border-white/[0.05] md:grid-cols-6"
           >
             <div className="md:col-span-2">
               <Label>Categoría</Label>
@@ -256,6 +247,15 @@ export default function OrdenCompraForm({ ordenId }: Props) {
               />
             </div>
             <div>
+              <Label>Peso ejemplar (kg)</Label>
+              <InputField
+                type="number"
+                step={0.01}
+                value={String(line.peso ?? 0)}
+                onChange={(e) => updateLine(index, { peso: Number(e.target.value) || 0 })}
+              />
+            </div>
+            <div>
               <Label>Precio</Label>
               <InputField
                 type="number"
@@ -271,9 +271,10 @@ export default function OrdenCompraForm({ ordenId }: Props) {
                 onChange={(e) => updateLine(index, { descuento: Number(e.target.value) || 0 })}
               />
             </div>
-            <div className="flex items-end justify-between gap-2 md:col-span-5">
+            <div className="flex items-end justify-between gap-2 md:col-span-6">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Subtotal: {formatMoney(lineSubtotal(line))}
+                Peso línea: {formatPeso((line.cantidad || 0) * (line.peso || 0))} · Subtotal:{" "}
+                {formatMoney(lineSubtotal(line))}
               </p>
               <Button type="button" size="sm" variant="outline" onClick={() => removeLine(index)}>
                 Quitar
@@ -284,6 +285,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
       </div>
 
       <div className="rounded-xl bg-gray-50 p-4 text-sm dark:bg-white/[0.03]">
+        <p>Total peso: {formatPeso(preview.totalPeso)}</p>
         <p>Suma de líneas: {formatMoney(preview.suma)}</p>
         <p>Descuento general: {formatMoney(form.descuento ?? 0)}</p>
         <p className="font-semibold text-gray-800 dark:text-white">

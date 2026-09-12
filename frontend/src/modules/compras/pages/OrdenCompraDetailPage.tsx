@@ -21,7 +21,7 @@ import { useDecidirOrdenCompra } from "../hooks";
 import { COMPRAS_PERMISSIONS } from "../permissions";
 import { downloadOrdenCompraPdf, getOrdenCompra } from "../services";
 import { OrdenCompra } from "../types";
-import { formatDate, formatMoney, isPendiente } from "../utils";
+import { formatDate, formatMoney, formatPeso, isPendiente } from "../utils";
 
 export default function OrdenCompraDetailPage() {
   const { id } = useParams();
@@ -154,7 +154,7 @@ export default function OrdenCompraDetailPage() {
           </div>
           <div>
             <dt className="text-sm text-gray-500">Total peso</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">{orden.total_peso ?? "—"}</dd>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{formatPeso(orden.total_peso)}</dd>
           </div>
           <div>
             <dt className="text-sm text-gray-500">Autorizado / rechazado por</dt>
@@ -181,6 +181,8 @@ export default function OrdenCompraDetailPage() {
             <TableRow>
               <TableCell isHeader className="px-4 py-3 font-semibold">Categoría</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Cantidad</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Peso ejemplar</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Peso línea</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Precio</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Descuento</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Subtotal</TableCell>
@@ -193,6 +195,8 @@ export default function OrdenCompraDetailPage() {
                   {detalle.categoria_codigo} — {detalle.categoria_nombre}
                 </TableCell>
                 <TableCell className="px-4 py-3">{detalle.cantidad}</TableCell>
+                <TableCell className="px-4 py-3">{formatPeso(detalle.peso)}</TableCell>
+                <TableCell className="px-4 py-3">{formatPeso(detalle.cantidad * detalle.peso)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.precio)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.descuento)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.subtotal)}</TableCell>
@@ -201,6 +205,7 @@ export default function OrdenCompraDetailPage() {
           </TableBody>
         </Table>
         <div className="mt-4 space-y-1 text-sm">
+          <p>Total peso: {formatPeso(orden.total_peso)}</p>
           <p>Suma de subtotales: {formatMoney(sumaLineas)}</p>
           <p>Descuento general: {formatMoney(orden.descuento)}</p>
           <p className="font-semibold">Monto total: {formatMoney(orden.monto_total)}</p>

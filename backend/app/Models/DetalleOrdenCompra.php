@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $animal_id
  * @property int $categoria_animal_id
  * @property int $cantidad
+ * @property string $peso
  * @property string $precio
  * @property string $descuento
  * @property string $subtotal
@@ -26,6 +27,7 @@ class DetalleOrdenCompra extends Model
         'animal_id',
         'categoria_animal_id',
         'cantidad',
+        'peso',
         'precio',
         'descuento',
         'subtotal',
@@ -35,6 +37,7 @@ class DetalleOrdenCompra extends Model
     {
         return [
             'cantidad' => 'integer',
+            'peso' => 'decimal:2',
             'precio' => 'decimal:2',
             'descuento' => 'decimal:2',
             'subtotal' => 'decimal:2',

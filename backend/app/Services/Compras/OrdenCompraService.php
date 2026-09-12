@@ -62,7 +62,7 @@ class OrdenCompraService
                 'fecha' => $data['fecha'] ?? now()->toDateString(),
                 'estado' => OrdenCompra::ESTADO_PENDIENTE,
                 'descuento' => (float) ($data['descuento'] ?? 0),
-                'total_peso' => $data['total_peso'] ?? null,
+                'total_peso' => 0,
             ]);
 
             $this->syncDetalles($orden, $detalles);
@@ -86,7 +86,6 @@ class OrdenCompraService
                 'proveedor_id' => $data['proveedor_id'],
                 'fecha' => $data['fecha'] ?? $orden->fecha,
                 'descuento' => (float) ($data['descuento'] ?? 0),
-                'total_peso' => $data['total_peso'] ?? $orden->total_peso,
             ]);
 
             $orden->detalles()->delete();
@@ -282,6 +281,7 @@ class OrdenCompraService
         foreach ($detalles as $index => $detalle) {
             $categoriaId = (int) ($detalle['categoria_animal_id'] ?? 0);
             $cantidad = (int) ($detalle['cantidad'] ?? 0);
+            $peso = round((float) ($detalle['peso'] ?? 0), 2);
             $precio = (float) ($detalle['precio'] ?? 0);
             $descuento = (float) ($detalle['descuento'] ?? 0);
 
@@ -297,6 +297,12 @@ class OrdenCompraService
                 ]);
             }
 
+            if ($peso < 0.01) {
+                throw ValidationException::withMessages([
+                    "detalles.$index.peso" => 'El peso del ejemplar debe ser mayor a cero.',
+                ]);
+            }
+
             $subtotal = round(($cantidad * $precio) - $descuento, 2);
 
             if ($subtotal < 0) {
@@ -309,6 +315,7 @@ class OrdenCompraService
                 'animal_id' => null,
                 'categoria_animal_id' => $categoriaId,
                 'cantidad' => $cantidad,
+                'peso' => $peso,
                 'precio' => $precio,
                 'descuento' => $descuento,
                 'subtotal' => $subtotal,
@@ -328,9 +335,14 @@ class OrdenCompraService
 
     private function recalculateTotals(OrdenCompra $orden): void
     {
-        $suma = (float) $orden->detalles()->sum('subtotal');
+        $orden->load('detalles');
+        $suma = (float) $orden->detalles->sum('subtotal');
+        $totalPeso = $orden->detalles->sum(
+            fn ($detalle) => (float) $detalle->cantidad * (float) $detalle->peso
+        );
         $descuento = (float) $orden->descuento;
         $orden->monto_total = round(max($suma - $descuento, 0), 2);
+        $orden->total_peso = round($totalPeso, 2);
         $orden->save();
     }
 }

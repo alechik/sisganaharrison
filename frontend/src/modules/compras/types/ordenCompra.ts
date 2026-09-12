@@ -4,6 +4,7 @@ export interface OrdenCompraDetalle {
   categoria_nombre?: string | null;
   categoria_codigo?: string | null;
   cantidad: number;
+  peso: number;
   precio: number;
   descuento: number;
   subtotal: number;
@@ -36,6 +37,7 @@ export interface OrdenCompra {
 export interface OrdenCompraDetalleRequest {
   categoria_animal_id: number;
   cantidad: number;
+  peso: number;
   precio: number;
   descuento?: number;
 }
@@ -44,7 +46,6 @@ export interface OrdenCompraCreateRequest {
   proveedor_id: number;
   fecha: string;
   descuento?: number;
-  total_peso?: number | null;
   detalles: OrdenCompraDetalleRequest[];
 }
 

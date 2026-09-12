@@ -14,7 +14,7 @@ import { EyeIcon, PencilIcon } from "@/icons";
 import { ORDEN_COMPRA_ROUTES } from "../constants";
 import { COMPRAS_PERMISSIONS } from "../permissions";
 import { OrdenCompra } from "../types";
-import { formatDate, formatMoney, isPendiente } from "../utils";
+import { formatDate, formatMoney, formatPeso, isPendiente } from "../utils";
 import OrdenCompraStatusBadge from "./OrdenCompraStatusBadge";
 
 interface Props {
@@ -41,6 +41,7 @@ export default function OrdenCompraTable({
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Fecha</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Usuario</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Cantidad</TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Peso total</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Monto total</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Estado</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-center text-gray-800 dark:text-white">Opciones</TableCell>
@@ -49,7 +50,7 @@ export default function OrdenCompraTable({
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {ordenes.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={8}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={9}>
                   No hay órdenes de compra para mostrar.
                 </TableCell>
               </TableRow>
@@ -70,6 +71,9 @@ export default function OrdenCompraTable({
                   </TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
                     {orden.cantidad_total ?? 0}
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {formatPeso(orden.total_peso)}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm font-medium text-gray-800 dark:text-white/90">
                     {formatMoney(orden.monto_total)}

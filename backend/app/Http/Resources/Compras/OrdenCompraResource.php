@@ -54,6 +54,7 @@ class OrdenCompraResource extends JsonResource
                     'categoria_nombre' => $detalle->categoria?->nombre,
                     'categoria_codigo' => $detalle->categoria?->codigo,
                     'cantidad' => $detalle->cantidad,
+                    'peso' => (float) $detalle->peso,
                     'precio' => (float) $detalle->precio,
                     'descuento' => (float) $detalle->descuento,
                     'subtotal' => (float) $detalle->subtotal,
