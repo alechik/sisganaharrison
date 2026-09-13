@@ -75,4 +75,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(OrdenCompra::class, 'user_id');
     }
+
+    /**
+     * @return HasMany<Cuarentena, $this>
+     */
+    public function cuarentenas(): HasMany
+    {
+        return $this->hasMany(Cuarentena::class, 'user_id');
+    }
 }

@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\Nacimientos\NacimientoController;
 use App\Http\Controllers\Api\SociosDeNegocio\PersonaController;
 use App\Http\Controllers\Api\SociosDeNegocio\TipoPersonaController;
 use App\Http\Controllers\Api\Compras\OrdenCompraController;
+use App\Http\Controllers\Api\Compras\CuarentenaController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -694,4 +695,28 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('compras/ordenes-compra/{orden_compra}', [OrdenCompraController::class, 'update'])
         ->middleware('permission:compras.update');
+
+    Route::post('compras/ordenes-compra/{orden_compra}/cuarentena', [CuarentenaController::class, 'generarDesdeOrden'])
+        ->middleware('permission:compras.create');
+
+    Route::get('compras/cuarentenas/{cuarentena}/pdf', [CuarentenaController::class, 'pdf'])
+        ->middleware('permission:compras.view');
+
+    Route::post('compras/cuarentenas/{cuarentena}/completar', [CuarentenaController::class, 'completar'])
+        ->middleware('permission:compras.create');
+
+    Route::get('compras/cuarentenas', [CuarentenaController::class, 'index'])
+        ->middleware('permission:compras.view');
+
+    Route::post('compras/cuarentenas', [CuarentenaController::class, 'store'])
+        ->middleware('permission:compras.create');
+
+    Route::get('compras/cuarentenas/{cuarentena}', [CuarentenaController::class, 'show'])
+        ->middleware('permission:compras.view');
+
+    Route::put('compras/cuarentenas/{cuarentena}', [CuarentenaController::class, 'update'])
+        ->middleware('permission:compras.create');
+
+    Route::patch('compras/cuarentenas/{cuarentena}', [CuarentenaController::class, 'update'])
+        ->middleware('permission:compras.create');
 });

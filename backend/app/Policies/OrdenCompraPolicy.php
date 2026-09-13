@@ -47,4 +47,10 @@ class OrdenCompraPolicy
     {
         return $user->can('compras.authorize') && $ordenCompra->estaPendiente();
     }
+
+    public function generateCuarentena(User $user, OrdenCompra $ordenCompra): bool
+    {
+        return $user->can('compras.create')
+            && $ordenCompra->estado === OrdenCompra::ESTADO_AUTORIZADA;
+    }
 }

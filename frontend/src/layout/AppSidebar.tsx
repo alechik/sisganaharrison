@@ -118,6 +118,10 @@ const navItems: NavItem[] = [
         name: "Órdenes de Compra",
         path: "/compras/ordenes-compra",
       },
+      {
+        name: "Cuarentenas",
+        path: "/compras/cuarentenas",
+      },
     ],
   },
 

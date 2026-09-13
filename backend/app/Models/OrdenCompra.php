@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Orden de compra de animales por categoría.
@@ -98,6 +99,14 @@ class OrdenCompra extends Model
     public function detalles(): HasMany
     {
         return $this->hasMany(DetalleOrdenCompra::class, 'orden_compra_id');
+    }
+
+    /**
+     * @return HasOne<Cuarentena, $this>
+     */
+    public function cuarentena(): HasOne
+    {
+        return $this->hasOne(Cuarentena::class, 'orden_compra_id');
     }
 
     public function estaPendiente(): bool

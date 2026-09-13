@@ -1,5 +1,12 @@
 import { ORDEN_COMPRA_DEFAULT_PAGE_SIZE } from "../constants";
-import { OrdenCompraFilters, OrdenCompraSortDirection, OrdenCompraSortField } from "../types";
+import {
+  CuarentenaFilters,
+  CuarentenaSortDirection,
+  CuarentenaSortField,
+  OrdenCompraFilters,
+  OrdenCompraSortDirection,
+  OrdenCompraSortField,
+} from "../types";
 
 export const defaultOrdenCompraFilters = (): OrdenCompraFilters => ({
   cod_compra: "",
@@ -34,6 +41,8 @@ export const getEstadoLabel = (value?: string | null): string => {
     PENDIENTE: "Pendiente",
     AUTORIZADA: "Autorizada",
     RECHAZADA: "Rechazada",
+    PROCESADO: "Procesado",
+    COMPLETADO: "Completado",
   };
   return value ? labels[value] ?? value : "—";
 };
@@ -49,3 +58,27 @@ export const formatPeso = (value?: number | null): string => {
 };
 
 export const isPendiente = (estado?: string | null): boolean => estado === "PENDIENTE";
+
+export const isAutorizada = (estado?: string | null): boolean => estado === "AUTORIZADA";
+
+export const isProcesada = (estado?: string | null): boolean => estado === "PROCESADO";
+
+export const getOrigenLabel = (value?: string | null): string => {
+  const labels: Record<string, string> = {
+    ORDEN_COMPRA: "Orden de Compra",
+    DIRECTA: "Directa por excepción",
+  };
+  return value ? labels[value] ?? value : "—";
+};
+
+export const defaultCuarentenaFilters = (): CuarentenaFilters => ({
+  cod_compra: "",
+  proveedor_id: undefined,
+  estado: undefined,
+  origen: undefined,
+  fecha: "",
+  sort_by: "created_at" as CuarentenaSortField,
+  sort_dir: "desc" as CuarentenaSortDirection,
+  page: 1,
+  per_page: ORDEN_COMPRA_DEFAULT_PAGE_SIZE,
+});

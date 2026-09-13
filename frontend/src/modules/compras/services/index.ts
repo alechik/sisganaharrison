@@ -8,3 +8,13 @@ export {
   rechazarOrdenCompra,
   downloadOrdenCompraPdf,
 } from "./ordenCompraService";
+export {
+  getCuarentenas,
+  getCuarentena,
+  createCuarentena,
+  updateCuarentena,
+  generarCuarentenaDesdeOrden,
+  completarCuarentena,
+  downloadCuarentenaPdf,
+} from "./cuarentenaService";
+

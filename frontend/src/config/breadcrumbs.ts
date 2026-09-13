@@ -565,4 +565,27 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  cuarentenas: [
+    { title: "Compras" },
+    { title: "Cuarentenas" },
+  ],
+
+  cuarentenaCrear: [
+    { title: "Compras" },
+    { title: "Cuarentenas", path: "/compras/cuarentenas" },
+    { title: "Nueva Cuarentena" },
+  ],
+
+  cuarentenaEditar: [
+    { title: "Compras" },
+    { title: "Cuarentenas", path: "/compras/cuarentenas" },
+    { title: "Editar Cuarentena" },
+  ],
+
+  cuarentenaDetalle: [
+    { title: "Compras" },
+    { title: "Cuarentenas", path: "/compras/cuarentenas" },
+    { title: "Detalle" },
+  ],
+
 };

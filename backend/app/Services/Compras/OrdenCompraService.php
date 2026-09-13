@@ -24,6 +24,7 @@ class OrdenCompraService
         'creador:id,nombre,apellido',
         'autorizador:id,nombre,apellido',
         'detalles.categoria:id,codigo,nombre',
+        'cuarentena:id,orden_compra_id,estado',
     ];
 
     public function __construct(

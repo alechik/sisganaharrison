@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             TipoPersonaSeeder::class,
             PersonaSeeder::class,
             OrdenCompraSeeder::class,
+            CuarentenaSeeder::class,
         ]);
     }
 }

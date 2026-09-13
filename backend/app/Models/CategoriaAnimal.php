@@ -55,4 +55,12 @@ class CategoriaAnimal extends Model
     {
         return $this->hasMany(DetalleOrdenCompra::class, 'categoria_animal_id');
     }
+
+    /**
+     * @return HasMany<CuarentenaDetalle, $this>
+     */
+    public function detallesCuarentena(): HasMany
+    {
+        return $this->hasMany(CuarentenaDetalle::class, 'categoria_animal_id');
+    }
 }

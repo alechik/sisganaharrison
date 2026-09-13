@@ -10,3 +10,16 @@ export type {
   OrdenCompraSortDirection,
   OrdenCompraSortField,
 } from "./filters";
+export type {
+  Cuarentena,
+  CuarentenaCreateRequest,
+  CuarentenaDetalle,
+  CuarentenaDetalleRequest,
+  CuarentenaListParams,
+} from "./cuarentena";
+export type {
+  CuarentenaFilters,
+  CuarentenaSortDirection,
+  CuarentenaSortField,
+} from "./cuarentenaFilters";
+

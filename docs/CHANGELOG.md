@@ -8,7 +8,27 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: Cuarentena, Ingreso y módulos transaccionales (Movimientos)._
+_Pendiente: Ingreso y módulos transaccionales (Movimientos)._
+
+---
+
+## [2026-09-12] — Compras: Cuarentenas
+
+### Added
+
+**Backend:**
+- Tablas `cuarentenas` y `cuarentena_detalle` (`animal_id` nulo; sin alta automática)
+- Origen `ORDEN_COMPRA` (una por orden autorizada) o `DIRECTA` (excepción sin generar OC)
+- Estados PROCESADO → COMPLETADO con `fecha_fin` y bloqueo de edición
+- PDF reutilizable (`PdfGenerator`) para cuarentena
+- Endpoints `/api/compras/cuarentenas` y generación desde orden autorizada
+
+**Frontend:**
+- Listado, alta directa, edición de PROCESADO, detalle, completar y PDF
+- Botón **Generar cuarentena** en órdenes autorizadas
+- Filtros por código, proveedor, fecha, estado y origen
+
+**Documentación:** Actualizados `06`, `08`
 
 ---
 

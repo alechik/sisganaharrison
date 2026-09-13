@@ -16,12 +16,12 @@ import {
 } from "@/components/ui/table";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import { OrdenCompraStatusBadge } from "../components";
-import { ORDEN_COMPRA_ROUTES } from "../constants";
-import { useDecidirOrdenCompra } from "../hooks";
+import { CUARENTENA_ROUTES, ORDEN_COMPRA_ROUTES } from "../constants";
+import { useDecidirOrdenCompra, useGestionCuarentena } from "../hooks";
 import { COMPRAS_PERMISSIONS } from "../permissions";
 import { downloadOrdenCompraPdf, getOrdenCompra } from "../services";
 import { OrdenCompra } from "../types";
-import { formatDate, formatMoney, formatPeso, isPendiente } from "../utils";
+import { formatDate, formatMoney, formatPeso, isAutorizada, isPendiente } from "../utils";
 
 export default function OrdenCompraDetailPage() {
   const { id } = useParams();
@@ -30,9 +30,15 @@ export default function OrdenCompraDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [observacion, setObservacion] = useState("");
-  const [dialog, setDialog] = useState<"autorizar" | "rechazar" | null>(null);
+  const [dialog, setDialog] = useState<"autorizar" | "rechazar" | "cuarentena" | null>(null);
   const { autorizar, rechazar, loading: deciding, error: decisionError, setError: setDecisionError } =
     useDecidirOrdenCompra();
+  const {
+    generarDesdeOrden,
+    loading: generating,
+    error: generateError,
+    setError: setGenerateError,
+  } = useGestionCuarentena();
 
   const load = async () => {
     try {
@@ -68,6 +74,16 @@ export default function OrdenCompraDetailPage() {
       return;
     }
     try {
+      if (dialog === "cuarentena") {
+        const response = await generarDesdeOrden(orden.id);
+        setOrden({
+          ...orden,
+          cuarentena_id: response.data.id,
+          cuarentena_estado: response.data.estado,
+        });
+        setDialog(null);
+        return;
+      }
       const response =
         dialog === "autorizar"
           ? await autorizar(orden.id, observacion)
@@ -122,8 +138,36 @@ export default function OrdenCompraDetailPage() {
               </Link>
             </PermissionGate>
           )}
+          {isAutorizada(orden.estado) && !orden.cuarentena_id && (
+            <PermissionGate permission={COMPRAS_PERMISSIONS.create}>
+              <button
+                type="button"
+                onClick={() => {
+                  setGenerateError(null);
+                  setDialog("cuarentena");
+                }}
+                className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-3 text-sm text-white hover:bg-brand-600"
+              >
+                Generar cuarentena
+              </button>
+            </PermissionGate>
+          )}
+          {orden.cuarentena_id && (
+            <Link
+              to={CUARENTENA_ROUTES.detail(orden.cuarentena_id)}
+              className="inline-flex items-center justify-center rounded-lg bg-white px-4 py-3 text-sm text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            >
+              Ver cuarentena
+            </Link>
+          )}
         </div>
       </div>
+
+      {generateError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {generateError}
+        </div>
+      )}
 
       <ComponentCard title="Cabecera de la orden">
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -254,14 +298,24 @@ export default function OrdenCompraDetailPage() {
 
       <ConfirmDialog
         isOpen={dialog !== null}
-        title={dialog === "autorizar" ? "Autorizar orden" : "Rechazar orden"}
+        title={
+          dialog === "autorizar"
+            ? "Autorizar orden"
+            : dialog === "cuarentena"
+              ? "Generar cuarentena"
+              : "Rechazar orden"
+        }
         message={
           dialog === "autorizar"
             ? `¿Confirma la autorización de ${orden.cod_compra}? Quedará bloqueada para edición.`
-            : `¿Confirma el rechazo de ${orden.cod_compra}? No podrá modificarse.`
+            : dialog === "cuarentena"
+              ? `¿Generar la cuarentena a partir de ${orden.cod_compra}? Se copiarán proveedor y detalles.`
+              : `¿Confirma el rechazo de ${orden.cod_compra}? No podrá modificarse.`
         }
-        confirmLabel={dialog === "autorizar" ? "Autorizar" : "Rechazar"}
-        loading={deciding}
+        confirmLabel={
+          dialog === "autorizar" ? "Autorizar" : dialog === "cuarentena" ? "Generar" : "Rechazar"
+        }
+        loading={deciding || generating}
         onConfirm={handleConfirm}
         onCancel={() => setDialog(null)}
       />

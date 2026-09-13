@@ -118,4 +118,12 @@ class Persona extends Model
     {
         return $this->hasMany(OrdenCompra::class, 'proveedor_id');
     }
+
+    /**
+     * @return HasMany<Cuarentena, $this>
+     */
+    public function cuarentenas(): HasMany
+    {
+        return $this->hasMany(Cuarentena::class, 'proveedor_id');
+    }
 }

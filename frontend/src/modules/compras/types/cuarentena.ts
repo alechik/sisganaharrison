@@ -1,4 +1,4 @@
-export interface OrdenCompraDetalle {
+export interface CuarentenaDetalle {
   id?: number;
   categoria_animal_id: number;
   categoria_nombre?: string | null;
@@ -7,14 +7,19 @@ export interface OrdenCompraDetalle {
   peso: number;
   precio: number;
   descuento: number;
+  estado?: string;
   subtotal: number;
   animal_id?: number | null;
+  animal_codigo?: string | null;
+  animal_arete?: string | null;
 }
 
-export interface OrdenCompra {
+export interface Cuarentena {
   id: number;
   cod_compra: string;
-  fecha: string;
+  origen: string;
+  fecha_inicio: string;
+  fecha_fin: string | null;
   estado: string;
   descuento: number;
   total_peso: number | null;
@@ -24,19 +29,15 @@ export interface OrdenCompra {
   proveedor_nit?: string | null;
   user_id: number;
   creador_nombre?: string | null;
-  autorizado_por: number | null;
-  autorizador_nombre?: string | null;
-  fecha_decision?: string | null;
-  observacion_estado?: string | null;
+  orden_compra_id: number | null;
+  orden_compra_codigo?: string | null;
   cantidad_total?: number;
-  cuarentena_id?: number | null;
-  cuarentena_estado?: string | null;
-  detalles?: OrdenCompraDetalle[];
+  detalles?: CuarentenaDetalle[];
   created_at?: string | null;
   updated_at?: string | null;
 }
 
-export interface OrdenCompraDetalleRequest {
+export interface CuarentenaDetalleRequest {
   categoria_animal_id: number;
   cantidad: number;
   peso: number;
@@ -44,23 +45,21 @@ export interface OrdenCompraDetalleRequest {
   descuento?: number;
 }
 
-export interface OrdenCompraCreateRequest {
+export interface CuarentenaCreateRequest {
   proveedor_id: number;
-  fecha: string;
+  fecha_inicio: string;
   descuento?: number;
-  detalles: OrdenCompraDetalleRequest[];
+  detalles: CuarentenaDetalleRequest[];
 }
 
-export interface OrdenCompraListParams {
+export interface CuarentenaListParams {
   page?: number;
   per_page?: number;
   cod_compra?: string;
   proveedor_id?: number;
-  user_id?: number;
   estado?: string;
+  origen?: string;
   fecha?: string;
-  fecha_desde?: string;
-  fecha_hasta?: string;
   sort_by?: string;
   sort_dir?: "asc" | "desc";
 }

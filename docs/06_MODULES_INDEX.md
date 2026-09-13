@@ -26,7 +26,8 @@
 | Gestaciones | ✅ | `/api/gestaciones` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/gestaciones/` (sin delete) |
 | Partos | ✅ | `/api/partos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/partos/` (sin delete) |
 | Nacimientos | ✅ | `/api/nacimientos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/nacimientos/` (sin delete) |
-| Compras / Órdenes de Compra | 🟡 | `/api/compras/ordenes-compra` | `compras.view`, `compras.create`, `compras.update`, `compras.authorize` | `modules/compras/` (solo OC; cuarentena/ingreso pendiente) |
+| Compras / Órdenes de Compra | 🟡 | `/api/compras/ordenes-compra` | `compras.view`, `compras.create`, `compras.update`, `compras.authorize` | `modules/compras/` (OC + Cuarentena; ingreso pendiente) |
+| Compras / Cuarentenas | 🟡 | `/api/compras/cuarentenas` | `compras.view`, `compras.create` | `modules/compras/` (PROCESADO → COMPLETADO; sin alta de animales) |
 | Movimientos | ❌ | — | permisos seed | — |
 | Reportes | ❌ | — | permisos seed | — |
 | Auditoría | ❌ | — | permisos seed | — |
