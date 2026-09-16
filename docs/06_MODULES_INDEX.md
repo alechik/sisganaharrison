@@ -19,15 +19,15 @@
 | Establecimientos | ✅ | `/api/establecimientos` | `establecimientos.*` | `modules/establecimientos/` |
 | Potreros | ✅ | `/api/potreros` | `potreros.*` | `modules/potreros/` |
 | Lotes | ✅ | `/api/lotes` | `lotes.*` | `modules/lotes/` |
-| Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` |
-| Pesajes | ✅ | `/api/pesajes` | `pesajes.view`, `pesajes.create` | `modules/pesajes/` (append only) |
+| Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` (preliminar: código, sexo, categoría; `user_id`, `edad_inicial`/`edad_actual`) |
+| Pesajes | ✅ | `/api/pesajes` | `pesajes.view`, `pesajes.create` | `modules/pesajes/` (append only; pesaje de nacimiento vía observaciones) |
 | Eventos Sanitarios | ✅ | `/api/eventos-sanitarios` | `sanitario.view`, `sanitario.create` | `modules/eventos-sanitarios/` (append only) |
 | Servicios Reproductivos | ✅ | `/api/servicios-reproductivos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/servicios-reproductivos/` |
 | Gestaciones | ✅ | `/api/gestaciones` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/gestaciones/` (sin delete) |
 | Partos | ✅ | `/api/partos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/partos/` (sin delete) |
-| Nacimientos | ✅ | `/api/nacimientos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/nacimientos/` (sin delete) |
-| Compras / Órdenes de Compra | 🟡 | `/api/compras/ordenes-compra` | `compras.view`, `compras.create`, `compras.update`, `compras.authorize` | `modules/compras/` (OC + Cuarentena; ingreso pendiente) |
-| Compras / Cuarentenas | 🟡 | `/api/compras/cuarentenas` | `compras.view`, `compras.create` | `modules/compras/` (PROCESADO → COMPLETADO; sin alta de animales) |
+| Nacimientos | ✅ | `/api/nacimientos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/nacimientos/` (VIVO → animal + pesaje de nacimiento) |
+| Compras / Órdenes de Compra | 🟡 | `/api/compras/ordenes-compra` | `compras.view`, `compras.create`, `compras.update`, `compras.authorize` | `modules/compras/` (animal preliminar + edad inicial; ingreso pendiente) |
+| Compras / Cuarentenas | 🟡 | `/api/compras/cuarentenas` | `compras.view`, `compras.create` | `modules/compras/` (hereda `animal_id` y edad de la OC) |
 | Movimientos | ❌ | — | permisos seed | — |
 | Reportes | ❌ | — | permisos seed | — |
 | Auditoría | ❌ | — | permisos seed | — |

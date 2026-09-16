@@ -55,6 +55,7 @@ class OrdenCompraController extends Controller
             'creador:id,nombre,apellido',
             'autorizador:id,nombre,apellido',
             'detalles.categoria:id,codigo,nombre',
+            'detalles.animal:id,codigo,sexo,categoria_id',
             'cuarentena:id,orden_compra_id,estado',
         ]);
 

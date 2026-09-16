@@ -8,7 +8,43 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: Ingreso y módulos transaccionales (Movimientos)._
+_Pendiente: Ingreso (completar animal preliminar) y módulos transaccionales (Movimientos)._
+
+---
+
+## [2026-09-14] — Nacimiento, pesaje y edad inicial en compras
+
+### Changed
+
+**Animales:** `user_id`, `edad_inicial` y `edad_actual` alineados al SQL de referencia. Siguen siendo obligatorios `codigo`, `sexo` y `categoria_id`.
+
+**Nacimientos / Pesajes:** un nacimiento VIVO vincula o crea el animal (sin duplicar `animal_id`) y, si hay `peso_nacimiento`, genera un pesaje identificado como de nacimiento. Transacción única.
+
+**Orden de Compra / Cuarentena:** `edad` en el detalle; se copia a `animales.edad_inicial`/`edad_actual` en el preliminar. Cuarentena conserva el mismo `animal_id` y la edad. No se inventa `fecha_nacimiento` en la compra.
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
+## [2026-09-13] — Animal preliminar en compras
+
+### Changed
+
+**Animales:**
+- Obligatorios solo `codigo` (único, `AN-{CATEGORIA}-000`), `sexo` (M/H) y `categoria_id`
+- Resto de ficha nullable (arete, raza, lote, fecha de nacimiento, estado productivo, padres, color)
+- Generación de código centralizada en `AnimalService` y reutilizada por Órdenes y Cuarentena
+
+**Orden de Compra / Cuarentena:**
+- Cada línea identifica un animal preliminar (`animal_id`) con código, sexo y categoría
+- Cantidad coherente con ejemplares identificados (cantidad > 1 genera N preliminares)
+- Cuarentena desde OC copia los mismos `animal_id` (sin duplicar)
+- Cuarentena directa crea preliminares con la misma lógica
+- PDF de OC y Cuarentena muestran código, sexo, categoría, cantidad, peso, precio, descuento y subtotal (más estado en cuarentena)
+
+**Frontend:** Formularios y detalle muestran Código | Sexo | Categoría (no solo IDs)
+
+**Documentación:** Actualizados `06`, `08`
 
 ---
 

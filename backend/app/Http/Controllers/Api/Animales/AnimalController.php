@@ -37,13 +37,35 @@ class AnimalController extends Controller
         return AnimalResource::collection($animales);
     }
 
+    public function siguienteCodigo(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (
+            ! $user?->can('animales.view')
+            && ! $user?->can('compras.view')
+            && ! $user?->can('compras.create')
+        ) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'categoria_id' => 'required|integer|exists:categorias_animales,id',
+        ]);
+
+        return response()->json([
+            'data' => [
+                'codigo' => $this->animalService->peekSiguienteCodigo((int) $validated['categoria_id']),
+            ],
+        ]);
+    }
+
     public function show(Animal $animal): AnimalResource
     {
         $this->authorize('view', $animal);
 
         $animal->load([
             'raza:id,nombre',
-            'categoria:id,nombre',
+            'categoria:id,codigo,nombre',
             'estadoProductivo:id,nombre',
             'lote:id,nombre',
             'madre:id,nombre,codigo',

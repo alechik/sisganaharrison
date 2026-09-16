@@ -97,3 +97,10 @@ export const restoreAnimal = async (id: number) => {
   );
   return response.data;
 };
+
+export const getSiguienteCodigoAnimal = async (categoriaId: number): Promise<string> => {
+  const response = await api.get<{ data: { codigo: string } }>("/animales/siguiente-codigo", {
+    params: { categoria_id: categoriaId },
+  });
+  return response.data.data.codigo;
+};

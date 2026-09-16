@@ -187,7 +187,7 @@ CREATE TABLE IF NOT EXISTS animals (
     madre_id BIGINT,
     padre_id BIGINT,
     user_id BIGINT NOT NULL,
-    edad_ingreso INTEGER,
+    edad_inicial INTEGER,
     edad_actual INTEGER,
     CONSTRAINT fk_animals_raza
         FOREIGN KEY (raza_id)
@@ -395,6 +395,7 @@ CREATE TABLE IF NOT EXISTS detalle_orden_compra (
     cantidad INTEGER NOT NULL,
     peso NUMERIC(8,2) NOT NULL,
     precio NUMERIC(8,2) NOT NULL,
+    edad INTEGER,
     descuento NUMERIC(8,2) NOT NULL DEFAULT 0,
     subtotal NUMERIC(8,2) NOT NULL,
     CONSTRAINT fk_detalle_orden_compra
@@ -445,6 +446,7 @@ CREATE TABLE IF NOT EXISTS cuarentena_detalle (
     cantidad INTEGER NOT NULL,
     peso NUMERIC(8,2) NOT NULL,
     precio NUMERIC(8,2) NOT NULL,
+    edad INTEGER,
     descuento NUMERIC(8,2) NOT NULL DEFAULT 0,
     estado VARCHAR(50) NOT NULL,
     subtotal NUMERIC(8,2) NOT NULL,
@@ -473,6 +475,7 @@ CREATE TABLE IF NOT EXISTS ingresos (
     lote_id BIGINT NOT NULL,
     fecha_ingreso DATE NOT NULL,
     estado VARCHAR(50) NOT NULL,
+    observaciones TEXT,
     descuento NUMERIC(8,2) NOT NULL DEFAULT 0,
     total_peso NUMERIC(8,2),
     monto_total NUMERIC(8,2),
@@ -502,7 +505,7 @@ CREATE TABLE IF NOT EXISTS detalle_ingresos (
     id BIGSERIAL PRIMARY KEY,
     ingreso_id BIGINT NOT NULL,
     animal_id BIGINT NOT NULL,
-    estado VARCHAR(50) NOT NULL,
+    observaciones TEXT,
     peso_oc NUMERIC(8,2) NOT NULL,
     peso_ingreso NUMERIC(8,2) NOT NULL,
     precio_compra NUMERIC(8,2) NOT NULL,

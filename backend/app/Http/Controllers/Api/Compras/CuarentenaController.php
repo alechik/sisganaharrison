@@ -39,7 +39,7 @@ class CuarentenaController extends Controller
             'creador:id,nombre,apellido',
             'ordenCompra:id,cod_compra,estado,fecha',
             'detalles.categoria:id,codigo,nombre',
-            'detalles.animal:id,codigo,arete',
+            'detalles.animal:id,codigo,sexo,categoria_id',
         ]);
 
         return new CuarentenaResource($cuarentena);

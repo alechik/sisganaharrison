@@ -41,6 +41,28 @@ class PesajeService
     }
 
     /**
+     * Primer pesaje de una cría viva. No duplica si ya existe el de nacimiento.
+     */
+    public function registrarDeNacimiento(Animal $animal, string $fecha, float $peso): Pesaje
+    {
+        $existente = Pesaje::query()
+            ->where('animal_id', $animal->id)
+            ->where('observaciones', Pesaje::OBSERVACION_NACIMIENTO)
+            ->first();
+
+        if ($existente) {
+            return $existente->load('animal:id,codigo,arete');
+        }
+
+        return $this->create([
+            'animal_id' => $animal->id,
+            'fecha' => $fecha,
+            'peso' => $peso,
+            'observaciones' => Pesaje::OBSERVACION_NACIMIENTO,
+        ]);
+    }
+
+    /**
      * @param  array<string, mixed>  $filters
      * @return Builder<Pesaje>
      */

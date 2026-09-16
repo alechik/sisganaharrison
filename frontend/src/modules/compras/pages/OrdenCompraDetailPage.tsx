@@ -21,7 +21,7 @@ import { useDecidirOrdenCompra, useGestionCuarentena } from "../hooks";
 import { COMPRAS_PERMISSIONS } from "../permissions";
 import { downloadOrdenCompraPdf, getOrdenCompra } from "../services";
 import { OrdenCompra } from "../types";
-import { formatDate, formatMoney, formatPeso, isAutorizada, isPendiente } from "../utils";
+import { formatDate, formatEdad, formatMoney, formatPeso, formatSexo, isAutorizada, isPendiente } from "../utils";
 
 export default function OrdenCompraDetailPage() {
   const { id } = useParams();
@@ -219,14 +219,16 @@ export default function OrdenCompraDetailPage() {
         </dl>
       </ComponentCard>
 
-      <ComponentCard title="Detalle por categoría">
+      <ComponentCard title="Animales identificados">
         <Table>
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Código</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Sexo</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Categoría</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Edad</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Cantidad</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Peso ejemplar</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Peso línea</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Precio</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Descuento</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Subtotal</TableCell>
@@ -235,12 +237,14 @@ export default function OrdenCompraDetailPage() {
           <TableBody>
             {(orden.detalles ?? []).map((detalle) => (
               <TableRow key={detalle.id}>
+                <TableCell className="px-4 py-3">{detalle.animal_codigo || "—"}</TableCell>
+                <TableCell className="px-4 py-3">{formatSexo(detalle.sexo)}</TableCell>
                 <TableCell className="px-4 py-3">
                   {detalle.categoria_codigo} — {detalle.categoria_nombre}
                 </TableCell>
+                <TableCell className="px-4 py-3">{formatEdad(detalle.edad)}</TableCell>
                 <TableCell className="px-4 py-3">{detalle.cantidad}</TableCell>
                 <TableCell className="px-4 py-3">{formatPeso(detalle.peso)}</TableCell>
-                <TableCell className="px-4 py-3">{formatPeso(detalle.cantidad * detalle.peso)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.precio)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.descuento)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.subtotal)}</TableCell>
@@ -309,7 +313,7 @@ export default function OrdenCompraDetailPage() {
           dialog === "autorizar"
             ? `¿Confirma la autorización de ${orden.cod_compra}? Quedará bloqueada para edición.`
             : dialog === "cuarentena"
-              ? `¿Generar la cuarentena a partir de ${orden.cod_compra}? Se copiarán proveedor y detalles.`
+              ? `¿Generar la cuarentena a partir de ${orden.cod_compra}? Se copiarán los animales identificados (código, sexo y categoría).`
               : `¿Confirma el rechazo de ${orden.cod_compra}? No podrá modificarse.`
         }
         confirmLabel={

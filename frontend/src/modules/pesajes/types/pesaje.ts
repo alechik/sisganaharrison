@@ -6,6 +6,7 @@ export interface Pesaje {
   fecha: string;
   peso: number;
   observaciones: string | null;
+  es_nacimiento?: boolean;
   created_at?: string | null;
 }
 

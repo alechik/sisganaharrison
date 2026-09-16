@@ -97,7 +97,21 @@ export default function AnimalDetailPage() {
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha de nacimiento</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {new Date(animal.fecha_nacimiento).toLocaleDateString("es-PY")}
+              {animal.fecha_nacimiento
+                ? new Date(animal.fecha_nacimiento).toLocaleDateString("es-PY")
+                : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Edad inicial</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {animal.edad_inicial != null ? `${animal.edad_inicial} meses` : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Edad actual</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {animal.edad_actual != null ? `${animal.edad_actual} meses` : "—"}
             </dd>
           </div>
           <div>

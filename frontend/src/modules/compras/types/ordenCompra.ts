@@ -5,10 +5,13 @@ export interface OrdenCompraDetalle {
   categoria_codigo?: string | null;
   cantidad: number;
   peso: number;
+  edad?: number | null;
   precio: number;
   descuento: number;
   subtotal: number;
   animal_id?: number | null;
+  animal_codigo?: string | null;
+  sexo?: "M" | "H" | null;
 }
 
 export interface OrdenCompra {
@@ -38,8 +41,12 @@ export interface OrdenCompra {
 
 export interface OrdenCompraDetalleRequest {
   categoria_animal_id: number;
+  sexo: "M" | "H" | "";
+  animal_id?: number | null;
+  animal_codigo?: string | null;
   cantidad: number;
   peso: number;
+  edad?: number | null;
   precio: number;
   descuento?: number;
 }

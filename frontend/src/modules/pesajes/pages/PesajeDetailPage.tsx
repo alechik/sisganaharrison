@@ -99,6 +99,12 @@ export default function PesajeDetailPage() {
             </dd>
           </div>
           <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Origen</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {pesaje.es_nacimiento ? "Pesaje de nacimiento" : "Pesaje de control"}
+            </dd>
+          </div>
+          <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha de registro</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {pesaje.created_at

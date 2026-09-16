@@ -21,6 +21,8 @@ class Pesaje extends Model
     /** @use HasFactory<PesajeFactory> */
     use HasFactory;
 
+    public const OBSERVACION_NACIMIENTO = 'Pesaje de nacimiento';
+
     public const UPDATED_AT = null;
 
     protected $table = 'pesajes';
@@ -46,5 +48,10 @@ class Pesaje extends Model
     public function animal(): BelongsTo
     {
         return $this->belongsTo(Animal::class);
+    }
+
+    public function esDeNacimiento(): bool
+    {
+        return $this->observaciones === self::OBSERVACION_NACIMIENTO;
     }
 }

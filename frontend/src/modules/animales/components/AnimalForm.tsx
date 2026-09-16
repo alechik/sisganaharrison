@@ -10,7 +10,7 @@ import { ANIMAL_ROUTES, ANIMAL_SEXO_OPTIONS } from "../constants";
 import { useAnimalReferenceOptions } from "../hooks/useAnimalReferenceOptions";
 import { useCreateAnimal } from "../hooks/useCreateAnimal";
 import { useUpdateAnimal } from "../hooks/useUpdateAnimal";
-import { getAnimal } from "../services";
+import { getAnimal, getSiguienteCodigoAnimal } from "../services";
 import { AnimalCreateRequest } from "../types";
 
 interface Props {
@@ -23,14 +23,16 @@ const emptyForm: AnimalCreateRequest = {
   nombre: "",
   sexo: "M",
   fecha_nacimiento: "",
-  raza_id: 0,
+  raza_id: null,
   categoria_id: 0,
-  estado_productivo_id: 0,
-  lote_id: 0,
+  estado_productivo_id: null,
+  lote_id: null,
   madre_id: null,
   padre_id: null,
   color: "",
   observaciones: "",
+  edad_inicial: null,
+  edad_actual: null,
 };
 
 export default function AnimalForm({ animalId }: Props) {
@@ -79,7 +81,7 @@ export default function AnimalForm({ animalId }: Props) {
           arete: animal.arete ?? "",
           nombre: animal.nombre ?? "",
           sexo: animal.sexo,
-          fecha_nacimiento: animal.fecha_nacimiento,
+          fecha_nacimiento: animal.fecha_nacimiento ?? "",
           raza_id: animal.raza_id,
           categoria_id: animal.categoria_id,
           estado_productivo_id: animal.estado_productivo_id,
@@ -88,6 +90,8 @@ export default function AnimalForm({ animalId }: Props) {
           padre_id: animal.padre_id,
           color: animal.color ?? "",
           observaciones: animal.observaciones ?? "",
+          edad_inicial: animal.edad_inicial ?? null,
+          edad_actual: animal.edad_actual ?? null,
         });
       } catch (err) {
         console.error(err);
@@ -116,19 +120,26 @@ export default function AnimalForm({ animalId }: Props) {
     setCreateError(null);
     setUpdateError(null);
 
-    if (!form.raza_id || !form.categoria_id || !form.estado_productivo_id || !form.lote_id) {
-      setCreateError("Debe completar todos los campos de referencia obligatorios.");
+    if (!form.categoria_id || !form.sexo) {
+      setCreateError("Debe completar código, sexo y categoría. El código se genera al elegir la categoría.");
       return;
     }
 
     const payload: AnimalCreateRequest = {
       ...form,
+      codigo: form.codigo || null,
       arete: form.arete || null,
       nombre: form.nombre || null,
+      fecha_nacimiento: form.fecha_nacimiento || null,
+      raza_id: form.raza_id || null,
+      estado_productivo_id: form.estado_productivo_id || null,
+      lote_id: form.lote_id || null,
       madre_id: form.madre_id || null,
       padre_id: form.padre_id || null,
       color: form.color || null,
       observaciones: form.observaciones || null,
+      edad_inicial: form.edad_inicial ?? null,
+      edad_actual: form.edad_actual ?? null,
     };
 
     try {
@@ -149,7 +160,7 @@ export default function AnimalForm({ animalId }: Props) {
   }
 
   const parentSelectOptions = [
-    { value: "", label: "Sin seleccionar" },
+    { value: "none", label: "Sin seleccionar" },
     ...parentOptions,
   ];
 
@@ -161,15 +172,20 @@ export default function AnimalForm({ animalId }: Props) {
         </div>
       )}
 
+      <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200">
+        En esta etapa son obligatorios código, sexo y categoría. El resto (arete, raza, lote, etc.) se
+        puede completar después en el Ingreso.
+      </div>
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <Label>Código</Label>
+          <Label>Código (se genera con la categoría)</Label>
           <InputField
             type="text"
             name="codigo"
-            value={form.codigo}
+            value={form.codigo ?? ""}
             onChange={handleChange}
-            placeholder="Ej: AN-VACA-001"
+            placeholder="Se genera al elegir categoría"
           />
         </div>
 
@@ -195,7 +211,7 @@ export default function AnimalForm({ animalId }: Props) {
         </div>
 
         <div>
-          <Label>Sexo</Label>
+          <Label>Sexo *</Label>
           <Select
             value={form.sexo}
             options={ANIMAL_SEXO_OPTIONS.map((o) => ({
@@ -216,8 +232,38 @@ export default function AnimalForm({ animalId }: Props) {
           <InputField
             type="date"
             name="fecha_nacimiento"
-            value={form.fecha_nacimiento}
+            value={form.fecha_nacimiento ?? ""}
             onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <Label>Edad inicial (meses)</Label>
+          <InputField
+            type="number"
+            name="edad_inicial"
+            value={form.edad_inicial ?? ""}
+            onChange={(e) =>
+              setForm((current) => ({
+                ...current,
+                edad_inicial: e.target.value === "" ? null : Number(e.target.value),
+              }))
+            }
+          />
+        </div>
+
+        <div>
+          <Label>Edad actual (meses)</Label>
+          <InputField
+            type="number"
+            name="edad_actual"
+            value={form.edad_actual ?? ""}
+            onChange={(e) =>
+              setForm((current) => ({
+                ...current,
+                edad_actual: e.target.value === "" ? null : Number(e.target.value),
+              }))
+            }
           />
         </div>
 
@@ -234,37 +280,50 @@ export default function AnimalForm({ animalId }: Props) {
         <div>
           <Label>Raza</Label>
           <Select
-            value={form.raza_id ? String(form.raza_id) : ""}
-            placeholder="Seleccione una raza"
-            options={razaOptions}
+            value={form.raza_id ? String(form.raza_id) : "none"}
+            placeholder="Opcional (Ingreso)"
+            options={[{ value: "none", label: "Sin seleccionar" }, ...razaOptions]}
             onChange={(value) =>
-              setForm((current) => ({ ...current, raza_id: Number(value) }))
+              setForm((current) => ({
+                ...current,
+                raza_id: !value || value === "none" ? null : Number(value),
+              }))
             }
           />
         </div>
 
         <div>
-          <Label>Categoría</Label>
+          <Label>Categoría *</Label>
           <Select
             value={form.categoria_id ? String(form.categoria_id) : ""}
             placeholder="Seleccione una categoría"
             options={categoriaOptions}
-            onChange={(value) =>
-              setForm((current) => ({ ...current, categoria_id: Number(value) }))
-            }
+            onChange={async (value) => {
+              const categoria_id = Number(value);
+              setForm((current) => ({ ...current, categoria_id }));
+              if (!categoria_id || isEdit) {
+                return;
+              }
+              try {
+                const codigo = await getSiguienteCodigoAnimal(categoria_id);
+                setForm((current) => ({ ...current, categoria_id, codigo }));
+              } catch (err) {
+                console.error(err);
+              }
+            }}
           />
         </div>
 
         <div>
           <Label>Estado productivo</Label>
           <Select
-            value={form.estado_productivo_id ? String(form.estado_productivo_id) : ""}
-            placeholder="Seleccione un estado productivo"
-            options={estadoProductivoOptions}
+            value={form.estado_productivo_id ? String(form.estado_productivo_id) : "none"}
+            placeholder="Opcional (Ingreso)"
+            options={[{ value: "none", label: "Sin seleccionar" }, ...estadoProductivoOptions]}
             onChange={(value) =>
               setForm((current) => ({
                 ...current,
-                estado_productivo_id: Number(value),
+                estado_productivo_id: !value || value === "none" ? null : Number(value),
               }))
             }
           />
@@ -273,11 +332,14 @@ export default function AnimalForm({ animalId }: Props) {
         <div>
           <Label>Lote</Label>
           <Select
-            value={form.lote_id ? String(form.lote_id) : ""}
-            placeholder="Seleccione un lote"
-            options={loteOptions}
+            value={form.lote_id ? String(form.lote_id) : "none"}
+            placeholder="Opcional (Ingreso)"
+            options={[{ value: "none", label: "Sin seleccionar" }, ...loteOptions]}
             onChange={(value) =>
-              setForm((current) => ({ ...current, lote_id: Number(value) }))
+              setForm((current) => ({
+                ...current,
+                lote_id: !value || value === "none" ? null : Number(value),
+              }))
             }
           />
         </div>
@@ -285,13 +347,13 @@ export default function AnimalForm({ animalId }: Props) {
         <div>
           <Label>Madre</Label>
           <Select
-            value={form.madre_id ? String(form.madre_id) : ""}
+            value={form.madre_id ? String(form.madre_id) : "none"}
             placeholder="Opcional"
             options={parentSelectOptions}
             onChange={(value) =>
               setForm((current) => ({
                 ...current,
-                madre_id: value ? Number(value) : null,
+                madre_id: !value || value === "none" ? null : Number(value),
               }))
             }
           />
@@ -300,13 +362,13 @@ export default function AnimalForm({ animalId }: Props) {
         <div>
           <Label>Padre</Label>
           <Select
-            value={form.padre_id ? String(form.padre_id) : ""}
+            value={form.padre_id ? String(form.padre_id) : "none"}
             placeholder="Opcional"
             options={parentSelectOptions}
             onChange={(value) =>
               setForm((current) => ({
                 ...current,
-                padre_id: value ? Number(value) : null,
+                padre_id: !value || value === "none" ? null : Number(value),
               }))
             }
           />

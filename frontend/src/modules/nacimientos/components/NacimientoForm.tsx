@@ -200,7 +200,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
             <Label>Animal vinculado (opcional)</Label>
             <Select
               value={form.animal_id ? String(form.animal_id) : ""}
-              placeholder="Sin animal vinculado"
+              placeholder="Se creará automáticamente si no selecciona uno"
               options={animalOptions}
               onChange={(value) =>
                 setForm((current) => ({
@@ -209,6 +209,10 @@ export default function NacimientoForm({ nacimientoId }: Props) {
                 }))
               }
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Si la cría nace viva y no hay animal, se crea con código, sexo, categoría (ternero/ternera)
+              y fecha de parto. El peso genera un pesaje de nacimiento.
+            </p>
           </div>
         )}
 

@@ -7,6 +7,7 @@ use App\Models\Cuarentena;
 use App\Models\OrdenCompra;
 use App\Models\Persona;
 use App\Models\TipoPersona;
+use App\Services\Animales\AnimalService;
 use App\Services\Documentos\PdfGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,11 +33,12 @@ class CuarentenaService
         'creador:id,nombre,apellido',
         'ordenCompra:id,cod_compra,estado,fecha',
         'detalles.categoria:id,codigo,nombre',
-        'detalles.animal:id,codigo,arete',
+        'detalles.animal:id,codigo,sexo,categoria_id',
     ];
 
     public function __construct(
-        private readonly PdfGenerator $pdfGenerator
+        private readonly PdfGenerator $pdfGenerator,
+        private readonly AnimalService $animalService
     ) {}
 
     /**
@@ -77,7 +79,7 @@ class CuarentenaService
                 'monto_total' => 0,
             ]);
 
-            $this->syncDetalles($cuarentena, $detalles);
+            $this->syncDetalles($cuarentena, $this->animalService->identificarEnDetalles($detalles));
             $this->recalculateTotals($cuarentena);
 
             return $cuarentena->fresh(self::RELATIONS);
@@ -98,15 +100,23 @@ class CuarentenaService
             ]);
         }
 
-        $orden->loadMissing('detalles');
+        $orden->loadMissing(['detalles.animal:id,codigo,sexo,categoria_id']);
+
+        if ($orden->detalles->contains(fn ($detalle) => ! $detalle->animal_id)) {
+            throw ValidationException::withMessages([
+                'orden_compra_id' => 'La orden no tiene todos los animales identificados. Edítela antes de generar la cuarentena.',
+            ]);
+        }
 
         $detalles = $orden->detalles->map(fn ($detalle) => [
             'categoria_animal_id' => $detalle->categoria_animal_id,
             'cantidad' => $detalle->cantidad,
             'peso' => (float) $detalle->peso,
+            'edad' => $detalle->edad,
             'precio' => (float) $detalle->precio,
             'descuento' => (float) $detalle->descuento,
             'animal_id' => $detalle->animal_id,
+            'sexo' => $detalle->animal?->sexo,
         ])->all();
 
         $normalizados = $this->normalizeDetalles($detalles);
@@ -126,7 +136,7 @@ class CuarentenaService
                 'monto_total' => 0,
             ]);
 
-            $this->syncDetalles($cuarentena, $normalizados);
+            $this->syncDetalles($cuarentena, $this->animalService->identificarEnDetalles($normalizados));
             $this->recalculateTotals($cuarentena);
 
             return $cuarentena->fresh(self::RELATIONS);
@@ -150,7 +160,7 @@ class CuarentenaService
             ]);
 
             $cuarentena->detalles()->delete();
-            $this->syncDetalles($cuarentena, $detalles);
+            $this->syncDetalles($cuarentena, $this->animalService->identificarEnDetalles($detalles));
             $this->recalculateTotals($cuarentena);
 
             return $cuarentena->fresh(self::RELATIONS);
@@ -336,8 +346,12 @@ class CuarentenaService
             $normalizados[] = [
                 'animal_id' => ! empty($detalle['animal_id']) ? (int) $detalle['animal_id'] : null,
                 'categoria_animal_id' => $categoriaId,
+                'sexo' => strtoupper((string) ($detalle['sexo'] ?? '')),
                 'cantidad' => $cantidad,
                 'peso' => $peso,
+                'edad' => isset($detalle['edad']) && $detalle['edad'] !== '' && $detalle['edad'] !== null
+                    ? (int) $detalle['edad']
+                    : null,
                 'precio' => $precio,
                 'descuento' => $descuento,
                 'estado' => Cuarentena::ESTADO_PROCESADO,
@@ -353,7 +367,19 @@ class CuarentenaService
      */
     private function syncDetalles(Cuarentena $cuarentena, array $detalles): void
     {
-        $cuarentena->detalles()->createMany($detalles);
+        $cuarentena->detalles()->createMany(
+            array_map(fn (array $detalle) => [
+                'animal_id' => $detalle['animal_id'],
+                'categoria_animal_id' => $detalle['categoria_animal_id'],
+                'cantidad' => $detalle['cantidad'],
+                'peso' => $detalle['peso'],
+                'edad' => $detalle['edad'] ?? null,
+                'precio' => $detalle['precio'],
+                'descuento' => $detalle['descuento'],
+                'estado' => $detalle['estado'] ?? Cuarentena::ESTADO_PROCESADO,
+                'subtotal' => $detalle['subtotal'],
+            ], $detalles)
+        );
     }
 
     private function recalculateTotals(Cuarentena $cuarentena): void

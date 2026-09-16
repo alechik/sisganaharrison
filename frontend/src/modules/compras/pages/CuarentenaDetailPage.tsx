@@ -19,7 +19,7 @@ import { useGestionCuarentena } from "../hooks";
 import { COMPRAS_PERMISSIONS } from "../permissions";
 import { downloadCuarentenaPdf, getCuarentena } from "../services";
 import { Cuarentena } from "../types";
-import { formatDate, formatMoney, formatPeso, isProcesada } from "../utils";
+import { formatDate, formatEdad, formatMoney, formatPeso, formatSexo, getEstadoLabel, isProcesada } from "../utils";
 
 export default function CuarentenaDetailPage() {
   const { id } = useParams();
@@ -194,37 +194,37 @@ export default function CuarentenaDetailPage() {
         </dl>
       </ComponentCard>
 
-      <ComponentCard title="Detalle">
+      <ComponentCard title="Animales identificados">
         <Table>
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Código</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Sexo</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Categoría</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Edad</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Cantidad</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Animal</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Peso ejemplar</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Peso línea</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Peso</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Precio</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Descuento</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Subtotal</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Estado</TableCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {(item.detalles ?? []).map((detalle) => (
               <TableRow key={detalle.id}>
+                <TableCell className="px-4 py-3">{detalle.animal_codigo || "—"}</TableCell>
+                <TableCell className="px-4 py-3">{formatSexo(detalle.sexo)}</TableCell>
                 <TableCell className="px-4 py-3">
                   {detalle.categoria_codigo} — {detalle.categoria_nombre}
                 </TableCell>
+                <TableCell className="px-4 py-3">{formatEdad(detalle.edad)}</TableCell>
                 <TableCell className="px-4 py-3">{detalle.cantidad}</TableCell>
-                <TableCell className="px-4 py-3">
-                  {detalle.animal_codigo
-                    ? `${detalle.animal_codigo}${detalle.animal_arete ? ` · ${detalle.animal_arete}` : ""}`
-                    : "Sin asociar"}
-                </TableCell>
                 <TableCell className="px-4 py-3">{formatPeso(detalle.peso)}</TableCell>
-                <TableCell className="px-4 py-3">{formatPeso(detalle.cantidad * detalle.peso)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.precio)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.descuento)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.subtotal)}</TableCell>
+                <TableCell className="px-4 py-3">{getEstadoLabel(detalle.estado)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

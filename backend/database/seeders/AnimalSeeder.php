@@ -7,6 +7,7 @@ use App\Models\CategoriaAnimal;
 use App\Models\EstadoProductivo;
 use App\Models\Lote;
 use App\Models\Raza;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class AnimalSeeder extends Seeder
@@ -142,6 +143,7 @@ class AnimalSeeder extends Seeder
     public function run(): void
     {
         $created = [];
+        $userId = User::query()->orderBy('id')->value('id');
 
         foreach (self::ANIMALES as $animalData) {
             $raza = Raza::query()->where('codigo', $animalData['raza_codigo'])->first();
@@ -178,6 +180,7 @@ class AnimalSeeder extends Seeder
                     'padre_id' => $padreId,
                     'color' => $animalData['color'],
                     'observaciones' => $animalData['observaciones'],
+                    'user_id' => $userId,
                     'activo' => true,
                 ]
             );

@@ -57,6 +57,23 @@ export const formatPeso = (value?: number | null): string => {
   }).format(value)} kg`;
 };
 
+export const formatEdad = (value?: number | null): string => {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+  return `${value} ${value === 1 ? "mes" : "meses"}`;
+};
+
+export const formatSexo = (sexo?: string | null): string => {
+  if (sexo === "M") {
+    return "Macho";
+  }
+  if (sexo === "H") {
+    return "Hembra";
+  }
+  return "—";
+};
+
 export const isPendiente = (estado?: string | null): boolean => estado === "PENDIENTE";
 
 export const isAutorizada = (estado?: string | null): boolean => estado === "AUTORIZADA";

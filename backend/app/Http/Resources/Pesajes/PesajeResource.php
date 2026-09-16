@@ -20,6 +20,7 @@ class PesajeResource extends JsonResource
             'fecha' => $this->fecha?->format('Y-m-d'),
             'peso' => (float) $this->peso,
             'observaciones' => $this->observaciones,
+            'es_nacimiento' => $this->esDeNacimiento(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

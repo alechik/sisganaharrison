@@ -4,14 +4,15 @@ export interface Animal {
   arete: string | null;
   nombre: string | null;
   sexo: "M" | "H";
-  fecha_nacimiento: string;
-  raza_id: number;
+  fecha_nacimiento: string | null;
+  raza_id: number | null;
   raza_nombre?: string | null;
   categoria_id: number;
+  categoria_codigo?: string | null;
   categoria_nombre?: string | null;
-  estado_productivo_id: number;
+  estado_productivo_id: number | null;
   estado_productivo_nombre?: string | null;
-  lote_id: number;
+  lote_id: number | null;
   lote_nombre?: string | null;
   madre_id: number | null;
   madre_nombre?: string | null;
@@ -19,6 +20,9 @@ export interface Animal {
   padre_nombre?: string | null;
   color: string | null;
   observaciones: string | null;
+  user_id?: number | null;
+  edad_inicial?: number | null;
+  edad_actual?: number | null;
   activo: boolean;
   created_at?: string | null;
   updated_at?: string | null;
@@ -26,19 +30,21 @@ export interface Animal {
 }
 
 export interface AnimalCreateRequest {
-  codigo: string;
+  codigo?: string | null;
   arete?: string | null;
   nombre?: string | null;
   sexo: "M" | "H";
-  fecha_nacimiento: string;
-  raza_id: number;
+  fecha_nacimiento?: string | null;
+  raza_id?: number | null;
   categoria_id: number;
-  estado_productivo_id: number;
-  lote_id: number;
+  estado_productivo_id?: number | null;
+  lote_id?: number | null;
   madre_id?: number | null;
   padre_id?: number | null;
   color?: string | null;
   observaciones?: string | null;
+  edad_inicial?: number | null;
+  edad_actual?: number | null;
 }
 
 export interface AnimalUpdateRequest extends AnimalCreateRequest {}

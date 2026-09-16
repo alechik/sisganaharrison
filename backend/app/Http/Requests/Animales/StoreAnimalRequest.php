@@ -19,19 +19,25 @@ class StoreAnimalRequest extends FormRequest
         $merge = [];
 
         if ($this->has('codigo')) {
-            $merge['codigo'] = Str::upper(trim((string) $this->input('codigo')));
+            $codigo = Str::upper(trim((string) $this->input('codigo')));
+            $merge['codigo'] = $codigo === '' ? null : $codigo;
         }
 
-        if ($this->has('arete') && $this->input('arete') !== null && $this->input('arete') !== '') {
-            $merge['arete'] = Str::upper(trim((string) $this->input('arete')));
+        if ($this->has('arete')) {
+            $arete = Str::upper(trim((string) $this->input('arete')));
+            $merge['arete'] = $arete === '' ? null : $arete;
         }
 
-        if ($this->has('madre_id') && ($this->input('madre_id') === '' || $this->input('madre_id') === '0')) {
-            $merge['madre_id'] = null;
+        foreach (['fecha_nacimiento', 'nombre', 'color', 'observaciones', 'edad_inicial', 'edad_actual'] as $field) {
+            if ($this->exists($field) && $this->input($field) === '') {
+                $merge[$field] = null;
+            }
         }
 
-        if ($this->has('padre_id') && ($this->input('padre_id') === '' || $this->input('padre_id') === '0')) {
-            $merge['padre_id'] = null;
+        foreach (['raza_id', 'estado_productivo_id', 'lote_id', 'madre_id', 'padre_id'] as $field) {
+            if ($this->exists($field) && ($this->input($field) === '' || $this->input($field) === '0')) {
+                $merge[$field] = null;
+            }
         }
 
         if ($merge !== []) {
@@ -45,13 +51,13 @@ class StoreAnimalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'codigo' => 'required|string|max:30|unique:animales,codigo',
+            'codigo' => 'nullable|string|max:30|unique:animales,codigo',
             'arete' => 'nullable|string|max:30|unique:animales,arete',
             'nombre' => 'nullable|string|max:100',
             'sexo' => 'required|string|in:M,H',
-            'fecha_nacimiento' => 'required|date|before_or_equal:today',
+            'fecha_nacimiento' => 'nullable|date|before_or_equal:today',
             'raza_id' => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::exists('razas', 'id')
                     ->whereNull('deleted_at')
@@ -65,14 +71,14 @@ class StoreAnimalRequest extends FormRequest
                     ->where('activo', true),
             ],
             'estado_productivo_id' => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::exists('estados_productivos', 'id')
                     ->whereNull('deleted_at')
                     ->where('activo', true),
             ],
             'lote_id' => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::exists('lotes', 'id')
                     ->whereNull('deleted_at')
@@ -94,6 +100,8 @@ class StoreAnimalRequest extends FormRequest
             ],
             'color' => 'nullable|string|max:60',
             'observaciones' => 'nullable|string|max:2000',
+            'edad_inicial' => 'nullable|integer|min:0|max:600',
+            'edad_actual' => 'nullable|integer|min:0|max:600',
         ];
     }
 

@@ -29,6 +29,7 @@ class DetalleOrdenCompra extends Model
         'cantidad',
         'peso',
         'precio',
+        'edad',
         'descuento',
         'subtotal',
     ];
@@ -39,6 +40,7 @@ class DetalleOrdenCompra extends Model
             'cantidad' => 'integer',
             'peso' => 'decimal:2',
             'precio' => 'decimal:2',
+            'edad' => 'integer',
             'descuento' => 'decimal:2',
             'subtotal' => 'decimal:2',
         ];

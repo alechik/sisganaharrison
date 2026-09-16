@@ -6,8 +6,12 @@ use App\Models\Animal;
 use App\Models\Nacimiento;
 use App\Models\Parto;
 use App\Models\User;
+use App\Services\Animales\AnimalService;
+use App\Services\Pesajes\PesajeService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class NacimientoService
@@ -18,11 +22,16 @@ class NacimientoService
         'parto:id,gestacion_id,fecha_parto',
         'parto.gestacion:id,servicio_id,estado',
         'parto.gestacion.servicio:id,hembra_id,macho_id,fecha_servicio,tipo_servicio',
-        'parto.gestacion.servicio.hembra:id,codigo,arete',
+        'parto.gestacion.servicio.hembra:id,codigo,arete,raza_id',
         'parto.gestacion.servicio.macho:id,codigo,arete',
         'animal:id,codigo,arete',
         'registradoPor:id,nombre,apellido',
     ];
+
+    public function __construct(
+        private readonly AnimalService $animalService,
+        private readonly PesajeService $pesajeService
+    ) {}
 
     /**
      * @param  array<string, mixed>  $filters
@@ -47,9 +56,13 @@ class NacimientoService
     {
         $this->validateBusinessRules($data);
 
-        return Nacimiento::query()
-            ->create($data)
-            ->load(self::RELATIONS);
+        return DB::transaction(function () use ($data) {
+            $data = $this->vincularAnimalYPesaje($data);
+
+            return Nacimiento::query()
+                ->create($data)
+                ->load(self::RELATIONS);
+        });
     }
 
     /**
@@ -59,9 +72,17 @@ class NacimientoService
     {
         $this->validateBusinessRules($data);
 
-        $nacimiento->update($data);
+        return DB::transaction(function () use ($nacimiento, $data) {
+            if (empty($data['animal_id']) && $nacimiento->animal_id) {
+                $data['animal_id'] = $nacimiento->animal_id;
+            }
 
-        return $nacimiento->fresh(self::RELATIONS);
+            $data = $this->vincularAnimalYPesaje($data);
+
+            $nacimiento->update($data);
+
+            return $nacimiento->fresh(self::RELATIONS);
+        });
     }
 
     /**
@@ -113,6 +134,48 @@ class NacimientoService
         $sortDir = strtolower((string) ($filters['sort_dir'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
 
         return $query->orderBy($sortBy, $sortDir);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function vincularAnimalYPesaje(array $data): array
+    {
+        if (($data['estado_nacimiento'] ?? null) !== Nacimiento::ESTADO_VIVO) {
+            $data['animal_id'] = null;
+
+            return $data;
+        }
+
+        $parto = Parto::query()
+            ->with(['gestacion.servicio.hembra:id,raza_id'])
+            ->findOrFail((int) $data['parto_id']);
+
+        $servicio = $parto->gestacion?->servicio;
+        $animalId = ! empty($data['animal_id']) ? (int) $data['animal_id'] : null;
+
+        $animal = $this->animalService->asegurarDesdeNacimiento($animalId, [
+            'sexo' => $data['sexo'],
+            'fecha_nacimiento' => $parto->fecha_parto?->format('Y-m-d'),
+            'arete' => $data['arete'] ?? null,
+            'madre_id' => $servicio?->hembra_id,
+            'padre_id' => $servicio?->macho_id,
+            'raza_id' => $servicio?->hembra?->raza_id,
+            'user_id' => $data['registrado_por'] ?? Auth::id(),
+        ]);
+
+        $data['animal_id'] = $animal->id;
+
+        if (isset($data['peso_nacimiento']) && $data['peso_nacimiento'] !== null && $data['peso_nacimiento'] !== '') {
+            $this->pesajeService->registrarDeNacimiento(
+                $animal,
+                (string) $parto->fecha_parto?->format('Y-m-d'),
+                (float) $data['peso_nacimiento']
+            );
+        }
+
+        return $data;
     }
 
     /**

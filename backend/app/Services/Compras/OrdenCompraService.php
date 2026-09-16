@@ -7,6 +7,7 @@ use App\Models\OrdenCompra;
 use App\Models\Persona;
 use App\Models\TipoPersona;
 use App\Models\User;
+use App\Services\Animales\AnimalService;
 use App\Services\Documentos\PdfGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,11 +25,13 @@ class OrdenCompraService
         'creador:id,nombre,apellido',
         'autorizador:id,nombre,apellido',
         'detalles.categoria:id,codigo,nombre',
+        'detalles.animal:id,codigo,sexo,categoria_id',
         'cuarentena:id,orden_compra_id,estado',
     ];
 
     public function __construct(
-        private readonly PdfGenerator $pdfGenerator
+        private readonly PdfGenerator $pdfGenerator,
+        private readonly AnimalService $animalService
     ) {}
 
     /**
@@ -66,7 +69,7 @@ class OrdenCompraService
                 'total_peso' => 0,
             ]);
 
-            $this->syncDetalles($orden, $detalles);
+            $this->syncDetalles($orden, $this->animalService->identificarEnDetalles($detalles));
             $this->recalculateTotals($orden);
 
             return $orden->fresh(self::RELATIONS);
@@ -90,7 +93,7 @@ class OrdenCompraService
             ]);
 
             $orden->detalles()->delete();
-            $this->syncDetalles($orden, $detalles);
+            $this->syncDetalles($orden, $this->animalService->identificarEnDetalles($detalles));
             $this->recalculateTotals($orden);
 
             return $orden->fresh(self::RELATIONS);
@@ -313,10 +316,14 @@ class OrdenCompraService
             }
 
             $normalizados[] = [
-                'animal_id' => null,
+                'animal_id' => ! empty($detalle['animal_id']) ? (int) $detalle['animal_id'] : null,
                 'categoria_animal_id' => $categoriaId,
+                'sexo' => strtoupper((string) ($detalle['sexo'] ?? '')),
                 'cantidad' => $cantidad,
                 'peso' => $peso,
+                'edad' => isset($detalle['edad']) && $detalle['edad'] !== '' && $detalle['edad'] !== null
+                    ? (int) $detalle['edad']
+                    : null,
                 'precio' => $precio,
                 'descuento' => $descuento,
                 'subtotal' => $subtotal,
@@ -331,7 +338,18 @@ class OrdenCompraService
      */
     private function syncDetalles(OrdenCompra $orden, array $detalles): void
     {
-        $orden->detalles()->createMany($detalles);
+        $orden->detalles()->createMany(
+            array_map(fn (array $detalle) => [
+                'animal_id' => $detalle['animal_id'],
+                'categoria_animal_id' => $detalle['categoria_animal_id'],
+                'cantidad' => $detalle['cantidad'],
+                'peso' => $detalle['peso'],
+                'edad' => $detalle['edad'] ?? null,
+                'precio' => $detalle['precio'],
+                'descuento' => $detalle['descuento'],
+                'subtotal' => $detalle['subtotal'],
+            ], $detalles)
+        );
     }
 
     private function recalculateTotals(OrdenCompra $orden): void

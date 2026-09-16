@@ -18,15 +18,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $arete
  * @property string|null $nombre
  * @property string $sexo
- * @property string $fecha_nacimiento
- * @property int $raza_id
+ * @property string|null $fecha_nacimiento
+ * @property int|null $raza_id
  * @property int $categoria_id
- * @property int $estado_productivo_id
- * @property int $lote_id
+ * @property int|null $estado_productivo_id
+ * @property int|null $lote_id
  * @property int|null $madre_id
  * @property int|null $padre_id
  * @property string|null $color
  * @property string|null $observaciones
+ * @property int $user_id
+ * @property int|null $edad_inicial
+ * @property int|null $edad_actual
  * @property bool $activo
  */
 class Animal extends Model
@@ -50,6 +53,9 @@ class Animal extends Model
         'padre_id',
         'color',
         'observaciones',
+        'user_id',
+        'edad_inicial',
+        'edad_actual',
         'activo',
     ];
 
@@ -58,6 +64,8 @@ class Animal extends Model
         return [
             'fecha_nacimiento' => 'date',
             'activo' => 'boolean',
+            'edad_inicial' => 'integer',
+            'edad_actual' => 'integer',
         ];
     }
 
@@ -107,6 +115,14 @@ class Animal extends Model
     public function padre(): BelongsTo
     {
         return $this->belongsTo(Animal::class, 'padre_id');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function usuario(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

@@ -79,6 +79,11 @@ export default function PesajeTable({ pesajes, meta, onPageChange }: Props) {
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {pesaje.es_nacimiento ? (
+                      <span className="mr-2 inline-flex rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                        Nacimiento
+                      </span>
+                    ) : null}
                     {pesaje.observaciones || "Sin observaciones"}
                   </TableCell>
 

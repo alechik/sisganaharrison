@@ -63,10 +63,13 @@ class OrdenCompraResource extends JsonResource
                     'categoria_codigo' => $detalle->categoria?->codigo,
                     'cantidad' => $detalle->cantidad,
                     'peso' => (float) $detalle->peso,
+                    'edad' => $detalle->edad,
                     'precio' => (float) $detalle->precio,
                     'descuento' => (float) $detalle->descuento,
                     'subtotal' => (float) $detalle->subtotal,
                     'animal_id' => $detalle->animal_id,
+                    'animal_codigo' => $detalle->animal?->codigo,
+                    'sexo' => $detalle->animal?->sexo,
                 ])->values();
             }),
             'created_at' => $this->created_at?->toIso8601String(),

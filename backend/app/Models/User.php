@@ -83,4 +83,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Cuarentena::class, 'user_id');
     }
+
+    /**
+     * @return HasMany<Animal, $this>
+     */
+    public function animales(): HasMany
+    {
+        return $this->hasMany(Animal::class, 'user_id');
+    }
 }

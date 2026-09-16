@@ -5,13 +5,14 @@ export interface CuarentenaDetalle {
   categoria_codigo?: string | null;
   cantidad: number;
   peso: number;
+  edad?: number | null;
   precio: number;
   descuento: number;
   estado?: string;
   subtotal: number;
   animal_id?: number | null;
   animal_codigo?: string | null;
-  animal_arete?: string | null;
+  sexo?: "M" | "H" | null;
 }
 
 export interface Cuarentena {
@@ -39,8 +40,12 @@ export interface Cuarentena {
 
 export interface CuarentenaDetalleRequest {
   categoria_animal_id: number;
+  sexo: "M" | "H" | "";
+  animal_id?: number | null;
+  animal_codigo?: string | null;
   cantidad: number;
   peso: number;
+  edad?: number | null;
   precio: number;
   descuento?: number;
 }

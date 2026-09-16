@@ -11,6 +11,6 @@ export const defaultAnimalFilters = (): AnimalFilters => ({
   lote_id: undefined,
   sexo: undefined,
   activo: undefined,
-  sort_by: "nombre",
+  sort_by: "codigo",
   sort_dir: "asc",
 });
