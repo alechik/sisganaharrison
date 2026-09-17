@@ -9,3 +9,8 @@ export { default as CuarentenaFiltersBar } from "./CuarentenaFiltersBar";
 export { default as CuarentenaToolbar } from "./CuarentenaToolbar";
 export { default as CuarentenaStatusBadge } from "./CuarentenaStatusBadge";
 export { default as CuarentenaOrigenBadge } from "./CuarentenaOrigenBadge";
+export { default as IngresoTable } from "./IngresoTable";
+export { default as IngresoForm } from "./IngresoForm";
+export { default as IngresoFiltersBar } from "./IngresoFiltersBar";
+export { default as IngresoToolbar } from "./IngresoToolbar";
+export { default as IngresoStatusBadge } from "./IngresoStatusBadge";

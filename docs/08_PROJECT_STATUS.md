@@ -1,8 +1,8 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-09-14** — Nacimiento→Animal+Pesaje; edad inicial en compras.
+> Snapshot mínimo. **2026-09-16** — Ingresos desde cuarentena COMPLETADA (parciales).
 
-**Avance estimado:** ~73–77%
+**Avance estimado:** ~76–80%
 
 ---
 
@@ -10,15 +10,14 @@
 
 | Capa | Qué hay |
 |------|---------|
-| Backend | Laravel 12, Sanctum, Spatie (~112 permisos, 4 roles), **23 controllers dominio** |
-| Modelos | User, catálogos G1, Establecimiento, Potrero, Lote, Animal, Pesaje, EventoSanitario, ServicioReproductivo, Gestacion, Parto, Nacimiento, Persona, TipoPersona, OrdenCompra, DetalleOrdenCompra, **Cuarentena, CuarentenaDetalle** |
-| Frontend | `user`, catálogos G1, infraestructura, `animales`, `pesajes`, `eventos-sanitarios`, `servicios-reproductivos`, `gestaciones`, `partos`, `nacimientos`, `socios-de-negocio`, **`compras` (órdenes + cuarentenas)** + PermissionGate |
-| BD | **38 tablas** (27 migraciones), PostgreSQL |
-| API | **~170 endpoints** |
+| Backend | Laravel 12, Sanctum, Spatie (~112 permisos, 4 roles), **24 controllers dominio** |
+| Modelos | User, catálogos G1, Establecimiento, Potrero, Lote, Animal, Pesaje, EventoSanitario, AnimalEvento, ServicioReproductivo, Gestacion, Parto, Nacimiento, Persona, TipoPersona, OrdenCompra, DetalleOrdenCompra, Cuarentena, CuarentenaDetalle, **Ingreso, DetalleIngreso** |
+| Frontend | `user`, catálogos G1, infraestructura, `animales`, `pesajes`, `eventos-sanitarios`, `servicios-reproductivos`, `gestaciones`, `partos`, `nacimientos`, `socios-de-negocio`, **`compras` (órdenes + cuarentenas + ingresos)** + PermissionGate |
+| BD | **41 tablas** (29 migraciones), PostgreSQL |
+| API | **~175 endpoints** |
 
 ## Pendiente prioritario
 
-- Ingreso (continuación del flujo de compras)
 - Movimientos (transaccionales sobre animales)
 - Tests Feature auth/usuarios/permisos
 - AuthContext frontend (mejora sobre localStorage)

@@ -14,12 +14,12 @@ import {
 } from "@/components/ui/table";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import { CuarentenaOrigenBadge, CuarentenaStatusBadge } from "../components";
-import { CUARENTENA_ROUTES, ORDEN_COMPRA_ROUTES } from "../constants";
+import { CUARENTENA_ROUTES, INGRESO_ROUTES, ORDEN_COMPRA_ROUTES } from "../constants";
 import { useGestionCuarentena } from "../hooks";
 import { COMPRAS_PERMISSIONS } from "../permissions";
 import { downloadCuarentenaPdf, getCuarentena } from "../services";
 import { Cuarentena } from "../types";
-import { formatDate, formatEdad, formatMoney, formatPeso, formatSexo, getEstadoLabel, isProcesada } from "../utils";
+import { formatDate, formatEdad, formatMoney, formatPeso, formatSexo, getEstadoLabel, isCompletada, isProcesada } from "../utils";
 
 export default function CuarentenaDetailPage() {
   const { id } = useParams();
@@ -128,6 +128,16 @@ export default function CuarentenaDetailPage() {
                 </button>
               </PermissionGate>
             </>
+          )}
+          {isCompletada(item.estado) && (
+            <PermissionGate permission={COMPRAS_PERMISSIONS.create}>
+              <Link
+                to={`${INGRESO_ROUTES.create}?cuarentena_id=${item.id}`}
+                className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-3 text-sm text-white hover:bg-brand-600"
+              >
+                Registrar ingreso
+              </Link>
+            </PermissionGate>
           )}
         </div>
       </div>

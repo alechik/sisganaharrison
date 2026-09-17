@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             PersonaSeeder::class,
             OrdenCompraSeeder::class,
             CuarentenaSeeder::class,
+            IngresoSeeder::class,
         ]);
     }
 }

@@ -63,6 +63,28 @@ class PesajeService
     }
 
     /**
+     * Pesaje histórico identificado por observación. No sobrescribe ni duplica el mismo tipo.
+     */
+    public function registrarHistorico(Animal $animal, string $fecha, float $peso, string $observacion): Pesaje
+    {
+        $existente = Pesaje::query()
+            ->where('animal_id', $animal->id)
+            ->where('observaciones', $observacion)
+            ->first();
+
+        if ($existente) {
+            return $existente->load('animal:id,codigo,arete');
+        }
+
+        return $this->create([
+            'animal_id' => $animal->id,
+            'fecha' => $fecha,
+            'peso' => $peso,
+            'observaciones' => $observacion,
+        ]);
+    }
+
+    /**
      * @param  array<string, mixed>  $filters
      * @return Builder<Pesaje>
      */

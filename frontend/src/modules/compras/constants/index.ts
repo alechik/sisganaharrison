@@ -13,6 +13,12 @@ export const CUARENTENA_ROUTES = {
   edit: (id: number | string) => `/compras/cuarentenas/${id}/editar`,
 } as const;
 
+export const INGRESO_ROUTES = {
+  list: "/compras/ingresos",
+  create: "/compras/ingresos/crear",
+  detail: (id: number | string) => `/compras/ingresos/${id}`,
+} as const;
+
 export const ORDEN_COMPRA_DEFAULT_PAGE_SIZE = 10;
 
 export const ORDEN_COMPRA_ESTADOS = [
@@ -46,4 +52,12 @@ export const CUARENTENA_SORT_OPTIONS = [
   { value: "monto_total", label: "Monto" },
   { value: "estado", label: "Estado" },
   { value: "origen", label: "Origen" },
+] as const;
+
+export const INGRESO_SORT_OPTIONS = [
+  { value: "created_at", label: "Fecha de registro" },
+  { value: "fecha_ingreso", label: "Fecha de ingreso" },
+  { value: "codigo", label: "Código" },
+  { value: "monto_total", label: "Monto" },
+  { value: "estado", label: "Estado" },
 ] as const;

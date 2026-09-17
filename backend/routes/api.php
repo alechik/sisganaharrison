@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\SociosDeNegocio\PersonaController;
 use App\Http\Controllers\Api\SociosDeNegocio\TipoPersonaController;
 use App\Http\Controllers\Api\Compras\OrdenCompraController;
 use App\Http\Controllers\Api\Compras\CuarentenaController;
+use App\Http\Controllers\Api\Compras\IngresoController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -704,6 +705,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('compras/cuarentenas/{cuarentena}/pdf', [CuarentenaController::class, 'pdf'])
         ->middleware('permission:compras.view');
 
+    Route::get('compras/cuarentenas/{cuarentena}/pendientes-ingreso', [IngresoController::class, 'pendientes'])
+        ->middleware('permission:compras.create');
+
     Route::post('compras/cuarentenas/{cuarentena}/completar', [CuarentenaController::class, 'completar'])
         ->middleware('permission:compras.create');
 
@@ -721,4 +725,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('compras/cuarentenas/{cuarentena}', [CuarentenaController::class, 'update'])
         ->middleware('permission:compras.create');
+
+    Route::get('compras/ingresos/{ingreso}/pdf', [IngresoController::class, 'pdf'])
+        ->middleware('permission:compras.view');
+
+    Route::get('compras/ingresos', [IngresoController::class, 'index'])
+        ->middleware('permission:compras.view');
+
+    Route::post('compras/ingresos', [IngresoController::class, 'store'])
+        ->middleware('permission:compras.create');
+
+    Route::get('compras/ingresos/{ingreso}', [IngresoController::class, 'show'])
+        ->middleware('permission:compras.view');
 });

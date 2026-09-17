@@ -6,9 +6,11 @@ use App\Models\CategoriaAnimal;
 use App\Models\Cuarentena;
 use App\Models\OrdenCompra;
 use App\Models\Persona;
+use App\Models\Pesaje;
 use App\Models\TipoPersona;
 use App\Services\Animales\AnimalService;
 use App\Services\Documentos\PdfGenerator;
+use App\Services\Pesajes\PesajeService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
@@ -38,7 +40,8 @@ class CuarentenaService
 
     public function __construct(
         private readonly PdfGenerator $pdfGenerator,
-        private readonly AnimalService $animalService
+        private readonly AnimalService $animalService,
+        private readonly PesajeService $pesajeService
     ) {}
 
     /**
@@ -171,16 +174,36 @@ class CuarentenaService
     {
         $this->assertModificable($cuarentena);
 
-        $cuarentena->update([
-            'estado' => Cuarentena::ESTADO_COMPLETADO,
-            'fecha_fin' => now()->toDateString(),
-        ]);
+        return DB::transaction(function () use ($cuarentena) {
+            $cuarentena->update([
+                'estado' => Cuarentena::ESTADO_COMPLETADO,
+                'fecha_fin' => now()->toDateString(),
+            ]);
 
-        $cuarentena->detalles()->update([
-            'estado' => Cuarentena::ESTADO_COMPLETADO,
-        ]);
+            $cuarentena->detalles()->update([
+                'estado' => Cuarentena::ESTADO_COMPLETADO,
+            ]);
 
-        return $cuarentena->fresh(self::RELATIONS);
+            $cuarentena->load('detalles.animal');
+            $fechaRegistro = $cuarentena->fecha_inicio?->format('Y-m-d')
+                ?? $cuarentena->created_at?->toDateString()
+                ?? now()->toDateString();
+
+            foreach ($cuarentena->detalles as $detalle) {
+                if (! $detalle->animal) {
+                    continue;
+                }
+
+                $this->pesajeService->registrarHistorico(
+                    $detalle->animal,
+                    $fechaRegistro,
+                    (float) $detalle->peso,
+                    Pesaje::OBSERVACION_CUARENTENA
+                );
+            }
+
+            return $cuarentena->fresh(self::RELATIONS);
+        });
     }
 
     public function pdf(Cuarentena $cuarentena): Response

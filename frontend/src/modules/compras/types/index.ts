@@ -22,4 +22,19 @@ export type {
   CuarentenaSortDirection,
   CuarentenaSortField,
 } from "./cuarentenaFilters";
+export type {
+  Ingreso,
+  IngresoCreateRequest,
+  IngresoDetalle,
+  IngresoDetalleRequest,
+  IngresoListParams,
+  IngresoPendienteLinea,
+  IngresoPendientes,
+  AnimalIngresoPayload,
+} from "./ingreso";
+export type {
+  IngresoFilters,
+  IngresoSortDirection,
+  IngresoSortField,
+} from "./ingresoFilters";
 

@@ -96,6 +96,14 @@ class Cuarentena extends Model
         return $this->hasMany(CuarentenaDetalle::class, 'cuarentena_id');
     }
 
+    /**
+     * @return HasMany<Ingreso, $this>
+     */
+    public function ingresos(): HasMany
+    {
+        return $this->hasMany(Ingreso::class, 'cuarentena_id');
+    }
+
     public function estaProcesada(): bool
     {
         return $this->estado === self::ESTADO_PROCESADO;
@@ -109,5 +117,10 @@ class Cuarentena extends Model
     public function esDirecta(): bool
     {
         return $this->origen === self::ORIGEN_DIRECTA;
+    }
+
+    public function estaCompletada(): bool
+    {
+        return $this->estado === self::ESTADO_COMPLETADO;
     }
 }

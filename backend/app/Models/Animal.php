@@ -134,6 +134,14 @@ class Animal extends Model
     }
 
     /**
+     * @return HasMany<AnimalEvento, $this>
+     */
+    public function eventos(): HasMany
+    {
+        return $this->hasMany(AnimalEvento::class);
+    }
+
+    /**
      * @return HasMany<EventoSanitario, $this>
      */
     public function eventosSanitarios(): HasMany

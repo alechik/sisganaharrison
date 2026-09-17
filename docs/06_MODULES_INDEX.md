@@ -26,8 +26,9 @@
 | Gestaciones | ✅ | `/api/gestaciones` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/gestaciones/` (sin delete) |
 | Partos | ✅ | `/api/partos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/partos/` (sin delete) |
 | Nacimientos | ✅ | `/api/nacimientos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/nacimientos/` (VIVO → animal + pesaje de nacimiento) |
-| Compras / Órdenes de Compra | 🟡 | `/api/compras/ordenes-compra` | `compras.view`, `compras.create`, `compras.update`, `compras.authorize` | `modules/compras/` (animal preliminar + edad inicial; ingreso pendiente) |
-| Compras / Cuarentenas | 🟡 | `/api/compras/cuarentenas` | `compras.view`, `compras.create` | `modules/compras/` (hereda `animal_id` y edad de la OC) |
+| Compras / Órdenes de Compra | ✅ | `/api/compras/ordenes-compra` | `compras.view`, `compras.create`, `compras.update`, `compras.authorize` | `modules/compras/` (animal preliminar + edad inicial) |
+| Compras / Cuarentenas | ✅ | `/api/compras/cuarentenas` | `compras.view`, `compras.create` | `modules/compras/` (COMPLETADO registra pesaje de cuarentena) |
+| Compras / Ingresos | ✅ | `/api/compras/ingresos` | `compras.view`, `compras.create` | `modules/compras/` (parciales desde cuarentena COMPLETADA; actualiza el mismo `animal_id`) |
 | Movimientos | ❌ | — | permisos seed | — |
 | Reportes | ❌ | — | permisos seed | — |
 | Auditoría | ❌ | — | permisos seed | — |

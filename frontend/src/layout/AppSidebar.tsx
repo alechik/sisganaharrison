@@ -122,6 +122,10 @@ const navItems: NavItem[] = [
         name: "Cuarentenas",
         path: "/compras/cuarentenas",
       },
+      {
+        name: "Ingresos",
+        path: "/compras/ingresos",
+      },
     ],
   },
 

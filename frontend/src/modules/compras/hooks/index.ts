@@ -6,4 +6,6 @@ export { useCuarentenas } from "./useCuarentenas";
 export { useCreateCuarentena } from "./useCreateCuarentena";
 export { useUpdateCuarentena } from "./useUpdateCuarentena";
 export { useGestionCuarentena } from "./useGestionCuarentena";
+export { useIngresos } from "./useIngresos";
+export { useCreateIngreso } from "./useCreateIngreso";
 

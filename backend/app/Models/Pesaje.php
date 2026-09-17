@@ -23,6 +23,10 @@ class Pesaje extends Model
 
     public const OBSERVACION_NACIMIENTO = 'Pesaje de nacimiento';
 
+    public const OBSERVACION_CUARENTENA = 'Pesaje de cuarentena';
+
+    public const OBSERVACION_INGRESO = 'Pesaje de ingreso';
+
     public const UPDATED_AT = null;
 
     protected $table = 'pesajes';

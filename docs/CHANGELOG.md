@@ -8,7 +8,27 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: Ingreso (completar animal preliminar) y módulos transaccionales (Movimientos)._
+_Pendiente: módulos transaccionales (Movimientos)._
+
+---
+
+## [2026-09-16] — Compras: Ingresos
+
+### Added
+
+**Backend:**
+- Tablas `ingresos` y `detalle_ingresos` (código `ING-YYYY-NNNN`; `cuarentena_id` obligatorio)
+- Tabla `animal_eventos` para trazabilidad de ingreso (y futuros movimientos)
+- Ingreso solo desde cuarentena `COMPLETADO`; selección parcial de animales; un animal no se reingresa en la misma cuarentena
+- Al confirmar: transacción (cabecera, detalles, actualización del mismo `animal_id`, lote, pesaje de ingreso, evento)
+- Al completar cuarentena: pesaje histórico con el peso de OC/cuarentena y fecha de registro (`Pesaje de cuarentena`)
+- PDF Nota de Ingreso (`PdfGenerator`)
+
+**Frontend:**
+- Listado, alta desde cuarentena COMPLETADA, detalle y PDF
+- Formulario: lote, fecha, observaciones, selección de animales, peso de ingreso y ficha pendiente del animal
+
+**Documentación:** Actualizados `06`, `08`
 
 ---
 

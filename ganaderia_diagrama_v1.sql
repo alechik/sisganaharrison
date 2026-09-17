@@ -509,7 +509,6 @@ CREATE TABLE IF NOT EXISTS detalle_ingresos (
     peso_oc NUMERIC(8,2) NOT NULL,
     peso_ingreso NUMERIC(8,2) NOT NULL,
     precio_compra NUMERIC(8,2) NOT NULL,
-    precio_ingreso NUMERIC(8,2) NOT NULL,
     CONSTRAINT fk_detalle_ingresos_ingreso
         FOREIGN KEY (ingreso_id)
         REFERENCES ingresos(id)

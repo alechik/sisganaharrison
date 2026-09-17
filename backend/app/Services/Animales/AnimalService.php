@@ -6,6 +6,7 @@ use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\Lote;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -311,6 +312,59 @@ class AnimalService
         return $animal->fresh(self::RELATIONS);
     }
 
+    /**
+     * Completa el mismo animal preliminar al confirmar un ingreso.
+     * Conserva codigo, sexo y categoria_id.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function completarDesdeIngreso(Animal $animal, array $data, int $loteId, string $fechaIngreso): Animal
+    {
+        $this->assertLoteTieneCapacidad($loteId, $animal->id);
+
+        $arete = isset($data['arete']) ? Str::upper(trim((string) $data['arete'])) : $animal->arete;
+        $arete = $arete === '' ? null : $arete;
+
+        if ($arete && Animal::query()->where('arete', $arete)->where('id', '!=', $animal->id)->exists()) {
+            throw ValidationException::withMessages([
+                'arete' => "El arete {$arete} ya está asignado a otro animal.",
+            ]);
+        }
+
+        $edadInicial = $animal->edad_inicial;
+        if ($edadInicial === null && array_key_exists('edad_inicial', $data) && $data['edad_inicial'] !== null && $data['edad_inicial'] !== '') {
+            $edadInicial = (int) $data['edad_inicial'];
+        }
+
+        $edadActual = array_key_exists('edad_actual', $data) && $data['edad_actual'] !== null && $data['edad_actual'] !== ''
+            ? (int) $data['edad_actual']
+            : ($animal->edad_actual ?? $edadInicial);
+
+        $fechaNacimiento = $animal->fecha_nacimiento?->format('Y-m-d');
+        if (! empty($data['fecha_nacimiento'])) {
+            $fechaNacimiento = (string) $data['fecha_nacimiento'];
+        } elseif ($fechaNacimiento === null && $edadInicial !== null) {
+            $fechaNacimiento = Carbon::parse($fechaIngreso)->subMonths($edadInicial)->toDateString();
+        }
+
+        $animal->update([
+            'arete' => $arete,
+            'nombre' => $this->nullableString($data['nombre'] ?? $animal->nombre),
+            'fecha_nacimiento' => $fechaNacimiento,
+            'raza_id' => $this->nullableId($data['raza_id'] ?? $animal->raza_id),
+            'estado_productivo_id' => $this->nullableId($data['estado_productivo_id'] ?? $animal->estado_productivo_id),
+            'lote_id' => $loteId,
+            'madre_id' => $this->nullableId($data['madre_id'] ?? $animal->madre_id),
+            'padre_id' => $this->nullableId($data['padre_id'] ?? $animal->padre_id),
+            'color' => $this->nullableString($data['color'] ?? $animal->color),
+            'observaciones' => $this->nullableString($data['observaciones'] ?? $animal->observaciones),
+            'edad_inicial' => $edadInicial,
+            'edad_actual' => $edadActual,
+        ]);
+
+        return $animal->fresh(self::RELATIONS) ?? $animal;
+    }
+
     public function delete(Animal $animal): void
     {
         $animal->activo = false;
@@ -462,5 +516,25 @@ class AnimalService
                 'lote_id' => "El lote {$lote->nombre} ha alcanzado su capacidad máxima ({$lote->capacidad_animales} animales).",
             ]);
         }
+    }
+
+    private function nullableString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $trimmed = trim((string) $value);
+
+        return $trimmed === '' ? null : $trimmed;
+    }
+
+    private function nullableId(mixed $value): ?int
+    {
+        if ($value === null || $value === '' || $value === 0 || $value === '0') {
+            return null;
+        }
+
+        return (int) $value;
     }
 }

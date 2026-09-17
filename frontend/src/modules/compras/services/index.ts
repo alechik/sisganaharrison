@@ -17,4 +17,11 @@ export {
   completarCuarentena,
   downloadCuarentenaPdf,
 } from "./cuarentenaService";
+export {
+  getIngresos,
+  getIngreso,
+  getPendientesIngreso,
+  createIngreso,
+  downloadIngresoPdf,
+} from "./ingresoService";
 

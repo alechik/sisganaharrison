@@ -3,6 +3,9 @@ import {
   CuarentenaFilters,
   CuarentenaSortDirection,
   CuarentenaSortField,
+  IngresoFilters,
+  IngresoSortDirection,
+  IngresoSortField,
   OrdenCompraFilters,
   OrdenCompraSortDirection,
   OrdenCompraSortField,
@@ -43,6 +46,7 @@ export const getEstadoLabel = (value?: string | null): string => {
     RECHAZADA: "Rechazada",
     PROCESADO: "Procesado",
     COMPLETADO: "Completado",
+    REGISTRADO: "Registrado",
   };
   return value ? labels[value] ?? value : "—";
 };
@@ -80,6 +84,8 @@ export const isAutorizada = (estado?: string | null): boolean => estado === "AUT
 
 export const isProcesada = (estado?: string | null): boolean => estado === "PROCESADO";
 
+export const isCompletada = (estado?: string | null): boolean => estado === "COMPLETADO";
+
 export const getOrigenLabel = (value?: string | null): string => {
   const labels: Record<string, string> = {
     ORDEN_COMPRA: "Orden de Compra",
@@ -96,6 +102,18 @@ export const defaultCuarentenaFilters = (): CuarentenaFilters => ({
   fecha: "",
   sort_by: "created_at" as CuarentenaSortField,
   sort_dir: "desc" as CuarentenaSortDirection,
+  page: 1,
+  per_page: ORDEN_COMPRA_DEFAULT_PAGE_SIZE,
+});
+
+export const defaultIngresoFilters = (): IngresoFilters => ({
+  codigo: "",
+  proveedor_id: undefined,
+  cuarentena_id: undefined,
+  lote_id: undefined,
+  fecha: "",
+  sort_by: "created_at" as IngresoSortField,
+  sort_dir: "desc" as IngresoSortDirection,
   page: 1,
   per_page: ORDEN_COMPRA_DEFAULT_PAGE_SIZE,
 });

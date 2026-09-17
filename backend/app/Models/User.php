@@ -91,4 +91,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Animal::class, 'user_id');
     }
+
+    /**
+     * @return HasMany<Ingreso, $this>
+     */
+    public function ingresos(): HasMany
+    {
+        return $this->hasMany(Ingreso::class, 'user_id');
+    }
 }

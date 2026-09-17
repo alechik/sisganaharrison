@@ -588,4 +588,21 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  ingresos: [
+    { title: "Compras" },
+    { title: "Ingresos" },
+  ],
+
+  ingresoCrear: [
+    { title: "Compras" },
+    { title: "Ingresos", path: "/compras/ingresos" },
+    { title: "Nuevo Ingreso" },
+  ],
+
+  ingresoDetalle: [
+    { title: "Compras" },
+    { title: "Ingresos", path: "/compras/ingresos" },
+    { title: "Detalle" },
+  ],
+
 };
