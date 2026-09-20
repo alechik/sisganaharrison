@@ -11,6 +11,9 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * Solo catálogos, infraestructura y gestión de personal.
+     * El resto de registros se carga de forma operativa.
      */
     public function run(): void
     {
@@ -25,21 +28,10 @@ class DatabaseSeeder extends Seeder
             TipoEventoSanitarioSeeder::class,
             TipoMovimientoSeeder::class,
             TipoAlertaSeeder::class,
+            TipoPersonaSeeder::class,
             EstablecimientoSeeder::class,
             PotreroSeeder::class,
             LoteSeeder::class,
-            AnimalSeeder::class,
-            PesajeSeeder::class,
-            EventoSanitarioSeeder::class,
-            ServicioReproductivoSeeder::class,
-            GestacionSeeder::class,
-            PartoSeeder::class,
-            NacimientoSeeder::class,
-            TipoPersonaSeeder::class,
-            PersonaSeeder::class,
-            OrdenCompraSeeder::class,
-            CuarentenaSeeder::class,
-            IngresoSeeder::class,
         ]);
     }
 }
