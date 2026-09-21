@@ -44,6 +44,8 @@ class AnimalController extends Controller
             ! $user?->can('animales.view')
             && ! $user?->can('compras.view')
             && ! $user?->can('compras.create')
+            && ! $user?->can('reproduccion.view')
+            && ! $user?->can('reproduccion.create')
         ) {
             abort(403);
         }

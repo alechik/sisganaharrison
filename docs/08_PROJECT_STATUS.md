@@ -1,6 +1,6 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-09-16** — Ingresos desde cuarentena COMPLETADA (parciales).
+> Snapshot mínimo. **2026-09-20** — Nacimientos VIVO/MUERTO (cría automática solo si vive).
 
 **Avance estimado:** ~76–80%
 

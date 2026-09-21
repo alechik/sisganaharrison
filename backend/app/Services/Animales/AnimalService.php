@@ -132,28 +132,45 @@ class AnimalService
 
         if ($animalId) {
             $animal = Animal::query()->findOrFail($animalId);
-            $updates = [];
-
-            if ($animal->fecha_nacimiento === null && ! empty($contexto['fecha_nacimiento'])) {
-                $updates['fecha_nacimiento'] = $contexto['fecha_nacimiento'];
-            }
-            if ($animal->madre_id === null && ! empty($contexto['madre_id'])) {
-                $updates['madre_id'] = $contexto['madre_id'];
-            }
-            if ($animal->padre_id === null && ! empty($contexto['padre_id'])) {
-                $updates['padre_id'] = $contexto['padre_id'];
-            }
-            if ($animal->arete === null && ! empty($contexto['arete'])) {
-                $updates['arete'] = $contexto['arete'];
-            }
-            if ($animal->edad_inicial === null) {
-                $updates['edad_inicial'] = 0;
-                $updates['edad_actual'] = $animal->edad_actual ?? 0;
+            $arete = $this->nullableString($contexto['arete'] ?? $animal->arete);
+            if ($arete && Animal::query()->where('arete', $arete)->where('id', '!=', $animal->id)->exists()) {
+                throw ValidationException::withMessages([
+                    'arete' => "El arete {$arete} ya está asignado a otro animal.",
+                ]);
             }
 
-            if ($updates !== []) {
-                $animal->update($updates);
+            if (! empty($contexto['lote_id'])) {
+                $this->assertLoteTieneCapacidad((int) $contexto['lote_id'], $animal->id);
             }
+
+            $animal->update([
+                'sexo' => $sexo,
+                'categoria_id' => $categoria->id,
+                'fecha_nacimiento' => $contexto['fecha_nacimiento'] ?? $animal->fecha_nacimiento,
+                'arete' => $arete,
+                'nombre' => array_key_exists('nombre', $contexto)
+                    ? $this->nullableString($contexto['nombre'])
+                    : $animal->nombre,
+                'madre_id' => $contexto['madre_id'] ?? $animal->madre_id,
+                'padre_id' => $contexto['padre_id'] ?? $animal->padre_id,
+                'raza_id' => array_key_exists('raza_id', $contexto)
+                    ? $this->nullableId($contexto['raza_id'])
+                    : $animal->raza_id,
+                'estado_productivo_id' => array_key_exists('estado_productivo_id', $contexto)
+                    ? $this->nullableId($contexto['estado_productivo_id'])
+                    : $animal->estado_productivo_id,
+                'lote_id' => array_key_exists('lote_id', $contexto)
+                    ? $this->nullableId($contexto['lote_id'])
+                    : $animal->lote_id,
+                'color' => array_key_exists('color', $contexto)
+                    ? $this->nullableString($contexto['color'])
+                    : $animal->color,
+                'observaciones' => array_key_exists('observaciones', $contexto)
+                    ? $this->nullableString($contexto['observaciones'])
+                    : $animal->observaciones,
+                'edad_inicial' => $animal->edad_inicial ?? 0,
+                'edad_actual' => $animal->edad_actual ?? 0,
+            ]);
 
             return $animal->fresh() ?? $animal;
         }
@@ -168,9 +185,14 @@ class AnimalService
             'categoria_id' => $categoria->id,
             'fecha_nacimiento' => $contexto['fecha_nacimiento'] ?? null,
             'arete' => $arete,
+            'nombre' => $this->nullableString($contexto['nombre'] ?? null),
             'madre_id' => $contexto['madre_id'] ?? null,
             'padre_id' => $contexto['padre_id'] ?? null,
-            'raza_id' => $contexto['raza_id'] ?? null,
+            'raza_id' => $this->nullableId($contexto['raza_id'] ?? null),
+            'estado_productivo_id' => $this->nullableId($contexto['estado_productivo_id'] ?? null),
+            'lote_id' => $this->nullableId($contexto['lote_id'] ?? null),
+            'color' => $this->nullableString($contexto['color'] ?? null),
+            'observaciones' => $this->nullableString($contexto['observaciones'] ?? null),
             'user_id' => $contexto['user_id'] ?? Auth::id(),
             'edad_inicial' => 0,
             'edad_actual' => 0,

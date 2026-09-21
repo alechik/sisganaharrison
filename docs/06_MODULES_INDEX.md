@@ -25,7 +25,7 @@
 | Servicios Reproductivos | ✅ | `/api/servicios-reproductivos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/servicios-reproductivos/` |
 | Gestaciones | ✅ | `/api/gestaciones` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/gestaciones/` (sin delete) |
 | Partos | ✅ | `/api/partos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/partos/` (sin delete) |
-| Nacimientos | ✅ | `/api/nacimientos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/nacimientos/` (VIVO → animal + pesaje de nacimiento) |
+| Nacimientos | ✅ | `/api/nacimientos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/nacimientos/` (VIVO crea cría + pesaje; MUERTO sin animal) |
 | Compras / Órdenes de Compra | ✅ | `/api/compras/ordenes-compra` | `compras.view`, `compras.create`, `compras.update`, `compras.authorize` | `modules/compras/` (animal preliminar + edad inicial) |
 | Compras / Cuarentenas | ✅ | `/api/compras/cuarentenas` | `compras.view`, `compras.create` | `modules/compras/` (COMPLETADO registra pesaje de cuarentena) |
 | Compras / Ingresos | ✅ | `/api/compras/ingresos` | `compras.view`, `compras.create` | `modules/compras/` (parciales desde cuarentena COMPLETADA; actualiza el mismo `animal_id`) |

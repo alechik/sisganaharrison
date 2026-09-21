@@ -12,6 +12,18 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-20] — Nacimientos: cría automática solo si VIVO
+
+### Changed
+
+**Nacimientos:** se elimina la vinculación opcional de un animal existente. Un nacimiento **VIVO** crea la cría (código de Animales, categoría Ternero/Ternera, fecha = parto, madre/padre del servicio) y, si hay peso, un pesaje de nacimiento. Un nacimiento **MUERTO** no crea animal ni pesaje (`animal_id` nulo). Misma transacción.
+
+**Formulario:** bloque de ficha del animal solo con estado VIVO; con MUERTO solo sexo, peso, causa de muerte y observaciones.
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-09-16] — Compras: Ingresos
 
 ### Added

@@ -10,6 +10,7 @@ interface SelectOption {
 
 export const usePartoOptions = () => {
   const [partoOptions, setPartoOptions] = useState<SelectOption[]>([]);
+  const [partos, setPartos] = useState<Parto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,6 +25,7 @@ export const usePartoOptions = () => {
           sort_by: "fecha_parto",
           sort_dir: "desc",
         });
+        setPartos(response.data);
         setPartoOptions(
           response.data.map((parto: Parto) => ({
             value: String(parto.id),
@@ -40,5 +42,5 @@ export const usePartoOptions = () => {
     loadPartos();
   }, []);
 
-  return { partoOptions, loading, error };
+  return { partoOptions, partos, loading, error };
 };

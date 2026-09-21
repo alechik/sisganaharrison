@@ -2,7 +2,6 @@
 
 namespace App\Services\Nacimientos;
 
-use App\Models\Animal;
 use App\Models\Nacimiento;
 use App\Models\Parto;
 use App\Models\User;
@@ -57,7 +56,7 @@ class NacimientoService
         $this->validateBusinessRules($data);
 
         return DB::transaction(function () use ($data) {
-            $data = $this->vincularAnimalYPesaje($data);
+            $data = $this->resolverCriaYPesaje($data);
 
             return Nacimiento::query()
                 ->create($data)
@@ -73,11 +72,7 @@ class NacimientoService
         $this->validateBusinessRules($data);
 
         return DB::transaction(function () use ($nacimiento, $data) {
-            if (empty($data['animal_id']) && $nacimiento->animal_id) {
-                $data['animal_id'] = $nacimiento->animal_id;
-            }
-
-            $data = $this->vincularAnimalYPesaje($data);
+            $data = $this->resolverCriaYPesaje($data, $nacimiento);
 
             $nacimiento->update($data);
 
@@ -137,11 +132,17 @@ class NacimientoService
     }
 
     /**
+     * VIVO: crea o actualiza la cría (nunca reutiliza un animal enviado por el cliente).
+     * MUERTO: no crea animal ni pesaje; animal_id queda nulo.
+     *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    private function vincularAnimalYPesaje(array $data): array
+    private function resolverCriaYPesaje(array $data, ?Nacimiento $existente = null): array
     {
+        $ficha = is_array($data['animal'] ?? null) ? $data['animal'] : [];
+        unset($data['animal'], $data['animal_id']);
+
         if (($data['estado_nacimiento'] ?? null) !== Nacimiento::ESTADO_VIVO) {
             $data['animal_id'] = null;
 
@@ -153,19 +154,25 @@ class NacimientoService
             ->findOrFail((int) $data['parto_id']);
 
         $servicio = $parto->gestacion?->servicio;
-        $animalId = ! empty($data['animal_id']) ? (int) $data['animal_id'] : null;
+        $arete = $ficha['arete'] ?? $data['arete'] ?? null;
 
-        $animal = $this->animalService->asegurarDesdeNacimiento($animalId, [
+        $animal = $this->animalService->asegurarDesdeNacimiento($existente?->animal_id, [
             'sexo' => $data['sexo'],
             'fecha_nacimiento' => $parto->fecha_parto?->format('Y-m-d'),
-            'arete' => $data['arete'] ?? null,
+            'arete' => $arete,
+            'nombre' => $ficha['nombre'] ?? null,
             'madre_id' => $servicio?->hembra_id,
             'padre_id' => $servicio?->macho_id,
-            'raza_id' => $servicio?->hembra?->raza_id,
+            'raza_id' => $ficha['raza_id'] ?? $servicio?->hembra?->raza_id,
+            'estado_productivo_id' => $ficha['estado_productivo_id'] ?? null,
+            'lote_id' => $ficha['lote_id'] ?? null,
+            'color' => $ficha['color'] ?? null,
+            'observaciones' => $ficha['observaciones'] ?? null,
             'user_id' => $data['registrado_por'] ?? Auth::id(),
         ]);
 
         $data['animal_id'] = $animal->id;
+        $data['arete'] = $animal->arete;
 
         if (isset($data['peso_nacimiento']) && $data['peso_nacimiento'] !== null && $data['peso_nacimiento'] !== '') {
             $this->pesajeService->registrarDeNacimiento(
@@ -216,16 +223,9 @@ class NacimientoService
     private function assertReglasEstadoNacimiento(array $data): void
     {
         $estado = (string) $data['estado_nacimiento'];
-        $animalId = $data['animal_id'] ?? null;
         $causaMuerte = $data['causa_muerte'] ?? null;
 
         if ($estado === Nacimiento::ESTADO_MUERTO) {
-            if ($animalId) {
-                throw ValidationException::withMessages([
-                    'animal_id' => 'Un nacimiento muerto no puede vincularse a un animal.',
-                ]);
-            }
-
             if (blank($causaMuerte)) {
                 throw ValidationException::withMessages([
                     'causa_muerte' => 'La causa de muerte es obligatoria para nacimientos muertos.',
@@ -238,12 +238,6 @@ class NacimientoService
         if (filled($causaMuerte)) {
             throw ValidationException::withMessages([
                 'causa_muerte' => 'La causa de muerte solo aplica a nacimientos muertos.',
-            ]);
-        }
-
-        if ($animalId && ! Animal::query()->whereKey((int) $animalId)->exists()) {
-            throw ValidationException::withMessages([
-                'animal_id' => 'El animal seleccionado no existe.',
             ]);
         }
     }
