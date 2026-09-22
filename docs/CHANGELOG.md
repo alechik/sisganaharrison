@@ -12,6 +12,20 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-22] — Control de flujo reproductivo (gestación/parto/nacimiento)
+
+### Changed
+
+**Gestaciones:** el alta solo admite servicios con resultado PREÑADA y sin gestación asociada (filtro de opciones + validación backend).
+
+**Partos:** columna `estado` (`PENDIENTE` | `FINALIZADA`). El registro crea el parto en PENDIENTE y, en la misma transacción, pasa la gestación a FINALIZADA. Solo gestaciones ACTIVA (sin parto) pueden generar un parto. Acción manual PENDIENTE → FINALIZADA en listado y detalle (`PATCH /partos/{id}/estado`).
+
+**Nacimientos:** el selector de parto lista únicamente PENDIENTE. Un parto FINALIZADO no puede usarse para un nacimiento nuevo. No se altera la lógica VIVO/MUERTO.
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-09-20] — Nacimientos: cría automática solo si VIVO
 
 ### Changed

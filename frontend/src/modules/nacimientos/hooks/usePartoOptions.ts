@@ -8,11 +8,20 @@ interface SelectOption {
   label: string;
 }
 
-export const usePartoOptions = () => {
+interface Options {
+  soloPendientes?: boolean;
+  incluirId?: number;
+}
+
+export const usePartoOptions = ({
+  soloPendientes = false,
+  incluirId,
+}: Options = {}) => {
   const [partoOptions, setPartoOptions] = useState<SelectOption[]>([]);
   const [partos, setPartos] = useState<Parto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const incluir = incluirId && incluirId > 0 ? incluirId : undefined;
 
   useEffect(() => {
     const loadPartos = async () => {
@@ -24,6 +33,12 @@ export const usePartoOptions = () => {
           per_page: 100,
           sort_by: "fecha_parto",
           sort_dir: "desc",
+          ...(soloPendientes
+            ? {
+                estado: "PENDIENTE",
+                incluir_id: incluir,
+              }
+            : {}),
         });
         setPartos(response.data);
         setPartoOptions(
@@ -40,7 +55,7 @@ export const usePartoOptions = () => {
       }
     };
     loadPartos();
-  }, []);
+  }, [soloPendientes, incluir]);
 
   return { partoOptions, partos, loading, error };
 };

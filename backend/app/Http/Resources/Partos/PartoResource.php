@@ -56,6 +56,7 @@ class PartoResource extends JsonResource
                 fn () => $this->gestacion->servicio?->macho?->arete
             ),
             'fecha_parto' => $this->fecha_parto?->format('Y-m-d'),
+            'estado' => $this->estado,
             'observaciones' => $this->observaciones,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),

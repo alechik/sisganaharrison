@@ -12,6 +12,11 @@ interface SelectOption {
   label: string;
 }
 
+interface Options {
+  soloDisponiblesParaParto?: boolean;
+  incluirId?: number;
+}
+
 const formatGestacionOptionLabel = (gestacion: Gestacion): string => {
   const hembra = formatAnimalLabel(
     gestacion.servicio_hembra_codigo,
@@ -25,10 +30,14 @@ const formatGestacionOptionLabel = (gestacion: Gestacion): string => {
   return `#${gestacion.id} · ${hembra} · ${fecha} · ${tipo} · ${estado}`;
 };
 
-export const useGestacionOptions = () => {
+export const useGestacionOptions = ({
+  soloDisponiblesParaParto = false,
+  incluirId,
+}: Options = {}) => {
   const [gestacionOptions, setGestacionOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const incluir = incluirId && incluirId > 0 ? incluirId : undefined;
 
   useEffect(() => {
     const loadGestaciones = async () => {
@@ -41,6 +50,13 @@ export const useGestacionOptions = () => {
           per_page: 100,
           sort_by: "fecha_probable_parto",
           sort_dir: "desc",
+          ...(soloDisponiblesParaParto
+            ? {
+                estado: "ACTIVA",
+                sin_parto: true,
+                incluir_id: incluir,
+              }
+            : {}),
         });
 
         setGestacionOptions(
@@ -58,7 +74,7 @@ export const useGestacionOptions = () => {
     };
 
     loadGestaciones();
-  }, []);
+  }, [soloDisponiblesParaParto, incluir]);
 
   return { gestacionOptions, loading, error };
 };

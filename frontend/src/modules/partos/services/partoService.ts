@@ -28,6 +28,8 @@ export const getPartos = async (
       per_page: params.per_page ?? 10,
       search: params.search || undefined,
       gestacion_id: params.gestacion_id || undefined,
+      estado: params.estado || undefined,
+      incluir_id: params.incluir_id || undefined,
       fecha_parto_desde: params.fecha_parto_desde || undefined,
       fecha_parto_hasta: params.fecha_parto_hasta || undefined,
       sort_by: params.sort_by,
@@ -50,5 +52,10 @@ export const createParto = async (data: PartoCreateRequest) => {
 
 export const updateParto = async (id: number, data: PartoUpdateRequest) => {
   const response = await api.put<{ message: string; data: Parto }>(`/partos/${id}`, data);
+  return response.data;
+};
+
+export const finalizarParto = async (id: number) => {
+  const response = await api.patch<{ message: string; data: Parto }>(`/partos/${id}/estado`);
   return response.data;
 };

@@ -12,6 +12,7 @@ export interface Parto {
   gestacion_servicio_macho_codigo?: string | null;
   gestacion_servicio_macho_arete?: string | null;
   fecha_parto: string;
+  estado?: string | null;
   observaciones: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -30,6 +31,8 @@ export interface PartoListParams {
   per_page?: number;
   search?: string;
   gestacion_id?: number;
+  estado?: string;
+  incluir_id?: number;
   fecha_parto_desde?: string;
   fecha_parto_hasta?: string;
   sort_by?: string;

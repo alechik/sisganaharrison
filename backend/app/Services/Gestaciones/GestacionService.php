@@ -40,6 +40,7 @@ class GestacionService
     public function create(array $data): Gestacion
     {
         $this->assertServicioExiste((int) $data['servicio_id']);
+        $this->assertServicioPrenada((int) $data['servicio_id']);
         $this->assertUnicaGestacionPorServicio((int) $data['servicio_id']);
         $this->assertUnicaGestacionActiva((int) $data['servicio_id'], $data['estado']);
 
@@ -54,6 +55,7 @@ class GestacionService
     public function update(Gestacion $gestacion, array $data): Gestacion
     {
         $this->assertServicioExiste((int) $data['servicio_id']);
+        $this->assertServicioPrenada((int) $data['servicio_id']);
         $this->assertUnicaGestacionPorServicio((int) $data['servicio_id'], $gestacion->id);
         $this->assertUnicaGestacionActiva(
             (int) $data['servicio_id'],
@@ -96,7 +98,25 @@ class GestacionService
         }
 
         if (! empty($filters['estado'])) {
-            $query->where('estado', (string) $filters['estado']);
+            $incluirId = ! empty($filters['incluir_id']) ? (int) $filters['incluir_id'] : null;
+
+            $query->where(function (Builder $builder) use ($filters, $incluirId) {
+                $builder->where('estado', (string) $filters['estado']);
+                if ($incluirId) {
+                    $builder->orWhereKey($incluirId);
+                }
+            });
+        }
+
+        if (! empty($filters['sin_parto'])) {
+            $incluirId = ! empty($filters['incluir_id']) ? (int) $filters['incluir_id'] : null;
+
+            $query->where(function (Builder $builder) use ($incluirId) {
+                $builder->whereDoesntHave('parto');
+                if ($incluirId) {
+                    $builder->orWhereKey($incluirId);
+                }
+            });
         }
 
         if (! empty($filters['fecha_confirmacion_desde'])) {
@@ -121,6 +141,17 @@ class GestacionService
         if (! ServicioReproductivo::query()->whereKey($servicioId)->exists()) {
             throw ValidationException::withMessages([
                 'servicio_id' => 'El servicio reproductivo seleccionado no existe.',
+            ]);
+        }
+    }
+
+    private function assertServicioPrenada(int $servicioId): void
+    {
+        $servicio = ServicioReproductivo::query()->find($servicioId);
+
+        if (! $servicio || $servicio->resultado !== ServicioReproductivo::RESULTADO_PRENADA) {
+            throw ValidationException::withMessages([
+                'servicio_id' => 'Solo un servicio con resultado PREÑADA puede generar una gestación.',
             ]);
         }
     }

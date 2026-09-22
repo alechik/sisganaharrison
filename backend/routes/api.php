@@ -574,6 +574,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('partos/{parto}', [PartoController::class, 'show'])
         ->middleware('permission:reproduccion.view');
 
+    Route::patch('partos/{parto}/estado', [PartoController::class, 'changeStatus'])
+        ->middleware('permission:reproduccion.update');
+
     Route::put('partos/{parto}', [PartoController::class, 'update'])
         ->middleware('permission:reproduccion.update');
 

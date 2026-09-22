@@ -25,6 +25,8 @@ class Gestacion extends Model
 
     public const ESTADO_ACTIVA = 'ACTIVA';
 
+    public const ESTADO_FINALIZADA = 'FINALIZADA';
+
     public const ESTADOS = [
         'ACTIVA',
         'FINALIZADA',

@@ -1,7 +1,11 @@
+import { useState } from "react";
+
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import { PartoFiltersBar, PartoTable, PartoToolbar } from "../components";
-import { usePartos } from "../hooks";
+import { useFinalizarParto, usePartos } from "../hooks";
+import { Parto } from "../types";
 
 export default function PartoListPage() {
   const {
@@ -13,8 +17,41 @@ export default function PartoListPage() {
     successMessage,
     setPage,
     updateFilters,
+    refresh,
+    showSuccess,
     clearSuccess,
   } = usePartos();
+  const { finalizar, loading: finishing, error: actionError, setError } = useFinalizarParto();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedParto, setSelectedParto] = useState<Parto | null>(null);
+
+  const openDialog = (parto: Parto) => {
+    setSelectedParto(parto);
+    setError(null);
+    setDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setSelectedParto(null);
+    setError(null);
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedParto) {
+      return;
+    }
+
+    try {
+      const response = await finalizar(selectedParto.id);
+      showSuccess(response.message);
+      closeDialog();
+      refresh();
+    } catch {
+      // Error handled in hook
+    }
+  };
 
   if (loading && partos.length === 0) {
     return <div>Cargando partos...</div>;
@@ -47,7 +84,26 @@ export default function PartoListPage() {
 
       <PartoFiltersBar filters={filters} onChange={updateFilters} />
 
-      <PartoTable partos={partos} meta={meta} onPageChange={setPage} />
+      <PartoTable
+        partos={partos}
+        meta={meta}
+        onPageChange={setPage}
+        onFinalizar={openDialog}
+      />
+
+      <ConfirmDialog
+        isOpen={dialogOpen}
+        title="Finalizar parto"
+        message={
+          actionError
+            ? `¿Desea marcar el parto #${selectedParto?.id} como FINALIZADA?\n\n${actionError}`
+            : `¿Desea marcar el parto #${selectedParto?.id} como FINALIZADA? Dejará de estar disponible para registrar nacimientos.`
+        }
+        confirmLabel="Finalizar"
+        loading={finishing}
+        onConfirm={handleConfirm}
+        onCancel={closeDialog}
+      />
     </div>
   );
 }

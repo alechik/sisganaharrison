@@ -57,6 +57,7 @@ export const usePartos = ({ initialFilters = {} }: UsePartosOptions = {}) => {
     filters.per_page,
     filters.search,
     filters.gestacion_id,
+    filters.estado,
     filters.fecha_parto_desde,
     filters.fecha_parto_hasta,
     filters.sort_by,

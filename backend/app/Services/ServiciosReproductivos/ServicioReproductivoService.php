@@ -99,6 +99,17 @@ class ServicioReproductivoService
             $query->where('resultado', (string) $filters['resultado']);
         }
 
+        if (! empty($filters['sin_gestacion'])) {
+            $incluirId = ! empty($filters['incluir_id']) ? (int) $filters['incluir_id'] : null;
+
+            $query->where(function (Builder $builder) use ($incluirId) {
+                $builder->whereDoesntHave('gestacion');
+                if ($incluirId) {
+                    $builder->orWhereKey($incluirId);
+                }
+            });
+        }
+
         if (! empty($filters['fecha_desde'])) {
             $query->whereDate('fecha_servicio', '>=', $filters['fecha_desde']);
         }

@@ -1,6 +1,6 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-09-20** — Nacimientos VIVO/MUERTO (cría automática solo si vive).
+> Snapshot mínimo. **2026-09-22** — Flujo reproductivo: PREÑADA → gestación ACTIVA → parto PENDIENTE → nacimiento → parto FINALIZADA.
 
 **Avance estimado:** ~76–80%
 
@@ -13,7 +13,7 @@
 | Backend | Laravel 12, Sanctum, Spatie (~112 permisos, 4 roles), **24 controllers dominio** |
 | Modelos | User, catálogos G1, Establecimiento, Potrero, Lote, Animal, Pesaje, EventoSanitario, AnimalEvento, ServicioReproductivo, Gestacion, Parto, Nacimiento, Persona, TipoPersona, OrdenCompra, DetalleOrdenCompra, Cuarentena, CuarentenaDetalle, **Ingreso, DetalleIngreso** |
 | Frontend | `user`, catálogos G1, infraestructura, `animales`, `pesajes`, `eventos-sanitarios`, `servicios-reproductivos`, `gestaciones`, `partos`, `nacimientos`, `socios-de-negocio`, **`compras` (órdenes + cuarentenas + ingresos)** + PermissionGate |
-| BD | **41 tablas** (29 migraciones), PostgreSQL |
+| BD | **41 tablas** (30 migraciones), PostgreSQL |
 | API | **~175 endpoints** |
 
 ## Pendiente prioritario

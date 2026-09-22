@@ -18,7 +18,7 @@ class NacimientoService
     private const SORTABLE_COLUMNS = ['created_at', 'estado_nacimiento', 'sexo', 'arete'];
 
     private const RELATIONS = [
-        'parto:id,gestacion_id,fecha_parto',
+        'parto:id,gestacion_id,fecha_parto,estado',
         'parto.gestacion:id,servicio_id,estado',
         'parto.gestacion.servicio:id,hembra_id,macho_id,fecha_servicio,tipo_servicio',
         'parto.gestacion.servicio.hembra:id,codigo,arete,raza_id',
@@ -69,7 +69,7 @@ class NacimientoService
      */
     public function update(Nacimiento $nacimiento, array $data): Nacimiento
     {
-        $this->validateBusinessRules($data);
+        $this->validateBusinessRules($data, $nacimiento);
 
         return DB::transaction(function () use ($nacimiento, $data) {
             $data = $this->resolverCriaYPesaje($data, $nacimiento);
@@ -188,18 +188,33 @@ class NacimientoService
     /**
      * @param  array<string, mixed>  $data
      */
-    private function validateBusinessRules(array $data): void
+    private function validateBusinessRules(array $data, ?Nacimiento $existente = null): void
     {
-        $this->assertPartoExiste((int) $data['parto_id']);
+        $this->assertPartoDisponibleParaNacimiento(
+            (int) $data['parto_id'],
+            $existente?->parto_id
+        );
         $this->assertRegistradoPorExiste($data['registrado_por'] ?? null);
         $this->assertReglasEstadoNacimiento($data);
     }
 
-    private function assertPartoExiste(int $partoId): void
+    private function assertPartoDisponibleParaNacimiento(int $partoId, ?int $partoActualId = null): void
     {
-        if (! Parto::query()->whereKey($partoId)->exists()) {
+        $parto = Parto::query()->find($partoId);
+
+        if (! $parto) {
             throw ValidationException::withMessages([
                 'parto_id' => 'El parto seleccionado no existe.',
+            ]);
+        }
+
+        if ($partoActualId !== null && $partoId === (int) $partoActualId) {
+            return;
+        }
+
+        if (! $parto->estaPendiente()) {
+            throw ValidationException::withMessages([
+                'parto_id' => 'Solo un parto PENDIENTE puede utilizarse para registrar un nacimiento.',
             ]);
         }
     }

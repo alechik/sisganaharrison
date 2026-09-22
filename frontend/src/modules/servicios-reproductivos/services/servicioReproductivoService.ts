@@ -33,6 +33,8 @@ export const getServiciosReproductivos = async (
         macho_id: params.macho_id || undefined,
         tipo_servicio: params.tipo_servicio || undefined,
         resultado: params.resultado || undefined,
+        sin_gestacion: params.sin_gestacion ? 1 : undefined,
+        incluir_id: params.incluir_id || undefined,
         fecha_desde: params.fecha_desde || undefined,
         fecha_hasta: params.fecha_hasta || undefined,
         sort_by: params.sort_by,

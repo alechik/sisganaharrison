@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PaginationMeta } from "@/types/api";
-import { EyeIcon, PencilIcon } from "@/icons";
+import { CheckLineIcon, EyeIcon, PencilIcon } from "@/icons";
 import { PARTO_ROUTES } from "../constants";
 import { PARTOS_PERMISSIONS } from "../permissions";
 import { Parto } from "../types";
@@ -21,14 +21,16 @@ import {
   getResultadoLabel,
   getTipoServicioLabel,
 } from "../utils";
+import PartoEstadoBadge from "./PartoEstadoBadge";
 
 interface Props {
   partos: Parto[];
   meta?: PaginationMeta;
   onPageChange?: (page: number) => void;
+  onFinalizar?: (parto: Parto) => void;
 }
 
-export default function PartoTable({ partos, meta, onPageChange }: Props) {
+export default function PartoTable({ partos, meta, onPageChange, onFinalizar }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
@@ -59,6 +61,9 @@ export default function PartoTable({ partos, meta, onPageChange }: Props) {
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Fecha parto
               </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Estado
+              </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-center text-gray-800 dark:text-white">
                 Opciones
               </TableCell>
@@ -68,7 +73,7 @@ export default function PartoTable({ partos, meta, onPageChange }: Props) {
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {partos.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={9}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={10}>
                   No hay partos para mostrar.
                 </TableCell>
               </TableRow>
@@ -122,6 +127,10 @@ export default function PartoTable({ partos, meta, onPageChange }: Props) {
                   </TableCell>
 
                   <TableCell className="px-5 py-4">
+                    <PartoEstadoBadge estado={parto.estado} />
+                  </TableCell>
+
+                  <TableCell className="px-5 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <PermissionGate permission={PARTOS_PERMISSIONS.view}>
                         <Link
@@ -142,6 +151,19 @@ export default function PartoTable({ partos, meta, onPageChange }: Props) {
                           <PencilIcon className="size-4" />
                         </Link>
                       </PermissionGate>
+
+                      {parto.estado !== "FINALIZADA" && (
+                        <PermissionGate permission={PARTOS_PERMISSIONS.update}>
+                          <button
+                            type="button"
+                            onClick={() => onFinalizar?.(parto)}
+                            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition hover:border-green-200 hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/[0.05] dark:hover:bg-green-500/10"
+                            title="Finalizar parto"
+                          >
+                            <CheckLineIcon className="size-4" />
+                          </button>
+                        </PermissionGate>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

@@ -11,6 +11,11 @@ interface SelectOption {
   label: string;
 }
 
+interface Options {
+  soloDisponiblesParaGestacion?: boolean;
+  incluirId?: number;
+}
+
 const formatServicioOptionLabel = (servicio: ServicioReproductivo): string => {
   const hembra = formatAnimalLabel(servicio.hembra_codigo, servicio.hembra_arete);
   const fecha = servicio.fecha_servicio
@@ -20,10 +25,14 @@ const formatServicioOptionLabel = (servicio: ServicioReproductivo): string => {
   return `#${servicio.id} · ${hembra} · ${fecha} · ${tipo}`;
 };
 
-export const useServicioOptions = () => {
+export const useServicioOptions = ({
+  soloDisponiblesParaGestacion = false,
+  incluirId,
+}: Options = {}) => {
   const [servicioOptions, setServicioOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const incluir = incluirId && incluirId > 0 ? incluirId : undefined;
 
   useEffect(() => {
     const loadServicios = async () => {
@@ -36,6 +45,13 @@ export const useServicioOptions = () => {
           per_page: 100,
           sort_by: "fecha_servicio",
           sort_dir: "desc",
+          ...(soloDisponiblesParaGestacion
+            ? {
+                resultado: "PRENADA",
+                sin_gestacion: true,
+                incluir_id: incluir,
+              }
+            : {}),
         });
 
         setServicioOptions(
@@ -53,7 +69,7 @@ export const useServicioOptions = () => {
     };
 
     loadServicios();
-  }, []);
+  }, [soloDisponiblesParaGestacion, incluir]);
 
   return { servicioOptions, loading, error };
 };

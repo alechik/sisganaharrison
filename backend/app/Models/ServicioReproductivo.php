@@ -30,6 +30,8 @@ class ServicioReproductivo extends Model
         'TRANSFERENCIA_EMBRION',
     ];
 
+    public const RESULTADO_PRENADA = 'PRENADA';
+
     public const RESULTADOS = [
         'PENDIENTE',
         'PRENADA',

@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class PartoService
 {
-    private const SORTABLE_COLUMNS = ['fecha_parto', 'created_at'];
+    private const SORTABLE_COLUMNS = ['fecha_parto', 'estado', 'created_at'];
 
     private const RELATIONS = [
         'gestacion:id,servicio_id,estado,fecha_confirmacion,fecha_probable_parto',
@@ -44,7 +44,10 @@ class PartoService
         $gestacionId = (int) $data['gestacion_id'];
 
         $this->assertGestacionExiste($gestacionId);
+        $this->assertGestacionActiva($gestacionId);
         $this->assertUnicoPartoPorGestacion($gestacionId);
+
+        $data['estado'] = Parto::ESTADO_PENDIENTE;
 
         return DB::transaction(function () use ($data, $gestacionId) {
             $parto = Parto::query()
@@ -67,13 +70,36 @@ class PartoService
         $this->assertGestacionExiste($gestacionId);
         $this->assertUnicoPartoPorGestacion($gestacionId, $parto->id);
 
-        return DB::transaction(function () use ($parto, $data, $gestacionId) {
+        if ($gestacionId !== (int) $parto->gestacion_id) {
+            $this->assertGestacionActiva($gestacionId);
+        }
+
+        unset($data['estado']);
+
+        $gestacionOriginal = (int) $parto->gestacion_id;
+
+        return DB::transaction(function () use ($parto, $data, $gestacionId, $gestacionOriginal) {
             $parto->update($data);
 
-            $this->finalizarGestacion($gestacionId);
+            if ($gestacionId !== $gestacionOriginal) {
+                $this->finalizarGestacion($gestacionId);
+            }
 
             return $parto->fresh(self::RELATIONS);
         });
+    }
+
+    public function finalizar(Parto $parto): Parto
+    {
+        if ($parto->estaFinalizado()) {
+            throw ValidationException::withMessages([
+                'estado' => 'El parto ya está finalizado.',
+            ]);
+        }
+
+        $parto->update(['estado' => Parto::ESTADO_FINALIZADA]);
+
+        return $parto->fresh(self::RELATIONS);
     }
 
     /**
@@ -104,6 +130,17 @@ class PartoService
             $query->where('gestacion_id', (int) $filters['gestacion_id']);
         }
 
+        if (! empty($filters['estado'])) {
+            $incluirId = ! empty($filters['incluir_id']) ? (int) $filters['incluir_id'] : null;
+
+            $query->where(function (Builder $builder) use ($filters, $incluirId) {
+                $builder->where('estado', (string) $filters['estado']);
+                if ($incluirId) {
+                    $builder->orWhereKey($incluirId);
+                }
+            });
+        }
+
         if (! empty($filters['fecha_parto_desde'])) {
             $query->whereDate('fecha_parto', '>=', $filters['fecha_parto_desde']);
         }
@@ -130,6 +167,17 @@ class PartoService
         }
     }
 
+    private function assertGestacionActiva(int $gestacionId): void
+    {
+        $gestacion = Gestacion::query()->find($gestacionId);
+
+        if (! $gestacion || ! $gestacion->esActiva()) {
+            throw ValidationException::withMessages([
+                'gestacion_id' => 'Solo una gestación ACTIVA puede generar un parto.',
+            ]);
+        }
+    }
+
     private function assertUnicoPartoPorGestacion(int $gestacionId, ?int $excludeId = null): void
     {
         $query = Parto::query()->where('gestacion_id', $gestacionId);
@@ -149,6 +197,6 @@ class PartoService
     {
         Gestacion::query()
             ->whereKey($gestacionId)
-            ->update(['estado' => 'FINALIZADA']);
+            ->update(['estado' => Gestacion::ESTADO_FINALIZADA]);
     }
 }

@@ -79,4 +79,23 @@ class PartoController extends Controller
             'data' => new PartoResource($parto),
         ]);
     }
+
+    public function changeStatus(Parto $parto): JsonResponse
+    {
+        $this->authorize('update', $parto);
+
+        try {
+            $parto = $this->partoService->finalizar($parto);
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Parto finalizado correctamente',
+            'data' => new PartoResource($parto),
+        ]);
+    }
 }

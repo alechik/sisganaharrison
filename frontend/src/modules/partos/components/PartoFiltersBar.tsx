@@ -1,7 +1,7 @@
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
-import { PARTO_SORT_OPTIONS } from "../constants";
+import { ESTADOS_PARTO, PARTO_SORT_OPTIONS } from "../constants";
 import { useGestacionOptions } from "../hooks";
 import { PartoFilters, PartoSortDirection } from "../types";
 
@@ -34,6 +34,26 @@ export default function PartoFiltersBar({ filters, onChange }: Props) {
           onChange={(value) =>
             onChange({
               gestacion_id: value === "all" ? undefined : Number(value),
+            })
+          }
+        />
+      </div>
+
+      <div>
+        <Label>Estado</Label>
+        <Select
+          value={filters.estado ?? "all"}
+          placeholder="Todos"
+          options={[
+            { value: "all", label: "Todos" },
+            ...ESTADOS_PARTO.map((option) => ({
+              value: option.value,
+              label: option.label,
+            })),
+          ]}
+          onChange={(value) =>
+            onChange({
+              estado: value === "all" ? undefined : value,
             })
           }
         />

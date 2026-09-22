@@ -29,6 +29,8 @@ export const getGestaciones = async (
       search: params.search || undefined,
       servicio_id: params.servicio_id || undefined,
       estado: params.estado || undefined,
+      sin_parto: params.sin_parto ? 1 : undefined,
+      incluir_id: params.incluir_id || undefined,
       fecha_confirmacion_desde: params.fecha_confirmacion_desde || undefined,
       fecha_confirmacion_hasta: params.fecha_confirmacion_hasta || undefined,
       sort_by: params.sort_by,

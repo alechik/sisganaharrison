@@ -50,7 +50,10 @@ export default function NacimientoForm({ nacimientoId }: Props) {
   const isEdit = Boolean(nacimientoId);
   const { create, loading: creating, error: createError, setError: setCreateError } = useCreateNacimiento();
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateNacimiento();
-  const { partoOptions, partos, loading: loadingPartos, error: partoError } = usePartoOptions();
+  const { partoOptions, partos, loading: loadingPartos, error: partoError } = usePartoOptions({
+    soloPendientes: true,
+    incluirId: form.parto_id,
+  });
   const { userOptions, loading: loadingUsers, error: userError } = useRegistradoPorOptions();
   const {
     razaOptions,
@@ -272,6 +275,9 @@ export default function NacimientoForm({ nacimientoId }: Props) {
             options={partoOptions}
             onChange={(value) => setForm((current) => ({ ...current, parto_id: Number(value) }))}
           />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Solo se listan partos pendientes.
+          </p>
         </div>
 
         <div>

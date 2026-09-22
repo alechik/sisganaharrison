@@ -39,7 +39,10 @@ export default function GestacionForm({ gestacionId }: Props) {
     servicioOptions,
     loading: loadingOptions,
     error: optionsError,
-  } = useServicioOptions();
+  } = useServicioOptions({
+    soloDisponiblesParaGestacion: true,
+    incluirId: form.servicio_id,
+  });
 
   const [form, setForm] = useState<GestacionCreateRequest>(emptyForm);
   const [loading, setLoading] = useState(isEdit);
@@ -157,6 +160,9 @@ export default function GestacionForm({ gestacionId }: Props) {
               }))
             }
           />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Solo servicios con resultado PREÑADA que aún no tienen gestación.
+          </p>
         </div>
 
         <div>

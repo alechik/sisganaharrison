@@ -33,6 +33,8 @@ export interface ServicioReproductivoListParams {
   macho_id?: number;
   tipo_servicio?: string;
   resultado?: string;
+  sin_gestacion?: boolean;
+  incluir_id?: number;
   fecha_desde?: string;
   fecha_hasta?: string;
   sort_by?: string;

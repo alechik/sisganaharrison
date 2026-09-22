@@ -33,7 +33,10 @@ export default function PartoForm({ partoId }: Props) {
     gestacionOptions,
     loading: loadingOptions,
     error: optionsError,
-  } = useGestacionOptions();
+  } = useGestacionOptions({
+    soloDisponiblesParaParto: true,
+    incluirId: form.gestacion_id,
+  });
 
   const [form, setForm] = useState<PartoCreateRequest>(emptyForm);
   const [loading, setLoading] = useState(isEdit);
@@ -137,7 +140,7 @@ export default function PartoForm({ partoId }: Props) {
             }
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Al registrar el parto, la gestación se marcará como finalizada.
+            Solo gestaciones activas sin parto. Al registrar el parto, la gestación pasará a FINALIZADA.
           </p>
         </div>
 

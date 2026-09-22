@@ -9,6 +9,7 @@ export const defaultPartoFilters = (): PartoFilters => ({
   fecha_parto_hasta: "",
   sort_by: "fecha_parto" as PartoSortField,
   sort_dir: "desc" as PartoSortDirection,
+  estado: undefined,
   page: 1,
   per_page: PARTO_DEFAULT_PAGE_SIZE,
 });
@@ -56,6 +57,17 @@ export const getEstadoGestacionLabel = (value?: string | null): string => {
     FINALIZADA: "Finalizada",
     ABORTADA: "Abortada",
     PERDIDA: "Perdida",
+  };
+  return labels[value] ?? value;
+};
+
+export const getEstadoPartoLabel = (value?: string | null): string => {
+  if (!value) {
+    return "—";
+  }
+  const labels: Record<string, string> = {
+    PENDIENTE: "Pendiente",
+    FINALIZADA: "Finalizada",
   };
   return labels[value] ?? value;
 };

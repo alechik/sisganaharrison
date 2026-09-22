@@ -32,6 +32,8 @@ export interface GestacionListParams {
   search?: string;
   servicio_id?: number;
   estado?: string;
+  sin_parto?: boolean;
+  incluir_id?: number;
   fecha_confirmacion_desde?: string;
   fecha_confirmacion_hasta?: string;
   sort_by?: string;

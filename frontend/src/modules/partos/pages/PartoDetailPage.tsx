@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import PermissionGate from "@/components/auth/PermissionGate";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
+import { PartoEstadoBadge } from "../components";
 import { PARTO_ROUTES } from "../constants";
+import { useFinalizarParto } from "../hooks";
 import { PARTOS_PERMISSIONS } from "../permissions";
 import { getParto } from "../services";
 import { Parto } from "../types";
@@ -24,6 +27,9 @@ export default function PartoDetailPage() {
   const [parto, setParto] = useState<Parto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { finalizar, loading: finishing, error: actionError, setError: setActionError } =
+    useFinalizarParto();
 
   useEffect(() => {
     const loadParto = async () => {
@@ -77,6 +83,20 @@ export default function PartoDetailPage() {
               Editar
             </Link>
           </PermissionGate>
+          {parto.estado !== "FINALIZADA" && (
+            <PermissionGate permission={PARTOS_PERMISSIONS.update}>
+              <button
+                type="button"
+                onClick={() => {
+                  setActionError(null);
+                  setDialogOpen(true);
+                }}
+                className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-3 text-sm text-white hover:bg-green-700"
+              >
+                Finalizar parto
+              </button>
+            </PermissionGate>
+          )}
         </div>
       </div>
 
@@ -149,6 +169,12 @@ export default function PartoDetailPage() {
             </dd>
           </div>
           <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Estado del parto</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              <PartoEstadoBadge estado={parto.estado} />
+            </dd>
+          </div>
+          <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Última actualización</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {parto.updated_at
@@ -164,6 +190,28 @@ export default function PartoDetailPage() {
           </div>
         </dl>
       </ComponentCard>
+
+      <ConfirmDialog
+        isOpen={dialogOpen}
+        title="Finalizar parto"
+        message={
+          actionError
+            ? `¿Desea marcar el parto #${parto.id} como FINALIZADA?\n\n${actionError}`
+            : `¿Desea marcar el parto #${parto.id} como FINALIZADA? Dejará de estar disponible para registrar nacimientos.`
+        }
+        confirmLabel="Finalizar"
+        loading={finishing}
+        onConfirm={async () => {
+          try {
+            const response = await finalizar(parto.id);
+            setParto(response.data);
+            setDialogOpen(false);
+          } catch {
+            // Error handled in hook
+          }
+        }}
+        onCancel={() => setDialogOpen(false)}
+      />
     </div>
   );
 }

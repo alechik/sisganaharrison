@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $gestacion_id
  * @property string $fecha_parto
+ * @property string $estado
  * @property string|null $observaciones
  */
 class Parto extends Model
@@ -21,11 +22,21 @@ class Parto extends Model
     /** @use HasFactory<PartoFactory> */
     use HasFactory;
 
+    public const ESTADO_PENDIENTE = 'PENDIENTE';
+
+    public const ESTADO_FINALIZADA = 'FINALIZADA';
+
+    public const ESTADOS = [
+        self::ESTADO_PENDIENTE,
+        self::ESTADO_FINALIZADA,
+    ];
+
     protected $table = 'partos';
 
     protected $fillable = [
         'gestacion_id',
         'fecha_parto',
+        'estado',
         'observaciones',
     ];
 
@@ -50,5 +61,15 @@ class Parto extends Model
     public function nacimientos(): HasMany
     {
         return $this->hasMany(Nacimiento::class, 'parto_id');
+    }
+
+    public function estaPendiente(): bool
+    {
+        return $this->estado === self::ESTADO_PENDIENTE;
+    }
+
+    public function estaFinalizado(): bool
+    {
+        return $this->estado === self::ESTADO_FINALIZADA;
     }
 }
