@@ -50,9 +50,16 @@ export default function NacimientoForm({ nacimientoId }: Props) {
   const isEdit = Boolean(nacimientoId);
   const { create, loading: creating, error: createError, setError: setCreateError } = useCreateNacimiento();
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateNacimiento();
+
+  const [form, setForm] = useState<NacimientoCreateRequest>(emptyForm);
+  const [categorias, setCategorias] = useState<CategoriaAnimal[]>([]);
+  const [codigoPreview, setCodigoPreview] = useState("");
+  const [loading, setLoading] = useState(isEdit);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const { partoOptions, partos, loading: loadingPartos, error: partoError } = usePartoOptions({
     soloPendientes: true,
-    incluirId: form.parto_id,
+    incluirId: isEdit ? form.parto_id : undefined,
   });
   const { userOptions, loading: loadingUsers, error: userError } = useRegistradoPorOptions();
   const {
@@ -62,12 +69,6 @@ export default function NacimientoForm({ nacimientoId }: Props) {
     loading: loadingRefs,
     error: refsError,
   } = useAnimalReferenceOptions();
-
-  const [form, setForm] = useState<NacimientoCreateRequest>(emptyForm);
-  const [categorias, setCategorias] = useState<CategoriaAnimal[]>([]);
-  const [codigoPreview, setCodigoPreview] = useState("");
-  const [loading, setLoading] = useState(isEdit);
-  const [validationError, setValidationError] = useState<string | null>(null);
 
   const saving = creating || updating;
   const esVivo = form.estado_nacimiento === "VIVO";

@@ -33,6 +33,8 @@ export const getAnimales = async (
       lote_id: params.lote_id || undefined,
       sexo: params.sexo || undefined,
       activo: params.activo,
+      con_arete: params.con_arete ? 1 : undefined,
+      incluir_id: params.incluir_id || undefined,
       sort_by: params.sort_by,
       sort_dir: params.sort_dir,
     },

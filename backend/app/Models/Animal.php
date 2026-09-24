@@ -165,6 +165,10 @@ class Animal extends Model
         return $this->hasMany(ServicioReproductivo::class, 'macho_id');
     }
 
+    public const ARETES_INVALIDOS = [
+        'bull',
+    ];
+
     /**
      * @param  Builder<Animal>  $query
      * @return Builder<Animal>
@@ -172,5 +176,40 @@ class Animal extends Model
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('activo', true);
+    }
+
+    /**
+     * @param  Builder<Animal>  $query
+     * @return Builder<Animal>
+     */
+    public function scopeConArete(Builder $query): Builder
+    {
+        return static::aplicarFiltroAreteValido($query);
+    }
+
+    public function tieneAreteAsignado(): bool
+    {
+        return $this->tieneAreteValido();
+    }
+
+    public function tieneAreteValido(): bool
+    {
+        $arete = strtolower(trim((string) $this->arete));
+
+        return $arete !== '' && ! in_array($arete, self::ARETES_INVALIDOS, true);
+    }
+
+    /**
+     * @param  Builder<Animal>|\Illuminate\Database\Query\Builder  $query
+     * @return Builder<Animal>|\Illuminate\Database\Query\Builder
+     */
+    public static function aplicarFiltroAreteValido($query)
+    {
+        $placeholders = implode(',', array_fill(0, count(self::ARETES_INVALIDOS), '?'));
+
+        return $query
+            ->whereNotNull('arete')
+            ->whereRaw("BTRIM(arete) <> ''")
+            ->whereRaw("LOWER(BTRIM(arete)) not in ({$placeholders})", self::ARETES_INVALIDOS);
     }
 }

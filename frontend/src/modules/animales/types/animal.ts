@@ -59,6 +59,8 @@ export interface AnimalListParams {
   lote_id?: number;
   sexo?: "M" | "H";
   activo?: boolean;
+  con_arete?: boolean;
+  incluir_id?: number;
   sort_by?: string;
   sort_dir?: "asc" | "desc";
 }

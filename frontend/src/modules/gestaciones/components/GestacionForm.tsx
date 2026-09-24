@@ -35,18 +35,19 @@ export default function GestacionForm({ gestacionId }: Props) {
     useCreateGestacion();
   const { update, loading: updating, error: updateError, setError: setUpdateError } =
     useUpdateGestacion();
+
+  const [form, setForm] = useState<GestacionCreateRequest>(emptyForm);
+  const [loading, setLoading] = useState(isEdit);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const {
     servicioOptions,
     loading: loadingOptions,
     error: optionsError,
   } = useServicioOptions({
     soloDisponiblesParaGestacion: true,
-    incluirId: form.servicio_id,
+    incluirId: isEdit ? form.servicio_id : undefined,
   });
-
-  const [form, setForm] = useState<GestacionCreateRequest>(emptyForm);
-  const [loading, setLoading] = useState(isEdit);
-  const [validationError, setValidationError] = useState<string | null>(null);
 
   const saving = creating || updating;
   const error = createError || updateError;

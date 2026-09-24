@@ -12,6 +12,16 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-23] — Servicios reproductivos: hembra y macho con arete
+
+### Changed
+
+**Servicios reproductivos:** los selects de hembra y macho del formulario solo listan animales activos con arete asignado (no nulo ni vacío). El alta/edición también lo valida en backend.
+
+**Documentación:** Actualizados `06`, `08`
+
+---
+
 ## [2026-09-22] — Control de flujo reproductivo (gestación/parto/nacimiento)
 
 ### Changed

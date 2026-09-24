@@ -2,6 +2,7 @@
 
 namespace App\Services\Nacimientos;
 
+use App\Models\Animal;
 use App\Models\Nacimiento;
 use App\Models\Parto;
 use App\Models\User;
@@ -194,8 +195,39 @@ class NacimientoService
             (int) $data['parto_id'],
             $existente?->parto_id
         );
+        $this->assertAreteUnico($data, $existente);
         $this->assertRegistradoPorExiste($data['registrado_por'] ?? null);
         $this->assertReglasEstadoNacimiento($data);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function assertAreteUnico(array $data, ?Nacimiento $existente = null): void
+    {
+        if (($data['estado_nacimiento'] ?? null) !== Nacimiento::ESTADO_VIVO) {
+            return;
+        }
+
+        $ficha = is_array($data['animal'] ?? null) ? $data['animal'] : [];
+        $arete = $ficha['arete'] ?? $data['arete'] ?? null;
+        $arete = is_string($arete) ? strtoupper(trim($arete)) : null;
+
+        if ($arete === null || $arete === '') {
+            return;
+        }
+
+        $query = Animal::query()->where('arete', $arete);
+
+        if ($existente?->animal_id) {
+            $query->where('id', '!=', $existente->animal_id);
+        }
+
+        if ($query->exists()) {
+            throw ValidationException::withMessages([
+                'arete' => 'El arete ya existe.',
+            ]);
+        }
     }
 
     private function assertPartoDisponibleParaNacimiento(int $partoId, ?int $partoActualId = null): void

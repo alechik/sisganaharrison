@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { updateNacimiento } from "../services";
 import { NacimientoUpdateRequest } from "../types";
+import { getApiErrorMessage } from "../utils";
 
 export const useUpdateNacimiento = () => {
   const [loading, setLoading] = useState(false);
@@ -12,10 +13,7 @@ export const useUpdateNacimiento = () => {
     try {
       return await updateNacimiento(id, data);
     } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "No se pudo actualizar el nacimiento.";
-      setError(message);
+      setError(getApiErrorMessage(err, "No se pudo actualizar el nacimiento."));
       throw err;
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 # Estado del Proyecto
 
-> Snapshot mínimo. **2026-09-22** — Flujo reproductivo: PREÑADA → gestación ACTIVA → parto PENDIENTE → nacimiento → parto FINALIZADA.
+> Snapshot mínimo. **2026-09-23** — Servicios reproductivos: hembra/macho solo con arete.
 
 **Avance estimado:** ~76–80%
 

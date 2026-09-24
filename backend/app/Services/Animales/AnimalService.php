@@ -459,6 +459,17 @@ class AnimalService
             $query->where('activo', filter_var($filters['activo'], FILTER_VALIDATE_BOOLEAN));
         }
 
+        if (! empty($filters['con_arete'])) {
+            $incluirId = ! empty($filters['incluir_id']) ? (int) $filters['incluir_id'] : null;
+
+            $query->where(function (Builder $builder) use ($incluirId) {
+                $builder->conArete();
+                if ($incluirId) {
+                    $builder->orWhereKey($incluirId);
+                }
+            });
+        }
+
         $sortBy = in_array($filters['sort_by'] ?? '', self::SORTABLE_COLUMNS, true)
             ? $filters['sort_by']
             : 'codigo';

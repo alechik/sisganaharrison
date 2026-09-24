@@ -133,6 +133,7 @@ class ServicioReproductivoService
     private function assertAnimalesValidos(array $data): void
     {
         $hembra = $this->assertAnimalActivoPorSexo((int) $data['hembra_id'], 'H', 'hembra_id');
+        $this->assertAreteValido($hembra, 'hembra_id');
 
         if (! empty($data['macho_id'])) {
             $machoId = (int) $data['macho_id'];
@@ -143,8 +144,22 @@ class ServicioReproductivoService
                 ]);
             }
 
-            $this->assertAnimalActivoPorSexo($machoId, 'M', 'macho_id');
+            $macho = $this->assertAnimalActivoPorSexo($machoId, 'M', 'macho_id');
+            $this->assertAreteValido($macho, 'macho_id');
         }
+    }
+
+    private function assertAreteValido(Animal $animal, string $field): void
+    {
+        if ($animal->tieneAreteValido()) {
+            return;
+        }
+
+        $label = $field === 'hembra_id' ? 'hembra' : 'macho';
+
+        throw ValidationException::withMessages([
+            $field => "El animal seleccionado como {$label} debe tener un arete asignado y válido.",
+        ]);
     }
 
     private function assertAnimalActivoPorSexo(int $animalId, string $sexo, string $field): Animal

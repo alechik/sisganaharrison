@@ -64,7 +64,12 @@ class StoreNacimientoRequest extends FormRequest
     {
         return [
             'parto_id' => 'required|integer|exists:partos,id',
-            'arete' => 'nullable|string|max:30',
+            'arete' => [
+                'nullable',
+                'string',
+                'max:30',
+                Rule::unique('animales', 'arete'),
+            ],
             'sexo' => ['required', 'string', 'size:1', Rule::in(Nacimiento::SEXOS)],
             'peso_nacimiento' => 'nullable|numeric|min:0|max:999999.99',
             'estado_nacimiento' => ['required', 'string', 'max:10', Rule::in(Nacimiento::ESTADOS)],
@@ -72,7 +77,12 @@ class StoreNacimientoRequest extends FormRequest
             'observaciones' => 'nullable|string|max:2000',
             'registrado_por' => 'nullable|integer|exists:users,id',
             'animal' => 'nullable|array',
-            'animal.arete' => 'nullable|string|max:30',
+            'animal.arete' => [
+                'nullable',
+                'string',
+                'max:30',
+                Rule::unique('animales', 'arete'),
+            ],
             'animal.nombre' => 'nullable|string|max:100',
             'animal.raza_id' => [
                 'nullable',
@@ -101,6 +111,8 @@ class StoreNacimientoRequest extends FormRequest
     {
         return [
             'parto_id.exists' => 'El parto seleccionado no existe.',
+            'arete.unique' => 'El arete ya existe.',
+            'animal.arete.unique' => 'El arete ya existe.',
             'registrado_por.exists' => 'El usuario registrador seleccionado no existe.',
             'sexo.in' => 'El sexo seleccionado no es válido.',
             'estado_nacimiento.in' => 'El estado de nacimiento seleccionado no es válido.',

@@ -22,7 +22,7 @@
 | Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` (preliminar: código, sexo, categoría; `user_id`, `edad_inicial`/`edad_actual`) |
 | Pesajes | ✅ | `/api/pesajes` | `pesajes.view`, `pesajes.create` | `modules/pesajes/` (append only; pesaje de nacimiento vía observaciones) |
 | Eventos Sanitarios | ✅ | `/api/eventos-sanitarios` | `sanitario.view`, `sanitario.create` | `modules/eventos-sanitarios/` (append only) |
-| Servicios Reproductivos | ✅ | `/api/servicios-reproductivos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/servicios-reproductivos/` |
+| Servicios Reproductivos | ✅ | `/api/servicios-reproductivos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/servicios-reproductivos/` (hembra/macho con arete) |
 | Gestaciones | ✅ | `/api/gestaciones` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/gestaciones/` (servicio PREÑADA sin gestación; ACTIVA hasta parto) |
 | Partos | ✅ | `/api/partos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/partos/` (`PENDIENTE`/`FINALIZADA`; finalizar manual; gestación a FINALIZADA al crear) |
 | Nacimientos | ✅ | `/api/nacimientos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/nacimientos/` (parto PENDIENTE; VIVO crea cría + pesaje; MUERTO sin animal) |

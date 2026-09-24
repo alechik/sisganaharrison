@@ -29,18 +29,19 @@ export default function PartoForm({ partoId }: Props) {
     useCreateParto();
   const { update, loading: updating, error: updateError, setError: setUpdateError } =
     useUpdateParto();
+
+  const [form, setForm] = useState<PartoCreateRequest>(emptyForm);
+  const [loading, setLoading] = useState(isEdit);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const {
     gestacionOptions,
     loading: loadingOptions,
     error: optionsError,
   } = useGestacionOptions({
     soloDisponiblesParaParto: true,
-    incluirId: form.gestacion_id,
+    incluirId: isEdit ? form.gestacion_id : undefined,
   });
-
-  const [form, setForm] = useState<PartoCreateRequest>(emptyForm);
-  const [loading, setLoading] = useState(isEdit);
-  const [validationError, setValidationError] = useState<string | null>(null);
 
   const saving = creating || updating;
   const error = createError || updateError;

@@ -91,3 +91,31 @@ export const formatUserOptionLabel = (user: {
   apellido: string;
   email: string;
 }): string => `${user.nombre} ${user.apellido} (${user.email})`;
+
+export const getApiErrorMessage = (err: unknown, fallback: string): string => {
+  const data = (
+    err as {
+      response?: {
+        data?: { message?: string; errors?: Record<string, string[] | string> };
+      };
+    }
+  )?.response?.data;
+
+  const pick = (value: string | string[] | undefined) =>
+    Array.isArray(value) ? value[0] : value;
+
+  const errors = data?.errors;
+  if (errors) {
+    const fromArete = pick(errors.arete) || pick(errors["animal.arete"]);
+    if (fromArete) {
+      return fromArete;
+    }
+
+    const first = pick(Object.values(errors)[0]);
+    if (first) {
+      return first;
+    }
+  }
+
+  return data?.message ?? fallback;
+};

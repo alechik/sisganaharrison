@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ServiciosReproductivos;
 
+use App\Models\Animal;
 use App\Models\ServicioReproductivo;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -23,18 +24,22 @@ class StoreServicioReproductivoRequest extends FormRequest
             'hembra_id' => [
                 'required',
                 'integer',
-                Rule::exists('animales', 'id')
-                    ->where('activo', true)
-                    ->where('sexo', 'H')
-                    ->whereNull('deleted_at'),
+                Rule::exists('animales', 'id')->where(function ($query) {
+                    $query->where('activo', true)
+                        ->where('sexo', 'H')
+                        ->whereNull('deleted_at');
+                    Animal::aplicarFiltroAreteValido($query);
+                }),
             ],
             'macho_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('animales', 'id')
-                    ->where('activo', true)
-                    ->where('sexo', 'M')
-                    ->whereNull('deleted_at'),
+                Rule::exists('animales', 'id')->where(function ($query) {
+                    $query->where('activo', true)
+                        ->where('sexo', 'M')
+                        ->whereNull('deleted_at');
+                    Animal::aplicarFiltroAreteValido($query);
+                }),
             ],
             'fecha_servicio' => 'required|date',
             'tipo_servicio' => ['required', 'string', 'max:30', Rule::in(ServicioReproductivo::TIPOS_SERVICIO)],
@@ -49,8 +54,8 @@ class StoreServicioReproductivoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'hembra_id.exists' => 'La hembra seleccionada no está activa, no existe o no es de sexo femenino.',
-            'macho_id.exists' => 'El macho seleccionado no está activo, no existe o no es de sexo masculino.',
+            'hembra_id.exists' => 'La hembra seleccionada no está activa, no tiene un arete válido o no es de sexo femenino.',
+            'macho_id.exists' => 'El macho seleccionado no está activo, no tiene un arete válido o no es de sexo masculino.',
             'fecha_servicio.required' => 'La fecha de servicio es obligatoria.',
             'tipo_servicio.in' => 'El tipo de servicio seleccionado no es válido.',
             'resultado.in' => 'El resultado seleccionado no es válido.',

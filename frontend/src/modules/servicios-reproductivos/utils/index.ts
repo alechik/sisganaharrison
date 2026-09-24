@@ -19,12 +19,20 @@ export const defaultServicioReproductivoFilters = (): ServicioReproductivoFilter
   per_page: SERVICIO_REPRODUCTIVO_DEFAULT_PAGE_SIZE,
 });
 
+export const ARETES_INVALIDOS = ["bull"];
+
+export const isAreteValido = (arete?: string | null): boolean => {
+  const value = (arete ?? "").trim().toLowerCase();
+
+  return value !== "" && !ARETES_INVALIDOS.includes(value);
+};
+
 export const formatAnimalLabel = (
   codigo?: string | null,
   arete?: string | null
 ): string => {
   const code = codigo || "Sin código";
-  const tag = arete || "Sin arete";
+  const tag = arete?.trim() || "Sin arete";
   return `${code} — ${tag}`;
 };
 
