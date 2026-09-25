@@ -120,6 +120,8 @@ class StoreAnimalRequest extends FormRequest
             'lote_id.exists' => 'El lote seleccionado no existe o no está activo.',
             'madre_id.exists' => 'La madre seleccionada no existe o no está activa.',
             'padre_id.exists' => 'El padre seleccionado no existe o no está activo.',
+            'edad_inicial.integer' => 'La edad inicial debe expresarse en meses.',
+            'edad_actual.integer' => 'La edad actual debe expresarse en meses.',
         ];
     }
 }

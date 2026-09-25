@@ -34,7 +34,7 @@ class IngresoService
         'creador:id,nombre,apellido',
         'lote:id,nombre,codigo',
         'cuarentena:id,cod_compra,estado,origen,proveedor_id,fecha_inicio,fecha_fin',
-        'detalles.animal:id,codigo,sexo,categoria_id,arete,nombre,edad_inicial,edad_actual,lote_id',
+        'detalles.animal:id,codigo,sexo,categoria_id,arete,nombre,edad_inicial,edad_actual,precio_kilo,lote_id',
         'detalles.animal.categoria:id,codigo,nombre',
     ];
 
@@ -180,11 +180,17 @@ class IngresoService
                     'edad' => $detalleCuarentena->edad ?? $animal->edad_inicial,
                 ]);
 
+                $precioKilo = $this->calcularPrecioKilo(
+                    (float) $detalleCuarentena->precio,
+                    (float) $payload['peso_ingreso']
+                );
+
                 $this->animalService->completarDesdeIngreso(
                     $animal,
                     $payload['animal'] ?? [],
                     (int) $data['lote_id'],
-                    (string) $data['fecha_ingreso']
+                    (string) $data['fecha_ingreso'],
+                    $precioKilo
                 );
 
                 $this->pesajeService->registrarHistorico(
@@ -213,6 +219,7 @@ class IngresoService
                         'lote_id' => (int) $data['lote_id'],
                         'peso_oc' => (float) $detalleCuarentena->peso,
                         'peso_ingreso' => (float) $payload['peso_ingreso'],
+                        'precio_kilo' => $precioKilo,
                     ],
                 ]);
             }
@@ -400,5 +407,10 @@ class IngresoService
         $ingreso->total_peso = round((float) $ingreso->detalles->sum('peso_ingreso'), 2);
         $ingreso->monto_total = round(max((float) $ingreso->detalles->sum('precio_compra') - (float) $ingreso->descuento, 0), 2);
         $ingreso->save();
+    }
+
+    private function calcularPrecioKilo(float $precioCompra, float $pesoKg): float
+    {
+        return round($precioCompra / $pesoKg, 2);
     }
 }

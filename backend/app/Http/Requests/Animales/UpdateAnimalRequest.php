@@ -126,6 +126,8 @@ class UpdateAnimalRequest extends FormRequest
             'madre_id.not_in' => 'Un animal no puede ser su propia madre.',
             'padre_id.exists' => 'El padre seleccionado no existe o no está activo.',
             'padre_id.not_in' => 'Un animal no puede ser su propio padre.',
+            'edad_inicial.integer' => 'La edad inicial debe expresarse en meses.',
+            'edad_actual.integer' => 'La edad actual debe expresarse en meses.',
         ];
     }
 }

@@ -37,6 +37,7 @@ class AnimalResource extends JsonResource
             'user_id' => $this->user_id,
             'edad_inicial' => $this->edad_inicial,
             'edad_actual' => $this->edad_actual,
+            'precio_kilo' => $this->precio_kilo !== null ? (float) $this->precio_kilo : null,
             'activo' => $this->activo,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),

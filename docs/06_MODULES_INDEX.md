@@ -19,7 +19,7 @@
 | Establecimientos | ✅ | `/api/establecimientos` | `establecimientos.*` | `modules/establecimientos/` |
 | Potreros | ✅ | `/api/potreros` | `potreros.*` | `modules/potreros/` |
 | Lotes | ✅ | `/api/lotes` | `lotes.*` | `modules/lotes/` |
-| Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` (preliminar: código, sexo, categoría; `user_id`, `edad_inicial`/`edad_actual`) |
+| Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` (código, sexo, categoría; `user_id`, `edad_inicial`/`edad_actual` en meses, `precio_kilo` nullable) |
 | Pesajes | ✅ | `/api/pesajes` | `pesajes.view`, `pesajes.create` | `modules/pesajes/` (append only; pesaje de nacimiento vía observaciones) |
 | Eventos Sanitarios | ✅ | `/api/eventos-sanitarios` | `sanitario.view`, `sanitario.create` | `modules/eventos-sanitarios/` (append only) |
 | Servicios Reproductivos | ✅ | `/api/servicios-reproductivos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/servicios-reproductivos/` (hembra/macho con arete) |
@@ -28,7 +28,7 @@
 | Nacimientos | ✅ | `/api/nacimientos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/nacimientos/` (parto PENDIENTE; VIVO crea cría + pesaje; MUERTO sin animal) |
 | Compras / Órdenes de Compra | ✅ | `/api/compras/ordenes-compra` | `compras.view`, `compras.create`, `compras.update`, `compras.authorize` | `modules/compras/` (animal preliminar + edad inicial) |
 | Compras / Cuarentenas | ✅ | `/api/compras/cuarentenas` | `compras.view`, `compras.create` | `modules/compras/` (COMPLETADO registra pesaje de cuarentena) |
-| Compras / Ingresos | ✅ | `/api/compras/ingresos` | `compras.view`, `compras.create` | `modules/compras/` (parciales desde cuarentena COMPLETADA; actualiza el mismo `animal_id`) |
+| Compras / Ingresos | ✅ | `/api/compras/ingresos` | `compras.view`, `compras.create` | `modules/compras/` (parciales desde cuarentena COMPLETADA; actualiza el mismo `animal_id`; `precio_kilo` = `precio_compra` / `peso_ingreso`) |
 | Movimientos | ❌ | — | permisos seed | — |
 | Reportes | ❌ | — | permisos seed | — |
 | Auditoría | ❌ | — | permisos seed | — |

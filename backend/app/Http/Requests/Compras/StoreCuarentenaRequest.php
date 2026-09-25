@@ -42,6 +42,7 @@ class StoreCuarentenaRequest extends FormRequest
             'proveedor_id.required' => 'Debe seleccionar un proveedor.',
             'detalles.required' => 'Debe agregar al menos un detalle.',
             'detalles.*.peso.required' => 'Cada línea debe registrar el peso del ejemplar.',
+            'detalles.*.edad.required' => 'Cada animal debe tener edad inicial (meses).',
         ];
     }
 }

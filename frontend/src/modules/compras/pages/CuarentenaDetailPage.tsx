@@ -211,7 +211,7 @@ export default function CuarentenaDetailPage() {
               <TableCell isHeader className="px-4 py-3 font-semibold">Código</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Sexo</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Categoría</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Edad</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Edad (meses)</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Cantidad</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Peso</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Precio</TableCell>

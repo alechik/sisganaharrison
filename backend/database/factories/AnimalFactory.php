@@ -39,6 +39,7 @@ class AnimalFactory extends Factory
             'user_id' => User::query()->value('id') ?? User::factory(),
             'edad_inicial' => null,
             'edad_actual' => null,
+            'precio_kilo' => null,
             'activo' => true,
         ];
     }

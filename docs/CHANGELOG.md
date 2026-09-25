@@ -12,6 +12,20 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-24] — Precio por kilo en animales e edad en meses
+
+### Added
+
+**Animales:** columna nullable `precio_kilo`. Al confirmar un Ingreso se calcula `precio_compra / peso_ingreso` (precio de cuarentena/OC ya copiado en el detalle) y se guarda en el mismo animal, dentro de la transacción existente.
+
+### Changed
+
+**Edad:** etiquetas y mensajes de Orden de Compra, Cuarentena, Ingreso y Animales indican explícitamente **meses**. No hay conversión de valores.
+
+**Documentación:** Actualizados `06`, `08`, `12_DATABASE/03_Nucleo_Ganadero.md`
+
+---
+
 ## [2026-09-23] — Servicios reproductivos: hembra y macho con arete
 
 ### Changed

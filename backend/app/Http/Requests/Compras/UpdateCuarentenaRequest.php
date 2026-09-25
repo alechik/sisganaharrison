@@ -32,4 +32,14 @@ class UpdateCuarentenaRequest extends FormRequest
             'detalles.*.descuento' => 'nullable|numeric|min:0',
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'detalles.*.edad.required' => 'Cada animal debe tener edad inicial (meses).',
+        ];
+    }
 }

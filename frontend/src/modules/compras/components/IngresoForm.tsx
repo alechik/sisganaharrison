@@ -318,7 +318,7 @@ export default function IngresoForm() {
                   <div className="grid flex-1 grid-cols-2 gap-2 text-sm text-gray-600 md:grid-cols-5 dark:text-gray-300">
                     <span>{formatSexo(linea.sexo)}</span>
                     <span>{linea.categoria_codigo} — {linea.categoria_nombre}</span>
-                    <span>{formatEdad(linea.edad)}</span>
+                    <span>Edad (meses): {linea.edad ?? "—"}</span>
                     <span>Peso CQ: {formatPeso(linea.peso_oc)}</span>
                     <span>Precio: {formatMoney(linea.precio_compra)}</span>
                   </div>

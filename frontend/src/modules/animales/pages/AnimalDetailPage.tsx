@@ -103,15 +103,26 @@ export default function AnimalDetailPage() {
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Edad inicial</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Edad inicial (meses)</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {animal.edad_inicial != null ? `${animal.edad_inicial} meses` : "—"}
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Edad actual</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Edad actual (meses)</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {animal.edad_actual != null ? `${animal.edad_actual} meses` : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Precio por kilo</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {animal.precio_kilo != null
+                ? animal.precio_kilo.toLocaleString("es-PY", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : "—"}
             </dd>
           </div>
           <div>

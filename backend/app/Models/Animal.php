@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $user_id
  * @property int|null $edad_inicial
  * @property int|null $edad_actual
+ * @property string|null $precio_kilo
  * @property bool $activo
  */
 class Animal extends Model
@@ -56,6 +57,7 @@ class Animal extends Model
         'user_id',
         'edad_inicial',
         'edad_actual',
+        'precio_kilo',
         'activo',
     ];
 
@@ -66,6 +68,7 @@ class Animal extends Model
             'activo' => 'boolean',
             'edad_inicial' => 'integer',
             'edad_actual' => 'integer',
+            'precio_kilo' => 'decimal:2',
         ];
     }
 

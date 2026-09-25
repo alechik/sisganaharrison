@@ -187,7 +187,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
           line.edad < 0
       )
     ) {
-      setCreateError("Cada animal debe tener categoría, sexo, cantidad, edad inicial y peso del ejemplar mayor a cero.");
+      setCreateError("Cada animal debe tener categoría, sexo, cantidad, edad inicial (meses) y peso del ejemplar mayor a cero.");
       return;
     }
 

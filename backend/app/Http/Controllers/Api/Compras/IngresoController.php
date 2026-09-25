@@ -38,7 +38,7 @@ class IngresoController extends Controller
             'creador:id,nombre,apellido',
             'lote:id,nombre,codigo',
             'cuarentena:id,cod_compra,estado,origen,proveedor_id,fecha_inicio,fecha_fin',
-            'detalles.animal:id,codigo,sexo,categoria_id,arete,nombre,edad_inicial,edad_actual,lote_id',
+            'detalles.animal:id,codigo,sexo,categoria_id,arete,nombre,edad_inicial,edad_actual,precio_kilo,lote_id',
             'detalles.animal.categoria:id,codigo,nombre',
         ]);
 

@@ -172,7 +172,7 @@ export default function CuarentenaForm({ cuarentenaId }: Props) {
           line.edad < 0
       )
     ) {
-      setCreateError("Cada animal debe tener categoría, sexo, cantidad, edad inicial y peso del ejemplar mayor a cero.");
+      setCreateError("Cada animal debe tener categoría, sexo, cantidad, edad inicial (meses) y peso del ejemplar mayor a cero.");
       return;
     }
 
@@ -266,8 +266,8 @@ export default function CuarentenaForm({ cuarentenaId }: Props) {
           </Button>
         </div>
         <p className="text-sm text-gray-500">
-          Código, sexo y categoría identifican al animal desde esta etapa. El registro definitivo se
-          completa en el Ingreso.
+          Código, sexo y categoría identifican al animal desde esta etapa. Capture la edad inicial en meses.
+          El registro definitivo se completa en el Ingreso.
         </p>
         {form.detalles.map((line, index) => (
           <div

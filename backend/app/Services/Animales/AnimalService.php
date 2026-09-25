@@ -340,7 +340,7 @@ class AnimalService
      *
      * @param  array<string, mixed>  $data
      */
-    public function completarDesdeIngreso(Animal $animal, array $data, int $loteId, string $fechaIngreso): Animal
+    public function completarDesdeIngreso(Animal $animal, array $data, int $loteId, string $fechaIngreso, ?float $precioKilo = null): Animal
     {
         $this->assertLoteTieneCapacidad($loteId, $animal->id);
 
@@ -369,7 +369,7 @@ class AnimalService
             $fechaNacimiento = Carbon::parse($fechaIngreso)->subMonths($edadInicial)->toDateString();
         }
 
-        $animal->update([
+        $payload = [
             'arete' => $arete,
             'nombre' => $this->nullableString($data['nombre'] ?? $animal->nombre),
             'fecha_nacimiento' => $fechaNacimiento,
@@ -382,7 +382,13 @@ class AnimalService
             'observaciones' => $this->nullableString($data['observaciones'] ?? $animal->observaciones),
             'edad_inicial' => $edadInicial,
             'edad_actual' => $edadActual,
-        ]);
+        ];
+
+        if ($precioKilo !== null) {
+            $payload['precio_kilo'] = round($precioKilo, 2);
+        }
+
+        $animal->update($payload);
 
         return $animal->fresh(self::RELATIONS) ?? $animal;
     }

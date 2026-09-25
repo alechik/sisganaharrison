@@ -71,6 +71,10 @@ Las crías nacidas muertas **no** generan registro aquí; se documentan únicame
 | padre_id | BIGINT | FK NULL |
 | color | VARCHAR(60) | NULL |
 | observaciones | TEXT | NULL |
+| user_id | BIGINT | FK |
+| edad_inicial | INTEGER | NULL, meses |
+| edad_actual | INTEGER | NULL, meses |
+| precio_kilo | DECIMAL(12,2) | NULL; referencia de ingreso (`precio_compra` / `peso_ingreso`) |
 | activo | BOOLEAN | DEFAULT TRUE |
 | created_at | TIMESTAMP | |
 | updated_at | TIMESTAMP | |
@@ -148,6 +152,8 @@ activo
 - Un animal con `activo = false` no forma parte de las existencias vigentes (RF-15).
 - Mortalidad y bajas del rodeo se registran mediante `movimientos_animales` y desactivación del animal (RF-13).
 - El arete puede originarse en `nacimientos.arete` cuando la cría proviene de un parto.
+- `edad_inicial` y `edad_actual` se expresan siempre en meses.
+- `precio_kilo` es opcional: se calcula y persiste al confirmar un Ingreso sobre el mismo `animal_id`; crías u otros orígenes pueden dejarlo nulo.
 
 ## Trazabilidad derivada por animal
 
@@ -162,7 +168,7 @@ La siguiente información **no** se duplica en `animales`; se obtiene de tablas 
 | Fecha de ingreso | `partos.fecha_parto` (nacimiento) o fecha del movimiento Compra |
 | Fecha de salida | fecha del movimiento Venta, Muerte o Baja |
 | Motivo de salida | `movimientos_animales.motivo` |
-| Precio | `movimientos_animales.valor` |
+| Precio de movimiento (compra/venta) | `movimientos_animales.valor` |
 
 ---
 
