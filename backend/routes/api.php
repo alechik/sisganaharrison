@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\EstadosProductivos\EstadoProductivoController;
 use App\Http\Controllers\Api\TiposEventosSanitarios\TipoEventoSanitarioController;
 use App\Http\Controllers\Api\TiposMovimientos\TipoMovimientoController;
 use App\Http\Controllers\Api\TiposAlertas\TipoAlertaController;
+use App\Http\Controllers\Api\TiposSalidas\TipoSalidaController;
 use App\Http\Controllers\Api\Establecimientos\EstablecimientoController;
 use App\Http\Controllers\Api\Potreros\PotreroController;
 use App\Http\Controllers\Api\Lotes\LoteController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Api\Compras\OrdenCompraController;
 use App\Http\Controllers\Api\Compras\CuarentenaController;
 use App\Http\Controllers\Api\Compras\IngresoController;
 use App\Http\Controllers\Api\Ventas\VentaController;
+use App\Http\Controllers\Api\Salidas\SalidaController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -335,6 +337,38 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('tipos-alertas/{tipo_alerta}/estado', [TipoAlertaController::class, 'changeStatus'])
         ->middleware('permission:tipos_alertas.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| TIPOS DE SALIDAS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('tipos-salidas/eliminados', [TipoSalidaController::class, 'deleted'])
+        ->middleware('permission:tipos_salidas.view');
+
+    Route::post('tipos-salidas/{id}/restaurar', [TipoSalidaController::class, 'restore'])
+        ->middleware('permission:tipos_salidas.restore');
+
+    Route::get('tipos-salidas', [TipoSalidaController::class, 'index'])
+        ->middleware('permission:tipos_salidas.view');
+
+    Route::post('tipos-salidas', [TipoSalidaController::class, 'store'])
+        ->middleware('permission:tipos_salidas.create');
+
+    Route::get('tipos-salidas/{tipo_salida}', [TipoSalidaController::class, 'show'])
+        ->middleware('permission:tipos_salidas.view');
+
+    Route::put('tipos-salidas/{tipo_salida}', [TipoSalidaController::class, 'update'])
+        ->middleware('permission:tipos_salidas.update');
+
+    Route::patch('tipos-salidas/{tipo_salida}', [TipoSalidaController::class, 'update'])
+        ->middleware('permission:tipos_salidas.update');
+
+    Route::delete('tipos-salidas/{tipo_salida}', [TipoSalidaController::class, 'destroy'])
+        ->middleware('permission:tipos_salidas.delete');
 });
 
 /*
@@ -771,4 +805,30 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('ventas/{venta}', [VentaController::class, 'update'])
         ->middleware('permission:ventas.update');
+});
+
+/*
+|--------------------------------------------------------------------------
+| SALIDAS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('salidas/ventas-disponibles', [SalidaController::class, 'ventasDisponibles'])
+        ->middleware('permission:salidas.create');
+
+    Route::get('salidas/animales-disponibles', [SalidaController::class, 'animalesDisponibles'])
+        ->middleware('permission:salidas.create');
+
+    Route::get('salidas/{salida}/pdf', [SalidaController::class, 'pdf'])
+        ->middleware('permission:salidas.view');
+
+    Route::get('salidas', [SalidaController::class, 'index'])
+        ->middleware('permission:salidas.view');
+
+    Route::post('salidas', [SalidaController::class, 'store'])
+        ->middleware('permission:salidas.create');
+
+    Route::get('salidas/{salida}', [SalidaController::class, 'show'])
+        ->middleware('permission:salidas.view');
 });

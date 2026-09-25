@@ -533,6 +533,44 @@ Venta de animales (`PENDIENTE` | `AUTORIZADA` | `ANULADA`). El trabajador regist
 
 ---
 
+# salidas
+
+Salida definitiva de animales (`REGISTRADO`). Si el tipo es Venta, toma una venta `AUTORIZADA` y marca los animales como `VENDIDO`. Otros tipos (Perdido, Robo, Muerte) no usan `venta_id`.
+
+## Campos
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| cliente_id | BIGINT | FK personas, NULL |
+| user_id | BIGINT | FK users |
+| venta_id | BIGINT | FK ventas, NULL, UNIQUE |
+| tipo_salida_id | BIGINT | FK tipos_salidas |
+| codigo | VARCHAR(20) | UNIQUE |
+| fecha_salida | DATE | NOT NULL |
+| estado | VARCHAR(50) | REGISTRADO |
+| descuento | DECIMAL(8,2) | DEFAULT 0 |
+| total_peso | DECIMAL(8,2) | NULL |
+| monto_total | DECIMAL(8,2) | NULL |
+
+# detalle_salidas
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| salida_id | BIGINT | FK |
+| animal_id | BIGINT | FK, UNIQUE (un animal solo puede salir una vez) |
+| cantidad | INTEGER | DEFAULT 1 |
+| peso | DECIMAL(8,2) | |
+| lote_id | BIGINT | FK NULL |
+| precio | DECIMAL(8,2) | |
+| descuento | DECIMAL(8,2) | DEFAULT 0 |
+| subtotal | DECIMAL(8,2) | |
+
+Estados de animal al confirmar: Venta → `VENDIDO`; Muerte → `MUERTO`; Robo/Perdido → `OTRO`.
+
+---
+
 # Resumen
 
 | Tabla | SoftDelete | Editable | Histórica |

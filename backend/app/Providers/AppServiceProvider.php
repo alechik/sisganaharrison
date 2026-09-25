@@ -10,6 +10,7 @@ use App\Models\EstadoProductivo;
 use App\Models\TipoEventoSanitario;
 use App\Models\TipoMovimiento;
 use App\Models\TipoAlerta;
+use App\Models\TipoSalida;
 use App\Models\Establecimiento;
 use App\Models\Potrero;
 use App\Models\Lote;
@@ -33,6 +34,7 @@ use App\Policies\EstadoProductivoPolicy;
 use App\Policies\TipoEventoSanitarioPolicy;
 use App\Policies\TipoMovimientoPolicy;
 use App\Policies\TipoAlertaPolicy;
+use App\Policies\TipoSalidaPolicy;
 use App\Policies\EstablecimientoPolicy;
 use App\Policies\PotreroPolicy;
 use App\Policies\LotePolicy;
@@ -47,7 +49,9 @@ use App\Policies\OrdenCompraPolicy;
 use App\Policies\CuarentenaPolicy;
 use App\Policies\IngresoPolicy;
 use App\Models\Venta;
+use App\Models\Salida;
 use App\Policies\VentaPolicy;
+use App\Policies\SalidaPolicy;
 use App\Policies\PersonaPolicy;
 use App\Policies\TipoPersonaPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -77,6 +81,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TipoEventoSanitario::class, TipoEventoSanitarioPolicy::class);
         Gate::policy(TipoMovimiento::class, TipoMovimientoPolicy::class);
         Gate::policy(TipoAlerta::class, TipoAlertaPolicy::class);
+        Gate::policy(TipoSalida::class, TipoSalidaPolicy::class);
         Gate::policy(Establecimiento::class, EstablecimientoPolicy::class);
         Gate::policy(Potrero::class, PotreroPolicy::class);
         Gate::policy(Lote::class, LotePolicy::class);
@@ -93,6 +98,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Cuarentena::class, CuarentenaPolicy::class);
         Gate::policy(Ingreso::class, IngresoPolicy::class);
         Gate::policy(Venta::class, VentaPolicy::class);
+        Gate::policy(Salida::class, SalidaPolicy::class);
 
         Route::bind('categoria', fn (string $value) => CategoriaAnimal::query()->findOrFail($value));
         Route::bind('vacuna', fn (string $value) => Vacuna::query()->findOrFail($value));
@@ -100,6 +106,7 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('tipo_evento_sanitario', fn (string $value) => TipoEventoSanitario::query()->findOrFail($value));
         Route::bind('tipo_movimiento', fn (string $value) => TipoMovimiento::query()->findOrFail($value));
         Route::bind('tipo_alerta', fn (string $value) => TipoAlerta::query()->findOrFail($value));
+        Route::bind('tipo_salida', fn (string $value) => TipoSalida::query()->findOrFail($value));
         Route::bind('establecimiento', fn (string $value) => Establecimiento::query()->findOrFail($value));
         Route::bind('potrero', fn (string $value) => Potrero::query()->findOrFail($value));
         Route::bind('lote', fn (string $value) => Lote::query()->findOrFail($value));
@@ -116,6 +123,7 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('cuarentena', fn (string $value) => Cuarentena::query()->findOrFail($value));
         Route::bind('ingreso', fn (string $value) => Ingreso::query()->findOrFail($value));
         Route::bind('venta', fn (string $value) => Venta::query()->findOrFail($value));
+        Route::bind('salida', fn (string $value) => Salida::query()->findOrFail($value));
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;

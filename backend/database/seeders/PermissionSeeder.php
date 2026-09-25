@@ -49,6 +49,10 @@ class PermissionSeeder extends Seeder
         'ventas.update',
         'ventas.authorize',
 
+        // Salidas
+        'salidas.view',
+        'salidas.create',
+
         // Razas
         'razas.view',
         'razas.create',
@@ -104,6 +108,13 @@ class PermissionSeeder extends Seeder
         'tipos_alertas.delete',
         'tipos_alertas.restore',
         'tipos_alertas.activate',
+
+        // Tipos de salidas
+        'tipos_salidas.view',
+        'tipos_salidas.create',
+        'tipos_salidas.update',
+        'tipos_salidas.delete',
+        'tipos_salidas.restore',
 
         // Establecimientos
         'establecimientos.view',

@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             TipoEventoSanitarioSeeder::class,
             TipoMovimientoSeeder::class,
             TipoAlertaSeeder::class,
+            TipoSalidaSeeder::class,
             TipoPersonaSeeder::class,
             EstablecimientoSeeder::class,
             PotreroSeeder::class,

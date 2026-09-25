@@ -16,6 +16,7 @@
 | Tipos Eventos Sanitarios | ✅ | `/api/tipos-eventos-sanitarios` | `tipos_eventos_sanitarios.*` | `modules/tipos-eventos-sanitarios/` |
 | Tipos Movimientos | ✅ | `/api/tipos-movimientos` | `tipos_movimientos.*` | `modules/tipos-movimientos/` |
 | Tipos Alertas | ✅ | `/api/tipos-alertas` | `tipos_alertas.*` | `modules/tipos-alertas/` |
+| Tipos de Salidas | ✅ | `/api/tipos-salidas` | `tipos_salidas.view`, `create`, `update`, `delete`, `restore` | `modules/tipos-salidas/` (`nombre` único) |
 | Establecimientos | ✅ | `/api/establecimientos` | `establecimientos.*` | `modules/establecimientos/` |
 | Potreros | ✅ | `/api/potreros` | `potreros.*` | `modules/potreros/` |
 | Lotes | ✅ | `/api/lotes` | `lotes.*` | `modules/lotes/` |
@@ -30,6 +31,7 @@
 | Compras / Cuarentenas | ✅ | `/api/compras/cuarentenas` | `compras.view`, `compras.create` | `modules/compras/` (COMPLETADO registra pesaje de cuarentena) |
 | Compras / Ingresos | ✅ | `/api/compras/ingresos` | `compras.view`, `compras.create` | `modules/compras/` (parciales; select solo COMPLETADO con animales pendientes; `precio_kilo` al confirmar) |
 | Ventas | ✅ | `/api/ventas` | `ventas.view`, `ventas.create`, `ventas.update`, `ventas.authorize` | `modules/ventas/` (PENDIENTE→reserva; gerencia autoriza/anula; PDF) |
+| Salidas | ✅ | `/api/salidas` | `salidas.view`, `salidas.create` | `modules/salidas/` (Venta usa venta autorizada; otros tipos independientes; confirma estado del animal) |
 | Movimientos | ❌ | — | permisos seed | — |
 | Reportes | ❌ | — | permisos seed | — |
 | Auditoría | ❌ | — | permisos seed | — |

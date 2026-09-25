@@ -30,11 +30,13 @@ import { estadoProductivoRoutes } from "./modules/estados-productivos/routes";
 import { tipoEventoSanitarioRoutes } from "./modules/tipos-eventos-sanitarios/routes";
 import { tipoMovimientoRoutes } from "./modules/tipos-movimientos/routes";
 import { tipoAlertaRoutes } from "./modules/tipos-alertas/routes";
+import { tipoSalidaRoutes } from "./modules/tipos-salidas/routes";
 import { establecimientoRoutes } from "./modules/establecimientos/routes";
 import { potreroRoutes } from "./modules/potreros/routes";
 import { loteRoutes } from "./modules/lotes/routes";
 import { animalRoutes } from "./modules/animales/routes";
 import { ventasRoutes } from "./modules/ventas/routes";
+import { salidasRoutes } from "./modules/salidas/routes";
 import { pesajeRoutes } from "./modules/pesajes/routes";
 import { eventoSanitarioRoutes } from "./modules/eventos-sanitarios/routes";
 import { servicioReproductivoRoutes } from "./modules/servicios-reproductivos/routes";
@@ -73,6 +75,7 @@ export default function App() {
             {tipoEventoSanitarioRoutes}
             {tipoMovimientoRoutes}
             {tipoAlertaRoutes}
+            {tipoSalidaRoutes}
             {establecimientoRoutes}
             {potreroRoutes}
             {loteRoutes}
@@ -86,6 +89,7 @@ export default function App() {
             {sociosDeNegocioRoutes}
             {comprasRoutes}
             {ventasRoutes}
+            {salidasRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

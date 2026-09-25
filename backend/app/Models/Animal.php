@@ -92,6 +92,10 @@ class Animal extends Model
         self::ESTADO_ACTIVO,
     ];
 
+    public const ESTADOS_DISPONIBLES_SALIDA = [
+        self::ESTADO_ACTIVO,
+    ];
+
     protected function casts(): array
     {
         return [
@@ -225,9 +229,19 @@ class Animal extends Model
         return $this->estado === self::ESTADO_ACTIVO;
     }
 
+    public function scopeDisponiblesParaSalida(Builder $query): Builder
+    {
+        return $query->whereIn('estado', self::ESTADOS_DISPONIBLES_SALIDA);
+    }
+
     public function estaDisponibleParaVenta(): bool
     {
         return in_array($this->estado, self::ESTADOS_DISPONIBLES_VENTA, true);
+    }
+
+    public function estaDisponibleParaSalida(): bool
+    {
+        return in_array($this->estado, self::ESTADOS_DISPONIBLES_SALIDA, true);
     }
 
     public function getActivoAttribute(): bool

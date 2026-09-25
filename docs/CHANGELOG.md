@@ -8,7 +8,23 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: módulos transaccionales (Movimientos, Salidas)._
+_Pendiente: módulos transaccionales (Movimientos)._
+
+---
+
+## [2026-09-25] — Módulo Salidas
+
+### Added
+
+**Salidas:** registro `REGISTRADO` con tipo del catálogo. Tipo Venta carga una venta autorizada (`Traer información`) y pasa animales a `VENDIDO`. Perdido/Robo/Muerte no usan `venta_id`; búsqueda de animales por código/arete. Muerte → `MUERTO`; Robo/Perdido → `OTRO`. PDF con el patrón de Ingresos/Ventas.
+
+---
+
+## [2026-09-25] — Catálogo Tipos de Salidas
+
+### Added
+
+**Tipos de Salidas:** catálogo CRUD con `nombre` obligatorio y único. Semilla: Venta, Perdido, Robo, Muerte. Soft delete con restauración. El módulo Salidas no se implementa aún.
 
 ---
 

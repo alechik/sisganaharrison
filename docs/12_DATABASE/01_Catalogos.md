@@ -260,6 +260,41 @@ HasMany → alertas
 
 ---
 
+# tipos_salidas
+
+## Propósito
+
+Catálogo de motivos de salida de animales del establecimiento.
+
+Tipos iniciales:
+
+- Venta
+- Perdido
+- Robo
+- Muerte
+
+## Campos
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| nombre | VARCHAR(100) | NOT NULL, UNIQUE |
+| created_at | TIMESTAMP | |
+| updated_at | TIMESTAMP | |
+| deleted_at | TIMESTAMP | SoftDeletes |
+
+## Relaciones
+
+HasMany → `salidas.tipo_salida_id`
+
+## Reglas
+
+- Nombre obligatorio y único.
+- No eliminar si existen salidas asociadas.
+- SoftDeletes.
+
+---
+
 # Resumen
 
 | Tabla | SoftDelete | Editable | Histórica |
@@ -271,6 +306,7 @@ HasMany → alertas
 | tipos_eventos_sanitarios | Sí | Sí | No |
 | tipos_movimientos | Sí | Sí | No |
 | tipos_alertas | Sí | Sí | No |
+| tipos_salidas | Sí | Sí | No |
 
 ---
 

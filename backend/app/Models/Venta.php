@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Venta de animales. La salida definitiva queda para el módulo de Salidas.
@@ -98,6 +99,14 @@ class Venta extends Model
     public function detalles(): HasMany
     {
         return $this->hasMany(DetalleVenta::class, 'venta_id');
+    }
+
+    /**
+     * @return HasOne<Salida, $this>
+     */
+    public function salida(): HasOne
+    {
+        return $this->hasOne(Salida::class, 'venta_id');
     }
 
     public function estaPendiente(): bool

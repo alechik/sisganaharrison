@@ -138,6 +138,10 @@ const navItems: NavItem[] = [
         name: "Ventas",
         path: "/ventas",
       },
+      {
+        name: "Salidas",
+        path: "/salidas",
+      },
     ],
   },
 
@@ -172,6 +176,10 @@ const navItems: NavItem[] = [
       {
         name: "Tipos Alerta",
         path: "/tipos-alertas",
+      },
+      {
+        name: "Tipos de Salida",
+        path: "/tipos-salidas",
       },
     ],
   },

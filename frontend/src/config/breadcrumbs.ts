@@ -300,6 +300,35 @@ export const breadcrumbs = {
     { title: "Eliminados" },
   ],
 
+  tiposSalidas: [
+    { title: "Ganadería" },
+    { title: "Tipos de Salida" },
+  ],
+
+  tipoSalidaCrear: [
+    { title: "Ganadería" },
+    { title: "Tipos de Salida", path: "/tipos-salidas" },
+    { title: "Nuevo Tipo" },
+  ],
+
+  tipoSalidaEditar: [
+    { title: "Ganadería" },
+    { title: "Tipos de Salida", path: "/tipos-salidas" },
+    { title: "Editar Tipo" },
+  ],
+
+  tipoSalidaDetalle: [
+    { title: "Ganadería" },
+    { title: "Tipos de Salida", path: "/tipos-salidas" },
+    { title: "Detalle" },
+  ],
+
+  tiposSalidasEliminados: [
+    { title: "Ganadería" },
+    { title: "Tipos de Salida", path: "/tipos-salidas" },
+    { title: "Eliminados" },
+  ],
+
   establecimientos: [
     { title: "Infraestructura" },
     { title: "Establecimientos" },
@@ -625,6 +654,23 @@ export const breadcrumbs = {
   ventaDetalle: [
     { title: "Ventas y Salidas" },
     { title: "Ventas", path: "/ventas" },
+    { title: "Detalle" },
+  ],
+
+  salidas: [
+    { title: "Ventas y Salidas" },
+    { title: "Salidas" },
+  ],
+
+  salidaCrear: [
+    { title: "Ventas y Salidas" },
+    { title: "Salidas", path: "/salidas" },
+    { title: "Nueva Salida" },
+  ],
+
+  salidaDetalle: [
+    { title: "Ventas y Salidas" },
+    { title: "Salidas", path: "/salidas" },
     { title: "Detalle" },
   ],
 
