@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\CuarentenaFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -122,5 +123,30 @@ class Cuarentena extends Model
     public function estaCompletada(): bool
     {
         return $this->estado === self::ESTADO_COMPLETADO;
+    }
+
+    /**
+     * Completadas con al menos un animal de detalle que aún no está en un ingreso.
+     *
+     * @param  Builder<Cuarentena>  $query
+     * @return Builder<Cuarentena>
+     */
+    public function scopeDisponiblesParaIngreso(Builder $query): Builder
+    {
+        return $query
+            ->where('estado', self::ESTADO_COMPLETADO)
+            ->whereExists(function ($exists) {
+                $exists->selectRaw('1')
+                    ->from('cuarentena_detalle')
+                    ->whereColumn('cuarentena_detalle.cuarentena_id', 'cuarentenas.id')
+                    ->whereNotNull('cuarentena_detalle.animal_id')
+                    ->whereNotExists(function ($inner) {
+                        $inner->selectRaw('1')
+                            ->from('detalle_ingresos')
+                            ->join('ingresos', 'ingresos.id', '=', 'detalle_ingresos.ingreso_id')
+                            ->whereColumn('ingresos.cuarentena_id', 'cuarentena_detalle.cuarentena_id')
+                            ->whereColumn('detalle_ingresos.animal_id', 'cuarentena_detalle.animal_id');
+                    });
+            });
     }
 }

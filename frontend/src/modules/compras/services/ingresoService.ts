@@ -1,6 +1,7 @@
 import api from "@/api/axios";
 import { PaginatedResponse } from "@/types/api";
 import {
+  Cuarentena,
   Ingreso,
   IngresoCreateRequest,
   IngresoListParams,
@@ -41,6 +42,13 @@ export const getIngresos = async (
 
 export const getIngreso = async (id: number): Promise<Ingreso> => {
   const response = await api.get<{ data: Ingreso }>(`/compras/ingresos/${id}`);
+  return response.data.data;
+};
+
+export const getCuarentenasDisponiblesIngreso = async (): Promise<Cuarentena[]> => {
+  const response = await api.get<{ data: Cuarentena[] }>(
+    "/compras/ingresos/cuarentenas-disponibles"
+  );
   return response.data.data;
 };
 

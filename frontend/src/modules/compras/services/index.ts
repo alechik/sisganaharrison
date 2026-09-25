@@ -20,6 +20,7 @@ export {
 export {
   getIngresos,
   getIngreso,
+  getCuarentenasDisponiblesIngreso,
   getPendientesIngreso,
   createIngreso,
   downloadIngresoPdf,

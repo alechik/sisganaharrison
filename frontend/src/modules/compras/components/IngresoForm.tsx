@@ -9,7 +9,7 @@ import Button from "@/components/ui/button/Button";
 import { useAnimalReferenceOptions } from "@/modules/animales/hooks/useAnimalReferenceOptions";
 import { INGRESO_ROUTES } from "../constants";
 import { useCreateIngreso } from "../hooks";
-import { getCuarentenas, getPendientesIngreso } from "../services";
+import { getCuarentenasDisponiblesIngreso, getPendientesIngreso } from "../services";
 import {
   AnimalIngresoPayload,
   Cuarentena,
@@ -67,13 +67,14 @@ export default function IngresoForm() {
   useEffect(() => {
     const load = async () => {
       try {
-        const response = await getCuarentenas({
-          estado: "COMPLETADO",
-          per_page: 100,
-          sort_by: "created_at",
-          sort_dir: "desc",
+        const data = await getCuarentenasDisponiblesIngreso();
+        setCuarentenas(data);
+        setCuarentenaId((current) => {
+          if (!current) {
+            return current;
+          }
+          return data.some((item) => String(item.id) === current) ? current : "";
         });
-        setCuarentenas(response.data);
       } catch (err) {
         console.error(err);
         setError("No se pudieron cargar las cuarentenas completadas.");
@@ -229,13 +230,18 @@ export default function IngresoForm() {
           <Label>Cuarentena completada *</Label>
           <Select
             value={cuarentenaId || ""}
-            placeholder="Seleccione una cuarentena"
+            placeholder="Seleccione una cuarentena con animales pendientes"
             options={cuarentenas.map((item) => ({
               value: String(item.id),
               label: `${item.cod_compra} — ${item.proveedor_razon_social ?? "Proveedor"}`,
             }))}
             onChange={setCuarentenaId}
           />
+          {cuarentenas.length === 0 && (
+            <p className="mt-1 text-xs text-gray-500">
+              No hay cuarentenas completadas con animales pendientes de ingreso.
+            </p>
+          )}
         </div>
         <div>
           <Label>Lote destino *</Label>

@@ -12,6 +12,16 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-24] — Select de cuarentenas en Nuevo Ingreso
+
+### Changed
+
+**Ingresos:** el alta lista únicamente cuarentenas `COMPLETADO` con al menos un animal todavía no registrado en `detalle_ingresos`. Una cuarentena con ingresos parciales sigue apareciendo hasta agotar sus animales. El detalle de pendientes sigue excluyendo animales ya ingresados.
+
+**Documentación:** Actualizado `06`
+
+---
+
 ## [2026-09-24] — Precio por kilo en animales e edad en meses
 
 ### Added

@@ -60,6 +60,23 @@ class IngresoService
     }
 
     /**
+     * Cuarentenas COMPLETADO con animales aún no registrados en detalle_ingresos.
+     *
+     * @return \Illuminate\Support\Collection<int, Cuarentena>
+     */
+    public function cuarentenasDisponibles()
+    {
+        return Cuarentena::query()
+            ->disponiblesParaIngreso()
+            ->with([
+                'proveedor:id,razon_social,nit',
+                'ordenCompra:id,cod_compra',
+            ])
+            ->orderByDesc('created_at')
+            ->get();
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function pendientesDeCuarentena(Cuarentena $cuarentena): array

@@ -729,6 +729,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('compras/cuarentenas/{cuarentena}', [CuarentenaController::class, 'update'])
         ->middleware('permission:compras.create');
 
+    Route::get('compras/ingresos/cuarentenas-disponibles', [IngresoController::class, 'cuarentenasDisponibles'])
+        ->middleware('permission:compras.create');
+
     Route::get('compras/ingresos/{ingreso}/pdf', [IngresoController::class, 'pdf'])
         ->middleware('permission:compras.view');
 

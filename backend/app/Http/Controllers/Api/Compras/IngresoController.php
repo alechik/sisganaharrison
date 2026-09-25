@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Compras;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Compras\StoreIngresoRequest;
+use App\Http\Resources\Compras\CuarentenaResource;
 use App\Http\Resources\Compras\IngresoResource;
 use App\Models\Cuarentena;
 use App\Models\Ingreso;
@@ -43,6 +44,17 @@ class IngresoController extends Controller
         ]);
 
         return new IngresoResource($ingreso);
+    }
+
+    public function cuarentenasDisponibles(): JsonResponse
+    {
+        $this->authorize('create', Ingreso::class);
+
+        $cuarentenas = $this->ingresoService->cuarentenasDisponibles();
+
+        return response()->json([
+            'data' => CuarentenaResource::collection($cuarentenas)->resolve(),
+        ]);
     }
 
     public function pendientes(Cuarentena $cuarentena): JsonResponse
