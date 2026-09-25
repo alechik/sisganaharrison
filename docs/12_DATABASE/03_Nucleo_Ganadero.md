@@ -75,7 +75,7 @@ Las crías nacidas muertas **no** generan registro aquí; se documentan únicame
 | edad_inicial | INTEGER | NULL, meses |
 | edad_actual | INTEGER | NULL, meses |
 | precio_kilo | DECIMAL(12,2) | NULL; referencia de ingreso (`precio_compra` / `peso_ingreso`) |
-| activo | BOOLEAN | DEFAULT TRUE |
+| estado | VARCHAR(30) | ACTIVO, INGRESO POR COMPRA, RESERVADO, ENFERMO, MUERTO, VENDIDO, DESTETADO, OTRO |
 | created_at | TIMESTAMP | |
 | updated_at | TIMESTAMP | |
 | deleted_at | TIMESTAMP | SoftDeletes |
@@ -138,7 +138,7 @@ estado_productivo_id
 
 lote_id
 
-activo
+estado
 
 ## Reglas
 
@@ -149,11 +149,12 @@ activo
 - Madre y padre son opcionales.
 - Si proviene de un parto registrado, debe vincularse mediante `nacimientos.animal_id`.
 - La fecha de nacimiento coincide con `partos.fecha_parto` del nacimiento asociado.
-- Un animal con `activo = false` no forma parte de las existencias vigentes (RF-15).
-- Mortalidad y bajas del rodeo se registran mediante `movimientos_animales` y desactivación del animal (RF-13).
+- Un animal con `estado != ACTIVO` no forma parte de las existencias operativas para venta (RF-15).
+- Mortalidad y bajas del rodeo se registran mediante `movimientos_animales` y cambio de `estado` (RF-13).
 - El arete puede originarse en `nacimientos.arete` cuando la cría proviene de un parto.
 - `edad_inicial` y `edad_actual` se expresan siempre en meses.
 - `precio_kilo` es opcional: se calcula y persiste al confirmar un Ingreso sobre el mismo `animal_id`; crías u otros orígenes pueden dejarlo nulo.
+- Al registrar una venta pendiente el animal `ACTIVO` pasa a `RESERVADO`. No se marca `VENDIDO` hasta la salida definitiva.
 
 ## Trazabilidad derivada por animal
 
@@ -463,7 +464,7 @@ El inventario **no** requiere tabla propia. Se calcula a partir de `animales`, `
 
 Animales con:
 
-- `activo = true`
+- `estado = ACTIVO`
 - `deleted_at IS NULL`
 
 ## Ingresos al inventario
@@ -492,6 +493,43 @@ Animales con:
 - Se registra en `nacimientos` con `estado_nacimiento = MUERTO`.
 - No genera animal ni modifica existencias vigentes.
 - Cuenta para indicadores de natalidad y mortalidad perinatal.
+
+---
+
+# ventas
+
+Venta de animales (`PENDIENTE` | `AUTORIZADA` | `ANULADA`). El trabajador registra; gerencia autoriza o anula. Al crear, los animales `ACTIVO` pasan a `RESERVADO`. No se marca `VENDIDO` en la autorización (queda para Salidas).
+
+## Campos
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| cliente_id | BIGINT | FK personas |
+| user_id | BIGINT | FK users |
+| cod_venta | VARCHAR(20) | UNIQUE |
+| fecha_venta | DATE | NOT NULL |
+| estado | VARCHAR(50) | PENDIENTE, AUTORIZADA, ANULADA |
+| descuento | DECIMAL(8,2) | DEFAULT 0 |
+| total_peso | DECIMAL(8,2) | NULL |
+| monto_total | DECIMAL(8,2) | NULL |
+| autorizado_por | BIGINT | FK users, NULL |
+| fecha_decision | TIMESTAMP | NULL |
+| observacion_estado | VARCHAR(255) | NULL |
+
+# detalle_ventas
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| venta_id | BIGINT | FK |
+| animal_id | BIGINT | FK, unique por venta |
+| cantidad | INTEGER | DEFAULT 1 |
+| peso | DECIMAL(8,2) | |
+| lote_id | BIGINT | FK NULL |
+| precio | DECIMAL(8,2) | |
+| descuento | DECIMAL(8,2) | DEFAULT 0 |
+| subtotal | DECIMAL(8,2) | |
 
 ---
 

@@ -19,6 +19,10 @@ class AnimalEvento extends Model
 {
     public const TIPO_INGRESO = 'INGRESO';
 
+    public const TIPO_RESERVA_VENTA = 'RESERVA_VENTA';
+
+    public const TIPO_LIBERACION_VENTA = 'LIBERACION_VENTA';
+
     protected $table = 'animal_eventos';
 
     protected $fillable = [

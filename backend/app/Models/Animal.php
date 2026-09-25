@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $edad_inicial
  * @property int|null $edad_actual
  * @property string|null $precio_kilo
- * @property bool $activo
+ * @property string $estado
  */
 class Animal extends Model
 {
@@ -58,14 +58,44 @@ class Animal extends Model
         'edad_inicial',
         'edad_actual',
         'precio_kilo',
-        'activo',
+        'estado',
+    ];
+
+    public const ESTADO_ACTIVO = 'ACTIVO';
+
+    public const ESTADO_INGRESO_POR_COMPRA = 'INGRESO POR COMPRA';
+
+    public const ESTADO_RESERVADO = 'RESERVADO';
+
+    public const ESTADO_ENFERMO = 'ENFERMO';
+
+    public const ESTADO_MUERTO = 'MUERTO';
+
+    public const ESTADO_VENDIDO = 'VENDIDO';
+
+    public const ESTADO_DESTETADO = 'DESTETADO';
+
+    public const ESTADO_OTRO = 'OTRO';
+
+    public const ESTADOS = [
+        self::ESTADO_ACTIVO,
+        self::ESTADO_INGRESO_POR_COMPRA,
+        self::ESTADO_RESERVADO,
+        self::ESTADO_ENFERMO,
+        self::ESTADO_MUERTO,
+        self::ESTADO_VENDIDO,
+        self::ESTADO_DESTETADO,
+        self::ESTADO_OTRO,
+    ];
+
+    public const ESTADOS_DISPONIBLES_VENTA = [
+        self::ESTADO_ACTIVO,
     ];
 
     protected function casts(): array
     {
         return [
             'fecha_nacimiento' => 'date',
-            'activo' => 'boolean',
             'edad_inicial' => 'integer',
             'edad_actual' => 'integer',
             'precio_kilo' => 'decimal:2',
@@ -178,7 +208,31 @@ class Animal extends Model
      */
     public function scopeActivos(Builder $query): Builder
     {
-        return $query->where('activo', true);
+        return $query->where('estado', self::ESTADO_ACTIVO);
+    }
+
+    /**
+     * @param  Builder<Animal>  $query
+     * @return Builder<Animal>
+     */
+    public function scopeDisponiblesParaVenta(Builder $query): Builder
+    {
+        return $query->whereIn('estado', self::ESTADOS_DISPONIBLES_VENTA);
+    }
+
+    public function estaActivo(): bool
+    {
+        return $this->estado === self::ESTADO_ACTIVO;
+    }
+
+    public function estaDisponibleParaVenta(): bool
+    {
+        return in_array($this->estado, self::ESTADOS_DISPONIBLES_VENTA, true);
+    }
+
+    public function getActivoAttribute(): bool
+    {
+        return $this->estaActivo();
     }
 
     /**

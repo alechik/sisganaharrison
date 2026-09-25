@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Compras;
 
+use App\Models\Animal;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -107,12 +108,12 @@ class StoreIngresoRequest extends FormRequest
             'detalles.*.animal.madre_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('animales', 'id')->whereNull('deleted_at')->where('activo', true),
+                Rule::exists('animales', 'id')->whereNull('deleted_at')->where('estado', Animal::ESTADO_ACTIVO),
             ],
             'detalles.*.animal.padre_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('animales', 'id')->whereNull('deleted_at')->where('activo', true),
+                Rule::exists('animales', 'id')->whereNull('deleted_at')->where('estado', Animal::ESTADO_ACTIVO),
             ],
             'detalles.*.animal.color' => 'nullable|string|max:60',
             'detalles.*.animal.observaciones' => 'nullable|string|max:2000',

@@ -16,7 +16,7 @@ import {
   IngresoPendienteLinea,
   IngresoPendientes,
 } from "../types";
-import { formatEdad, formatMoney, formatPeso, formatSexo } from "../utils";
+import { formatMoney, formatPeso, formatSexo } from "../utils";
 
 interface LineState {
   selected: boolean;

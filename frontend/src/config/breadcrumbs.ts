@@ -605,4 +605,27 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  ventas: [
+    { title: "Ventas y Salidas" },
+    { title: "Ventas" },
+  ],
+
+  ventaCrear: [
+    { title: "Ventas y Salidas" },
+    { title: "Ventas", path: "/ventas" },
+    { title: "Nueva Venta" },
+  ],
+
+  ventaEditar: [
+    { title: "Ventas y Salidas" },
+    { title: "Ventas", path: "/ventas" },
+    { title: "Editar Venta" },
+  ],
+
+  ventaDetalle: [
+    { title: "Ventas y Salidas" },
+    { title: "Ventas", path: "/ventas" },
+    { title: "Detalle" },
+  ],
+
 };

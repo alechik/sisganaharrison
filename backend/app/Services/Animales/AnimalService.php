@@ -22,7 +22,8 @@ class AnimalService
         'raza:id,nombre',
         'categoria:id,codigo,nombre',
         'estadoProductivo:id,nombre',
-        'lote:id,nombre',
+        'lote:id,nombre,codigo,potrero_id',
+        'lote.potrero:id,nombre',
         'madre:id,nombre,codigo',
         'padre:id,nombre,codigo',
     ];
@@ -104,7 +105,7 @@ class AnimalService
             'codigo' => $this->buildSiguienteCodigo($categoriaId, lock: true),
             'sexo' => $sexo,
             'categoria_id' => $categoriaId,
-            'activo' => true,
+            'estado' => Animal::ESTADO_ACTIVO,
             'user_id' => $extra['user_id'] ?? Auth::id(),
             'edad_inicial' => $edad,
             'edad_actual' => $edad,
@@ -196,7 +197,7 @@ class AnimalService
             'user_id' => $contexto['user_id'] ?? Auth::id(),
             'edad_inicial' => 0,
             'edad_actual' => 0,
-            'activo' => true,
+            'estado' => Animal::ESTADO_ACTIVO,
         ]);
     }
 
@@ -395,7 +396,7 @@ class AnimalService
 
     public function delete(Animal $animal): void
     {
-        $animal->activo = false;
+        $animal->estado = Animal::ESTADO_OTRO;
         $animal->save();
         $animal->delete();
     }
@@ -410,7 +411,15 @@ class AnimalService
 
     public function toggleStatus(Animal $animal): Animal
     {
-        $animal->activo = ! $animal->activo;
+        if (! in_array($animal->estado, [Animal::ESTADO_ACTIVO, Animal::ESTADO_OTRO], true)) {
+            throw ValidationException::withMessages([
+                'estado' => 'Solo se puede activar o desactivar un animal en estado ACTIVO u OTRO.',
+            ]);
+        }
+
+        $animal->estado = $animal->estado === Animal::ESTADO_ACTIVO
+            ? Animal::ESTADO_OTRO
+            : Animal::ESTADO_ACTIVO;
         $animal->save();
 
         return $animal->fresh(self::RELATIONS);
@@ -462,7 +471,16 @@ class AnimalService
         }
 
         if (array_key_exists('activo', $filters) && $filters['activo'] !== null && $filters['activo'] !== '') {
-            $query->where('activo', filter_var($filters['activo'], FILTER_VALIDATE_BOOLEAN));
+            $activo = filter_var($filters['activo'], FILTER_VALIDATE_BOOLEAN);
+            if ($activo) {
+                $query->where('estado', Animal::ESTADO_ACTIVO);
+            } else {
+                $query->where('estado', '!=', Animal::ESTADO_ACTIVO);
+            }
+        }
+
+        if (! empty($filters['estado'])) {
+            $query->where('estado', (string) $filters['estado']);
         }
 
         if (! empty($filters['con_arete'])) {

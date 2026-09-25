@@ -25,7 +25,7 @@ class StoreServicioReproductivoRequest extends FormRequest
                 'required',
                 'integer',
                 Rule::exists('animales', 'id')->where(function ($query) {
-                    $query->where('activo', true)
+                    $query->where('estado', Animal::ESTADO_ACTIVO)
                         ->where('sexo', 'H')
                         ->whereNull('deleted_at');
                     Animal::aplicarFiltroAreteValido($query);
@@ -35,7 +35,7 @@ class StoreServicioReproductivoRequest extends FormRequest
                 'nullable',
                 'integer',
                 Rule::exists('animales', 'id')->where(function ($query) {
-                    $query->where('activo', true)
+                    $query->where('estado', Animal::ESTADO_ACTIVO)
                         ->where('sexo', 'M')
                         ->whereNull('deleted_at');
                     Animal::aplicarFiltroAreteValido($query);

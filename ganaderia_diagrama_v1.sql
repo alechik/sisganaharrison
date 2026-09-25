@@ -257,7 +257,7 @@ CREATE TABLE `animals` (
   `sexo`                 ENUM('M','H') NOT NULL,
   `fecha_nacimiento`     DATE NULL,
   `color`                VARCHAR(60) NULL,
-  `activo`               BOOLEAN NOT NULL DEFAULT TRUE,
+  --`activo`               BOOLEAN NOT NULL DEFAULT TRUE,
   `raza_id`              BIGINT UNSIGNED NOT NULL,
   `categoria_id`         BIGINT UNSIGNED NOT NULL,
   `estado_productivo_id` BIGINT UNSIGNED NULL,
@@ -268,6 +268,7 @@ CREATE TABLE `animals` (
   `edad_ingreso`         INT NULL,
   `edad_actual`          INT NOT NULL,
   `precio_kilo`          DECIMAL(8,2) NOT NULL,
+  `estado`                VARCHAR(30) NOT NULL, -- ACTIVO,INGRESO POR COMPRA,RESERVADO, ENFERMO, MUERTO, VENDIDO, DESTETADO, OTRO
   PRIMARY KEY (`id`),
   UNIQUE KEY `animals_codigo_unique` (`codigo`),
   UNIQUE KEY `animals_arete_unique` (`arete`),

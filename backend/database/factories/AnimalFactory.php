@@ -40,14 +40,14 @@ class AnimalFactory extends Factory
             'edad_inicial' => null,
             'edad_actual' => null,
             'precio_kilo' => null,
-            'activo' => true,
+            'estado' => Animal::ESTADO_ACTIVO,
         ];
     }
 
     public function inactive(): static
     {
         return $this->state(fn (array $attributes) => [
-            'activo' => false,
+            'estado' => Animal::ESTADO_OTRO,
         ]);
     }
 

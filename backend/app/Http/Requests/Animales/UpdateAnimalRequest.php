@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Animales;
 
+use App\Models\Animal;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
@@ -92,7 +93,7 @@ class UpdateAnimalRequest extends FormRequest
                 'not_in:'.$animalId,
                 Rule::exists('animales', 'id')
                     ->whereNull('deleted_at')
-                    ->where('activo', true),
+                    ->where('estado', Animal::ESTADO_ACTIVO),
             ],
             'padre_id' => [
                 'nullable',
@@ -100,7 +101,7 @@ class UpdateAnimalRequest extends FormRequest
                 'not_in:'.$animalId,
                 Rule::exists('animales', 'id')
                     ->whereNull('deleted_at')
-                    ->where('activo', true),
+                    ->where('estado', Animal::ESTADO_ACTIVO),
             ],
             'color' => 'nullable|string|max:60',
             'observaciones' => 'nullable|string|max:2000',

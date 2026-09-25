@@ -113,7 +113,7 @@ class EventoSanitarioService
     {
         $animal = Animal::query()
             ->where('id', $animalId)
-            ->where('activo', true)
+            ->where('estado', Animal::ESTADO_ACTIVO)
             ->whereNull('deleted_at')
             ->first();
 

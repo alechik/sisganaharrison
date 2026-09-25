@@ -24,6 +24,7 @@ export interface Animal {
   edad_inicial?: number | null;
   edad_actual?: number | null;
   precio_kilo?: number | null;
+  estado?: string | null;
   activo: boolean;
   created_at?: string | null;
   updated_at?: string | null;

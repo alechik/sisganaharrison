@@ -8,7 +8,21 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
-_Pendiente: módulos transaccionales (Movimientos)._
+_Pendiente: módulos transaccionales (Movimientos, Salidas)._
+
+---
+
+## [2026-09-24] — Módulo Ventas y estado operativo del animal
+
+### Added
+
+**Ventas:** alta en `PENDIENTE`, reserva `ACTIVO → RESERVADO`, edición solo pendiente, autorización/anulación por gerencia sin marcar `VENDIDO`. Select de animales por potrero/lote/categoría. PDF con el patrón de Ingresos.
+
+### Changed
+
+**Animales:** `activo` boolean se reemplaza por `estado` (`ACTIVO`, `RESERVADO`, `VENDIDO`, etc.). Los filtros existentes de “activo” equivalen a `estado = ACTIVO`.
+
+**Documentación:** Actualizados `06`, `08`, `12_DATABASE/03_Nucleo_Ganadero.md`
 
 ---
 

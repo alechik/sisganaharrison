@@ -46,6 +46,8 @@ use App\Policies\NacimientoPolicy;
 use App\Policies\OrdenCompraPolicy;
 use App\Policies\CuarentenaPolicy;
 use App\Policies\IngresoPolicy;
+use App\Models\Venta;
+use App\Policies\VentaPolicy;
 use App\Policies\PersonaPolicy;
 use App\Policies\TipoPersonaPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -90,6 +92,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(OrdenCompra::class, OrdenCompraPolicy::class);
         Gate::policy(Cuarentena::class, CuarentenaPolicy::class);
         Gate::policy(Ingreso::class, IngresoPolicy::class);
+        Gate::policy(Venta::class, VentaPolicy::class);
 
         Route::bind('categoria', fn (string $value) => CategoriaAnimal::query()->findOrFail($value));
         Route::bind('vacuna', fn (string $value) => Vacuna::query()->findOrFail($value));
@@ -112,6 +115,7 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('orden_compra', fn (string $value) => OrdenCompra::query()->findOrFail($value));
         Route::bind('cuarentena', fn (string $value) => Cuarentena::query()->findOrFail($value));
         Route::bind('ingreso', fn (string $value) => Ingreso::query()->findOrFail($value));
+        Route::bind('venta', fn (string $value) => Venta::query()->findOrFail($value));
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;

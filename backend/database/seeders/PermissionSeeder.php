@@ -43,6 +43,12 @@ class PermissionSeeder extends Seeder
         'compras.update',
         'compras.authorize',
 
+        // Ventas
+        'ventas.view',
+        'ventas.create',
+        'ventas.update',
+        'ventas.authorize',
+
         // Razas
         'razas.view',
         'razas.create',

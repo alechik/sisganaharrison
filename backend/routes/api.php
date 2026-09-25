@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\SociosDeNegocio\TipoPersonaController;
 use App\Http\Controllers\Api\Compras\OrdenCompraController;
 use App\Http\Controllers\Api\Compras\CuarentenaController;
 use App\Http\Controllers\Api\Compras\IngresoController;
+use App\Http\Controllers\Api\Ventas\VentaController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -743,4 +744,31 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('compras/ingresos/{ingreso}', [IngresoController::class, 'show'])
         ->middleware('permission:compras.view');
+
+    Route::get('ventas/animales-disponibles', [VentaController::class, 'animalesDisponibles'])
+        ->middleware('permission:ventas.create|ventas.update');
+
+    Route::get('ventas/{venta}/pdf', [VentaController::class, 'pdf'])
+        ->middleware('permission:ventas.view');
+
+    Route::post('ventas/{venta}/autorizar', [VentaController::class, 'autorizar'])
+        ->middleware('permission:ventas.authorize');
+
+    Route::post('ventas/{venta}/anular', [VentaController::class, 'anular'])
+        ->middleware('permission:ventas.authorize');
+
+    Route::get('ventas', [VentaController::class, 'index'])
+        ->middleware('permission:ventas.view');
+
+    Route::post('ventas', [VentaController::class, 'store'])
+        ->middleware('permission:ventas.create');
+
+    Route::get('ventas/{venta}', [VentaController::class, 'show'])
+        ->middleware('permission:ventas.view');
+
+    Route::put('ventas/{venta}', [VentaController::class, 'update'])
+        ->middleware('permission:ventas.update');
+
+    Route::patch('ventas/{venta}', [VentaController::class, 'update'])
+        ->middleware('permission:ventas.update');
 });

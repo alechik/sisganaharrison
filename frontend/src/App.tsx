@@ -34,6 +34,7 @@ import { establecimientoRoutes } from "./modules/establecimientos/routes";
 import { potreroRoutes } from "./modules/potreros/routes";
 import { loteRoutes } from "./modules/lotes/routes";
 import { animalRoutes } from "./modules/animales/routes";
+import { ventasRoutes } from "./modules/ventas/routes";
 import { pesajeRoutes } from "./modules/pesajes/routes";
 import { eventoSanitarioRoutes } from "./modules/eventos-sanitarios/routes";
 import { servicioReproductivoRoutes } from "./modules/servicios-reproductivos/routes";
@@ -84,6 +85,7 @@ export default function App() {
             {nacimientoRoutes}
             {sociosDeNegocioRoutes}
             {comprasRoutes}
+            {ventasRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

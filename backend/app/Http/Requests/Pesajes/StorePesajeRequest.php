@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Pesajes;
 
+use App\Models\Animal;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,7 +24,7 @@ class StorePesajeRequest extends FormRequest
                 'required',
                 'integer',
                 Rule::exists('animales', 'id')
-                    ->where('activo', true)
+                    ->where('estado', Animal::ESTADO_ACTIVO)
                     ->whereNull('deleted_at'),
             ],
             'fecha' => 'required|date',

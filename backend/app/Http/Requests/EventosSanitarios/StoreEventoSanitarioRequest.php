@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\EventosSanitarios;
 
+use App\Models\Animal;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,7 +24,7 @@ class StoreEventoSanitarioRequest extends FormRequest
                 'required',
                 'integer',
                 Rule::exists('animales', 'id')
-                    ->where('activo', true)
+                    ->where('estado', Animal::ESTADO_ACTIVO)
                     ->whereNull('deleted_at'),
             ],
             'tipo_evento_id' => [

@@ -19,7 +19,7 @@
 | Establecimientos | ✅ | `/api/establecimientos` | `establecimientos.*` | `modules/establecimientos/` |
 | Potreros | ✅ | `/api/potreros` | `potreros.*` | `modules/potreros/` |
 | Lotes | ✅ | `/api/lotes` | `lotes.*` | `modules/lotes/` |
-| Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` (código, sexo, categoría; `user_id`, `edad_inicial`/`edad_actual` en meses, `precio_kilo` nullable) |
+| Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` (`estado` operativo; `activo` derivado de `ACTIVO`) |
 | Pesajes | ✅ | `/api/pesajes` | `pesajes.view`, `pesajes.create` | `modules/pesajes/` (append only; pesaje de nacimiento vía observaciones) |
 | Eventos Sanitarios | ✅ | `/api/eventos-sanitarios` | `sanitario.view`, `sanitario.create` | `modules/eventos-sanitarios/` (append only) |
 | Servicios Reproductivos | ✅ | `/api/servicios-reproductivos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/servicios-reproductivos/` (hembra/macho con arete) |
@@ -29,6 +29,7 @@
 | Compras / Órdenes de Compra | ✅ | `/api/compras/ordenes-compra` | `compras.view`, `compras.create`, `compras.update`, `compras.authorize` | `modules/compras/` (animal preliminar + edad inicial) |
 | Compras / Cuarentenas | ✅ | `/api/compras/cuarentenas` | `compras.view`, `compras.create` | `modules/compras/` (COMPLETADO registra pesaje de cuarentena) |
 | Compras / Ingresos | ✅ | `/api/compras/ingresos` | `compras.view`, `compras.create` | `modules/compras/` (parciales; select solo COMPLETADO con animales pendientes; `precio_kilo` al confirmar) |
+| Ventas | ✅ | `/api/ventas` | `ventas.view`, `ventas.create`, `ventas.update`, `ventas.authorize` | `modules/ventas/` (PENDIENTE→reserva; gerencia autoriza/anula; PDF) |
 | Movimientos | ❌ | — | permisos seed | — |
 | Reportes | ❌ | — | permisos seed | — |
 | Auditoría | ❌ | — | permisos seed | — |
