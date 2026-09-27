@@ -1,4 +1,5 @@
 import api from "@/api/axios";
+import { AnimalDisponibleVenta } from "@/modules/ventas/types";
 import { PaginatedResponse } from "@/types/api";
 import { Pesaje, PesajeCreateRequest, PesajeListParams } from "../types";
 
@@ -41,4 +42,12 @@ export const getPesaje = async (id: number): Promise<Pesaje> => {
 export const createPesaje = async (data: PesajeCreateRequest) => {
   const response = await api.post<{ message: string; data: Pesaje }>("/pesajes", data);
   return response.data;
+};
+
+export const buscarAnimalesPesaje = async (search: string) => {
+  const response = await api.get<{ data: AnimalDisponibleVenta[] }>(
+    "/pesajes/animales-disponibles",
+    { params: { search } }
+  );
+  return response.data.data;
 };

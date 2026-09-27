@@ -3,6 +3,13 @@ import { Link, useParams } from "react-router-dom";
 
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import { PESAJE_ROUTES } from "../constants";
 import { getPesaje } from "../services";
@@ -51,7 +58,7 @@ export default function PesajeDetailPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <PageBreadCrumb
-          pageTitle={`Pesaje #${pesaje.id}`}
+          pageTitle={pesaje.codigo_pesaje}
           items={breadcrumbs.pesajeDetalle}
         />
         <div className="flex gap-3">
@@ -64,61 +71,60 @@ export default function PesajeDetailPage() {
         </div>
       </div>
 
-      <ComponentCard title="Detalle de Pesaje">
+      <ComponentCard title="Cabecera de pesaje">
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Animal (código)</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {pesaje.animal_codigo || "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Animal (arete)</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {pesaje.animal_arete || "Sin arete"}
-            </dd>
-          </div>
-          <div className="md:col-span-2">
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Identificación</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {formatAnimalLabel(pesaje.animal_codigo, pesaje.animal_arete)}
-            </dd>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Código</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{pesaje.codigo_pesaje}</dd>
           </div>
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {pesaje.fecha
-                ? new Date(`${pesaje.fecha}T00:00:00`).toLocaleDateString("es-PY")
+              {pesaje.fecha_pesaje
+                ? new Date(`${pesaje.fecha_pesaje}T00:00:00`).toLocaleDateString("es-PY")
                 : "—"}
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Peso</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {formatPeso(pesaje.peso)}
-            </dd>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Total peso</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{formatPeso(pesaje.total_peso)}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Origen</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {pesaje.es_nacimiento ? "Pesaje de nacimiento" : "Pesaje de control"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha de registro</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {pesaje.created_at
-                ? new Date(pesaje.created_at).toLocaleString("es-PY")
-                : "—"}
-            </dd>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Usuario</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{pesaje.usuario_nombre || "—"}</dd>
           </div>
           <div className="md:col-span-2">
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Observaciones</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Observación</dt>
             <dd className="mt-1 text-gray-700 dark:text-gray-300">
-              {pesaje.observaciones || "Sin observaciones"}
+              {pesaje.observacion || "Sin observación"}
             </dd>
           </div>
         </dl>
+      </ComponentCard>
+
+      <ComponentCard title="Animales">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Animal</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Lote</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Potrero</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Peso</TableCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {(pesaje.detalles ?? []).map((detalle) => (
+              <TableRow key={detalle.id ?? detalle.animal_id}>
+                <TableCell className="px-4 py-3">
+                  {formatAnimalLabel(detalle.animal_codigo, detalle.animal_arete)}
+                </TableCell>
+                <TableCell className="px-4 py-3 text-gray-500">{detalle.lote_nombre || "—"}</TableCell>
+                <TableCell className="px-4 py-3 text-gray-500">{detalle.potrero_nombre || "—"}</TableCell>
+                <TableCell className="px-4 py-3">{formatPeso(detalle.peso)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </ComponentCard>
     </div>
   );

@@ -1,5 +1,5 @@
 -- =====================================================================
--- SCRIPT SQL - SISTEMA DE GESTIÓN GANADERA
+-- SCRIPT SQL - SISTEMA DE GESTIÓN GANADERA (v4)
 -- Generado a partir del diagrama entidad-relación proporcionado
 -- Motor: MySQL 8.x / MariaDB 10.x (InnoDB, utf8mb4)
 -- =====================================================================
@@ -116,16 +116,30 @@ CREATE TABLE `estados_productivos` (
   UNIQUE KEY `estados_productivos_codigo_unique` (`codigo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `vacunas`;
-CREATE TABLE `vacunas` (
-  `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `codigo`       VARCHAR(20) NOT NULL,
-  `nombre`       VARCHAR(100) NOT NULL,
-  `laboratorio`  VARCHAR(120) NULL,
-  `descripcion`  TEXT NOT NULL,
-  `activo`       BOOLEAN NOT NULL DEFAULT TRUE,
+-- NUEVO (v3): catálogo de presentaciones (forma farmacéutica del medicamento)
+DROP TABLE IF EXISTS `presentacion`;
+CREATE TABLE `presentacion` (
+  `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- NUEVO (v3): reemplaza a la tabla "vacunas" de versiones anteriores,
+-- generalizándola a cualquier medicamento (incluye vacunas)
+DROP TABLE IF EXISTS `medicamentos`;
+CREATE TABLE `medicamentos` (
+  `id`               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `presentacion_id`  BIGINT UNSIGNED NOT NULL,
+  `codigo`           VARCHAR(20) NOT NULL,
+  `nombre`           VARCHAR(100) NOT NULL,
+  `laboratorio`      VARCHAR(120) NULL,
+  `precio`           DECIMAL(8,2) NOT NULL,
+  `descripcion`      TEXT NOT NULL,
+  `activo`           BOOLEAN NOT NULL DEFAULT TRUE,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `vacunas_codigo_unique` (`codigo`)
+  UNIQUE KEY `medicamentos_codigo_unique` (`codigo`),
+  KEY `medicamentos_presentacion_idx` (`presentacion_id`),
+  CONSTRAINT `medicamentos_presentacion_fk` FOREIGN KEY (`presentacion_id`) REFERENCES `presentacion` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `tipos_eventos_sanitarios`;
@@ -257,7 +271,6 @@ CREATE TABLE `animals` (
   `sexo`                 ENUM('M','H') NOT NULL,
   `fecha_nacimiento`     DATE NULL,
   `color`                VARCHAR(60) NULL,
-  --`activo`               BOOLEAN NOT NULL DEFAULT TRUE,
   `raza_id`              BIGINT UNSIGNED NOT NULL,
   `categoria_id`         BIGINT UNSIGNED NOT NULL,
   `estado_productivo_id` BIGINT UNSIGNED NULL,
@@ -268,7 +281,7 @@ CREATE TABLE `animals` (
   `edad_ingreso`         INT NULL,
   `edad_actual`          INT NOT NULL,
   `precio_kilo`          DECIMAL(8,2) NOT NULL,
-  `estado`                VARCHAR(30) NOT NULL, -- ACTIVO,INGRESO POR COMPRA,RESERVADO, ENFERMO, MUERTO, VENDIDO, DESTETADO, OTRO
+  `estado`               VARCHAR(20) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `animals_codigo_unique` (`codigo`),
   UNIQUE KEY `animals_arete_unique` (`arete`),
@@ -288,16 +301,38 @@ CREATE TABLE `animals` (
   CONSTRAINT `animals_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- =====================================================================
+-- PESAJES (v3: cabecera de sesión de pesaje + detalle por animal)
+-- =====================================================================
+
 DROP TABLE IF EXISTS `pesajes`;
 CREATE TABLE `pesajes` (
-  `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `animal_id`   BIGINT UNSIGNED NOT NULL,
-  `fecha`       DATE NOT NULL,
-  `peso`        DECIMAL(8,2) NOT NULL,
-  `observacion` TEXT NULL,
+  `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `codigo_pesaje`  VARCHAR(10) NOT NULL,
+  `fecha_pesaje`   DATE NOT NULL,
+  `total_peso`     DECIMAL(8,2) NOT NULL,
+  `observacion`    TEXT NULL,
+  `user_id`        BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `pesajes_animal_idx` (`animal_id`),
-  CONSTRAINT `pesajes_animal_fk` FOREIGN KEY (`animal_id`) REFERENCES `animals` (`id`) ON DELETE CASCADE
+  UNIQUE KEY `pesajes_codigo_unique` (`codigo_pesaje`),
+  KEY `pesajes_user_idx` (`user_id`),
+  CONSTRAINT `pesajes_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS `detalle_pesaje`;
+CREATE TABLE `detalle_pesaje` (
+  `id`        BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pesaje_id` BIGINT UNSIGNED NOT NULL,
+  `animal_id` BIGINT UNSIGNED NOT NULL,
+  `lote_id`   BIGINT UNSIGNED NOT NULL,
+  `peso`      DECIMAL(8,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `detalle_pesaje_pesaje_idx` (`pesaje_id`),
+  KEY `detalle_pesaje_animal_idx` (`animal_id`),
+  KEY `detalle_pesaje_lote_idx` (`lote_id`),
+  CONSTRAINT `detalle_pesaje_pesaje_fk` FOREIGN KEY (`pesaje_id`) REFERENCES `pesajes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `detalle_pesaje_animal_fk` FOREIGN KEY (`animal_id`) REFERENCES `animals` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `detalle_pesaje_lote_fk` FOREIGN KEY (`lote_id`) REFERENCES `lotes` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `animal_eventos`;
@@ -314,26 +349,44 @@ CREATE TABLE `animal_eventos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- =====================================================================
--- SANIDAD
+-- SANIDAD (v3: cabecera de evento sanitario + detalle por animal)
 -- =====================================================================
 
 DROP TABLE IF EXISTS `eventos_sanitarios`;
 CREATE TABLE `eventos_sanitarios` (
   `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `animal_id`      BIGINT UNSIGNED NOT NULL,
   `tipo_evento_id` BIGINT UNSIGNED NOT NULL,
-  `vacuna_id`      BIGINT UNSIGNED NULL,
+  `user_id`        BIGINT UNSIGNED NOT NULL,
   `fecha`          DATE NOT NULL,
   `diagnostico`    TEXT NULL,
   `tratamiento`    TEXT NULL,
+  `total`          DECIMAL(10,2) NOT NULL,
   `observaciones`  TEXT NULL,
   PRIMARY KEY (`id`),
-  KEY `eventos_sanitarios_animal_idx` (`animal_id`),
   KEY `eventos_sanitarios_tipo_idx` (`tipo_evento_id`),
-  KEY `eventos_sanitarios_vacuna_idx` (`vacuna_id`),
-  CONSTRAINT `eventos_sanitarios_animal_fk` FOREIGN KEY (`animal_id`) REFERENCES `animals` (`id`) ON DELETE CASCADE,
+  KEY `eventos_sanitarios_user_idx` (`user_id`),
   CONSTRAINT `eventos_sanitarios_tipo_fk` FOREIGN KEY (`tipo_evento_id`) REFERENCES `tipos_eventos_sanitarios` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `eventos_sanitarios_vacuna_fk` FOREIGN KEY (`vacuna_id`) REFERENCES `vacunas` (`id`) ON DELETE SET NULL
+  CONSTRAINT `eventos_sanitarios_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS `detalle_evento`;
+CREATE TABLE `detalle_evento` (
+  `id`                   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `evento_sanitario_id`  BIGINT UNSIGNED NOT NULL,
+  `animal_id`            BIGINT UNSIGNED NOT NULL,
+  `lote_id`              BIGINT UNSIGNED NOT NULL,
+  `medicamento_id`       BIGINT UNSIGNED NOT NULL,
+  `peso_animal`          DECIMAL(8,2) NOT NULL,
+  `precio_medicamento`   DECIMAL(8,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `detalle_evento_evento_idx` (`evento_sanitario_id`),
+  KEY `detalle_evento_animal_idx` (`animal_id`),
+  KEY `detalle_evento_lote_idx` (`lote_id`),
+  KEY `detalle_evento_medicamento_idx` (`medicamento_id`),
+  CONSTRAINT `detalle_evento_evento_fk` FOREIGN KEY (`evento_sanitario_id`) REFERENCES `eventos_sanitarios` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `detalle_evento_animal_fk` FOREIGN KEY (`animal_id`) REFERENCES `animals` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `detalle_evento_lote_fk` FOREIGN KEY (`lote_id`) REFERENCES `lotes` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `detalle_evento_medicamento_fk` FOREIGN KEY (`medicamento_id`) REFERENCES `medicamentos` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- =====================================================================
@@ -424,7 +477,6 @@ CREATE TABLE `orden_compras` (
   CONSTRAINT `orden_compras_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `detalle_orden_compra`;
 CREATE TABLE `detalle_orden_compra` (
   `id`                  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `orden_compra_id`     BIGINT UNSIGNED NOT NULL,
@@ -614,6 +666,46 @@ CREATE TABLE `detalle_salida` (
   CONSTRAINT `detalle_salida_animal_fk` FOREIGN KEY (`animal_id`) REFERENCES `animals` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `detalle_salida_salida_fk` FOREIGN KEY (`salida_id`) REFERENCES `salida` (`id`) ON DELETE CASCADE,
   CONSTRAINT `detalle_salida_lote_fk` FOREIGN KEY (`lote_id`) REFERENCES `lotes` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =====================================================================
+-- TRASPASOS (v3: movimiento de animales entre lotes)
+-- =====================================================================
+
+DROP TABLE IF EXISTS `traspaso`;
+CREATE TABLE `traspaso` (
+  `id`               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id`          BIGINT UNSIGNED NOT NULL,
+  `lote_salida_id`   BIGINT UNSIGNED NOT NULL,
+  `lote_ingreso_id`  BIGINT UNSIGNED NOT NULL,
+  `fecha_traspaso`   DATE NOT NULL,
+  `observacion`      TEXT NULL,
+  `total_peso`       DECIMAL(8,2) NOT NULL,
+  `monto_total`      DECIMAL(8,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `traspaso_user_idx` (`user_id`),
+  KEY `traspaso_lote_salida_idx` (`lote_salida_id`),
+  KEY `traspaso_lote_ingreso_idx` (`lote_ingreso_id`),
+  CONSTRAINT `traspaso_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `traspaso_lote_salida_fk` FOREIGN KEY (`lote_salida_id`) REFERENCES `lotes` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `traspaso_lote_ingreso_fk` FOREIGN KEY (`lote_ingreso_id`) REFERENCES `lotes` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `traspaso_lotes_distintos_chk` CHECK (`lote_salida_id` <> `lote_ingreso_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS `detalle_traspaso`;
+CREATE TABLE `detalle_traspaso` (
+  `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `animal_id`    BIGINT UNSIGNED NOT NULL,
+  `traspaso_id`  BIGINT UNSIGNED NOT NULL,
+  `cantidad`     INT NOT NULL,
+  `peso`         DECIMAL(8,2) NOT NULL,
+  `precio`       DECIMAL(8,2) NOT NULL,
+  `subtotal`     DECIMAL(8,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `detalle_traspaso_animal_idx` (`animal_id`),
+  KEY `detalle_traspaso_traspaso_idx` (`traspaso_id`),
+  CONSTRAINT `detalle_traspaso_animal_fk` FOREIGN KEY (`animal_id`) REFERENCES `animals` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `detalle_traspaso_traspaso_fk` FOREIGN KEY (`traspaso_id`) REFERENCES `traspaso` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -96,7 +96,7 @@ BelongsTo → padre
 
 HasOne → nacimiento
 
-HasMany → pesajes
+HasMany → detalle_pesajes
 
 HasMany → eventos_sanitarios
 
@@ -233,44 +233,51 @@ fecha
 
 # pesajes
 
-## Propósito
-
-Historial de peso del animal.
-
-Permite calcular indicadores productivos (RF-05, RF-18).
+Cabecera de una sesión de pesaje (manual o automática). Código correlativo `PES-{año}-####`.
 
 ## Campos
 
 | Campo | Tipo | Restricciones |
 |--------|------|---------------|
 | id | BIGINT | PK |
-| animal_id | BIGINT | FK |
-| fecha | DATE | NOT NULL |
-| peso | NUMERIC(8,2) | NOT NULL |
-| observaciones | TEXT | NULL |
+| codigo_pesaje | VARCHAR(20) | UNIQUE, NOT NULL |
+| fecha_pesaje | DATE | NOT NULL |
+| total_peso | DECIMAL(8,2) | NOT NULL; suma del detalle |
+| observacion | TEXT | NULL |
+| user_id | BIGINT | FK users |
 | created_at | TIMESTAMP | |
+| updated_at | TIMESTAMP | |
 
 ## Relaciones
 
-BelongsTo → animal
+BelongsTo → usuario
 
-## Claves Foráneas
+HasMany → detalle_pesajes
 
-animal_id → animales
+# detalle_pesajes
 
-## Índices
+Peso de un animal dentro de una sesión. Trazabilidad Pesaje → Detalle → Animal → Lote.
 
-animal_id
+## Campos
 
-fecha
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| pesaje_id | BIGINT | FK |
+| animal_id | BIGINT | FK, unique por pesaje |
+| lote_id | BIGINT | FK NULL |
+| peso | DECIMAL(8,2) | NOT NULL |
+| created_at | TIMESTAMP | |
+| updated_at | TIMESTAMP | |
 
 ## Reglas
 
-- Append Only.
-- Nunca actualizar.
-- Nunca eliminar.
-- El peso al nacer se registra en `nacimientos.peso_nacimiento`.
-- Si la cría nace viva, se registra peso y se crea el animal, el sistema puede generar automáticamente el primer pesaje con la fecha del parto y el valor del nacimiento.
+- Un pesaje tiene de 1 a N animales.
+- No repetir el mismo animal en el mismo pesaje.
+- `total_peso` = suma de `detalle_pesajes.peso`.
+- Un ingreso confirmado genera **un** pesaje con todos sus animales. Observación: `Pesaje generado por Ingreso: {codigo}`.
+- Un nacimiento VIVO con peso genera un pesaje. Observación: `Pesaje generado por Nacimiento - Parto: PAR-{id}`.
+- Un nacimiento MUERTO no genera pesaje.
 
 ---
 

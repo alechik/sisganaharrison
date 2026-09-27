@@ -243,7 +243,7 @@ registrado_por → users.id
 - Todo nacimiento pertenece a un único parto.
 - Un parto puede tener múltiples nacimientos.
 - El `peso_nacimiento` pertenece al nacimiento, no al animal.
-- Si la cría nace viva y se registra peso, el sistema puede generar automáticamente el primer registro en `pesajes` al crear el animal (RF-05).
+- Si la cría nace viva y se registra peso, el sistema genera un pesaje (cabecera + detalle) con observación `Pesaje generado por Nacimiento - Parto: PAR-{id}`.
 - Si `estado_nacimiento = VIVO`:
   - Puede registrarse inicialmente con `animal_id = NULL`.
   - Puede asignarse `arete` antes o después de crear el animal.

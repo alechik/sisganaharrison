@@ -217,13 +217,6 @@ class IngresoService
                     Pesaje::OBSERVACION_CUARENTENA
                 );
 
-                $this->pesajeService->registrarHistorico(
-                    $animal,
-                    (string) $data['fecha_ingreso'],
-                    (float) $payload['peso_ingreso'],
-                    Pesaje::OBSERVACION_INGRESO
-                );
-
                 AnimalEvento::query()->create([
                     'animal_id' => $animal->id,
                     'tipo' => AnimalEvento::TIPO_INGRESO,
@@ -242,6 +235,7 @@ class IngresoService
             }
 
             $this->recalculateTotals($ingreso);
+            $this->pesajeService->registrarDeIngreso($ingreso->load('detalles'));
 
             return $ingreso->fresh(self::RELATIONS);
         });

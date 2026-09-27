@@ -179,7 +179,9 @@ class NacimientoService
             $this->pesajeService->registrarDeNacimiento(
                 $animal,
                 (string) $parto->fecha_parto?->format('Y-m-d'),
-                (float) $data['peso_nacimiento']
+                (float) $data['peso_nacimiento'],
+                'PAR-'.$parto->id,
+                (int) ($data['registrado_por'] ?? Auth::id())
             );
         }
 

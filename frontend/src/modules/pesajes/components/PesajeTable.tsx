@@ -14,7 +14,7 @@ import { EyeIcon } from "@/icons";
 import { PESAJE_ROUTES } from "../constants";
 import { PESAJES_PERMISSIONS } from "../permissions";
 import { Pesaje } from "../types";
-import { formatAnimalLabel, formatPeso } from "../utils";
+import { formatPeso } from "../utils";
 
 interface Props {
   pesajes: Pesaje[];
@@ -30,16 +30,19 @@ export default function PesajeTable({ pesajes, meta, onPageChange }: Props) {
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Animal
+                Código
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Fecha
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Peso
+                Animales
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Observaciones
+                Total peso
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Observación
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-center text-gray-800 dark:text-white">
                 Opciones
@@ -50,7 +53,7 @@ export default function PesajeTable({ pesajes, meta, onPageChange }: Props) {
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {pesajes.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={5}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={6}>
                   No hay pesajes para mostrar.
                 </TableCell>
               </TableRow>
@@ -60,33 +63,33 @@ export default function PesajeTable({ pesajes, meta, onPageChange }: Props) {
                   key={pesaje.id}
                   className="transition hover:bg-gray-50 dark:hover:bg-white/[0.02]"
                 >
-                  <TableCell className="px-5 py-4">
-                    <div>
-                      <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {formatAnimalLabel(pesaje.animal_codigo, pesaje.animal_arete)}
-                      </span>
-                    </div>
+                  <TableCell className="px-5 py-4 font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                    {pesaje.codigo_pesaje}
                   </TableCell>
-
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {pesaje.fecha
-                      ? new Date(`${pesaje.fecha}T00:00:00`).toLocaleDateString("es-PY")
+                    {pesaje.fecha_pesaje
+                      ? new Date(`${pesaje.fecha_pesaje}T00:00:00`).toLocaleDateString("es-PY")
                       : "—"}
                   </TableCell>
-
-                  <TableCell className="px-5 py-4 text-theme-sm font-medium text-gray-700 dark:text-gray-300">
-                    {formatPeso(pesaje.peso)}
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {pesaje.cantidad_animales ?? pesaje.detalles?.length ?? 0}
                   </TableCell>
-
+                  <TableCell className="px-5 py-4 text-theme-sm font-medium text-gray-700 dark:text-gray-300">
+                    {formatPeso(pesaje.total_peso)}
+                  </TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
                     {pesaje.es_nacimiento ? (
                       <span className="mr-2 inline-flex rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
                         Nacimiento
                       </span>
                     ) : null}
-                    {pesaje.observaciones || "Sin observaciones"}
+                    {pesaje.es_ingreso ? (
+                      <span className="mr-2 inline-flex rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+                        Ingreso
+                      </span>
+                    ) : null}
+                    {pesaje.observacion || "Sin observación"}
                   </TableCell>
-
                   <TableCell className="px-5 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <PermissionGate permission={PESAJES_PERMISSIONS.view}>

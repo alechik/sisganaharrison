@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests\Pesajes;
 
-use App\Models\Animal;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StorePesajeRequest extends FormRequest
 {
@@ -20,16 +18,11 @@ class StorePesajeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'animal_id' => [
-                'required',
-                'integer',
-                Rule::exists('animales', 'id')
-                    ->where('estado', Animal::ESTADO_ACTIVO)
-                    ->whereNull('deleted_at'),
-            ],
-            'fecha' => 'required|date',
-            'peso' => 'required|numeric|gt:0|decimal:0,2',
-            'observaciones' => 'nullable|string|max:2000',
+            'fecha_pesaje' => 'required|date|before_or_equal:today',
+            'observacion' => 'nullable|string|max:2000',
+            'detalles' => 'required|array|min:1',
+            'detalles.*.animal_id' => 'required|integer|distinct|exists:animales,id',
+            'detalles.*.peso' => 'required|numeric|min:0.01|max:999999.99',
         ];
     }
 
@@ -39,9 +32,10 @@ class StorePesajeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'animal_id.exists' => 'El animal seleccionado no está activo o no existe.',
-            'peso.gt' => 'El peso debe ser mayor a 0.',
-            'fecha.required' => 'La fecha es obligatoria.',
+            'fecha_pesaje.required' => 'La fecha de pesaje es obligatoria.',
+            'detalles.required' => 'Debe agregar al menos un animal.',
+            'detalles.*.animal_id.distinct' => 'El mismo animal no puede repetirse en el pesaje.',
+            'detalles.*.peso.min' => 'El peso debe ser mayor a 0.',
         ];
     }
 }

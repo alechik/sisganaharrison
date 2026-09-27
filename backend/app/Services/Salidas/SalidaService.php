@@ -83,7 +83,7 @@ class SalidaService
                 'categoria:id,codigo,nombre',
                 'lote:id,nombre,codigo,potrero_id',
                 'lote.potrero:id,nombre',
-                'pesajes' => fn ($builder) => $builder->orderByDesc('fecha')->orderByDesc('id')->limit(1),
+                'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
             ])
             ->whereNull('deleted_at')
             ->disponiblesParaSalida()

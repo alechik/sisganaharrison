@@ -12,6 +12,14 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-26] — Pesajes cabecera + detalle
+
+### Changed
+
+**Pesajes:** sesión con `codigo_pesaje` correlativo, `fecha_pesaje`, `total_peso`, `observacion` y detalle por animal (`animal_id`, `lote_id`, `peso`). Alta manual de 1 a N animales con búsqueda por código. Un ingreso genera un único pesaje; un nacimiento VIVO genera pesaje con el código del parto; MUERTO no genera pesaje.
+
+---
+
 ## [2026-09-25] — Módulo Salidas
 
 ### Added

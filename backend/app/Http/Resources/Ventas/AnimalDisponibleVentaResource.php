@@ -12,8 +12,8 @@ class AnimalDisponibleVentaResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $ultimoPesaje = $this->relationLoaded('pesajes')
-            ? $this->pesajes->first()
+        $ultimoPesaje = $this->relationLoaded('detallesPesaje')
+            ? $this->detallesPesaje->first()
             : null;
 
         return [

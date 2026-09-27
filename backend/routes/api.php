@@ -520,6 +520,9 @@ Route::middleware('auth:sanctum')->group(function () {
 */
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('pesajes/animales-disponibles', [PesajeController::class, 'animalesDisponibles'])
+        ->middleware('permission:pesajes.create');
+
     Route::get('pesajes', [PesajeController::class, 'index'])
         ->middleware('permission:pesajes.view');
 

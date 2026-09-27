@@ -163,11 +163,11 @@ class Animal extends Model
     }
 
     /**
-     * @return HasMany<Pesaje, $this>
+     * @return HasMany<DetallePesaje, $this>
      */
-    public function pesajes(): HasMany
+    public function detallesPesaje(): HasMany
     {
-        return $this->hasMany(Pesaje::class);
+        return $this->hasMany(DetallePesaje::class);
     }
 
     /**
