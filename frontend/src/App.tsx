@@ -38,6 +38,7 @@ import { loteRoutes } from "./modules/lotes/routes";
 import { animalRoutes } from "./modules/animales/routes";
 import { ventasRoutes } from "./modules/ventas/routes";
 import { salidasRoutes } from "./modules/salidas/routes";
+import { traspasoRoutes } from "./modules/traspasos/routes";
 import { pesajeRoutes } from "./modules/pesajes/routes";
 import { eventoSanitarioRoutes } from "./modules/eventos-sanitarios/routes";
 import { servicioReproductivoRoutes } from "./modules/servicios-reproductivos/routes";
@@ -92,6 +93,7 @@ export default function App() {
             {comprasRoutes}
             {ventasRoutes}
             {salidasRoutes}
+            {traspasoRoutes}
             <Route path="/profile" element={<UserProfiles />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />

@@ -142,6 +142,10 @@ const navItems: NavItem[] = [
         name: "Salidas",
         path: "/salidas",
       },
+      {
+        name: "Traspasos",
+        path: "/traspasos",
+      },
     ],
   },
 

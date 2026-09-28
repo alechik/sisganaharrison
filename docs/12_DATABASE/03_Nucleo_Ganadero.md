@@ -633,6 +633,37 @@ Estados de animal al confirmar: Venta → `VENDIDO`; Muerte → `MUERTO`; Robo/P
 
 ---
 
+# traspasos
+
+Traslado de uno o más animales de un lote de salida a un lote de ingreso. Solo actualiza `animales.lote_id`. El peso y el precio/kg se capturan en el detalle al momento del movimiento.
+
+## Campos
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| user_id | BIGINT | FK users |
+| lote_salida_id | BIGINT | FK lotes |
+| lote_ingreso_id | BIGINT | FK lotes, distinto de salida |
+| fecha_traspaso | DATE | NOT NULL |
+| observacion | TEXT | NULL |
+| total_peso | DECIMAL(8,2) | NOT NULL |
+| monto_total | DECIMAL(8,2) | NOT NULL |
+
+# detalle_traspasos
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| traspaso_id | BIGINT | FK |
+| animal_id | BIGINT | FK, UNIQUE por traspaso |
+| cantidad | INTEGER | 1 por animal |
+| peso | DECIMAL(8,2) | snapshot |
+| precio | DECIMAL(8,2) | snapshot (precio/kg) |
+| subtotal | DECIMAL(8,2) | peso × precio |
+
+---
+
 # Resumen
 
 | Tabla | SoftDelete | Editable | Histórica |
@@ -643,6 +674,8 @@ Estados de animal al confirmar: Venta → `VENDIDO`; Muerte → `MUERTO`; Robo/P
 | movimientos_animales | No | No | Sí |
 | eventos_sanitarios | No | No | Sí |
 | detalle_eventos_sanitarios | No | No | Sí |
+| traspasos | No | No | Sí |
+| detalle_traspasos | No | No | Sí |
 
 ---
 

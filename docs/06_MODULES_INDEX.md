@@ -33,6 +33,7 @@
 | Compras / Ingresos | ✅ | `/api/compras/ingresos` | `compras.view`, `compras.create` | `modules/compras/` (parciales; select solo COMPLETADO con animales pendientes; `precio_kilo` al confirmar) |
 | Ventas | ✅ | `/api/ventas` | `ventas.view`, `ventas.create`, `ventas.update`, `ventas.authorize` | `modules/ventas/` (PENDIENTE→reserva; gerencia autoriza/anula; PDF) |
 | Salidas | ✅ | `/api/salidas` | `salidas.view`, `salidas.create` | `modules/salidas/` (Venta usa venta autorizada; otros tipos independientes; confirma estado del animal) |
+| Traspasos | ✅ | `/api/traspasos` | `traspasos.view`, `traspasos.create`, `traspasos.update` | `modules/traspasos/` (PDF; edición solo administrador/gerencia) |
 | Movimientos | ❌ | — | permisos seed | — |
 | Reportes | ❌ | — | permisos seed | — |
 | Auditoría | ❌ | — | permisos seed | — |

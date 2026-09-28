@@ -732,4 +732,27 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
+  traspasos: [
+    { title: "Ventas y Salidas" },
+    { title: "Traspasos" },
+  ],
+
+  traspasoCrear: [
+    { title: "Ventas y Salidas" },
+    { title: "Traspasos", path: "/traspasos" },
+    { title: "Nuevo Traspaso" },
+  ],
+
+  traspasoDetalle: [
+    { title: "Ventas y Salidas" },
+    { title: "Traspasos", path: "/traspasos" },
+    { title: "Detalle" },
+  ],
+
+  traspasoEditar: [
+    { title: "Ventas y Salidas" },
+    { title: "Traspasos", path: "/traspasos" },
+    { title: "Editar Traspaso" },
+  ],
+
 };

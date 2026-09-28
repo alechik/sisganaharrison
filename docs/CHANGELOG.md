@@ -12,6 +12,14 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-27] — Traspasos entre lotes
+
+### Added
+
+**Traspasos:** cabecera (`lote_salida_id`, `lote_ingreso_id`, `fecha_traspaso`, `observacion`, `total_peso`, `monto_total`) y detalle por animal (`cantidad` 1, `peso`, `precio`, `subtotal`). Al confirmar se actualiza `animales.lote_id` en la misma transacción. Permisos `traspasos.view` / `traspasos.create`. PDF con el patrón de Ingresos/Salidas. Edición (`traspasos.update`) restringida a `administrador` y `gerencia`, con reversión/asignación de `lote_id` en transacción.
+
+---
+
 ## [2026-09-27] — Eventos sanitarios: presentaciones y medicamentos
 
 ### Changed

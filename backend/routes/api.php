@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\Compras\CuarentenaController;
 use App\Http\Controllers\Api\Compras\IngresoController;
 use App\Http\Controllers\Api\Ventas\VentaController;
 use App\Http\Controllers\Api\Salidas\SalidaController;
+use App\Http\Controllers\Api\Traspasos\TraspasoController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -904,4 +905,26 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('salidas/{salida}', [SalidaController::class, 'show'])
         ->middleware('permission:salidas.view');
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('traspasos/animales-disponibles', [TraspasoController::class, 'animalesDisponibles']);
+
+    Route::get('traspasos/{traspaso}/pdf', [TraspasoController::class, 'pdf'])
+        ->middleware('permission:traspasos.view');
+
+    Route::get('traspasos', [TraspasoController::class, 'index'])
+        ->middleware('permission:traspasos.view');
+
+    Route::post('traspasos', [TraspasoController::class, 'store'])
+        ->middleware('permission:traspasos.create');
+
+    Route::get('traspasos/{traspaso}', [TraspasoController::class, 'show'])
+        ->middleware('permission:traspasos.view');
+
+    Route::put('traspasos/{traspaso}', [TraspasoController::class, 'update'])
+        ->middleware('permission:traspasos.update');
+
+    Route::patch('traspasos/{traspaso}', [TraspasoController::class, 'update'])
+        ->middleware('permission:traspasos.update');
 });

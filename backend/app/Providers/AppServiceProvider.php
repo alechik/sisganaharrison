@@ -54,8 +54,10 @@ use App\Policies\CuarentenaPolicy;
 use App\Policies\IngresoPolicy;
 use App\Models\Venta;
 use App\Models\Salida;
+use App\Models\Traspaso;
 use App\Policies\VentaPolicy;
 use App\Policies\SalidaPolicy;
+use App\Policies\TraspasoPolicy;
 use App\Policies\PersonaPolicy;
 use App\Policies\TipoPersonaPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -105,6 +107,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Ingreso::class, IngresoPolicy::class);
         Gate::policy(Venta::class, VentaPolicy::class);
         Gate::policy(Salida::class, SalidaPolicy::class);
+        Gate::policy(Traspaso::class, TraspasoPolicy::class);
 
         Route::bind('categoria', fn (string $value) => CategoriaAnimal::query()->findOrFail($value));
         Route::bind('vacuna', fn (string $value) => Vacuna::query()->findOrFail($value));
@@ -132,6 +135,7 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('ingreso', fn (string $value) => Ingreso::query()->findOrFail($value));
         Route::bind('venta', fn (string $value) => Venta::query()->findOrFail($value));
         Route::bind('salida', fn (string $value) => Salida::query()->findOrFail($value));
+        Route::bind('traspaso', fn (string $value) => Traspaso::query()->findOrFail($value));
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;

@@ -53,6 +53,11 @@ class PermissionSeeder extends Seeder
         'salidas.view',
         'salidas.create',
 
+        // Traspasos
+        'traspasos.view',
+        'traspasos.create',
+        'traspasos.update',
+
         // Razas
         'razas.view',
         'razas.create',
