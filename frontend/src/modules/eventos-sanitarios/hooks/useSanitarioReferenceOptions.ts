@@ -1,22 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
-import { getAnimales } from "@/modules/animales/services";
+import { getMedicamentos } from "@/modules/medicamentos/services";
+import { getPresentaciones } from "@/modules/presentaciones/services";
 import { getTiposEventosSanitarios } from "@/modules/tipos-eventos-sanitarios/services";
-import { getVacunas } from "@/modules/vacunas/services";
-import { formatAnimalLabel } from "../utils";
+import { Medicamento } from "@/modules/medicamentos/types";
 
 export interface SelectOption {
   value: string;
   label: string;
 }
 
-export interface TipoEventoOption extends SelectOption {
-  codigo: string;
-}
-
 export const useSanitarioReferenceOptions = () => {
-  const [animalOptions, setAnimalOptions] = useState<SelectOption[]>([]);
-  const [tipoEventoOptions, setTipoEventoOptions] = useState<TipoEventoOption[]>([]);
-  const [vacunaOptions, setVacunaOptions] = useState<SelectOption[]>([]);
+  const [tipoEventoOptions, setTipoEventoOptions] = useState<SelectOption[]>([]);
+  const [presentacionOptions, setPresentacionOptions] = useState<SelectOption[]>([]);
+  const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,36 +21,35 @@ export const useSanitarioReferenceOptions = () => {
       setLoading(true);
       setError(null);
 
-      const [animales, tipos, vacunas] = await Promise.all([
-        getAnimales({ activo: true, per_page: 100, sort_by: "codigo", sort_dir: "asc" }),
+      const [tipos, presentaciones, medicamentosRes] = await Promise.all([
         getTiposEventosSanitarios({
           activo: true,
           per_page: 100,
           sort_by: "nombre",
           sort_dir: "asc",
         }),
-        getVacunas({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
+        getPresentaciones({ per_page: 100, sort_by: "descripcion", sort_dir: "asc" }),
+        getMedicamentos({
+          activo: true,
+          per_page: 100,
+          sort_by: "nombre",
+          sort_dir: "asc",
+        }),
       ]);
 
-      setAnimalOptions(
-        animales.data.map((animal) => ({
-          value: String(animal.id),
-          label: formatAnimalLabel(animal.codigo, animal.arete),
-        }))
-      );
       setTipoEventoOptions(
         tipos.data.map((tipo) => ({
           value: String(tipo.id),
           label: tipo.nombre,
-          codigo: tipo.codigo,
         }))
       );
-      setVacunaOptions(
-        vacunas.data.map((vacuna) => ({
-          value: String(vacuna.id),
-          label: vacuna.nombre,
+      setPresentacionOptions(
+        presentaciones.data.map((item) => ({
+          value: String(item.id),
+          label: item.descripcion,
         }))
       );
+      setMedicamentos(medicamentosRes.data.filter((item) => item.activo));
     } catch (err) {
       console.error(err);
       setError("No se pudieron cargar las opciones de referencia.");
@@ -68,9 +63,9 @@ export const useSanitarioReferenceOptions = () => {
   }, [loadOptions]);
 
   return {
-    animalOptions,
     tipoEventoOptions,
-    vacunaOptions,
+    presentacionOptions,
+    medicamentos,
     loading,
     error,
     reload: loadOptions,

@@ -6,17 +6,18 @@ use Database\Factories\EventoSanitarioFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Registro sanitario del animal (append only).
+ * Cabecera de un evento sanitario (1 a N animales).
  *
  * @property int $id
- * @property int $animal_id
  * @property int $tipo_evento_id
- * @property int|null $vacuna_id
- * @property string $fecha
+ * @property int $user_id
+ * @property \Illuminate\Support\Carbon $fecha
  * @property string|null $diagnostico
  * @property string|null $tratamiento
+ * @property string $total
  * @property string|null $observaciones
  */
 class EventoSanitario extends Model
@@ -24,17 +25,15 @@ class EventoSanitario extends Model
     /** @use HasFactory<EventoSanitarioFactory> */
     use HasFactory;
 
-    public const UPDATED_AT = null;
-
     protected $table = 'eventos_sanitarios';
 
     protected $fillable = [
-        'animal_id',
         'tipo_evento_id',
-        'vacuna_id',
+        'user_id',
         'fecha',
         'diagnostico',
         'tratamiento',
+        'total',
         'observaciones',
     ];
 
@@ -42,15 +41,8 @@ class EventoSanitario extends Model
     {
         return [
             'fecha' => 'date',
+            'total' => 'decimal:2',
         ];
-    }
-
-    /**
-     * @return BelongsTo<Animal, $this>
-     */
-    public function animal(): BelongsTo
-    {
-        return $this->belongsTo(Animal::class);
     }
 
     /**
@@ -62,10 +54,18 @@ class EventoSanitario extends Model
     }
 
     /**
-     * @return BelongsTo<Vacuna, $this>
+     * @return BelongsTo<User, $this>
      */
-    public function vacuna(): BelongsTo
+    public function usuario(): BelongsTo
     {
-        return $this->belongsTo(Vacuna::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<DetalleEventoSanitario, $this>
+     */
+    public function detalles(): HasMany
+    {
+        return $this->hasMany(DetalleEventoSanitario::class, 'evento_sanitario_id');
     }
 }

@@ -3,11 +3,18 @@ import { Link, useParams } from "react-router-dom";
 
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import { EVENTO_SANITARIO_ROUTES } from "../constants";
 import { getEventoSanitario } from "../services";
 import { EventoSanitario } from "../types";
-import { formatAnimalLabel } from "../utils";
+import { formatAnimalLabel, formatMoney } from "../utils";
 
 export default function EventoSanitarioDetailPage() {
   const { id } = useParams();
@@ -64,36 +71,12 @@ export default function EventoSanitarioDetailPage() {
         </div>
       </div>
 
-      <ComponentCard title="Detalle de Evento Sanitario">
+      <ComponentCard title="Cabecera del evento sanitario">
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Animal (código)</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {evento.animal_codigo || "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Animal (arete)</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {evento.animal_arete || "Sin arete"}
-            </dd>
-          </div>
-          <div className="md:col-span-2">
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Identificación del animal</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {formatAnimalLabel(evento.animal_codigo, evento.animal_arete)}
-            </dd>
-          </div>
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Tipo de evento</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {evento.tipo_evento_nombre || "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Vacuna</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {evento.vacuna_nombre || "No aplica"}
             </dd>
           </div>
           <div>
@@ -105,11 +88,15 @@ export default function EventoSanitarioDetailPage() {
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha de registro</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Registrado por</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {evento.created_at
-                ? new Date(evento.created_at).toLocaleString("es-PY")
-                : "—"}
+              {evento.usuario_nombre || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Total</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {formatMoney(evento.total)}
             </dd>
           </div>
           <div className="md:col-span-2">
@@ -131,6 +118,52 @@ export default function EventoSanitarioDetailPage() {
             </dd>
           </div>
         </dl>
+      </ComponentCard>
+
+      <ComponentCard title="Detalle histórico (animales, lotes y medicamentos)">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Animal</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Código</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Arete</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Lote del evento</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Peso del evento</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Medicamento</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Presentación</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Precio</TableCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(evento.detalles ?? []).length === 0 ? (
+                <TableRow>
+                  <TableCell className="px-4 py-6 text-center text-gray-500" colSpan={8}>
+                    Sin detalles.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                (evento.detalles ?? []).map((detalle) => (
+                  <TableRow key={detalle.id ?? `${detalle.animal_id}-${detalle.medicamento_id}`}>
+                    <TableCell className="px-4 py-3 text-sm">
+                      {formatAnimalLabel(detalle.animal_codigo, detalle.animal_arete)}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{detalle.animal_codigo || "—"}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{detalle.animal_arete || "Sin arete"}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{detalle.lote_nombre || "—"}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{detalle.peso_animal}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm">
+                      {detalle.medicamento_nombre || "—"}
+                      {detalle.medicamento_codigo ? ` (${detalle.medicamento_codigo})` : ""}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{detalle.presentacion_descripcion || "—"}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{formatMoney(detalle.precio_medicamento)}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </ComponentCard>
     </div>
   );

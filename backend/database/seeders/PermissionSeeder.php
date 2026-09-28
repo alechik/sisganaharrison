@@ -69,13 +69,28 @@ class PermissionSeeder extends Seeder
         'categorias_animales.restore',
         'categorias_animales.activate',
 
-        // Vacunas
+        // Vacunas (histórico; Sanidad usa medicamentos)
         'vacunas.view',
         'vacunas.create',
         'vacunas.update',
         'vacunas.delete',
         'vacunas.restore',
         'vacunas.activate',
+
+        // Presentaciones
+        'presentaciones.view',
+        'presentaciones.create',
+        'presentaciones.update',
+        'presentaciones.delete',
+        'presentaciones.restore',
+
+        // Medicamentos
+        'medicamentos.view',
+        'medicamentos.create',
+        'medicamentos.update',
+        'medicamentos.delete',
+        'medicamentos.restore',
+        'medicamentos.activate',
 
         // Estados productivos
         'estados_productivos.view',

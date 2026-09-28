@@ -9,7 +9,7 @@ export const defaultEventoSanitarioFilters = (): EventoSanitarioFilters => ({
   search: "",
   animal_id: undefined,
   tipo_evento_id: undefined,
-  vacuna_id: undefined,
+  medicamento_id: undefined,
   fecha_desde: "",
   fecha_hasta: "",
   sort_by: "fecha" as EventoSanitarioSortField,
@@ -27,5 +27,5 @@ export const formatAnimalLabel = (
   return `${code} — ${tag}`;
 };
 
-export const tipoRequiereVacuna = (codigo?: string | null): boolean =>
-  codigo === "VACUNACION";
+export const formatMoney = (value?: number | null): string =>
+  (value ?? 0).toLocaleString("es-PY", { minimumFractionDigits: 2, maximumFractionDigits: 2 });

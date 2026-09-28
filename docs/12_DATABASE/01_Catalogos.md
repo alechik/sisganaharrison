@@ -156,11 +156,71 @@ Solo un estado vigente por animal.
 
 ---
 
+# presentaciones
+
+## Propósito
+
+Catálogo de presentaciones de medicamentos (Frasco, Ampolla, etc.).
+
+## Campos
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| descripcion | VARCHAR(50) | UNIQUE, NOT NULL |
+| created_at | TIMESTAMP | |
+| updated_at | TIMESTAMP | |
+| deleted_at | TIMESTAMP | SoftDeletes |
+
+## Relaciones
+
+HasMany → medicamentos
+
+## Reglas
+
+Descripción obligatoria y única. No eliminar si hay medicamentos asociados.
+
+---
+
+# medicamentos
+
+## Propósito
+
+Catálogo de medicamentos utilizado por Sanidad (reemplaza el uso de `vacunas` en eventos sanitarios).
+
+## Campos
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| presentacion_id | BIGINT | FK |
+| codigo | VARCHAR(20) | UNIQUE |
+| nombre | VARCHAR(100) | NOT NULL |
+| laboratorio | VARCHAR(120) | NULL |
+| precio | DECIMAL(8,2) | NOT NULL |
+| descripcion | TEXT | NOT NULL |
+| activo | BOOLEAN | DEFAULT TRUE |
+| created_at | TIMESTAMP | |
+| updated_at | TIMESTAMP | |
+| deleted_at | TIMESTAMP | SoftDeletes |
+
+## Relaciones
+
+BelongsTo → presentacion
+
+HasMany → detalle_eventos_sanitarios
+
+## Reglas
+
+No eliminar si posee aplicaciones en eventos sanitarios. En selects de eventos solo aparecen medicamentos activos.
+
+---
+
 # vacunas
 
 ## Propósito
 
-Catálogo oficial de vacunas.
+Catálogo legado de vacunas (ya no se usa en Eventos Sanitarios).
 
 ## Campos
 
@@ -178,7 +238,7 @@ Catálogo oficial de vacunas.
 
 ## Relaciones
 
-HasMany → eventos_sanitarios
+HasMany → (legado; Sanidad usa medicamentos)
 
 ## Reglas
 
@@ -302,6 +362,8 @@ HasMany → `salidas.tipo_salida_id`
 | razas | Sí | Sí | No |
 | categorias_animales | Sí | Sí | No |
 | estados_productivos | Sí | Sí | No |
+| presentaciones | Sí | Sí | No |
+| medicamentos | Sí | Sí | No |
 | vacunas | Sí | Sí | No |
 | tipos_eventos_sanitarios | Sí | Sí | No |
 | tipos_movimientos | Sí | Sí | No |

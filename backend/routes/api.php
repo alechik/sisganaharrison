@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Razas\RazaController;
 use App\Http\Controllers\Api\CategoriasAnimales\CategoriaAnimalController;
 use App\Http\Controllers\Api\Vacunas\VacunaController;
+use App\Http\Controllers\Api\Presentaciones\PresentacionController;
+use App\Http\Controllers\Api\Medicamentos\MedicamentoController;
 use App\Http\Controllers\Api\EstadosProductivos\EstadoProductivoController;
 use App\Http\Controllers\Api\TiposEventosSanitarios\TipoEventoSanitarioController;
 use App\Http\Controllers\Api\TiposMovimientos\TipoMovimientoController;
@@ -195,8 +197,73 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('vacunas/{vacuna}', [VacunaController::class, 'destroy'])
         ->middleware('permission:vacunas.delete');
 
-    Route::patch('vacunas/{vacuna}/estado', [VacunaController::class, 'changeStatus'])
-        ->middleware('permission:vacunas.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| PRESENTACIONES
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('presentaciones/eliminados', [PresentacionController::class, 'deleted'])
+        ->middleware('permission:presentaciones.view');
+
+    Route::post('presentaciones/{id}/restaurar', [PresentacionController::class, 'restore'])
+        ->middleware('permission:presentaciones.restore');
+
+    Route::get('presentaciones', [PresentacionController::class, 'index'])
+        ->middleware('permission:presentaciones.view');
+
+    Route::post('presentaciones', [PresentacionController::class, 'store'])
+        ->middleware('permission:presentaciones.create');
+
+    Route::get('presentaciones/{presentacion}', [PresentacionController::class, 'show'])
+        ->middleware('permission:presentaciones.view');
+
+    Route::put('presentaciones/{presentacion}', [PresentacionController::class, 'update'])
+        ->middleware('permission:presentaciones.update');
+
+    Route::patch('presentaciones/{presentacion}', [PresentacionController::class, 'update'])
+        ->middleware('permission:presentaciones.update');
+
+    Route::delete('presentaciones/{presentacion}', [PresentacionController::class, 'destroy'])
+        ->middleware('permission:presentaciones.delete');
+});
+
+/*
+|--------------------------------------------------------------------------
+| MEDICAMENTOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('medicamentos/eliminados', [MedicamentoController::class, 'deleted'])
+        ->middleware('permission:medicamentos.view');
+
+    Route::post('medicamentos/{id}/restaurar', [MedicamentoController::class, 'restore'])
+        ->middleware('permission:medicamentos.restore');
+
+    Route::get('medicamentos', [MedicamentoController::class, 'index'])
+        ->middleware('permission:medicamentos.view');
+
+    Route::post('medicamentos', [MedicamentoController::class, 'store'])
+        ->middleware('permission:medicamentos.create');
+
+    Route::get('medicamentos/{medicamento}', [MedicamentoController::class, 'show'])
+        ->middleware('permission:medicamentos.view');
+
+    Route::put('medicamentos/{medicamento}', [MedicamentoController::class, 'update'])
+        ->middleware('permission:medicamentos.update');
+
+    Route::patch('medicamentos/{medicamento}', [MedicamentoController::class, 'update'])
+        ->middleware('permission:medicamentos.update');
+
+    Route::delete('medicamentos/{medicamento}', [MedicamentoController::class, 'destroy'])
+        ->middleware('permission:medicamentos.delete');
+
+    Route::patch('medicamentos/{medicamento}/estado', [MedicamentoController::class, 'changeStatus'])
+        ->middleware('permission:medicamentos.activate');
 });
 
 /*
@@ -540,6 +607,9 @@ Route::middleware('auth:sanctum')->group(function () {
 */
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('eventos-sanitarios/animales-disponibles', [EventoSanitarioController::class, 'animalesDisponibles'])
+        ->middleware('permission:sanitario.create');
+
     Route::get('eventos-sanitarios', [EventoSanitarioController::class, 'index'])
         ->middleware('permission:sanitario.view');
 

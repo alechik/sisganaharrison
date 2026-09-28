@@ -14,7 +14,7 @@ import { EyeIcon } from "@/icons";
 import { EVENTO_SANITARIO_ROUTES } from "../constants";
 import { EVENTOS_SANITARIOS_PERMISSIONS } from "../permissions";
 import { EventoSanitario } from "../types";
-import { formatAnimalLabel } from "../utils";
+import { formatMoney } from "../utils";
 
 interface Props {
   eventos: EventoSanitario[];
@@ -30,19 +30,19 @@ export default function EventoSanitarioTable({ eventos, meta, onPageChange }: Pr
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Animal
-              </TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Tipo
-              </TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Vacuna
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Fecha
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Diagnóstico
+                Animales
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Total
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Usuario
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-center text-gray-800 dark:text-white">
                 Opciones
@@ -65,28 +65,23 @@ export default function EventoSanitarioTable({ eventos, meta, onPageChange }: Pr
                 >
                   <TableCell className="px-5 py-4">
                     <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                      {formatAnimalLabel(evento.animal_codigo, evento.animal_arete)}
+                      {evento.tipo_evento_nombre || "—"}
                     </span>
                   </TableCell>
-
-                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {evento.tipo_evento_nombre || "—"}
-                  </TableCell>
-
-                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {evento.vacuna_nombre || "—"}
-                  </TableCell>
-
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
                     {evento.fecha
                       ? new Date(`${evento.fecha}T00:00:00`).toLocaleDateString("es-PY")
                       : "—"}
                   </TableCell>
-
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {evento.diagnostico || "—"}
+                    {evento.cantidad_animales ?? evento.detalles?.length ?? 0}
                   </TableCell>
-
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {formatMoney(evento.total)}
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {evento.usuario_nombre || "—"}
+                  </TableCell>
                   <TableCell className="px-5 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <PermissionGate permission={EVENTOS_SANITARIOS_PERMISSIONS.view}>

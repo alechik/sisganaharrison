@@ -155,6 +155,64 @@ export const breadcrumbs = {
     { title: "Eliminadas" },
   ],
 
+  presentaciones: [
+    { title: "Ganadería" },
+    { title: "Presentaciones" },
+  ],
+
+  presentacionCrear: [
+    { title: "Ganadería" },
+    { title: "Presentaciones", path: "/presentaciones" },
+    { title: "Nueva presentación" },
+  ],
+
+  presentacionEditar: [
+    { title: "Ganadería" },
+    { title: "Presentaciones", path: "/presentaciones" },
+    { title: "Editar presentación" },
+  ],
+
+  presentacionDetalle: [
+    { title: "Ganadería" },
+    { title: "Presentaciones", path: "/presentaciones" },
+    { title: "Detalle" },
+  ],
+
+  presentacionesEliminados: [
+    { title: "Ganadería" },
+    { title: "Presentaciones", path: "/presentaciones" },
+    { title: "Eliminadas" },
+  ],
+
+  medicamentos: [
+    { title: "Ganadería" },
+    { title: "Medicamentos" },
+  ],
+
+  medicamentoCrear: [
+    { title: "Ganadería" },
+    { title: "Medicamentos", path: "/medicamentos" },
+    { title: "Nuevo medicamento" },
+  ],
+
+  medicamentoEditar: [
+    { title: "Ganadería" },
+    { title: "Medicamentos", path: "/medicamentos" },
+    { title: "Editar medicamento" },
+  ],
+
+  medicamentoDetalle: [
+    { title: "Ganadería" },
+    { title: "Medicamentos", path: "/medicamentos" },
+    { title: "Detalle" },
+  ],
+
+  medicamentosEliminadas: [
+    { title: "Ganadería" },
+    { title: "Medicamentos", path: "/medicamentos" },
+    { title: "Eliminados" },
+  ],
+
   vacunas: [
     { title: "Ganadería" },
     { title: "Vacunas" },

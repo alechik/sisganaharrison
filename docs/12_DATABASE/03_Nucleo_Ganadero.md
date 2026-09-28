@@ -98,7 +98,7 @@ HasOne → nacimiento
 
 HasMany → detalle_pesajes
 
-HasMany → eventos_sanitarios
+HasManyThrough → eventos_sanitarios (vía detalle_eventos_sanitarios)
 
 HasMany → movimientos_animales
 
@@ -412,54 +412,109 @@ registrado_por
 
 ## Propósito
 
-Registro sanitario del animal.
+Cabecera del registro sanitario (RF-08, RF-09). Un evento puede incluir 1 a N animales.
 
-Incluye vacunaciones, tratamientos, enfermedades y controles (RF-08, RF-09).
+No hay flujo de autorización.
 
 ## Campos
 
 | Campo | Tipo | Restricciones |
 |--------|------|---------------|
 | id | BIGINT | PK |
-| animal_id | BIGINT | FK |
 | tipo_evento_id | BIGINT | FK |
-| vacuna_id | BIGINT | FK NULL |
+| user_id | BIGINT | FK |
 | fecha | DATE | NOT NULL |
 | diagnostico | TEXT | NULL |
 | tratamiento | TEXT | NULL |
+| total | DECIMAL(10,2) | NOT NULL — suma de precios de detalle |
 | observaciones | TEXT | NULL |
 | created_at | TIMESTAMP | |
+| updated_at | TIMESTAMP | |
 
 ## Relaciones
 
-BelongsTo → animal
-
-BelongsTo → vacuna
-
 BelongsTo → tipo_evento_sanitario
+
+BelongsTo → user
+
+HasMany → detalle_eventos_sanitarios
 
 ## Claves Foráneas
 
-animal_id → animales
-
-vacuna_id → vacunas
-
 tipo_evento_id → tipos_eventos_sanitarios
 
-## Índices
+user_id → users
 
-animal_id
+## Índices
 
 fecha
 
 tipo_evento_id
 
+user_id
+
 ## Reglas
 
-- Append Only.
-- No eliminar historial sanitario.
-- Vacuna opcional según el tipo de evento.
-- Constituye el historial sanitario consultable del animal (RF-09).
+- Append only.
+- Cabecera y detalles se crean en una transacción.
+- `total` lo calcula el backend a partir de `detalle_eventos_sanitarios.precio_medicamento`.
+- Roles `trabajador` y `veterinario` pueden registrar (`sanitario.create`).
+
+---
+
+# detalle_eventos_sanitarios
+
+## Propósito
+
+Captura histórica de cada animal en el evento (lote y peso al momento del registro).
+
+## Campos
+
+| Campo | Tipo | Restricciones |
+|--------|------|---------------|
+| id | BIGINT | PK |
+| evento_sanitario_id | BIGINT | FK |
+| animal_id | BIGINT | FK |
+| lote_id | BIGINT | FK NULL (histórico) |
+| medicamento_id | BIGINT | FK |
+| peso_animal | DECIMAL(8,2) | NOT NULL — snapshot |
+| precio_medicamento | DECIMAL(8,2) | NOT NULL — snapshot |
+| created_at | TIMESTAMP | |
+| updated_at | TIMESTAMP | |
+
+## Relaciones
+
+BelongsTo → evento_sanitario
+
+BelongsTo → animal
+
+BelongsTo → lote (valor almacenado, no el lote vigente del animal)
+
+BelongsTo → medicamento
+
+## Claves Foráneas
+
+evento_sanitario_id → eventos_sanitarios
+
+animal_id → animales
+
+lote_id → lotes
+
+medicamento_id → medicamentos
+
+## Índices
+
+evento_sanitario_id
+
+animal_id
+
+UNIQUE (evento_sanitario_id, animal_id)
+
+## Reglas
+
+- El lote y el peso se copian del estado actual del animal (último `detalle_pesajes`).
+- Un cambio posterior de lote o peso del animal no modifica este detalle.
+- El precio se copia del medicamento activo al momento del evento.
 
 ---
 
@@ -587,6 +642,7 @@ Estados de animal al confirmar: Venta → `VENDIDO`; Muerte → `MUERTO`; Robo/P
 | pesajes | No | No | Sí |
 | movimientos_animales | No | No | Sí |
 | eventos_sanitarios | No | No | Sí |
+| detalle_eventos_sanitarios | No | No | Sí |
 
 ---
 

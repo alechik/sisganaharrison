@@ -25,7 +25,8 @@ import UserEdit from "./modules/user/pages/UserEdit";
 import UserList from "./modules/user/pages/UserList";
 import { razaRoutes } from "./modules/razas/routes";
 import { categoriaAnimalRoutes } from "./modules/categorias-animales/routes";
-import { vacunaRoutes } from "./modules/vacunas/routes";
+import { presentacionRoutes } from "./modules/presentaciones/routes";
+import { medicamentoRoutes } from "./modules/medicamentos/routes";
 import { estadoProductivoRoutes } from "./modules/estados-productivos/routes";
 import { tipoEventoSanitarioRoutes } from "./modules/tipos-eventos-sanitarios/routes";
 import { tipoMovimientoRoutes } from "./modules/tipos-movimientos/routes";
@@ -70,7 +71,8 @@ export default function App() {
             <Route path="/usuarios/:id/editar" element={<UserEdit />} />
             {razaRoutes}
             {categoriaAnimalRoutes}
-            {vacunaRoutes}
+            {presentacionRoutes}
+            {medicamentoRoutes}
             {estadoProductivoRoutes}
             {tipoEventoSanitarioRoutes}
             {tipoMovimientoRoutes}

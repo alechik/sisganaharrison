@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -179,11 +180,18 @@ class Animal extends Model
     }
 
     /**
-     * @return HasMany<EventoSanitario, $this>
+     * @return HasManyThrough<EventoSanitario, DetalleEventoSanitario, $this>
      */
-    public function eventosSanitarios(): HasMany
+    public function eventosSanitarios(): HasManyThrough
     {
-        return $this->hasMany(EventoSanitario::class);
+        return $this->hasManyThrough(
+            EventoSanitario::class,
+            DetalleEventoSanitario::class,
+            'animal_id',
+            'id',
+            'id',
+            'evento_sanitario_id'
+        );
     }
 
     /**

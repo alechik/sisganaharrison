@@ -12,6 +12,14 @@ _Pendiente: módulos transaccionales (Movimientos)._
 
 ---
 
+## [2026-09-27] — Eventos sanitarios: presentaciones y medicamentos
+
+### Changed
+
+**Sanidad:** catálogos `presentaciones` y `medicamentos` (reemplazan Vacunas en el flujo operativo). Evento sanitario con cabecera (`tipo_evento_id`, `user_id`, `fecha`, `diagnostico`, `tratamiento`, `total`, `observaciones`) y detalle histórico por animal (`lote_id`, `peso_animal`, `medicamento_id`, `precio_medicamento`). Creación transaccional; `trabajador` y `veterinario` pueden registrar sin autorización.
+
+---
+
 ## [2026-09-26] — Pesajes cabecera + detalle
 
 ### Changed

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\EventosSanitarios;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EventosSanitarios\StoreEventoSanitarioRequest;
 use App\Http\Resources\EventosSanitarios\EventoSanitarioResource;
+use App\Http\Resources\Ventas\AnimalDisponibleVentaResource;
 use App\Models\EventoSanitario;
 use App\Services\EventosSanitarios\EventoSanitarioService;
 use Illuminate\Http\JsonResponse;
@@ -27,14 +28,26 @@ class EventoSanitarioController extends Controller
         return EventoSanitarioResource::collection($eventos);
     }
 
+    public function animalesDisponibles(Request $request): AnonymousResourceCollection
+    {
+        $this->authorize('create', EventoSanitario::class);
+
+        return AnimalDisponibleVentaResource::collection(
+            $this->eventoSanitarioService->animalesDisponibles($request->all())
+        );
+    }
+
     public function show(EventoSanitario $eventoSanitario): EventoSanitarioResource
     {
         $this->authorize('view', $eventoSanitario);
 
         $eventoSanitario->load([
-            'animal:id,codigo,arete',
             'tipoEvento:id,nombre,codigo',
-            'vacuna:id,nombre',
+            'usuario:id,nombre,apellido',
+            'detalles.animal:id,codigo,arete,lote_id',
+            'detalles.lote:id,nombre,codigo',
+            'detalles.medicamento:id,codigo,nombre,presentacion_id,precio',
+            'detalles.medicamento.presentacion:id,descripcion',
         ]);
 
         return new EventoSanitarioResource($eventoSanitario);

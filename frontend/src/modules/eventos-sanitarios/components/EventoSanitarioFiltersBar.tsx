@@ -11,7 +11,11 @@ interface Props {
 }
 
 export default function EventoSanitarioFiltersBar({ filters, onChange }: Props) {
-  const { animalOptions, tipoEventoOptions, vacunaOptions } = useSanitarioReferenceOptions();
+  const { tipoEventoOptions, medicamentos } = useSanitarioReferenceOptions();
+  const medicamentoOptions = medicamentos.map((item) => ({
+    value: String(item.id),
+    label: item.nombre,
+  }));
 
   return (
     <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
@@ -19,23 +23,9 @@ export default function EventoSanitarioFiltersBar({ filters, onChange }: Props) 
         <Label>Búsqueda</Label>
         <InputField
           type="text"
-          placeholder="Animal, tipo, vacuna u observaciones"
+          placeholder="Animal, tipo, medicamento u observaciones"
           value={filters.search ?? ""}
           onChange={(e) => onChange({ search: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <Label>Animal</Label>
-        <Select
-          value={filters.animal_id ? String(filters.animal_id) : "all"}
-          placeholder="Todos"
-          options={[{ value: "all", label: "Todos" }, ...animalOptions]}
-          onChange={(value) =>
-            onChange({
-              animal_id: value === "all" ? undefined : Number(value),
-            })
-          }
         />
       </div>
 
@@ -54,14 +44,14 @@ export default function EventoSanitarioFiltersBar({ filters, onChange }: Props) 
       </div>
 
       <div>
-        <Label>Vacuna</Label>
+        <Label>Medicamento</Label>
         <Select
-          value={filters.vacuna_id ? String(filters.vacuna_id) : "all"}
-          placeholder="Todas"
-          options={[{ value: "all", label: "Todas" }, ...vacunaOptions]}
+          value={filters.medicamento_id ? String(filters.medicamento_id) : "all"}
+          placeholder="Todos"
+          options={[{ value: "all", label: "Todos" }, ...medicamentoOptions]}
           onChange={(value) =>
             onChange({
-              vacuna_id: value === "all" ? undefined : Number(value),
+              medicamento_id: value === "all" ? undefined : Number(value),
             })
           }
         />

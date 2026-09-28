@@ -1,6 +1,6 @@
 import { EventoSanitarioListParams } from "./eventoSanitario";
 
-export type EventoSanitarioSortField = "fecha" | "created_at";
+export type EventoSanitarioSortField = "fecha" | "total" | "created_at";
 export type EventoSanitarioSortDirection = "asc" | "desc";
 
 export interface EventoSanitarioFilters extends EventoSanitarioListParams {

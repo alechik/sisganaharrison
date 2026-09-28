@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\EventosSanitarios;
 
-use App\Models\Animal;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -20,13 +19,6 @@ class StoreEventoSanitarioRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'animal_id' => [
-                'required',
-                'integer',
-                Rule::exists('animales', 'id')
-                    ->where('estado', Animal::ESTADO_ACTIVO)
-                    ->whereNull('deleted_at'),
-            ],
             'tipo_evento_id' => [
                 'required',
                 'integer',
@@ -34,17 +26,13 @@ class StoreEventoSanitarioRequest extends FormRequest
                     ->where('activo', true)
                     ->whereNull('deleted_at'),
             ],
-            'vacuna_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('vacunas', 'id')
-                    ->where('activo', true)
-                    ->whereNull('deleted_at'),
-            ],
-            'fecha' => 'required|date',
+            'fecha' => 'required|date|before_or_equal:today',
             'diagnostico' => 'nullable|string|max:2000',
             'tratamiento' => 'nullable|string|max:2000',
             'observaciones' => 'nullable|string|max:2000',
+            'detalles' => 'required|array|min:1',
+            'detalles.*.animal_id' => 'required|integer|distinct|exists:animales,id',
+            'detalles.*.medicamento_id' => 'required|integer|exists:medicamentos,id',
         ];
     }
 
@@ -54,10 +42,10 @@ class StoreEventoSanitarioRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'animal_id.exists' => 'El animal seleccionado no está activo o no existe.',
             'tipo_evento_id.exists' => 'El tipo de evento seleccionado no está activo o no existe.',
-            'vacuna_id.exists' => 'La vacuna seleccionada no está activa o no existe.',
             'fecha.required' => 'La fecha es obligatoria.',
+            'detalles.required' => 'Debe agregar al menos un animal.',
+            'detalles.*.animal_id.distinct' => 'El mismo animal no puede repetirse en el evento.',
         ];
     }
 }

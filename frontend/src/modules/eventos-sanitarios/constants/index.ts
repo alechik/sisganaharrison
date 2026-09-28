@@ -8,7 +8,6 @@ export const EVENTO_SANITARIO_DEFAULT_PAGE_SIZE = 10;
 
 export const EVENTO_SANITARIO_SORT_OPTIONS = [
   { value: "fecha", label: "Fecha" },
+  { value: "total", label: "Total" },
   { value: "created_at", label: "Fecha de registro" },
 ] as const;
-
-export const TIPO_EVENTO_VACUNACION_CODIGO = "VACUNACION";

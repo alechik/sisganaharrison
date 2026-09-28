@@ -11,7 +11,8 @@
 | Socios de Negocios | ✅ | `/api/socios`, `/api/tipos-persona` | `socios.*`, `tipos_persona.*` | `modules/socios-de-negocio/` (lista unificada Cliente/Proveedor/Ambos) |
 | Razas | ✅ | `/api/razas` | `razas.*` | `modules/razas/` **← patrón** |
 | Categorías Animales | ✅ | `/api/categorias-animales` | `categorias_animales.*` | `modules/categorias-animales/` |
-| Vacunas | ✅ | `/api/vacunas` | `vacunas.*` | `modules/vacunas/` |
+| Presentaciones | ✅ | `/api/presentaciones` | `presentaciones.*` | `modules/presentaciones/` |
+| Medicamentos | ✅ | `/api/medicamentos` | `medicamentos.*` | `modules/medicamentos/` (reemplaza Vacunas en Sanidad) |
 | Estados Productivos | ✅ | `/api/estados-productivos` | `estados_productivos.*` | `modules/estados-productivos/` |
 | Tipos Eventos Sanitarios | ✅ | `/api/tipos-eventos-sanitarios` | `tipos_eventos_sanitarios.*` | `modules/tipos-eventos-sanitarios/` |
 | Tipos Movimientos | ✅ | `/api/tipos-movimientos` | `tipos_movimientos.*` | `modules/tipos-movimientos/` |
@@ -22,7 +23,7 @@
 | Lotes | ✅ | `/api/lotes` | `lotes.*` | `modules/lotes/` |
 | Animales | ✅ | `/api/animales` | `animales.*` | `modules/animales/` (`estado` operativo; `activo` derivado de `ACTIVO`) |
 | Pesajes | ✅ | `/api/pesajes` | `pesajes.view`, `pesajes.create` | `modules/pesajes/` (cabecera + detalle; código `PES-`; ingreso/nacimiento VIVO generan sesión automática) |
-| Eventos Sanitarios | ✅ | `/api/eventos-sanitarios` | `sanitario.view`, `sanitario.create` | `modules/eventos-sanitarios/` (append only) |
+| Eventos Sanitarios | ✅ | `/api/eventos-sanitarios` | `sanitario.view`, `sanitario.create` | `modules/eventos-sanitarios/` (cabecera + detalle histórico; sin autorización) |
 | Servicios Reproductivos | ✅ | `/api/servicios-reproductivos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/servicios-reproductivos/` (hembra/macho con arete) |
 | Gestaciones | ✅ | `/api/gestaciones` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/gestaciones/` (servicio PREÑADA sin gestación; ACTIVA hasta parto) |
 | Partos | ✅ | `/api/partos` | `reproduccion.view`, `reproduccion.create`, `reproduccion.update` | `modules/partos/` (`PENDIENTE`/`FINALIZADA`; finalizar manual; gestación a FINALIZADA al crear) |
