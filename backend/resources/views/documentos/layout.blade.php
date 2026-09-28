@@ -11,6 +11,9 @@
         .header-right { display: table-cell; vertical-align: middle; text-align: right; }
         .brand { font-size: 20px; font-weight: bold; color: #0f766e; }
         .subtitle { font-size: 11px; color: #6b7280; }
+        .header-brand { width: auto; margin: 0; }
+        .header-brand td { border: none; padding: 0; vertical-align: middle; }
+        .header-brand .logo-cell { width: 46px; padding-right: 10px; }
         h1 { font-size: 16px; margin: 0 0 4px; }
         table { width: 100%; border-collapse: collapse; margin-top: 12px; }
         th { background: #0f766e; color: #fff; text-align: left; padding: 7px 8px; font-size: 11px; }
@@ -28,8 +31,17 @@
 <body>
     <div class="header">
         <div class="header-left">
-            <div class="brand">SisGanadería</div>
-            <div class="subtitle">Agropecuaria Harrison</div>
+            <table class="header-brand">
+                <tr>
+                    <td class="logo-cell">
+                        <img src="{{ public_path('images/logo-pdf.svg') }}" width="42" height="40" alt="Agropecuaria Harrison">
+                    </td>
+                    <td>
+                        <div class="brand">Agropecuaria Harrison</div>
+                        <div class="subtitle">Sistema ganadero</div>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="header-right">
             <h1>{{ $titulo ?? 'Documento' }}</h1>
