@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\Compras\IngresoController;
 use App\Http\Controllers\Api\Ventas\VentaController;
 use App\Http\Controllers\Api\Salidas\SalidaController;
 use App\Http\Controllers\Api\Traspasos\TraspasoController;
+use App\Http\Controllers\Api\Dashboard\DashboardController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -63,6 +64,10 @@ Route::middleware('auth:sanctum')
 | USUARIOS Y ROLES
 |--------------------------------------------------------------------------
 */
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'show']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('usuarios/eliminados', [UserController::class, 'deleted'])

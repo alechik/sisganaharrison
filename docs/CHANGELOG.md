@@ -8,6 +8,10 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+**Dashboard:** resumen operativo en `/` con KPIs de hato, ocupación de lotes, sanidad/reproducción y movimientos. API `GET /api/dashboard` (Sanctum) con agregaciones SQL; no usa tabla de alertas (solo catálogo `tipos_alertas`).
+
 _Pendiente: módulos transaccionales (Movimientos)._
 
 ---

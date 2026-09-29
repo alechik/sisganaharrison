@@ -7,6 +7,7 @@
 | Módulo | Estado | API prefix | Permisos | Ref código |
 |--------|--------|------------|----------|------------|
 | Auth | 🟡 | `/api/auth` | — | `AuthController`, `SignInForm` |
+| Dashboard | ✅ | `/api/dashboard` | autenticado | `modules/dashboard/` (agregados reales; sin módulo de alertas) |
 | Usuarios | ✅ | `/api/usuarios` | `usuarios.*` | `modules/user/` |
 | Socios de Negocios | ✅ | `/api/socios`, `/api/tipos-persona` | `socios.*`, `tipos_persona.*` | `modules/socios-de-negocio/` (lista unificada Cliente/Proveedor/Ambos) |
 | Razas | ✅ | `/api/razas` | `razas.*` | `modules/razas/` **← patrón** |
