@@ -1,0 +1,251 @@
+# ============================================================
+# DOCKER-COMPOSE.YML - SISGANADERIA
+# ============================================================
+# Archivo de orquestación de contenedores para el proyecto
+# Sistema de Gestión Ganadera.
+#
+# Servicios definidos:
+#   ┌──────────────┬──────────────────────────────────────────┐
+#   │ postgres     │ Base de datos PostgreSQL 16              │
+#   │ backend      │ API Laravel 12 + PHP 8.2 FPM            │
+#   │ frontend     │ SPA React 19 + Nginx Alpine             │
+#   │ nginx        │ Reverse Proxy / Punto de entrada único  │
+#   └──────────────┴──────────────────────────────────────────┘
+#
+# Arquitectura de red:
+#   cliente (navegador) → nginx:80 ┬→ /api/* → backend:9000 (PHP-FPM)
+#                                  └→ /*     → frontend:8080 (Nginx SPA)
+#
+# Buenas prácticas aplicadas:
+#   ✅ 1 network por proyecto (aislamiento)
+#   ✅ Volúmenes nombrados para persistencia de datos
+#   ✅ Healthcheck en todos los servicios críticos
+#   ✅ restart: unless-stopped (auto-recuperación)
+#   ✅ depends_on con condición "service_healthy"
+#   ✅ Archivo .env externo (no hardcodeado)
+#   ✅ Build separado (etiquetas personalizadas)
+# ============================================================
+
+# ---------- VERSIÓN DE DOCKER COMPOSE ----------
+name: sisganaderia
+services:
+
+  # ============================================================
+  # SERVICIO 1: POSTGRESQL 16  (Base de Datos)
+  # ============================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: sisganaderia-postgres
+    restart: unless-stopped
+
+    # ---------- VARIABLES DE ENTORNO ----------
+    # Tomamos los valores desde el archivo .env.docker
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-sisganaderia}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+      TZ: ${TZ:-America/Mexico_City}
+      PGDATA: /var/lib/postgresql/data/pgdata  # Evita warnings de montaje
+
+    # ---------- VOLÚMENES (PERSISTENCIA) ----------
+    # Usamos un volumen nombrado de Docker para guardar los datos
+    # de PostgreSQL, así NO pierdes información al borrar el contenedor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+
+    # ---------- REDES ----------
+    # Solo visible dentro de la red interna de la app
+    networks:
+      - sisganaderia_net
+
+    # ---------- HEALTHCHECK ----------
+    # Docker verifica periódicamente que PostgreSQL esté sano
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-sisganaderia}"
+      ]
+      interval: 10s        # Cada cuánto revisa
+      timeout: 5s          # Tiempo máximo por chequeo
+      retries: 5           # Intentos antes de marcar como unhealthy
+      start_period: 15s    # Gracia de arranque para PostgreSQL
+
+    # ---------- PERFILES ----------
+    # NOTA: PostgreSQL siempre se levanta, no lleva profile.
+
+
+  # ============================================================
+  # SERVICIO 2: BACKEND LARAVEL (PHP-FPM)
+  # ============================================================
+  backend:
+    build:
+      context: ./backend       # Directorio con el Dockerfile
+      dockerfile: Dockerfile   # Nombre explícito
+      args:
+        # Build args (si se necesitaran en el Dockerfile)
+        BUILDKIT_INLINE_CACHE: 1
+    image: sisganaderia/backend:latest
+    container_name: sisganaderia-backend
+    restart: unless-stopped
+    pull_policy: never  # No intentar pull de Docker Hub, siempre build local
+
+    # ---------- VARIABLES DE ENTORNO (APP) ----------
+    env_file:
+      - .env  # Todas las variables de Laravel vienen de aquí
+
+    # ---------- VARIABLES ADICIONALES SOBREESCRITAS ----------
+    environment:
+      # Sobreescribimos valores del .env.docker para adaptarlos a red Docker:
+      # DB_HOST ahora es "postgres" (nombre del servicio en compose)
+      DB_HOST: postgres
+      DB_PORT: 5432
+      # Cache y sesiones en DB (más simple sin Redis adicional)
+      CACHE_DRIVER: database
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
+
+    # ---------- VOLÚMENES ----------
+    # Compartimos storage y bootstrap/cache para:
+    #   - Persistir logs, sesiones, archivos subidos entre reinicios
+    #   - Permitir regenerar cachés sin rebuild
+    volumes:
+      - backend_storage:/var/www/html/storage
+      - backend_cache:/var/www/html/bootstrap/cache
+
+    # ---------- REDES ----------
+    networks:
+      - sisganaderia_net
+
+    # ---------- DEPENDENCIAS ----------
+    # No arranca el backend hasta que PostgreSQL ESTÉ SANO
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    # ---------- HEALTHCHECK ----------
+    # Comprobamos que PHP responde y que la conexión a PostgreSQL funciona.
+    # La conexión se resuelve con getenv() DENTRO de PHP: así la contraseña
+    # nunca se interpola en el shell (evita fallos con $, &, comillas, etc.).
+    # OJO: "$$" escapa el $ para que compose no intente interpolarlo.
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          php -r 'try {
+          new PDO("pgsql:host=".getenv("DB_HOST").";port=".(getenv("DB_PORT") ?: 5432).";dbname=".getenv("DB_DATABASE"), getenv("DB_USERNAME"), getenv("DB_PASSWORD"), [PDO::ATTR_TIMEOUT => 5]);
+          } catch (Throwable $$e) { fwrite(STDERR, $$e->getMessage()); exit(1); }'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s  # El entrypoint tarda en migrar + seedear la primera vez
+
+    # ---------- PUERTOS (SOLO PARA DEBUG) ----------
+    # En producción normal NO exponemos el backend: Nginx reverse proxy se encarga
+    # Si necesitas debug directo a PHP-FPM (ej: Xdebug), descomenta:
+    # ports:
+    #   - "9000:9000"
+
+
+  # ============================================================
+  # SERVICIO 3: FRONTEND REACT (NGINX - SPA Estática)
+  # ============================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # IMPORTANTE: Vite "quema" VITE_API_URL en el bundle EN MOMENTO DE BUILD.
+        # Si cambias esta variable, debes hacer `docker compose build --no-cache frontend`
+        VITE_API_URL: ${VITE_API_URL:-/api}
+        VITE_APP_NAME: ${VITE_APP_NAME:-SisGanaderia}
+        BUILDKIT_INLINE_CACHE: 1
+    image: sisganaderia/frontend:latest
+    container_name: sisganaderia-frontend
+    restart: unless-stopped
+    pull_policy: never
+
+    # ---------- REDES ----------
+    networks:
+      - sisganaderia_net
+
+    # ---------- HEALTHCHECK ----------
+    # Verificamos que Nginx responda con status 200 en la raíz
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+
+  # ============================================================
+  # SERVICIO 4: NGINX - REVERSE PROXY (PUNTO DE ENTRADA)
+  # ============================================================
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: sisganaderia-nginx
+    restart: unless-stopped
+
+    # ---------- PUERTO EXPUESTO HACIA FUERA ----------
+    # El usuario accede a la app únicamente por este puerto.
+    # Cambia el lado izquierdo si 80 ya está ocupado (ej: "8080:80")
+    ports:
+      - "${NGINX_PORT:-80}:80"
+
+    # ---------- VOLÚMENES ----------
+    # Montamos nuestra configuración personalizada de Nginx
+    # y los volúmenes compartidos (storage de Laravel para X-Accel-Redirect)
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - backend_storage:/var/www/html/storage:ro
+
+    # ---------- REDES ----------
+    networks:
+      - sisganaderia_net
+
+    # ---------- DEPENDENCIAS ----------
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+
+    # ---------- HEALTHCHECK ----------
+    # Verificamos que el reverse proxy responde
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+
+# ============================================================
+# REDES DEL PROYECTO
+# ============================================================
+# Creamos una red bridge privada para que los contenedores
+# se hablen entre sí por nombre DNS (postgres, backend, frontend)
+# y estén aislados de otros proyectos Docker del mismo host.
+networks:
+  sisganaderia_net:
+    name: sisganaderia_net
+    driver: bridge
+
+
+# ============================================================
+# VOLÚMENES NOMBRADOS (PERSISTENCIA)
+# ============================================================
+# Son gestionados por Docker. Se conservan al hacer
+# `docker compose down` y sólo se borran con `docker compose down -v`
+volumes:
+  # Datos de PostgreSQL (NO BORRAR SIN RESPALDO)
+  postgres_data:
+    name: sisganaderia_postgres_data
+
+  # storage/ de Laravel: logs, sesiones, archivos subidos, PDFs
+  backend_storage:
+    name: sisganaderia_backend_storage
+
+  # bootstrap/cache/ de Laravel: cache de config/rutas/vistas
+  backend_cache:
+    name: sisganaderia_backend_cache

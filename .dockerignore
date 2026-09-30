@@ -1,0 +1,66 @@
+# ============================================================
+# ARCHIVO .dockerignore - SISGANADERIA
+# ============================================================
+# Este archivo evita que archivos innecesarios sean copiados
+# al contexto de construcción de Docker, reduciendo el tamaño
+# de las imágenes y acelerando el proceso de build.
+# ============================================================
+
+# ---------- ARCHIVOS DE GIT ----------
+.git
+.gitignore
+.gitattributes
+.github
+
+# ---------- DOCUMENTACIÓN ----------
+docs/
+README.md
+CHANGELOG.md
+*.mdc
+
+# ---------- ARCHIVOS DE CONFIGURACIÓN LOCAL ----------
+.cursor/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---------- ARCHIVOS TEMPORALES Y LOGS ----------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---------- BACKEND LARAVEL ----------
+backend/vendor/
+backend/node_modules/
+backend/.env
+backend/.env.local
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/app/*
+backend/bootstrap/cache/*
+backend/storage/debugbar/*
+backend/phpunit.xml
+backend/tests/
+
+# ---------- FRONTEND REACT ----------
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.eslintcache
+frontend/build/
+frontend/coverage/
+
+# ---------- SISTEMA OPERATIVO ----------
+Thumbs.db
+.DS_Store
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ---------- ARCHIVOS DOCKER (si existen) ----------
+docker-compose.override.yml

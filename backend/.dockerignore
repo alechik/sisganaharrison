@@ -1,0 +1,25 @@
+# .dockerignore para BUILD CONTEXT ./backend
+# Aplica solo al construir backend/Dockerfile (context = ./backend)
+
+vendor/
+node_modules/
+.env
+.env.local
+.env.*
+!.env.example
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/*
+!storage/app/.gitignore
+!storage/app/public/.gitignore
+!storage/app/private/.gitignore
+bootstrap/cache/*.php
+bootstrap/cache/*.gitignore
+!.gitignore
+tests/
+.phpunit.result.cache
+.DS_Store
+npm-debug.log
+docker-compose.override.yml

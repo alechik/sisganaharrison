@@ -1,0 +1,21 @@
+# .dockerignore para BUILD CONTEXT ./frontend
+# Aplica solo al construir frontend/Dockerfile (context = ./frontend)
+
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.local
+.env.*
+!.env.example
+.eslintcache
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+docker-compose.override.yml
+# NO excluir public/images/: el código lo referencia en 70 lugares
+# (/images/logo/*, /images/user/*, /images/error/*...) y deben copiarse
+# al build de Vite para acabar en dist/.

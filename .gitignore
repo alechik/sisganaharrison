@@ -1,0 +1,24 @@
+# Dependencias
+node_modules/
+vendor/
+
+# Build
+dist/
+build/
+public/build/
+public/hot
+
+# Entorno (contiene APP_KEY y contraseñas de la BD)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs y cachés
+*.log
+npm-debug.log*
+yarn-*.log*
+.phpunit.result.cache
+.php-cs-fixer.cache
+.DS_Store
+Thumbs.db
