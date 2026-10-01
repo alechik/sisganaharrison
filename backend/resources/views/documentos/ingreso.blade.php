@@ -49,7 +49,7 @@
                     <td class="text-right">{{ $detalle->edad !== null ? $detalle->edad : '—' }}</td>
                     <td class="text-right">{{ number_format((float) $detalle->peso_oc, 2, ',', '.') }}</td>
                     <td class="text-right">{{ number_format((float) $detalle->peso_ingreso, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->precio_compra, 2, ',', '.') }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->precio_compra) }}</td>
                     <td>{{ $detalle->observaciones ?: '—' }}</td>
                 </tr>
             @endforeach
@@ -67,11 +67,11 @@
         </tr>
         <tr>
             <td>Descuento general</td>
-            <td class="text-right">{{ number_format((float) $ingreso->descuento, 2, ',', '.') }}</td>
+            <td class="text-right">{{ \App\Support\Money::format($ingreso->descuento) }}</td>
         </tr>
         <tr>
             <td><strong>Monto total</strong></td>
-            <td class="text-right"><strong>{{ number_format((float) $ingreso->monto_total, 2, ',', '.') }}</strong></td>
+            <td class="text-right"><strong>{{ \App\Support\Money::format($ingreso->monto_total) }}</strong></td>
         </tr>
     </table>
 @endsection

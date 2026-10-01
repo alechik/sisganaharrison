@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PaginationMeta } from "@/types/api";
+import { formatMoney } from "@/utils/formatMoney";
 import { EyeIcon, PencilIcon, TrashBinIcon } from "@/icons";
 import { MEDICAMENTO_ROUTES } from "../constants";
 import { MEDICAMENTOS_PERMISSIONS } from "../permissions";
@@ -97,7 +98,7 @@ export default function MedicamentoTable({
                     {medicamento.presentacion_descripcion || "—"}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {medicamento.precio.toLocaleString("es-PY", { minimumFractionDigits: 2 })}
+                    {formatMoney(medicamento.precio)}
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">

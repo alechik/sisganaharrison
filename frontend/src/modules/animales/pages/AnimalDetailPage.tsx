@@ -5,6 +5,7 @@ import PermissionGate from "@/components/auth/PermissionGate";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
+import { formatMoney } from "@/utils/formatMoney";
 import { AnimalStatusBadge } from "../components";
 import { ANIMAL_ROUTES } from "../constants";
 import { ANIMALES_PERMISSIONS } from "../permissions";
@@ -117,12 +118,7 @@ export default function AnimalDetailPage() {
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Precio por kilo</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {animal.precio_kilo != null
-                ? animal.precio_kilo.toLocaleString("es-PY", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
-                : "—"}
+              {animal.precio_kilo != null ? formatMoney(animal.precio_kilo) : "—"}
             </dd>
           </div>
           <div>

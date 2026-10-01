@@ -27,5 +27,4 @@ export const formatAnimalLabel = (
   return `${code} — ${tag}`;
 };
 
-export const formatMoney = (value?: number | null): string =>
-  (value ?? 0).toLocaleString("es-PY", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export { formatMoney } from "@/utils/formatMoney";

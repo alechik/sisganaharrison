@@ -20,14 +20,16 @@ export const formatDate = (value?: string | null): string => {
   return new Date(`${value}T00:00:00`).toLocaleDateString("es-PY");
 };
 
-export const formatMoney = (value?: number | null): string =>
-  (value ?? 0).toLocaleString("es-PY", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export { formatMoney } from "@/utils/formatMoney";
 
 export const formatPeso = (value?: number | null): string => {
   if (value === null || value === undefined) {
     return "—";
   }
-  return `${formatMoney(value)} kg`;
+  return `${new Intl.NumberFormat("es-PY", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)} kg`;
 };
 
 export const formatSexo = (sexo?: string | null): string => {

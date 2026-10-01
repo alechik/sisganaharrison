@@ -53,9 +53,9 @@
                     <td class="text-right">{{ $detalle->edad !== null ? $detalle->edad : '—' }}</td>
                     <td class="text-right">{{ $detalle->cantidad }}</td>
                     <td class="text-right">{{ number_format((float) $detalle->peso, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->precio, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->descuento, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->subtotal, 2, ',', '.') }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->precio) }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->descuento) }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->subtotal) }}</td>
                     <td>{{ $estadoDetalle }}</td>
                 </tr>
             @endforeach
@@ -69,11 +69,11 @@
         </tr>
         <tr>
             <td>Descuento general</td>
-            <td class="text-right">{{ number_format((float) $cuarentena->descuento, 2, ',', '.') }}</td>
+            <td class="text-right">{{ \App\Support\Money::format($cuarentena->descuento) }}</td>
         </tr>
         <tr>
             <td><strong>Monto total</strong></td>
-            <td class="text-right"><strong>{{ number_format((float) $cuarentena->monto_total, 2, ',', '.') }}</strong></td>
+            <td class="text-right"><strong>{{ \App\Support\Money::format($cuarentena->monto_total) }}</strong></td>
         </tr>
     </table>
 @endsection

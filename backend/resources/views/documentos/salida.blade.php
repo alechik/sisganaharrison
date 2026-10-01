@@ -48,9 +48,9 @@
                     <td>{{ $detalle->animal?->categoria?->nombre ?: '—' }}</td>
                     <td>{{ $potreroLote }}</td>
                     <td class="text-right">{{ number_format((float) $detalle->peso, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->precio, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->descuento, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->subtotal, 2, ',', '.') }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->precio) }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->descuento) }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->subtotal) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -67,11 +67,11 @@
         </tr>
         <tr>
             <td>Descuento general</td>
-            <td class="text-right">{{ number_format((float) $salida->descuento, 2, ',', '.') }}</td>
+            <td class="text-right">{{ \App\Support\Money::format($salida->descuento) }}</td>
         </tr>
         <tr>
             <td><strong>Monto total</strong></td>
-            <td class="text-right"><strong>{{ number_format((float) $salida->monto_total, 2, ',', '.') }}</strong></td>
+            <td class="text-right"><strong>{{ \App\Support\Money::format($salida->monto_total) }}</strong></td>
         </tr>
     </table>
 @endsection

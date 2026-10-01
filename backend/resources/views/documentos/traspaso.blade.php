@@ -42,8 +42,8 @@
                     <td>{{ $sexoLabel }}</td>
                     <td>{{ $detalle->animal?->categoria?->nombre ?: '—' }}</td>
                     <td class="text-right">{{ number_format((float) $detalle->peso, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->precio, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->subtotal, 2, ',', '.') }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->precio) }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->subtotal) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -60,7 +60,7 @@
         </tr>
         <tr>
             <td><strong>Monto total</strong></td>
-            <td class="text-right"><strong>{{ number_format((float) $traspaso->monto_total, 2, ',', '.') }}</strong></td>
+            <td class="text-right"><strong>{{ \App\Support\Money::format($traspaso->monto_total) }}</strong></td>
         </tr>
     </table>
 @endsection

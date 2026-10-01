@@ -30,14 +30,7 @@ export const formatDate = (value?: string | null): string => {
   return new Date(`${value}T00:00:00`).toLocaleDateString("es-PY");
 };
 
-export const formatMoney = (value?: number | null): string => {
-  const amount = value ?? 0;
-  return new Intl.NumberFormat("es-PY", {
-    style: "currency",
-    currency: "PYG",
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
+export { formatMoney } from "@/utils/formatMoney";
 
 export const getEstadoLabel = (value?: string | null): string => {
   const labels: Record<string, string> = {

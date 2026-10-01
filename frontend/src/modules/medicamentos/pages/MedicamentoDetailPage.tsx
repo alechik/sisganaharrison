@@ -5,6 +5,7 @@ import PermissionGate from "@/components/auth/PermissionGate";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
+import { formatMoney } from "@/utils/formatMoney";
 import { MedicamentoStatusBadge } from "../components";
 import { MEDICAMENTO_ROUTES } from "../constants";
 import { MEDICAMENTOS_PERMISSIONS } from "../permissions";
@@ -93,7 +94,7 @@ export default function MedicamentoDetailPage() {
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Precio</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {medicamento.precio.toLocaleString("es-PY", { minimumFractionDigits: 2 })}
+              {formatMoney(medicamento.precio)}
             </dd>
           </div>
           <div>

@@ -21,13 +21,7 @@ export const formatDate = (value?: string | null): string => {
   return new Date(`${value}T00:00:00`).toLocaleDateString("es-PY");
 };
 
-export const formatMoney = (value?: number | null): string => {
-  return new Intl.NumberFormat("es-PY", {
-    style: "currency",
-    currency: "PYG",
-    maximumFractionDigits: 0,
-  }).format(value ?? 0);
-};
+export { formatMoney } from "@/utils/formatMoney";
 
 export const formatPeso = (value?: number | null): string => {
   if (value === null || value === undefined) {
