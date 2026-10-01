@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getEventosSanitarios } from "../services";
 import { EventoSanitario, EventoSanitarioFilters } from "../types";
@@ -25,31 +26,44 @@ export const useEventosSanitarios = ({
     ...initialFilters,
   });
   const [eventos, setEventos] = useState<EventoSanitario[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchEventos = useCallback(async (nextFilters: EventoSanitarioFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
 
-      const response = await getEventosSanitarios(nextFilters);
+      const response = await getEventosSanitarios(nextFilters, signal);
+
+      if (signal.aborted) {
+
+        return;
+
+      }
 
       setEventos(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar los eventos sanitarios.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchEventos(filters);
@@ -90,6 +104,7 @@ export const useEventosSanitarios = ({
   return {
     eventos,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

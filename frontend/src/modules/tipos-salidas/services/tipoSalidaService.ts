@@ -20,11 +20,13 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getTiposSalidas = async (
-  params: TipoSalidaListParams = {}
+  params: TipoSalidaListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<TipoSalida>> => {
   const response = await api.get<LaravelPaginatedResponse<TipoSalida>>(
     "/tipos-salidas",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
@@ -39,11 +41,13 @@ export const getTiposSalidas = async (
 };
 
 export const getDeletedTiposSalidas = async (
-  params: Pick<TipoSalidaListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<TipoSalidaListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<TipoSalida>> => {
   const response = await api.get<LaravelPaginatedResponse<TipoSalida>>(
     "/tipos-salidas/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

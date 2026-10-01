@@ -20,11 +20,13 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getPresentaciones = async (
-  params: PresentacionListParams = {}
+  params: PresentacionListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Presentacion>> => {
   const response = await api.get<LaravelPaginatedResponse<Presentacion>>(
     "/presentaciones",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
@@ -39,11 +41,13 @@ export const getPresentaciones = async (
 };
 
 export const getDeletedPresentaciones = async (
-  params: Pick<PresentacionListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<PresentacionListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Presentacion>> => {
   const response = await api.get<LaravelPaginatedResponse<Presentacion>>(
     "/presentaciones/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

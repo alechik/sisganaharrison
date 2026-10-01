@@ -20,11 +20,13 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getCategoriasAnimales = async (
-  params: CategoriaAnimalListParams = {}
+  params: CategoriaAnimalListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<CategoriaAnimal>> => {
   const response = await api.get<LaravelPaginatedResponse<CategoriaAnimal>>(
     "/categorias-animales",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
@@ -40,11 +42,13 @@ export const getCategoriasAnimales = async (
 };
 
 export const getDeletedCategoriasAnimales = async (
-  params: Pick<CategoriaAnimalListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<CategoriaAnimalListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<CategoriaAnimal>> => {
   const response = await api.get<LaravelPaginatedResponse<CategoriaAnimal>>(
     "/categorias-animales/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

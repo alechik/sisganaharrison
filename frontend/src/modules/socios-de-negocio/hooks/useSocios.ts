@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getDeletedSocios, getSocios } from "../services";
 import { Socio, SocioFilters } from "../types";
@@ -24,14 +25,15 @@ export const useSocios = ({ deleted = false, initialFilters = {} }: UseSociosOpt
     ...initialFilters,
   });
   const [socios, setSocios] = useState<Socio[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchSocios = useCallback(async (nextFilters: SocioFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
 
       const response = deleted
@@ -40,22 +42,34 @@ export const useSocios = ({ deleted = false, initialFilters = {} }: UseSociosOpt
             per_page: nextFilters.per_page,
             sort_by: nextFilters.sort_by,
             sort_dir: nextFilters.sort_dir,
-          })
-        : await getSocios(nextFilters);
+          }, signal)
+        : await getSocios(nextFilters, signal);
+
+      if (signal.aborted) {
+
+        return;
+
+      }
 
       setSocios(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar los socios de negocio.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, [deleted]);
+  }, [deleted, begin, succeed, fail]);
 
   useEffect(() => {
     fetchSocios(filters);
@@ -89,6 +103,7 @@ export const useSocios = ({ deleted = false, initialFilters = {} }: UseSociosOpt
   return {
     socios,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

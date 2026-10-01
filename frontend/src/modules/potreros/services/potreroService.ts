@@ -20,9 +20,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getPotreros = async (
-  params: PotreroListParams = {}
+  params: PotreroListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Potrero>> => {
   const response = await api.get<LaravelPaginatedResponse<Potrero>>("/potreros", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
@@ -39,11 +41,13 @@ export const getPotreros = async (
 };
 
 export const getDeletedPotreros = async (
-  params: Pick<PotreroListParams, "page" | "per_page" | "sort_by" | "sort_dir" | "establecimiento_id"> = {}
+  params: Pick<PotreroListParams, "page" | "per_page" | "sort_by" | "sort_dir" | "establecimiento_id"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Potrero>> => {
   const response = await api.get<LaravelPaginatedResponse<Potrero>>(
     "/potreros/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

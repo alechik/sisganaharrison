@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getDeletedRazas, getRazas } from "../services";
 import { Raza, RazaFilters } from "../types";
@@ -24,14 +25,15 @@ export const useRazas = ({ deleted = false, initialFilters = {} }: UseRazasOptio
     ...initialFilters,
   });
   const [razas, setRazas] = useState<Raza[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchRazas = useCallback(async (nextFilters: RazaFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
 
       const response = deleted
@@ -40,22 +42,34 @@ export const useRazas = ({ deleted = false, initialFilters = {} }: UseRazasOptio
             per_page: nextFilters.per_page,
             sort_by: nextFilters.sort_by,
             sort_dir: nextFilters.sort_dir,
-          })
-        : await getRazas(nextFilters);
+          }, signal)
+        : await getRazas(nextFilters, signal);
+
+      if (signal.aborted) {
+
+        return;
+
+      }
 
       setRazas(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar las razas.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, [deleted]);
+  }, [deleted, begin, succeed, fail]);
 
   useEffect(() => {
     fetchRazas(filters);
@@ -84,6 +98,7 @@ export const useRazas = ({ deleted = false, initialFilters = {} }: UseRazasOptio
   return {
     razas,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

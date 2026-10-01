@@ -20,9 +20,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getMedicamentos = async (
-  params: MedicamentoListParams = {}
+  params: MedicamentoListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Medicamento>> => {
   const response = await api.get<LaravelPaginatedResponse<Medicamento>>("/medicamentos", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
@@ -38,11 +40,13 @@ export const getMedicamentos = async (
 };
 
 export const getDeletedMedicamentos = async (
-  params: Pick<MedicamentoListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<MedicamentoListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Medicamento>> => {
   const response = await api.get<LaravelPaginatedResponse<Medicamento>>(
     "/medicamentos/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

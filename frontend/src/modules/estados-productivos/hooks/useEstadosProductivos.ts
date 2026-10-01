@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getDeletedEstadosProductivos, getEstadosProductivos } from "../services";
 import { EstadoProductivo, EstadoProductivoFilters } from "../types";
@@ -27,16 +28,17 @@ export const useEstadosProductivos = ({
     ...initialFilters,
   });
   const [estados, setEstados] = useState<EstadoProductivo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchEstados = useCallback(
     async (nextFilters: EstadoProductivoFilters) => {
+      const signal = begin();
+
       try {
-        setLoading(true);
-        setError(null);
+      setError(null);
 
         const response = deleted
           ? await getDeletedEstadosProductivos({
@@ -44,23 +46,35 @@ export const useEstadosProductivos = ({
               per_page: nextFilters.per_page,
               sort_by: nextFilters.sort_by,
               sort_dir: nextFilters.sort_dir,
-            })
-          : await getEstadosProductivos(nextFilters);
+            }, signal)
+          : await getEstadosProductivos(nextFilters, signal);
+
+        if (signal.aborted) {
+
+          return;
+
+        }
 
         setEstados(response.data);
+
         setMeta(response.meta);
-        setFilters((current) => ({
-          ...current,
-          page: response.meta.current_page,
-        }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
       } catch (err) {
-        console.error(err);
-        setError("No se pudieron cargar los estados productivos.");
-      } finally {
-        setLoading(false);
+      if (isAbortError(err) || signal.aborted) {
+        return;
       }
+      console.error(err);
+      setError("No se pudieron cargar los estados productivos.");
+      fail(signal);
+    }
     },
-    [deleted]
+    [deleted, begin, succeed, fail]
   );
 
   useEffect(() => {
@@ -98,6 +112,7 @@ export const useEstadosProductivos = ({
   return {
     estados,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

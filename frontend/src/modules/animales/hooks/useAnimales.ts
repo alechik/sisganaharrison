@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getDeletedAnimales, getAnimales } from "../services";
 import { Animal, AnimalFilters } from "../types";
@@ -27,16 +28,17 @@ export const useAnimales = ({
     ...initialFilters,
   });
   const [animales, setAnimales] = useState<Animal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchAnimales = useCallback(
     async (nextFilters: AnimalFilters) => {
+      const signal = begin();
+
       try {
-        setLoading(true);
-        setError(null);
+      setError(null);
 
         const response = deleted
           ? await getDeletedAnimales({
@@ -46,23 +48,35 @@ export const useAnimales = ({
               raza_id: nextFilters.raza_id,
               sort_by: nextFilters.sort_by,
               sort_dir: nextFilters.sort_dir,
-            })
-          : await getAnimales(nextFilters);
+            }, signal)
+          : await getAnimales(nextFilters, signal);
+
+        if (signal.aborted) {
+
+          return;
+
+        }
 
         setAnimales(response.data);
+
         setMeta(response.meta);
-        setFilters((current) => ({
-          ...current,
-          page: response.meta.current_page,
-        }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
       } catch (err) {
-        console.error(err);
-        setError("No se pudieron cargar los animales.");
-      } finally {
-        setLoading(false);
+      if (isAbortError(err) || signal.aborted) {
+        return;
       }
+      console.error(err);
+      setError("No se pudieron cargar los animales.");
+      fail(signal);
+    }
     },
-    [deleted]
+    [deleted, begin, succeed, fail]
   );
 
   useEffect(() => {
@@ -105,6 +119,7 @@ export const useAnimales = ({
   return {
     animales,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

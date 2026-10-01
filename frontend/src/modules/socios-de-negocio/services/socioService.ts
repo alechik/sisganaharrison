@@ -23,9 +23,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getSocios = async (
-  params: SocioListParams = {}
+  params: SocioListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Socio>> => {
   const response = await api.get<LaravelPaginatedResponse<Socio>>("/socios", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
@@ -44,9 +46,11 @@ export const getSocios = async (
 };
 
 export const getDeletedSocios = async (
-  params: Pick<SocioListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<SocioListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Socio>> => {
   const response = await api.get<LaravelPaginatedResponse<Socio>>("/socios/eliminados", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
@@ -89,9 +93,11 @@ export const restoreSocio = async (id: number) => {
 };
 
 export const getTiposPersona = async (
-  params: TipoPersonaListParams = {}
+  params: TipoPersonaListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<TipoPersona>> => {
   const response = await api.get<LaravelPaginatedResponse<TipoPersona>>("/tipos-persona", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,

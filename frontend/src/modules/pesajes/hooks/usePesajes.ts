@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getPesajes } from "../services";
 import { Pesaje, PesajeFilters } from "../types";
@@ -23,31 +24,44 @@ export const usePesajes = ({ initialFilters = {} }: UsePesajesOptions = {}) => {
     ...initialFilters,
   });
   const [pesajes, setPesajes] = useState<Pesaje[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchPesajes = useCallback(async (nextFilters: PesajeFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
 
-      const response = await getPesajes(nextFilters);
+      const response = await getPesajes(nextFilters, signal);
+
+      if (signal.aborted) {
+
+        return;
+
+      }
 
       setPesajes(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar los pesajes.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchPesajes(filters);
@@ -86,6 +100,7 @@ export const usePesajes = ({ initialFilters = {} }: UsePesajesOptions = {}) => {
   return {
     pesajes,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

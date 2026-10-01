@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getSalidas } from "../services";
 import { Salida, SalidaFilters } from "../types";
@@ -16,28 +17,41 @@ const defaultMeta: PaginationMeta = {
 export const useSalidas = () => {
   const [filters, setFilters] = useState<SalidaFilters>(defaultSalidaFilters());
   const [salidas, setSalidas] = useState<Salida[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
 
   const fetchSalidas = useCallback(async (nextFilters: SalidaFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
-      const response = await getSalidas(nextFilters);
+      const response = await getSalidas(nextFilters, signal);
+      if (signal.aborted) {
+
+        return;
+
+      }
+
       setSalidas(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar las salidas.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchSalidas(filters);
@@ -66,6 +80,7 @@ export const useSalidas = () => {
   return {
     salidas,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

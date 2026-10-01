@@ -20,11 +20,13 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getTiposEventosSanitarios = async (
-  params: TipoEventoSanitarioListParams = {}
+  params: TipoEventoSanitarioListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<TipoEventoSanitario>> => {
   const response = await api.get<LaravelPaginatedResponse<TipoEventoSanitario>>(
     "/tipos-eventos-sanitarios",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
@@ -40,11 +42,13 @@ export const getTiposEventosSanitarios = async (
 };
 
 export const getDeletedTiposEventosSanitarios = async (
-  params: Pick<TipoEventoSanitarioListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<TipoEventoSanitarioListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<TipoEventoSanitario>> => {
   const response = await api.get<LaravelPaginatedResponse<TipoEventoSanitario>>(
     "/tipos-eventos-sanitarios/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

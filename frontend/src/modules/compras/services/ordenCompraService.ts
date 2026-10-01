@@ -19,11 +19,13 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getOrdenesCompra = async (
-  params: OrdenCompraListParams = {}
+  params: OrdenCompraListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<OrdenCompra>> => {
   const response = await api.get<LaravelPaginatedResponse<OrdenCompra>>(
     "/compras/ordenes-compra",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

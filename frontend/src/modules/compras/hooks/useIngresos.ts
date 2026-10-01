@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getIngresos } from "../services";
 import { Ingreso, IngresoFilters } from "../types";
@@ -16,28 +17,41 @@ const defaultMeta: PaginationMeta = {
 export const useIngresos = () => {
   const [filters, setFilters] = useState<IngresoFilters>(defaultIngresoFilters());
   const [ingresos, setIngresos] = useState<Ingreso[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
 
   const fetchIngresos = useCallback(async (nextFilters: IngresoFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
-      const response = await getIngresos(nextFilters);
+      const response = await getIngresos(nextFilters, signal);
+      if (signal.aborted) {
+
+        return;
+
+      }
+
       setIngresos(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar los ingresos.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchIngresos(filters);
@@ -65,6 +79,7 @@ export const useIngresos = () => {
   return {
     ingresos,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

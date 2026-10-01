@@ -20,11 +20,13 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getTiposMovimientos = async (
-  params: TipoMovimientoListParams = {}
+  params: TipoMovimientoListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<TipoMovimiento>> => {
   const response = await api.get<LaravelPaginatedResponse<TipoMovimiento>>(
     "/tipos-movimientos",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
@@ -40,11 +42,13 @@ export const getTiposMovimientos = async (
 };
 
 export const getDeletedTiposMovimientos = async (
-  params: Pick<TipoMovimientoListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<TipoMovimientoListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<TipoMovimiento>> => {
   const response = await api.get<LaravelPaginatedResponse<TipoMovimiento>>(
     "/tipos-movimientos/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

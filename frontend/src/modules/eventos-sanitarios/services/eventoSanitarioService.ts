@@ -20,11 +20,13 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getEventosSanitarios = async (
-  params: EventoSanitarioListParams = {}
+  params: EventoSanitarioListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<EventoSanitario>> => {
   const response = await api.get<LaravelPaginatedResponse<EventoSanitario>>(
     "/eventos-sanitarios",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

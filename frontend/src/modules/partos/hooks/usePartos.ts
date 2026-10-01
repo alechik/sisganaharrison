@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getPartos } from "../services";
 import { Parto, PartoFilters } from "../types";
@@ -23,31 +24,44 @@ export const usePartos = ({ initialFilters = {} }: UsePartosOptions = {}) => {
     ...initialFilters,
   });
   const [partos, setPartos] = useState<Parto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchPartos = useCallback(async (nextFilters: PartoFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
 
-      const response = await getPartos(nextFilters);
+      const response = await getPartos(nextFilters, signal);
+
+      if (signal.aborted) {
+
+        return;
+
+      }
 
       setPartos(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar los partos.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchPartos(filters);
@@ -87,6 +101,7 @@ export const usePartos = ({ initialFilters = {} }: UsePartosOptions = {}) => {
   return {
     partos,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

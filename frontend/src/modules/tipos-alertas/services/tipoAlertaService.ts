@@ -20,11 +20,13 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getTiposAlertas = async (
-  params: TipoAlertaListParams = {}
+  params: TipoAlertaListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<TipoAlerta>> => {
   const response = await api.get<LaravelPaginatedResponse<TipoAlerta>>(
     "/tipos-alertas",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
@@ -40,11 +42,13 @@ export const getTiposAlertas = async (
 };
 
 export const getDeletedTiposAlertas = async (
-  params: Pick<TipoAlertaListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<TipoAlertaListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<TipoAlerta>> => {
   const response = await api.get<LaravelPaginatedResponse<TipoAlerta>>(
     "/tipos-alertas/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

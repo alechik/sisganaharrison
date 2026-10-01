@@ -16,9 +16,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getPesajes = async (
-  params: PesajeListParams = {}
+  params: PesajeListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Pesaje>> => {
   const response = await api.get<LaravelPaginatedResponse<Pesaje>>("/pesajes", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,

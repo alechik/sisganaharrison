@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getGestaciones } from "../services";
 import { Gestacion, GestacionFilters } from "../types";
@@ -23,31 +24,44 @@ export const useGestaciones = ({ initialFilters = {} }: UseGestacionesOptions = 
     ...initialFilters,
   });
   const [gestaciones, setGestaciones] = useState<Gestacion[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchGestaciones = useCallback(async (nextFilters: GestacionFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
 
-      const response = await getGestaciones(nextFilters);
+      const response = await getGestaciones(nextFilters, signal);
+
+      if (signal.aborted) {
+
+        return;
+
+      }
 
       setGestaciones(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar las gestaciones.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchGestaciones(filters);
@@ -87,6 +101,7 @@ export const useGestaciones = ({ initialFilters = {} }: UseGestacionesOptions = 
   return {
     gestaciones,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

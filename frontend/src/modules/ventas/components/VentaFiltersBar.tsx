@@ -1,3 +1,4 @@
+import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
@@ -14,20 +15,18 @@ export default function VentaFiltersBar({ filters, onChange }: Props) {
     <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-3">
       <div>
         <Label>Código de venta</Label>
-        <InputField
-          type="text"
+        <DebouncedSearchField
           placeholder="VEN-2026-0001"
           value={filters.cod_venta ?? ""}
-          onChange={(e) => onChange({ cod_venta: e.target.value })}
+          onValueChange={(cod_venta) => onChange({ cod_venta })}
         />
       </div>
       <div>
         <Label>Nombre del cliente</Label>
-        <InputField
-          type="text"
+        <DebouncedSearchField
           placeholder="Razón social"
           value={filters.cliente ?? ""}
-          onChange={(e) => onChange({ cliente: e.target.value })}
+          onValueChange={(cliente) => onChange({ cliente })}
         />
       </div>
       <div>

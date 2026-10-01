@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getOrdenesCompra } from "../services";
 import { OrdenCompra, OrdenCompraFilters } from "../types";
@@ -23,29 +24,39 @@ export const useOrdenesCompra = ({ initialFilters = {} }: UseOrdenesCompraOption
     ...initialFilters,
   });
   const [ordenes, setOrdenes] = useState<OrdenCompra[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchOrdenes = useCallback(async (nextFilters: OrdenCompraFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
-      const response = await getOrdenesCompra(nextFilters);
+      const response = await getOrdenesCompra(nextFilters, signal);
+
+      if (signal.aborted) {
+        return;
+      }
+
       setOrdenes(response.data);
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar las órdenes de compra.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchOrdenes(filters);
@@ -77,6 +88,7 @@ export const useOrdenesCompra = ({ initialFilters = {} }: UseOrdenesCompraOption
   return {
     ordenes,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

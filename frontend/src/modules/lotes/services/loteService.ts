@@ -20,9 +20,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getLotes = async (
-  params: LoteListParams = {}
+  params: LoteListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Lote>> => {
   const response = await api.get<LaravelPaginatedResponse<Lote>>("/lotes", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
@@ -38,11 +40,13 @@ export const getLotes = async (
 };
 
 export const getDeletedLotes = async (
-  params: Pick<LoteListParams, "page" | "per_page" | "sort_by" | "sort_dir" | "potrero_id"> = {}
+  params: Pick<LoteListParams, "page" | "per_page" | "sort_by" | "sort_dir" | "potrero_id"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Lote>> => {
   const response = await api.get<LaravelPaginatedResponse<Lote>>(
     "/lotes/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,

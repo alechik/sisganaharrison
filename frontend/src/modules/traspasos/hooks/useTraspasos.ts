@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getTraspasos } from "../services";
 import { Traspaso, TraspasoFilters } from "../types";
@@ -16,28 +17,41 @@ const defaultMeta: PaginationMeta = {
 export const useTraspasos = () => {
   const [filters, setFilters] = useState<TraspasoFilters>(defaultTraspasoFilters());
   const [traspasos, setTraspasos] = useState<Traspaso[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
 
   const fetchTraspasos = useCallback(async (nextFilters: TraspasoFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
-      const response = await getTraspasos(nextFilters);
+      const response = await getTraspasos(nextFilters, signal);
+      if (signal.aborted) {
+
+        return;
+
+      }
+
       setTraspasos(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar los traspasos.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchTraspasos(filters);
@@ -65,6 +79,7 @@ export const useTraspasos = () => {
   return {
     traspasos,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

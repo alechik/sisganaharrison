@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getCategoriasAnimales, getDeletedCategoriasAnimales } from "../services";
 import { CategoriaAnimal, CategoriaAnimalFilters } from "../types";
@@ -27,16 +28,17 @@ export const useCategoriasAnimales = ({
     ...initialFilters,
   });
   const [categorias, setCategorias] = useState<CategoriaAnimal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchCategorias = useCallback(
     async (nextFilters: CategoriaAnimalFilters) => {
+      const signal = begin();
+
       try {
-        setLoading(true);
-        setError(null);
+      setError(null);
 
         const response = deleted
           ? await getDeletedCategoriasAnimales({
@@ -44,23 +46,35 @@ export const useCategoriasAnimales = ({
               per_page: nextFilters.per_page,
               sort_by: nextFilters.sort_by,
               sort_dir: nextFilters.sort_dir,
-            })
-          : await getCategoriasAnimales(nextFilters);
+            }, signal)
+          : await getCategoriasAnimales(nextFilters, signal);
+
+        if (signal.aborted) {
+
+          return;
+
+        }
 
         setCategorias(response.data);
+
         setMeta(response.meta);
-        setFilters((current) => ({
-          ...current,
-          page: response.meta.current_page,
-        }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
       } catch (err) {
-        console.error(err);
-        setError("No se pudieron cargar las categorías.");
-      } finally {
-        setLoading(false);
+      if (isAbortError(err) || signal.aborted) {
+        return;
       }
+      console.error(err);
+      setError("No se pudieron cargar las categorías.");
+      fail(signal);
+    }
     },
-    [deleted]
+    [deleted, begin, succeed, fail]
   );
 
   useEffect(() => {
@@ -98,6 +112,7 @@ export const useCategoriasAnimales = ({
   return {
     categorias,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

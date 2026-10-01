@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
@@ -27,19 +28,17 @@ export default function SalidaFiltersBar({ filters, onChange }: Props) {
     <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-3">
       <div>
         <Label>Código</Label>
-        <InputField
-          type="text"
+        <DebouncedSearchField
           placeholder="SAL-2026-0001"
           value={filters.codigo ?? ""}
-          onChange={(e) => onChange({ codigo: e.target.value })}
+          onValueChange={(codigo) => onChange({ codigo })}
         />
       </div>
       <div>
         <Label>Cliente</Label>
-        <InputField
-          type="text"
+        <DebouncedSearchField
           value={filters.cliente ?? ""}
-          onChange={(e) => onChange({ cliente: e.target.value })}
+          onValueChange={(cliente) => onChange({ cliente })}
         />
       </div>
       <div>

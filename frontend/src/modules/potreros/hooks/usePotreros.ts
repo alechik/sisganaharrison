@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getDeletedPotreros, getPotreros } from "../services";
 import { Potrero, PotreroFilters } from "../types";
@@ -27,16 +28,17 @@ export const usePotreros = ({
     ...initialFilters,
   });
   const [potreros, setPotreros] = useState<Potrero[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchPotreros = useCallback(
     async (nextFilters: PotreroFilters) => {
+      const signal = begin();
+
       try {
-        setLoading(true);
-        setError(null);
+      setError(null);
 
         const response = deleted
           ? await getDeletedPotreros({
@@ -45,23 +47,35 @@ export const usePotreros = ({
               establecimiento_id: nextFilters.establecimiento_id,
               sort_by: nextFilters.sort_by,
               sort_dir: nextFilters.sort_dir,
-            })
-          : await getPotreros(nextFilters);
+            }, signal)
+          : await getPotreros(nextFilters, signal);
+
+        if (signal.aborted) {
+
+          return;
+
+        }
 
         setPotreros(response.data);
+
         setMeta(response.meta);
-        setFilters((current) => ({
-          ...current,
-          page: response.meta.current_page,
-        }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
       } catch (err) {
-        console.error(err);
-        setError("No se pudieron cargar los potreros.");
-      } finally {
-        setLoading(false);
+      if (isAbortError(err) || signal.aborted) {
+        return;
       }
+      console.error(err);
+      setError("No se pudieron cargar los potreros.");
+      fail(signal);
+    }
     },
-    [deleted]
+    [deleted, begin, succeed, fail]
   );
 
   useEffect(() => {
@@ -101,6 +115,7 @@ export const usePotreros = ({
   return {
     potreros,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

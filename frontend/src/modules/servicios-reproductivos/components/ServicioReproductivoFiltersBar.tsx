@@ -1,3 +1,4 @@
+import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
@@ -21,11 +22,10 @@ export default function ServicioReproductivoFiltersBar({ filters, onChange }: Pr
     <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
       <div>
         <Label>Búsqueda</Label>
-        <InputField
-          type="text"
+        <DebouncedSearchField
           placeholder="Animal, tipo, resultado u observaciones"
           value={filters.search ?? ""}
-          onChange={(e) => onChange({ search: e.target.value })}
+          onValueChange={(search) => onChange({ search })}
         />
       </div>
 

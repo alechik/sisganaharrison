@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getNacimientos } from "../services";
 import { Nacimiento, NacimientoFilters } from "../types";
@@ -16,26 +17,42 @@ const defaultMeta: PaginationMeta = {
 export const useNacimientos = () => {
   const [filters, setFilters] = useState<NacimientoFilters>(defaultNacimientoFilters());
   const [nacimientos, setNacimientos] = useState<Nacimiento[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchNacimientos = useCallback(async (nextFilters: NacimientoFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
-      const response = await getNacimientos(nextFilters);
+      const response = await getNacimientos(nextFilters, signal);
+      if (signal.aborted) {
+
+        return;
+
+      }
+
       setNacimientos(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({ ...current, page: response.meta.current_page }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar los nacimientos.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchNacimientos(filters);
@@ -62,6 +79,7 @@ export const useNacimientos = () => {
   return {
     nacimientos,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

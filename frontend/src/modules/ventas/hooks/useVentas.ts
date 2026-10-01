@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getVentas } from "../services";
 import { Venta, VentaFilters } from "../types";
@@ -16,28 +17,41 @@ const defaultMeta: PaginationMeta = {
 export const useVentas = () => {
   const [filters, setFilters] = useState<VentaFilters>(defaultVentaFilters());
   const [ventas, setVentas] = useState<Venta[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
 
   const fetchVentas = useCallback(async (nextFilters: VentaFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
-      const response = await getVentas(nextFilters);
+      const response = await getVentas(nextFilters, signal);
+      if (signal.aborted) {
+
+        return;
+
+      }
+
       setVentas(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar las ventas.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchVentas(filters);
@@ -65,6 +79,7 @@ export const useVentas = () => {
   return {
     ventas,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

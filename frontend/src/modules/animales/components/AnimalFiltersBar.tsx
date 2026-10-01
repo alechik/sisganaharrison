@@ -1,4 +1,4 @@
-import InputField from "@/components/form/input/InputField";
+import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import { ANIMAL_SEXO_OPTIONS, ANIMAL_SORT_OPTIONS } from "../constants";
@@ -22,11 +22,10 @@ export default function AnimalFiltersBar({ filters, onChange }: Props) {
     <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6">
       <div>
         <Label>Búsqueda</Label>
-        <InputField
-          type="text"
+        <DebouncedSearchField
           placeholder="Código, nombre o arete"
           value={filters.search ?? ""}
-          onChange={(e) => onChange({ search: e.target.value })}
+          onValueChange={(search) => onChange({ search })}
         />
       </div>
 

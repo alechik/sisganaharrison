@@ -21,9 +21,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getIngresos = async (
-  params: IngresoListParams = {}
+  params: IngresoListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Ingreso>> => {
   const response = await api.get<LaravelPaginatedResponse<Ingreso>>("/compras/ingresos", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,

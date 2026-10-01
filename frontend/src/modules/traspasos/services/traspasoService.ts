@@ -16,9 +16,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getTraspasos = async (
-  params: TraspasoListParams = {}
+  params: TraspasoListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Traspaso>> => {
   const response = await api.get<LaravelPaginatedResponse<Traspaso>>("/traspasos", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,

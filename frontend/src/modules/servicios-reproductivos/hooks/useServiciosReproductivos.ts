@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getServiciosReproductivos } from "../services";
 import { ServicioReproductivo, ServicioReproductivoFilters } from "../types";
@@ -25,31 +26,44 @@ export const useServiciosReproductivos = ({
     ...initialFilters,
   });
   const [servicios, setServicios] = useState<ServicioReproductivo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchServicios = useCallback(async (nextFilters: ServicioReproductivoFilters) => {
+    const signal = begin();
+
     try {
-      setLoading(true);
       setError(null);
 
-      const response = await getServiciosReproductivos(nextFilters);
+      const response = await getServiciosReproductivos(nextFilters, signal);
+
+      if (signal.aborted) {
+
+        return;
+
+      }
 
       setServicios(response.data);
+
       setMeta(response.meta);
-      setFilters((current) => ({
-        ...current,
-        page: response.meta.current_page,
-      }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
     } catch (err) {
+      if (isAbortError(err) || signal.aborted) {
+        return;
+      }
       console.error(err);
       setError("No se pudieron cargar los servicios reproductivos.");
-    } finally {
-      setLoading(false);
+      fail(signal);
     }
-  }, []);
+  }, [begin, succeed, fail]);
 
   useEffect(() => {
     fetchServicios(filters);
@@ -91,6 +105,7 @@ export const useServiciosReproductivos = ({
   return {
     servicios,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

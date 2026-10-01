@@ -20,9 +20,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getRazas = async (
-  params: RazaListParams = {}
+  params: RazaListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Raza>> => {
   const response = await api.get<LaravelPaginatedResponse<Raza>>("/razas", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
@@ -37,9 +39,11 @@ export const getRazas = async (
 };
 
 export const getDeletedRazas = async (
-  params: Pick<RazaListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<RazaListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Raza>> => {
   const response = await api.get<LaravelPaginatedResponse<Raza>>("/razas/eliminados", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,

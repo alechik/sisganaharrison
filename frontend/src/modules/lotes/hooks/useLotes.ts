@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getDeletedLotes, getLotes } from "../services";
 import { Lote, LoteFilters } from "../types";
@@ -27,16 +28,17 @@ export const useLotes = ({
     ...initialFilters,
   });
   const [lotes, setLotes] = useState<Lote[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchLotes = useCallback(
     async (nextFilters: LoteFilters) => {
+      const signal = begin();
+
       try {
-        setLoading(true);
-        setError(null);
+      setError(null);
 
         const response = deleted
           ? await getDeletedLotes({
@@ -45,23 +47,35 @@ export const useLotes = ({
               potrero_id: nextFilters.potrero_id,
               sort_by: nextFilters.sort_by,
               sort_dir: nextFilters.sort_dir,
-            })
-          : await getLotes(nextFilters);
+            }, signal)
+          : await getLotes(nextFilters, signal);
+
+        if (signal.aborted) {
+
+          return;
+
+        }
 
         setLotes(response.data);
+
         setMeta(response.meta);
-        setFilters((current) => ({
-          ...current,
-          page: response.meta.current_page,
-        }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
       } catch (err) {
-        console.error(err);
-        setError("No se pudieron cargar los lotes.");
-      } finally {
-        setLoading(false);
+      if (isAbortError(err) || signal.aborted) {
+        return;
       }
+      console.error(err);
+      setError("No se pudieron cargar los lotes.");
+      fail(signal);
+    }
     },
-    [deleted]
+    [deleted, begin, succeed, fail]
   );
 
   useEffect(() => {
@@ -100,6 +114,7 @@ export const useLotes = ({
   return {
     lotes,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

@@ -15,9 +15,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getCuarentenas = async (
-  params: CuarentenaListParams = {}
+  params: CuarentenaListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Cuarentena>> => {
   const response = await api.get<LaravelPaginatedResponse<Cuarentena>>("/compras/cuarentenas", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,

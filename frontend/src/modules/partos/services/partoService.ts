@@ -20,9 +20,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getPartos = async (
-  params: PartoListParams = {}
+  params: PartoListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Parto>> => {
   const response = await api.get<LaravelPaginatedResponse<Parto>>("/partos", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,

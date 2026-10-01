@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useState } from "react";
+import { isAbortError, useListRequest } from "@/hooks/useListRequest";
 import { PaginationMeta } from "@/types/api";
 import { getDeletedMedicamentos, getMedicamentos } from "../services";
 import { Medicamento, MedicamentoFilters } from "../types";
@@ -27,16 +28,17 @@ export const useMedicamentos = ({
     ...initialFilters,
   });
   const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { begin, succeed, fail, initialLoading: loading, isRefreshing } = useListRequest();
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<PaginationMeta>(defaultMeta);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchMedicamentos = useCallback(
     async (nextFilters: MedicamentoFilters) => {
+      const signal = begin();
+
       try {
-        setLoading(true);
-        setError(null);
+      setError(null);
 
         const response = deleted
           ? await getDeletedMedicamentos({
@@ -44,23 +46,35 @@ export const useMedicamentos = ({
               per_page: nextFilters.per_page,
               sort_by: nextFilters.sort_by,
               sort_dir: nextFilters.sort_dir,
-            })
-          : await getMedicamentos(nextFilters);
+            }, signal)
+          : await getMedicamentos(nextFilters, signal);
+
+        if (signal.aborted) {
+
+          return;
+
+        }
 
         setMedicamentos(response.data);
+
         setMeta(response.meta);
-        setFilters((current) => ({
-          ...current,
-          page: response.meta.current_page,
-        }));
+
+      setFilters((current) =>
+        current.page === response.meta.current_page
+          ? current
+          : { ...current, page: response.meta.current_page }
+      );
+      succeed(signal);
       } catch (err) {
-        console.error(err);
-        setError("No se pudieron cargar las medicamentos.");
-      } finally {
-        setLoading(false);
+      if (isAbortError(err) || signal.aborted) {
+        return;
       }
+      console.error(err);
+      setError("No se pudieron cargar las medicamentos.");
+      fail(signal);
+    }
     },
-    [deleted]
+    [deleted, begin, succeed, fail]
   );
 
   useEffect(() => {
@@ -98,6 +112,7 @@ export const useMedicamentos = ({
   return {
     medicamentos,
     loading,
+    isRefreshing,
     error,
     meta,
     filters,

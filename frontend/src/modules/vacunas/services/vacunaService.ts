@@ -20,9 +20,11 @@ const mapPaginated = <T>(response: LaravelPaginatedResponse<T>): PaginatedRespon
 });
 
 export const getVacunas = async (
-  params: VacunaListParams = {}
+  params: VacunaListParams = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Vacuna>> => {
   const response = await api.get<LaravelPaginatedResponse<Vacuna>>("/vacunas", {
+    signal,
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
@@ -37,11 +39,13 @@ export const getVacunas = async (
 };
 
 export const getDeletedVacunas = async (
-  params: Pick<VacunaListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {}
+  params: Pick<VacunaListParams, "page" | "per_page" | "sort_by" | "sort_dir"> = {},
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Vacuna>> => {
   const response = await api.get<LaravelPaginatedResponse<Vacuna>>(
     "/vacunas/eliminados",
     {
+      signal,
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
