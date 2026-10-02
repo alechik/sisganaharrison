@@ -22,3 +22,14 @@ yarn-*.log*
 .php-cs-fixer.cache
 .DS_Store
 Thumbs.db
+
+# Documentación privada del proyecto
+/ControlTrazabilidadGanaderiaOmar Vallejos.docx
+*.docx
+/ganaderia_diagrama_v3.sql
+
+# Documentación local/no publicar
+/docs/
+
+# Configuración local
+/.cursor/
