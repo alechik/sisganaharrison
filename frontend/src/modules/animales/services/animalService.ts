@@ -3,6 +3,8 @@ import { PaginatedResponse } from "@/types/api";
 import {
   Animal,
   AnimalCreateRequest,
+  AnimalHistorialFilters,
+  AnimalHistorialResponse,
   AnimalListParams,
   AnimalUpdateRequest,
 } from "../types";
@@ -109,4 +111,25 @@ export const getSiguienteCodigoAnimal = async (categoriaId: number): Promise<str
     params: { categoria_id: categoriaId },
   });
   return response.data.data.codigo;
+};
+
+export const animalHistorialApi = {
+  getHistorial: async (
+    animalId: number,
+    filtros: AnimalHistorialFilters = {},
+    signal?: AbortSignal
+  ): Promise<AnimalHistorialResponse> => {
+    const response = await api.get<AnimalHistorialResponse>(`/animales/${animalId}/historial`, {
+      signal,
+      params: {
+        tipo: filtros.tipo && filtros.tipo.length > 0 ? filtros.tipo : undefined,
+        desde: filtros.desde || undefined,
+        hasta: filtros.hasta || undefined,
+        page: filtros.page ?? 1,
+        per_page: filtros.per_page ?? 50,
+      },
+    });
+
+    return response.data;
+  },
 };

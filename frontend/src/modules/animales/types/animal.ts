@@ -66,3 +66,55 @@ export interface AnimalListParams {
   sort_by?: string;
   sort_dir?: "asc" | "desc";
 }
+
+export const ANIMAL_HISTORIAL_TIPOS = [
+  "INGRESO",
+  "NACIMIENTO",
+  "PESAJE",
+  "SANITARIO",
+  "SERVICIO",
+  "GESTACION",
+  "PARTO",
+  "TRASPASO",
+  "VENTA_RESERVA",
+  "LIBERACION_VENTA",
+  "SALIDA",
+  "OTRO",
+] as const;
+
+export type AnimalHistorialTipo = (typeof ANIMAL_HISTORIAL_TIPOS)[number];
+
+export interface AnimalHistorialReferencia {
+  modulo: string;
+  id: number;
+}
+
+export interface AnimalHistorialItem {
+  id: string;
+  tipo: AnimalHistorialTipo;
+  fecha: string;
+  titulo: string;
+  descripcion: string | null;
+  detalle: Record<string, unknown>;
+  referencia: AnimalHistorialReferencia;
+}
+
+export interface AnimalHistorialFilters {
+  tipo?: AnimalHistorialTipo[];
+  desde?: string;
+  hasta?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export interface AnimalHistorialResponse {
+  data: AnimalHistorialItem[];
+  meta: {
+    total: number;
+    animal: {
+      id: number;
+      codigo: string;
+      arete: string | null;
+    };
+  };
+}

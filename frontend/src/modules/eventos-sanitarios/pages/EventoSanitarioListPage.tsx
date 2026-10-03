@@ -1,3 +1,5 @@
+import { useSearchParams } from "react-router-dom";
+
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import {
@@ -8,6 +10,11 @@ import {
 import { useEventosSanitarios } from "../hooks";
 
 export default function EventoSanitarioListPage() {
+  const [searchParams] = useSearchParams();
+  const animalIdParam = Number(searchParams.get("animal_id"));
+  const animalIdFromQuery =
+    Number.isInteger(animalIdParam) && animalIdParam > 0 ? animalIdParam : undefined;
+
   const {
     eventos,
     loading,
@@ -18,7 +25,9 @@ export default function EventoSanitarioListPage() {
     setPage,
     updateFilters,
     clearSuccess,
-  } = useEventosSanitarios();
+  } = useEventosSanitarios({
+    initialFilters: animalIdFromQuery ? { animal_id: animalIdFromQuery } : {},
+  });
 
   if (loading && eventos.length === 0) {
     return <div>Cargando eventos sanitarios...</div>;

@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\Establecimientos\EstablecimientoController;
 use App\Http\Controllers\Api\Potreros\PotreroController;
 use App\Http\Controllers\Api\Lotes\LoteController;
 use App\Http\Controllers\Api\Animales\AnimalController;
+use App\Http\Controllers\Api\Animales\AnimalHistorialController;
 use App\Http\Controllers\Api\Pesajes\PesajeController;
 use App\Http\Controllers\Api\EventosSanitarios\EventoSanitarioController;
 use App\Http\Controllers\Api\ServiciosReproductivos\ServicioReproductivoController;
@@ -566,6 +567,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('permission:animales.view');
 
     Route::get('animales/siguiente-codigo', [AnimalController::class, 'siguienteCodigo']);
+
+    Route::get('animales/{animal}/historial', [AnimalHistorialController::class, 'show'])
+        ->middleware('permission:animales.view');
 
     Route::post('animales', [AnimalController::class, 'store'])
         ->middleware('permission:animales.create');

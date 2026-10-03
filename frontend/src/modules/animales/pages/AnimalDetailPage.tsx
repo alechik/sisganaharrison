@@ -6,11 +6,12 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import { formatMoney } from "@/utils/formatMoney";
-import { AnimalStatusBadge } from "../components";
+import { AnimalStatusBadge, AnimalTimeline } from "../components";
 import { ANIMAL_ROUTES } from "../constants";
 import { ANIMALES_PERMISSIONS } from "../permissions";
 import { getAnimal } from "../services";
 import { Animal } from "../types";
+import { EVENTO_SANITARIO_ROUTES } from "@/modules/eventos-sanitarios/constants";
 
 export default function AnimalDetailPage() {
   const { id } = useParams();
@@ -178,6 +179,31 @@ export default function AnimalDetailPage() {
           </div>
         </dl>
       </ComponentCard>
+
+      <PermissionGate permission={ANIMALES_PERMISSIONS.view}>
+        <div className="space-y-6">
+          <ComponentCard title="Historial">
+            <AnimalTimeline animalId={animal.id} />
+          </ComponentCard>
+
+          <ComponentCard title="Historial sanitario">
+            <div className="mb-4">
+              <Link
+                to={`${EVENTO_SANITARIO_ROUTES.list}?animal_id=${animal.id}`}
+                className="text-sm text-brand-600 hover:underline dark:text-brand-400"
+              >
+                Ver todos
+              </Link>
+            </div>
+            <AnimalTimeline
+              animalId={animal.id}
+              showFilters={false}
+              perPage={5}
+              initialTipos={["SANITARIO"]}
+            />
+          </ComponentCard>
+        </div>
+      </PermissionGate>
     </div>
   );
 }

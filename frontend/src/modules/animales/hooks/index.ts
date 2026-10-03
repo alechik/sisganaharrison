@@ -3,3 +3,4 @@ export * from "./useCreateAnimal";
 export * from "./useUpdateAnimal";
 export * from "./useDeleteAnimal";
 export * from "./useAnimalReferenceOptions";
+export * from "./useAnimalHistorial";
