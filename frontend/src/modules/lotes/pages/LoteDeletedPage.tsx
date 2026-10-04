@@ -55,14 +55,14 @@ export default function LoteDeletedPage() {
   };
 
   if (loading && lotes.length === 0) {
-    return <div>Cargando lotes eliminados...</div>;
+    return <div>Cargando potreros eliminados...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Lotes Eliminados</h1>
+          <h1 className="text-2xl font-bold">Potreros Eliminados</h1>
           <PageBreadCrumb
             pageTitle="Eliminados"
             items={breadcrumbs.lotesEliminados}
@@ -101,11 +101,11 @@ export default function LoteDeletedPage() {
 
       <ConfirmDialog
         isOpen={dialogOpen}
-        title="Restaurar lote"
+        title="Restaurar potrero"
         message={
           actionError
-            ? `¿Desea restaurar el lote ${selected?.nombre}?\n\n${actionError}`
-            : `¿Desea restaurar el lote ${selected?.nombre}?`
+            ? `¿Desea restaurar el potrero ${selected?.nombre}?\n\n${actionError}`
+            : `¿Desea restaurar el potrero ${selected?.nombre}?`
         }
         confirmLabel="Restaurar"
         loading={processing}

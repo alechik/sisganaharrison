@@ -31,7 +31,7 @@ export const useActiveEstablecimientoOptions = () => {
       );
     } catch (err) {
       console.error(err);
-      setError("No se pudieron cargar los establecimientos activos.");
+      setError("No se pudieron cargar las estancias activas.");
     } finally {
       setLoading(false);
     }

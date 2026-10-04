@@ -47,16 +47,16 @@ export default function DashboardPage() {
               <KpiCard label="Activos" value={data.kpis.animales_activos} />
               <KpiCard label="Enfermos" value={data.kpis.animales_enfermos} />
               <KpiCard
-                label="Ocupación de lotes"
+                label="Ocupación de potreros"
                 value={formatPct(data.kpis.ocupacion_lotes_pct)}
                 hint={`${data.infraestructura.ocupacion_total} / ${data.infraestructura.capacidad_total}`}
               />
               <KpiCard label="Gestaciones activas" value={data.kpis.gestaciones_activas} />
             </div>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
-              <KpiCard label="Establecimientos" value={data.kpis.establecimientos} />
-              <KpiCard label="Potreros" value={data.kpis.potreros} />
-              <KpiCard label="Lotes activos" value={data.kpis.lotes} />
+              <KpiCard label="Estancias" value={data.kpis.establecimientos} />
+              <KpiCard label="Parcelas" value={data.kpis.potreros} />
+              <KpiCard label="Potreros activos" value={data.kpis.lotes} />
             </div>
           </section>
 
@@ -95,7 +95,7 @@ export default function DashboardPage() {
               </div>
               <div className="xl:col-span-2">
                 <ComponentCard
-                  title="Ocupación de lotes"
+                  title="Ocupación de potreros"
                   desc="Cabezas en hato vs capacidad_animales. Rojo si supera capacidad."
                 >
                   <OccupancyTable lotes={data.infraestructura.lotes} />

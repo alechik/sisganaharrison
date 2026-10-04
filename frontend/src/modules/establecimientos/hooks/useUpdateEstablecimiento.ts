@@ -16,7 +16,7 @@ export const useUpdateEstablecimiento = () => {
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "No se pudo actualizar el establecimiento.";
+          ?.message ?? "No se pudo actualizar la estancia.";
       setError(message);
       throw err;
     } finally {

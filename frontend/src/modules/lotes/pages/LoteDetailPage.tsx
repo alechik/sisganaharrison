@@ -26,7 +26,7 @@ export default function LoteDetailPage() {
         setLote(data);
       } catch (err) {
         console.error(err);
-        setError("No se pudo cargar el detalle del lote.");
+        setError("No se pudo cargar el detalle del potrero.");
       } finally {
         setLoading(false);
       }
@@ -44,7 +44,7 @@ export default function LoteDetailPage() {
   if (error || !lote) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-        {error ?? "Lote no encontrado."}
+        {error ?? "Potrero no encontrado."}
       </div>
     );
   }
@@ -74,10 +74,10 @@ export default function LoteDetailPage() {
         </div>
       </div>
 
-      <ComponentCard title="Detalle del lote">
+      <ComponentCard title="Detalle del potrero">
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Potrero</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Parcela</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {lote.potrero_nombre || "—"}
             </dd>

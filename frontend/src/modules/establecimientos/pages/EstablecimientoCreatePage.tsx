@@ -7,10 +7,10 @@ export default function EstablecimientoCreatePage() {
   return (
     <div className="space-y-6">
       <PageBreadCrumb
-        pageTitle="Nuevo establecimiento"
+        pageTitle="Nueva estancia"
         items={breadcrumbs.establecimientoCrear}
       />
-      <ComponentCard title="Formulario de establecimiento">
+      <ComponentCard title="Formulario de estancia">
         <EstablecimientoForm />
       </ComponentCard>
     </div>

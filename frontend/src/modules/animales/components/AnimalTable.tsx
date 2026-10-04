@@ -59,7 +59,7 @@ export default function AnimalTable({
                 Categoría
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
-                Lote
+                Potrero
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
                 Estado

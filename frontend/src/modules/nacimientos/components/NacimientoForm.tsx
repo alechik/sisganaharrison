@@ -377,10 +377,10 @@ export default function NacimientoForm({ nacimientoId }: Props) {
               />
             </div>
             <div>
-              <Label>Lote</Label>
+              <Label>Potrero</Label>
               <Select
                 value={form.animal?.lote_id ? String(form.animal.lote_id) : ""}
-                placeholder="Sin lote"
+                placeholder="Sin potrero"
                 options={loteOptions}
                 onChange={(value) => handleAnimalChange({ lote_id: value ? Number(value) : null })}
               />

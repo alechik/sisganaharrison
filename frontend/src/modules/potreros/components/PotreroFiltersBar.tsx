@@ -26,7 +26,7 @@ export default function PotreroFiltersBar({ filters, onChange }: Props) {
       </div>
 
       <div>
-        <Label>Establecimiento</Label>
+        <Label>Estancia</Label>
         <Select
           value={filters.establecimiento_id ? String(filters.establecimiento_id) : "all"}
           placeholder={loadingEstablecimientos ? "Cargando..." : "Todos"}

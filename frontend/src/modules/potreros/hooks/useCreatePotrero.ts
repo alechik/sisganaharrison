@@ -16,7 +16,7 @@ export const useCreatePotrero = () => {
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "No se pudo crear el potrero.";
+          ?.message ?? "No se pudo crear la parcela.";
       setError(message);
       throw err;
     } finally {

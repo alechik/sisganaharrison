@@ -70,7 +70,7 @@ export const useEstablecimientos = ({
         return;
       }
       console.error(err);
-      setError("No se pudieron cargar los establecimientos.");
+      setError("No se pudieron cargar las estancias.");
       fail(signal);
     }
     },

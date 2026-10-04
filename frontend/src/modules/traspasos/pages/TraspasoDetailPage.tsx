@@ -101,11 +101,11 @@ export default function TraspasoDetailPage() {
             <dd className="font-medium">{formatDate(traspaso.fecha_traspaso)}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500">Lote de salida</dt>
+            <dt className="text-sm text-gray-500">Potrero de salida</dt>
             <dd className="font-medium">{loteLabel(traspaso.lote_salida_codigo, traspaso.lote_salida_nombre)}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500">Lote de ingreso</dt>
+            <dt className="text-sm text-gray-500">Potrero de ingreso</dt>
             <dd className="font-medium">{loteLabel(traspaso.lote_ingreso_codigo, traspaso.lote_ingreso_nombre)}</dd>
           </div>
           <div>

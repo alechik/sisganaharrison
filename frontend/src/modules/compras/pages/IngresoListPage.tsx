@@ -33,7 +33,7 @@ export default function IngresoListPage() {
           <PageBreadCrumb pageTitle="Ingresos" items={breadcrumbs.ingresos} />
           <p className="mt-1 text-sm text-gray-500">
             Tercera etapa del flujo Compras. Un ingreso solo se genera desde una cuarentena completada
-            y puede ser parcial (distintas fechas o lotes).
+            y puede ser parcial (distintas fechas o potreros).
           </p>
         </div>
         <IngresoToolbar />

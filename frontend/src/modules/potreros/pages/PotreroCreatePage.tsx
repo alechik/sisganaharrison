@@ -7,10 +7,10 @@ export default function PotreroCreatePage() {
   return (
     <div className="space-y-6">
       <PageBreadCrumb
-        pageTitle="Nuevo potrero"
+        pageTitle="Nueva parcela"
         items={breadcrumbs.potreroCrear}
       />
-      <ComponentCard title="Formulario de potrero">
+      <ComponentCard title="Formulario de parcela">
         <PotreroForm />
       </ComponentCard>
     </div>

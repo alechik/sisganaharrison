@@ -34,13 +34,13 @@ export default function TraspasoFiltersBar({ filters, onChange }: Props) {
       <div>
         <Label>Búsqueda</Label>
         <DebouncedSearchField
-          placeholder="Lote, animal u observación"
+          placeholder="Potrero, animal u observación"
           value={filters.search ?? ""}
           onValueChange={(search) => onChange({ search })}
         />
       </div>
       <div>
-        <Label>Lote de salida</Label>
+        <Label>Potrero de salida</Label>
         <Select
           value={filters.lote_salida_id ? String(filters.lote_salida_id) : "all"}
           options={[{ value: "all", label: "Todos" }, ...loteOptions]}
@@ -50,7 +50,7 @@ export default function TraspasoFiltersBar({ filters, onChange }: Props) {
         />
       </div>
       <div>
-        <Label>Lote de ingreso</Label>
+        <Label>Potrero de ingreso</Label>
         <Select
           value={filters.lote_ingreso_id ? String(filters.lote_ingreso_id) : "all"}
           options={[{ value: "all", label: "Todos" }, ...loteOptions]}

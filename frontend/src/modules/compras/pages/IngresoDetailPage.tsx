@@ -118,7 +118,7 @@ export default function IngresoDetailPage() {
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500">Lote destino</dt>
+            <dt className="text-sm text-gray-500">Potrero destino</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {item.lote_codigo ? `${item.lote_codigo} — ` : ""}
               {item.lote_nombre || "—"}

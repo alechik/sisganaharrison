@@ -48,15 +48,15 @@ const navItems: NavItem[] = [
     name: "Infraestructura",
     subItems: [
       {
-        name: "Establecimientos",
+        name: "Estancias",
         path: "/establecimientos",
       },
       {
-        name: "Potreros",
+        name: "Parcelas",
         path: "/potreros",
       },
       {
-        name: "Lotes",
+        name: "Potreros",
         path: "/lotes",
       },
     ],

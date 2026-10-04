@@ -295,7 +295,7 @@ export default function VentaForm({ ventaId }: Props) {
           </Button>
         </div>
         <p className="text-sm text-gray-500">
-          Seleccione potrero, lote y categoría para listar únicamente animales ACTIVO disponibles para venta.
+          Seleccione parcela, potrero y categoría para listar únicamente animales ACTIVO disponibles para venta.
         </p>
 
         {lines.map((line, index) => {
@@ -318,7 +318,7 @@ export default function VentaForm({ ventaId }: Props) {
             })
             .map((animal) => ({
               value: String(animal.id),
-              label: `${animal.codigo}${animal.arete ? ` · ${animal.arete}` : ""} · ${animal.lote_nombre ?? "Sin lote"}`,
+              label: `${animal.codigo}${animal.arete ? ` · ${animal.arete}` : ""} · ${animal.lote_nombre ?? "Sin potrero"}`,
             }));
 
           return (
@@ -327,20 +327,20 @@ export default function VentaForm({ ventaId }: Props) {
               className="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 p-4 dark:border-white/[0.05] md:grid-cols-4"
             >
               <div>
-                <Label>Potrero *</Label>
+                <Label>Parcela *</Label>
                 <Select
                   value={line.potrero_id ? String(line.potrero_id) : ""}
-                  placeholder="Potrero"
+                  placeholder="Parcela"
                   options={potreros}
                   onChange={(value) => handlePotreroChange(index, value)}
                 />
               </div>
               <div>
-                <Label>Lote</Label>
+                <Label>Potrero</Label>
                 <Select
                   value={line.lote_id ? String(line.lote_id) : ""}
-                  placeholder="Todos los lotes"
-                  options={[{ value: "", label: "Todos los lotes" }, ...loteOptions]}
+                  placeholder="Todos los potreros"
+                  options={[{ value: "", label: "Todos los potreros" }, ...loteOptions]}
                   onChange={(value) => handleLoteChange(index, value)}
                 />
               </div>
@@ -357,7 +357,7 @@ export default function VentaForm({ ventaId }: Props) {
                 <Label>Animal *</Label>
                 <Select
                   value={line.animal_id ? String(line.animal_id) : ""}
-                  placeholder={line.potrero_id ? "Seleccione animal" : "Elija un potrero"}
+                  placeholder={line.potrero_id ? "Seleccione animal" : "Elija una parcela"}
                   options={animalOptions}
                   onChange={(value) => handleAnimalChange(index, value)}
                 />

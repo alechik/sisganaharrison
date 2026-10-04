@@ -35,7 +35,7 @@ export default function IngresoTable({ ingresos, meta, onPageChange, onDownloadP
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Fecha</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Proveedor</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Cuarentena</TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Lote</TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Potrero</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Animales</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Peso ingreso</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Monto</TableCell>

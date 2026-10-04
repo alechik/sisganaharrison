@@ -120,7 +120,7 @@ export default function EventoSanitarioDetailPage() {
         </dl>
       </ComponentCard>
 
-      <ComponentCard title="Detalle histórico (animales, lotes y medicamentos)">
+      <ComponentCard title="Detalle histórico (animales, potreros y medicamentos)">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -128,7 +128,7 @@ export default function EventoSanitarioDetailPage() {
                 <TableCell isHeader className="px-4 py-3 font-semibold">Animal</TableCell>
                 <TableCell isHeader className="px-4 py-3 font-semibold">Código</TableCell>
                 <TableCell isHeader className="px-4 py-3 font-semibold">Arete</TableCell>
-                <TableCell isHeader className="px-4 py-3 font-semibold">Lote del evento</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Potrero del evento</TableCell>
                 <TableCell isHeader className="px-4 py-3 font-semibold">Peso del evento</TableCell>
                 <TableCell isHeader className="px-4 py-3 font-semibold">Medicamento</TableCell>
                 <TableCell isHeader className="px-4 py-3 font-semibold">Presentación</TableCell>

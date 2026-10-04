@@ -3,7 +3,7 @@ import { LoteOcupacion } from "../types";
 export default function OccupancyTable({ lotes }: { lotes: LoteOcupacion[] }) {
   if (lotes.length === 0) {
     return (
-      <p className="text-sm text-gray-500 dark:text-gray-400">No hay lotes activos.</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">No hay potreros activos.</p>
     );
   }
 
@@ -12,7 +12,7 @@ export default function OccupancyTable({ lotes }: { lotes: LoteOcupacion[] }) {
       <table className="min-w-full text-sm">
         <thead>
           <tr className="text-left text-gray-500 dark:text-gray-400">
-            <th className="pb-3 font-medium">Lote</th>
+            <th className="pb-3 font-medium">Potrero</th>
             <th className="pb-3 font-medium">Ocupación</th>
             <th className="pb-3 font-medium">Capacidad</th>
             <th className="pb-3 font-medium">%</th>

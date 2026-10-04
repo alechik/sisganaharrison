@@ -32,8 +32,8 @@ export default function TraspasoTable({ traspasos, meta, onPageChange, onDownloa
             <TableRow>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">ID</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">Fecha</TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start">Lote salida</TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start">Lote ingreso</TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">Potrero salida</TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">Potrero ingreso</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">Animales</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">Total peso</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">Monto total</TableCell>

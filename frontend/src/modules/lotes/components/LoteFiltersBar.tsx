@@ -26,7 +26,7 @@ export default function LoteFiltersBar({ filters, onChange }: Props) {
       </div>
 
       <div>
-        <Label>Potrero</Label>
+        <Label>Parcela</Label>
         <Select
           value={filters.potrero_id ? String(filters.potrero_id) : "all"}
           placeholder={loadingPotreros ? "Cargando..." : "Todos"}

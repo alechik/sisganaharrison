@@ -12,10 +12,10 @@ export default function LoteEditPage() {
   return (
     <div className="space-y-6">
       <PageBreadCrumb
-        pageTitle="Editar lote"
+        pageTitle="Editar potrero"
         items={breadcrumbs.loteEditar}
       />
-      <ComponentCard title="Formulario de lote">
+      <ComponentCard title="Formulario de potrero">
         <LoteForm loteId={loteId} />
       </ComponentCard>
     </div>

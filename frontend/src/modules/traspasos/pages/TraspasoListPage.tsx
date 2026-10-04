@@ -32,7 +32,7 @@ export default function TraspasoListPage() {
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Traspasos</h1>
           <PageBreadCrumb pageTitle="Traspasos" items={breadcrumbs.traspasos} />
           <p className="mt-1 text-sm text-gray-500">
-            Traslada uno o más animales de un lote de salida a un lote de ingreso.
+            Traslada uno o más animales de un potrero de salida a un potrero de ingreso.
           </p>
         </div>
         <TraspasoToolbar />

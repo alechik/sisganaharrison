@@ -16,7 +16,7 @@ export const useCreateLote = () => {
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "No se pudo crear el lote.";
+          ?.message ?? "No se pudo crear el potrero.";
       setError(message);
       throw err;
     } finally {

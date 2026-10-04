@@ -7,10 +7,10 @@ export default function LoteCreatePage() {
   return (
     <div className="space-y-6">
       <PageBreadCrumb
-        pageTitle="Nuevo lote"
+        pageTitle="Nuevo potrero"
         items={breadcrumbs.loteCrear}
       />
-      <ComponentCard title="Formulario de lote">
+      <ComponentCard title="Formulario de potrero">
         <LoteForm />
       </ComponentCard>
     </div>

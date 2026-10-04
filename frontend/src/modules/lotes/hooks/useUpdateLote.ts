@@ -16,7 +16,7 @@ export const useUpdateLote = () => {
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "No se pudo actualizar el lote.";
+          ?.message ?? "No se pudo actualizar el potrero.";
       setError(message);
       throw err;
     } finally {

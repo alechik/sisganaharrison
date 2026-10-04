@@ -26,7 +26,7 @@ export default function PotreroDetailPage() {
         setPotrero(data);
       } catch (err) {
         console.error(err);
-        setError("No se pudo cargar el detalle del potrero.");
+        setError("No se pudo cargar el detalle de la parcela.");
       } finally {
         setLoading(false);
       }
@@ -44,7 +44,7 @@ export default function PotreroDetailPage() {
   if (error || !potrero) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-        {error ?? "Potrero no encontrado."}
+        {error ?? "Parcela no encontrada."}
       </div>
     );
   }
@@ -74,10 +74,10 @@ export default function PotreroDetailPage() {
         </div>
       </div>
 
-      <ComponentCard title="Detalle del potrero">
+      <ComponentCard title="Detalle de la parcela">
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Establecimiento</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Estancia</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {potrero.establecimiento_nombre || "—"}
             </dd>

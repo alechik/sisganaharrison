@@ -71,7 +71,7 @@ export const usePotreros = ({
         return;
       }
       console.error(err);
-      setError("No se pudieron cargar los potreros.");
+      setError("No se pudieron cargar las parcelas.");
       fail(signal);
     }
     },

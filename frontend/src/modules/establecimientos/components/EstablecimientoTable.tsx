@@ -42,7 +42,7 @@ export default function EstablecimientoTable({
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
-                Establecimiento
+                Estancia
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
                 Código
@@ -69,7 +69,7 @@ export default function EstablecimientoTable({
             {establecimientos.length === 0 ? (
               <TableRow>
                 <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={7}>
-                  No hay establecimientos para mostrar.
+                  No hay estancias para mostrar.
                 </TableCell>
               </TableRow>
             ) : (
@@ -141,7 +141,7 @@ export default function EstablecimientoTable({
                             <Link
                               to={ESTABLECIMIENTO_ROUTES.edit(establecimiento.id)}
                               className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition hover:border-blue-200 hover:bg-blue-50 dark:border-white/[0.05] dark:hover:bg-white/[0.05]"
-                              title="Editar establecimiento"
+                              title="Editar estancia"
                             >
                               <PencilIcon className="size-4" />
                             </Link>
@@ -152,7 +152,7 @@ export default function EstablecimientoTable({
                               type="button"
                               onClick={() => onDelete?.(establecimiento)}
                               className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition hover:border-red-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/[0.05] dark:hover:bg-red-500/10"
-                              title="Eliminar establecimiento"
+                              title="Eliminar estancia"
                             >
                               <TrashBinIcon className="size-4" />
                             </button>

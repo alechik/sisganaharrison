@@ -55,14 +55,14 @@ export default function PotreroDeletedPage() {
   };
 
   if (loading && potreros.length === 0) {
-    return <div>Cargando potreros eliminados...</div>;
+    return <div>Cargando parcelas eliminadas...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Potreros Eliminados</h1>
+          <h1 className="text-2xl font-bold">Parcelas Eliminadas</h1>
           <PageBreadCrumb
             pageTitle="Eliminados"
             items={breadcrumbs.potrerosEliminados}
@@ -101,11 +101,11 @@ export default function PotreroDeletedPage() {
 
       <ConfirmDialog
         isOpen={dialogOpen}
-        title="Restaurar potrero"
+        title="Restaurar parcela"
         message={
           actionError
-            ? `¿Desea restaurar el potrero ${selected?.nombre}?\n\n${actionError}`
-            : `¿Desea restaurar el potrero ${selected?.nombre}?`
+            ? `¿Desea restaurar la parcela ${selected?.nombre}?\n\n${actionError}`
+            : `¿Desea restaurar la parcela ${selected?.nombre}?`
         }
         confirmLabel="Restaurar"
         loading={processing}

@@ -62,21 +62,21 @@ export default function LoteListPage() {
   };
 
   if (loading && lotes.length === 0) {
-    return <div>Cargando lotes...</div>;
+    return <div>Cargando potreros...</div>;
   }
 
   const dialogCopy =
     dialogAction === "delete"
       ? {
-          title: "Eliminar lote",
-          message: `¿Desea eliminar el lote ${selected?.nombre}? Quedará inactivo y fuera del listado principal.`,
+          title: "Eliminar potrero",
+          message: `¿Desea eliminar el potrero ${selected?.nombre}? Quedará inactivo y fuera del listado principal.`,
           confirmLabel: "Eliminar",
         }
       : {
-          title: selected?.activo ? "Desactivar lote" : "Activar lote",
+          title: selected?.activo ? "Desactivar potrero" : "Activar potrero",
           message: selected?.activo
-            ? `¿Desea desactivar el lote ${selected?.nombre}?`
-            : `¿Desea activar el lote ${selected?.nombre}?`,
+            ? `¿Desea desactivar el potrero ${selected?.nombre}?`
+            : `¿Desea activar el potrero ${selected?.nombre}?`,
           confirmLabel: selected?.activo ? "Desactivar" : "Activar",
         };
 
@@ -84,8 +84,8 @@ export default function LoteListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Lotes</h1>
-          <PageBreadCrumb pageTitle="Lotes" items={breadcrumbs.lotes} />
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Potreros</h1>
+          <PageBreadCrumb pageTitle="Potreros" items={breadcrumbs.lotes} />
         </div>
         <LoteToolbar />
       </div>

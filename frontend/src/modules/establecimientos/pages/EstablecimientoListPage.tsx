@@ -66,21 +66,21 @@ export default function EstablecimientoListPage() {
   };
 
   if (loading && establecimientos.length === 0) {
-    return <div>Cargando establecimientos...</div>;
+    return <div>Cargando estancias...</div>;
   }
 
   const dialogCopy =
     dialogAction === "delete"
       ? {
-          title: "Eliminar establecimiento",
-          message: `¿Desea eliminar el establecimiento ${selected?.nombre}? Quedará inactivo y fuera del listado principal.`,
+          title: "Eliminar estancia",
+          message: `¿Desea eliminar la estancia ${selected?.nombre}? Quedará inactiva y fuera del listado principal.`,
           confirmLabel: "Eliminar",
         }
       : {
-          title: selected?.activo ? "Desactivar establecimiento" : "Activar establecimiento",
+          title: selected?.activo ? "Desactivar estancia" : "Activar estancia",
           message: selected?.activo
-            ? `¿Desea desactivar el establecimiento ${selected?.nombre}?`
-            : `¿Desea activar el establecimiento ${selected?.nombre}?`,
+            ? `¿Desea desactivar la estancia ${selected?.nombre}?`
+            : `¿Desea activar la estancia ${selected?.nombre}?`,
           confirmLabel: selected?.activo ? "Desactivar" : "Activar",
         };
 
@@ -88,9 +88,9 @@ export default function EstablecimientoListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Establecimientos</h1>
+          <h1 className="text-2xl font-bold">Estancias</h1>
           <PageBreadCrumb
-            pageTitle="Establecimientos"
+            pageTitle="Estancias"
             items={breadcrumbs.establecimientos}
           />
         </div>

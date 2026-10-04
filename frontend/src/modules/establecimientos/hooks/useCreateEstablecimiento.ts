@@ -16,7 +16,7 @@ export const useCreateEstablecimiento = () => {
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "No se pudo crear el establecimiento.";
+          ?.message ?? "No se pudo crear la estancia.";
       setError(message);
       throw err;
     } finally {

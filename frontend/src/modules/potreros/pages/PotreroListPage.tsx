@@ -62,21 +62,21 @@ export default function PotreroListPage() {
   };
 
   if (loading && potreros.length === 0) {
-    return <div>Cargando potreros...</div>;
+    return <div>Cargando parcelas...</div>;
   }
 
   const dialogCopy =
     dialogAction === "delete"
       ? {
-          title: "Eliminar potrero",
-          message: `¿Desea eliminar el potrero ${selected?.nombre}? Quedará inactivo y fuera del listado principal.`,
+          title: "Eliminar parcela",
+          message: `¿Desea eliminar la parcela ${selected?.nombre}? Quedará inactiva y fuera del listado principal.`,
           confirmLabel: "Eliminar",
         }
       : {
-          title: selected?.activo ? "Desactivar potrero" : "Activar potrero",
+          title: selected?.activo ? "Desactivar parcela" : "Activar parcela",
           message: selected?.activo
-            ? `¿Desea desactivar el potrero ${selected?.nombre}?`
-            : `¿Desea activar el potrero ${selected?.nombre}?`,
+            ? `¿Desea desactivar la parcela ${selected?.nombre}?`
+            : `¿Desea activar la parcela ${selected?.nombre}?`,
           confirmLabel: selected?.activo ? "Desactivar" : "Activar",
         };
 
@@ -84,8 +84,8 @@ export default function PotreroListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Potreros</h1>
-          <PageBreadCrumb pageTitle="Potreros" items={breadcrumbs.potreros} />
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Parcelas</h1>
+          <PageBreadCrumb pageTitle="Parcelas" items={breadcrumbs.potreros} />
         </div>
         <PotreroToolbar />
       </div>

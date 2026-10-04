@@ -73,7 +73,7 @@ export default function EstablecimientoForm({ establecimientoId }: Props) {
         });
       } catch (err) {
         console.error(err);
-        setUpdateError("No se pudo cargar el establecimiento.");
+        setUpdateError("No se pudo cargar la estancia.");
       } finally {
         setLoading(false);
       }
@@ -236,7 +236,7 @@ export default function EstablecimientoForm({ establecimientoId }: Props) {
 
       <div className="mt-6 flex gap-3">
         <Button size="sm" type="submit" disabled={saving}>
-          {saving ? "Guardando..." : isEdit ? "Actualizar Establecimiento" : "Guardar Establecimiento"}
+          {saving ? "Guardando..." : isEdit ? "Actualizar Estancia" : "Guardar Estancia"}
         </Button>
 
         <Button

@@ -75,7 +75,7 @@ export default function PotreroForm({ potreroId }: Props) {
         });
       } catch (err) {
         console.error(err);
-        setUpdateError("No se pudo cargar el potrero.");
+        setUpdateError("No se pudo cargar la parcela.");
       } finally {
         setLoading(false);
       }
@@ -105,7 +105,7 @@ export default function PotreroForm({ potreroId }: Props) {
     setUpdateError(null);
 
     if (!form.establecimiento_id) {
-      setCreateError("Debe seleccionar un establecimiento.");
+      setCreateError("Debe seleccionar una estancia.");
       return;
     }
 
@@ -136,10 +136,10 @@ export default function PotreroForm({ potreroId }: Props) {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <Label>Establecimiento</Label>
+          <Label>Estancia</Label>
           <Select
             value={form.establecimiento_id ? String(form.establecimiento_id) : ""}
-            placeholder="Seleccione un establecimiento"
+            placeholder="Seleccione una estancia"
             options={establecimientoOptions}
             onChange={(value) =>
               setForm((current) => ({
@@ -223,7 +223,7 @@ export default function PotreroForm({ potreroId }: Props) {
 
       <div className="mt-6 flex gap-3">
         <Button size="sm" type="submit" disabled={saving}>
-          {saving ? "Guardando..." : isEdit ? "Actualizar Potrero" : "Guardar Potrero"}
+          {saving ? "Guardando..." : isEdit ? "Actualizar Parcela" : "Guardar Parcela"}
         </Button>
 
         <Button

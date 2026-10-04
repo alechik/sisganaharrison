@@ -42,13 +42,13 @@ export default function LoteTable({
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
-                Lote
+                Potrero
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
                 Código
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
-                Potrero
+                Parcela
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
                 Capacidad
@@ -69,7 +69,7 @@ export default function LoteTable({
             {lotes.length === 0 ? (
               <TableRow>
                 <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={7}>
-                  No hay lotes para mostrar.
+                  No hay potreros para mostrar.
                 </TableCell>
               </TableRow>
             ) : (
@@ -134,7 +134,7 @@ export default function LoteTable({
                             <Link
                               to={LOTE_ROUTES.edit(lote.id)}
                               className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition hover:border-blue-200 hover:bg-blue-50 dark:border-white/[0.05] dark:hover:bg-white/[0.05]"
-                              title="Editar lote"
+                              title="Editar potrero"
                             >
                               <PencilIcon className="size-4" />
                             </Link>
@@ -145,7 +145,7 @@ export default function LoteTable({
                               type="button"
                               onClick={() => onDelete?.(lote)}
                               className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition hover:border-red-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/[0.05] dark:hover:bg-red-500/10"
-                              title="Eliminar lote"
+                              title="Eliminar potrero"
                             >
                               <TrashBinIcon className="size-4" />
                             </button>

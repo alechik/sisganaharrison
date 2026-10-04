@@ -55,14 +55,14 @@ export default function EstablecimientoDeletedPage() {
   };
 
   if (loading && establecimientos.length === 0) {
-    return <div>Cargando establecimientos eliminados...</div>;
+    return <div>Cargando estancias eliminadas...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Establecimientos Eliminados</h1>
+          <h1 className="text-2xl font-bold">Estancias Eliminadas</h1>
           <PageBreadCrumb
             pageTitle="Eliminados"
             items={breadcrumbs.establecimientosEliminados}
@@ -101,11 +101,11 @@ export default function EstablecimientoDeletedPage() {
 
       <ConfirmDialog
         isOpen={dialogOpen}
-        title="Restaurar establecimiento"
+        title="Restaurar estancia"
         message={
           actionError
-            ? `¿Desea restaurar el establecimiento ${selected?.nombre}?\n\n${actionError}`
-            : `¿Desea restaurar el establecimiento ${selected?.nombre}?`
+            ? `¿Desea restaurar la estancia ${selected?.nombre}?\n\n${actionError}`
+            : `¿Desea restaurar la estancia ${selected?.nombre}?`
         }
         confirmLabel="Restaurar"
         loading={processing}

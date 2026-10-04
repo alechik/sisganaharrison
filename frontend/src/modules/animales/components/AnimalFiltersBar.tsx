@@ -54,7 +54,7 @@ export default function AnimalFiltersBar({ filters, onChange }: Props) {
       </div>
 
       <div>
-        <Label>Lote</Label>
+        <Label>Potrero</Label>
         <Select
           value={filters.lote_id ? String(filters.lote_id) : "all"}
           placeholder={loading ? "Cargando..." : "Todos"}

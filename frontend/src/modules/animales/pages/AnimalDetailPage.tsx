@@ -143,7 +143,7 @@ export default function AnimalDetailPage() {
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Lote</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Potrero</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">{animal.lote_nombre || "—"}</dd>
           </div>
           <div>

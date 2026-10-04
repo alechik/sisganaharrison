@@ -173,7 +173,7 @@ export default function AnimalForm({ animalId }: Props) {
       )}
 
       <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200">
-        En esta etapa son obligatorios código, sexo y categoría. El resto (arete, raza, lote, etc.) se
+        En esta etapa son obligatorios código, sexo y categoría. El resto (arete, raza, potrero, etc.) se
         puede completar después en el Ingreso.
       </div>
 
@@ -330,7 +330,7 @@ export default function AnimalForm({ animalId }: Props) {
         </div>
 
         <div>
-          <Label>Lote</Label>
+          <Label>Potrero</Label>
           <Select
             value={form.lote_id ? String(form.lote_id) : "none"}
             placeholder="Opcional (Ingreso)"

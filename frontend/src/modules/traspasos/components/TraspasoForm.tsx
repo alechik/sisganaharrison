@@ -67,7 +67,7 @@ export default function TraspasoForm({ traspasoId }: Props) {
       )
       .catch((err) => {
         console.error(err);
-        setError("No se pudieron cargar los lotes.");
+        setError("No se pudieron cargar los potreros.");
       });
   }, [setError]);
 
@@ -113,7 +113,7 @@ export default function TraspasoForm({ traspasoId }: Props) {
         }
       } catch (err) {
         console.error(err);
-        setError("No se pudieron cargar los animales del lote de salida.");
+        setError("No se pudieron cargar los animales del potrero de salida.");
       } finally {
         setLoadingAnimales(false);
       }
@@ -161,15 +161,15 @@ export default function TraspasoForm({ traspasoId }: Props) {
     setValidationError(null);
 
     if (!loteSalidaId) {
-      setValidationError("Debe seleccionar el lote de salida.");
+      setValidationError("Debe seleccionar el potrero de salida.");
       return;
     }
     if (!loteIngresoId) {
-      setValidationError("Debe seleccionar el lote de ingreso.");
+      setValidationError("Debe seleccionar el potrero de ingreso.");
       return;
     }
     if (loteSalidaId === loteIngresoId) {
-      setValidationError("El lote de salida y el de ingreso deben ser distintos.");
+      setValidationError("El potrero de salida y el de ingreso deben ser distintos.");
       return;
     }
     if (!fecha) {
@@ -218,10 +218,10 @@ export default function TraspasoForm({ traspasoId }: Props) {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <Label>Lote de salida *</Label>
+          <Label>Potrero de salida *</Label>
           <Select
             value={loteSalidaId ? String(loteSalidaId) : ""}
-            placeholder="Seleccione lote de salida"
+            placeholder="Seleccione potrero de salida"
             options={loteOptions}
             onChange={(value) => {
               const next = Number(value);
@@ -233,10 +233,10 @@ export default function TraspasoForm({ traspasoId }: Props) {
           />
         </div>
         <div>
-          <Label>Lote de ingreso *</Label>
+          <Label>Potrero de ingreso *</Label>
           <Select
             value={loteIngresoId ? String(loteIngresoId) : ""}
-            placeholder="Seleccione lote de ingreso"
+            placeholder="Seleccione potrero de ingreso"
             options={ingresoOptions}
             onChange={(value) => setLoteIngresoId(Number(value))}
           />
@@ -253,14 +253,14 @@ export default function TraspasoForm({ traspasoId }: Props) {
 
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-semibold text-gray-800 dark:text-white">Animales del lote de salida</h3>
+          <h3 className="font-semibold text-gray-800 dark:text-white">Animales del potrero de salida</h3>
           <p className="text-sm text-gray-500">
             {selectedIds.length} seleccionado(s) · Total peso {formatPeso(totalPeso)} · Monto {formatMoney(montoTotal)}
           </p>
         </div>
 
         {!loteSalidaId ? (
-          <p className="text-sm text-gray-500">Seleccione un lote de salida para listar sus animales.</p>
+          <p className="text-sm text-gray-500">Seleccione un potrero de salida para listar sus animales.</p>
         ) : loadingAnimales ? (
           <p className="text-sm text-gray-500">Cargando animales...</p>
         ) : (
@@ -289,7 +289,7 @@ export default function TraspasoForm({ traspasoId }: Props) {
                 {animales.length === 0 ? (
                   <TableRow>
                     <TableCell className="px-4 py-6 text-center text-gray-500" colSpan={8}>
-                      No hay animales activos en este lote.
+                      No hay animales activos en este potrero.
                     </TableCell>
                   </TableRow>
                 ) : (

@@ -308,7 +308,7 @@ export default function SalidaForm() {
               )}
             </div>
             <div>
-              <Label>Potrero / Lote</Label>
+              <Label>Parcela / Potrero</Label>
               <InputField
                 type="text"
                 value={`${line.potrero_nombre || "—"} / ${line.lote_nombre || "—"}`}

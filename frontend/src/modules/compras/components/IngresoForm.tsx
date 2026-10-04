@@ -167,7 +167,7 @@ export default function IngresoForm() {
       return;
     }
     if (!loteId) {
-      setError("Seleccione el lote destino.");
+      setError("Seleccione el potrero destino.");
       return;
     }
 
@@ -244,10 +244,10 @@ export default function IngresoForm() {
           )}
         </div>
         <div>
-          <Label>Lote destino *</Label>
+          <Label>Potrero destino *</Label>
           <Select
             value={loteId}
-            placeholder="Seleccione un lote"
+            placeholder="Seleccione un potrero"
             options={loteOptions}
             onChange={setLoteId}
           />

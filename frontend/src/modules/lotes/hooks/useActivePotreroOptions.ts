@@ -31,7 +31,7 @@ export const useActivePotreroOptions = () => {
       );
     } catch (err) {
       console.error(err);
-      setError("No se pudieron cargar los potreros activos.");
+      setError("No se pudieron cargar las parcelas activas.");
     } finally {
       setLoading(false);
     }

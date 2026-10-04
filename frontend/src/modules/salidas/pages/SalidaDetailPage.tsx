@@ -120,7 +120,7 @@ export default function SalidaDetailPage() {
               <TableCell isHeader className="px-4 py-3 font-semibold">Arete</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Sexo</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Categoría</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Potrero / Lote</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Parcela / Potrero</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Peso</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Precio</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Subtotal</TableCell>

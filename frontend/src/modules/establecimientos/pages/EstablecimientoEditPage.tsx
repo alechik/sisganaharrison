@@ -12,10 +12,10 @@ export default function EstablecimientoEditPage() {
   return (
     <div className="space-y-6">
       <PageBreadCrumb
-        pageTitle="Editar establecimiento"
+        pageTitle="Editar estancia"
         items={breadcrumbs.establecimientoEditar}
       />
-      <ComponentCard title="Formulario de establecimiento">
+      <ComponentCard title="Formulario de estancia">
         <EstablecimientoForm establecimientoId={establecimientoId} />
       </ComponentCard>
     </div>

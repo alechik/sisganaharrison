@@ -73,7 +73,7 @@ export default function LoteForm({ loteId }: Props) {
         });
       } catch (err) {
         console.error(err);
-        setUpdateError("No se pudo cargar el lote.");
+        setUpdateError("No se pudo cargar el potrero.");
       } finally {
         setLoading(false);
       }
@@ -107,7 +107,7 @@ export default function LoteForm({ loteId }: Props) {
     setUpdateError(null);
 
     if (!form.potrero_id) {
-      setCreateError("Debe seleccionar un potrero.");
+      setCreateError("Debe seleccionar una parcela.");
       return;
     }
 
@@ -138,10 +138,10 @@ export default function LoteForm({ loteId }: Props) {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <Label>Potrero</Label>
+          <Label>Parcela</Label>
           <Select
             value={form.potrero_id ? String(form.potrero_id) : ""}
-            placeholder="Seleccione un potrero"
+            placeholder="Seleccione una parcela"
             options={potreroOptions}
             onChange={(value) =>
               setForm((current) => ({
@@ -208,7 +208,7 @@ export default function LoteForm({ loteId }: Props) {
 
       <div className="mt-6 flex gap-3">
         <Button size="sm" type="submit" disabled={saving}>
-          {saving ? "Guardando..." : isEdit ? "Actualizar Lote" : "Guardar Lote"}
+          {saving ? "Guardando..." : isEdit ? "Actualizar Potrero" : "Guardar Potrero"}
         </Button>
 
         <Button

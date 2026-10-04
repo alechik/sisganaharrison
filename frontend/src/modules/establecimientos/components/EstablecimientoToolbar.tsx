@@ -32,7 +32,7 @@ export default function EstablecimientoToolbar({
             to={ESTABLECIMIENTO_ROUTES.create}
             className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
           >
-            + Nuevo Tipo
+            + Nueva Estancia
           </Link>
         </PermissionGate>
       )}

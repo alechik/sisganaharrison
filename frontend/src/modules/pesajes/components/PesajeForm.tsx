@@ -144,7 +144,7 @@ export default function PesajeForm() {
               )}
             </div>
             <div>
-              <Label>Lote / Potrero</Label>
+              <Label>Potrero / Parcela</Label>
               <InputField
                 type="text"
                 value={`${line.lote_nombre || "—"} / ${line.potrero_nombre || "—"}`}

@@ -71,7 +71,7 @@ export const useLotes = ({
         return;
       }
       console.error(err);
-      setError("No se pudieron cargar los lotes.");
+      setError("No se pudieron cargar los potreros.");
       fail(signal);
     }
     },

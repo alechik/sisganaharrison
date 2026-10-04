@@ -389,88 +389,88 @@ export const breadcrumbs = {
 
   establecimientos: [
     { title: "Infraestructura" },
-    { title: "Establecimientos" },
+    { title: "Estancias" },
   ],
 
   establecimientoCrear: [
     { title: "Infraestructura" },
-    { title: "Establecimientos", path: "/establecimientos" },
-    { title: "Nuevo Establecimiento" },
+    { title: "Estancias", path: "/establecimientos" },
+    { title: "Nueva Estancia" },
   ],
 
   establecimientoEditar: [
     { title: "Infraestructura" },
-    { title: "Establecimientos", path: "/establecimientos" },
-    { title: "Editar Establecimiento" },
+    { title: "Estancias", path: "/establecimientos" },
+    { title: "Editar Estancia" },
   ],
 
   establecimientoDetalle: [
     { title: "Infraestructura" },
-    { title: "Establecimientos", path: "/establecimientos" },
+    { title: "Estancias", path: "/establecimientos" },
     { title: "Detalle" },
   ],
 
   establecimientosEliminados: [
     { title: "Infraestructura" },
-    { title: "Establecimientos", path: "/establecimientos" },
+    { title: "Estancias", path: "/establecimientos" },
     { title: "Eliminados" },
   ],
 
   potreros: [
     { title: "Infraestructura" },
-    { title: "Potreros" },
+    { title: "Parcelas" },
   ],
 
   potreroCrear: [
     { title: "Infraestructura" },
-    { title: "Potreros", path: "/potreros" },
-    { title: "Nuevo Potrero" },
+    { title: "Parcelas", path: "/potreros" },
+    { title: "Nueva Parcela" },
   ],
 
   potreroEditar: [
     { title: "Infraestructura" },
-    { title: "Potreros", path: "/potreros" },
-    { title: "Editar Potrero" },
+    { title: "Parcelas", path: "/potreros" },
+    { title: "Editar Parcela" },
   ],
 
   potreroDetalle: [
     { title: "Infraestructura" },
-    { title: "Potreros", path: "/potreros" },
+    { title: "Parcelas", path: "/potreros" },
     { title: "Detalle" },
   ],
 
   potrerosEliminados: [
     { title: "Infraestructura" },
-    { title: "Potreros", path: "/potreros" },
+    { title: "Parcelas", path: "/potreros" },
     { title: "Eliminados" },
   ],
 
   lotes: [
     { title: "Ganadería" },
-    { title: "Lotes" },
+    { title: "Potreros" },
   ],
 
   loteCrear: [
     { title: "Ganadería" },
-    { title: "Lotes", path: "/lotes" },
-    { title: "Nuevo Lote" },
+    { title: "Potreros", path: "/lotes" },
+    { title: "Nuevo Potrero" },
   ],
 
   loteEditar: [
     { title: "Ganadería" },
-    { title: "Lotes", path: "/lotes" },
-    { title: "Editar Lote" },
+    { title: "Potreros", path: "/lotes" },
+    { title: "Editar Potrero" },
   ],
 
   loteDetalle: [
     { title: "Ganadería" },
-    { title: "Lotes", path: "/lotes" },
+    { title: "Potreros", path: "/lotes" },
     { title: "Detalle" },
   ],
 
   lotesEliminados: [
     { title: "Ganadería" },
-    { title: "Lotes", path: "/lotes" },
+    { title: "Potreros", path: "/lotes" },
     { title: "Eliminados" },
   ],
 

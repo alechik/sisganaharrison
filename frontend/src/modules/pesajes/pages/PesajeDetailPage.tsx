@@ -107,8 +107,8 @@ export default function PesajeDetailPage() {
           <TableHeader>
             <TableRow>
               <TableCell isHeader className="px-4 py-3 font-semibold">Animal</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Lote</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Potrero</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Parcela</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Peso</TableCell>
             </TableRow>
           </TableHeader>

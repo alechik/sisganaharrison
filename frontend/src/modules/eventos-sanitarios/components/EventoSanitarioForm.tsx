@@ -221,7 +221,7 @@ export default function EventoSanitarioForm() {
                 )}
               </div>
               <div>
-                <Label>Lote al momento del evento</Label>
+                <Label>Potrero al momento del evento</Label>
                 <InputField type="text" value={line.lote_nombre || "—"} disabled />
               </div>
               <div>
