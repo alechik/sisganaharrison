@@ -36,7 +36,7 @@
 | Salidas | ✅ | `/api/salidas` | `salidas.view`, `salidas.create` | `modules/salidas/` (Venta usa venta autorizada; otros tipos independientes; confirma estado del animal) |
 | Traspasos | ✅ | `/api/traspasos` | `traspasos.view`, `traspasos.create`, `traspasos.update` | `modules/traspasos/` (PDF; edición solo administrador/gerencia) |
 | Movimientos | ❌ | — | permisos seed | — |
-| Reportes | ❌ | — | permisos seed | — |
+| Reportes | ✅ | `/api/reportes/{tipo}` y `/pdf` | `reportes.view`, `reportes.export` | `modules/reportes/` (inventario, sanidad, reproducción, movimientos, productividad) |
 | Auditoría | ❌ | — | permisos seed | — |
 
 ## Spec BD por dominio

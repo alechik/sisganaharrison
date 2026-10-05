@@ -755,4 +755,8 @@ export const breadcrumbs = {
     { title: "Editar Traspaso" },
   ],
 
+  reportes: [
+    { title: "Reportes" },
+  ],
+
 };

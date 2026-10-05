@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\Ventas\VentaController;
 use App\Http\Controllers\Api\Salidas\SalidaController;
 use App\Http\Controllers\Api\Traspasos\TraspasoController;
 use App\Http\Controllers\Api\Dashboard\DashboardController;
+use App\Http\Controllers\Api\Reportes\ReporteController;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -68,6 +69,14 @@ Route::middleware('auth:sanctum')
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'show']);
+
+    Route::get('reportes/{tipo}/pdf', [ReporteController::class, 'pdf'])
+        ->where('tipo', 'inventario|sanidad|reproduccion|movimientos|productividad')
+        ->middleware('permission:reportes.export');
+
+    Route::get('reportes/{tipo}', [ReporteController::class, 'show'])
+        ->where('tipo', 'inventario|sanidad|reproduccion|movimientos|productividad')
+        ->middleware('permission:reportes.view');
 });
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -12,13 +12,14 @@
 |------|---------|
 | Backend | Laravel 12, Sanctum, Spatie (~118 permisos, 4 roles), **27 controllers dominio** |
 | Modelos | User, catálogos G1, Presentacion, Medicamento, Establecimiento, Potrero, Lote, Animal, Pesaje, DetallePesaje, EventoSanitario, DetalleEventoSanitario, AnimalEvento, ServicioReproductivo, Gestacion, Parto, Nacimiento, Persona, TipoPersona, OrdenCompra, DetalleOrdenCompra, Cuarentena, CuarentenaDetalle, Ingreso, DetalleIngreso, Venta, DetalleVenta, Salida, DetalleSalida, Traspaso, DetalleTraspaso |
-| Frontend | `user`, catálogos G1, **Tipos de Salidas**, infraestructura, `animales`, `pesajes`, `eventos-sanitarios`, `servicios-reproductivos`, `gestaciones`, `partos`, `nacimientos`, `socios-de-negocio`, `compras`, `ventas`, **`salidas`**, **`traspasos`**, **`dashboard`** + PermissionGate |
+| Frontend | `user`, catálogos G1, **Tipos de Salidas**, infraestructura, `animales`, `pesajes`, `eventos-sanitarios`, `servicios-reproductivos`, `gestaciones`, `partos`, `nacimientos`, `socios-de-negocio`, `compras`, `ventas`, **`salidas`**, **`traspasos`**, **`dashboard`**, **`reportes`** + PermissionGate |
 | BD | **46 tablas** (36 migraciones), PostgreSQL |
 | API | **~181 endpoints** |
 
 ## Pendiente prioritario
 
 - Movimientos (transaccionales sobre animales)
+- Tasas estratégicas del dashboard (RF-18), alertas y respaldo
 - Tests Feature auth/usuarios/permisos
 - AuthContext frontend (mejora sobre localStorage)
 
