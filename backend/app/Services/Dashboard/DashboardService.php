@@ -16,6 +16,7 @@ use App\Models\Pesaje;
 use App\Models\Potrero;
 use App\Models\Salida;
 use App\Models\ServicioReproductivo;
+use App\Models\TipoSalida;
 use App\Models\Traspaso;
 use App\Models\Venta;
 use Illuminate\Support\Carbon;
@@ -26,8 +27,10 @@ class DashboardService
     /**
      * @return array<string, mixed>
      */
-    public function summary(): array
+    public function summary(?Carbon $desde = null, ?Carbon $hasta = null): array
     {
+        $desde = ($desde ?? now()->copy()->startOfYear())->copy()->startOfDay();
+        $hasta = ($hasta ?? now())->copy()->endOfDay();
         $desdeMeses = now()->subMonths(5)->startOfMonth();
         $desde30 = now()->subDays(30)->startOfDay();
         $partoProntoHasta = now()->addDays(14)->toDateString();
@@ -183,6 +186,11 @@ class DashboardService
             ],
             'pendientes' => $this->pendientes($gestacionesPartoPronto, $lotesSobrecupo),
             'actividad_reciente' => $this->actividadReciente(),
+            'periodo' => [
+                'desde' => $desde->toDateString(),
+                'hasta' => $hasta->toDateString(),
+            ],
+            'estrategicos' => $this->estrategicos($desde, $hasta, (clone $hato)->count()),
         ];
     }
 
@@ -313,5 +321,306 @@ class DashboardService
         usort($items, fn ($a, $b) => strcmp($b['fecha'], $a['fecha']));
 
         return array_slice($items, 0, 8);
+    }
+
+    /**
+     * Indicadores del período. Las tasas usan el hato actual (no muerto ni vendido),
+     * porque no hay inventario histórico por fecha.
+     *
+     * @return array<string, mixed>
+     */
+    private function estrategicos(Carbon $desde, Carbon $hasta, int $hatoActual): array
+    {
+        $hembras = Animal::query()
+            ->whereNotIn('estado', [Animal::ESTADO_MUERTO, Animal::ESTADO_VENDIDO])
+            ->where('sexo', 'H')
+            ->count();
+
+        $nacidosVivos = $this->contarNacimientos($desde, $hasta, Nacimiento::ESTADO_VIVO);
+        $nacidosMuertos = $this->contarNacimientos($desde, $hasta, Nacimiento::ESTADO_MUERTO);
+        $muertes = $this->contarSalidas($desde, $hasta, TipoSalida::NOMBRE_MUERTE);
+        $ventas = $this->contarSalidas($desde, $hasta, TipoSalida::NOMBRE_VENTA);
+        $perdidos = $this->contarSalidas($desde, $hasta, TipoSalida::NOMBRE_PERDIDO);
+        $robos = $this->contarSalidas($desde, $hasta, TipoSalida::NOMBRE_ROBO);
+        $ingresos = (int) DB::table('detalle_ingresos')
+            ->join('ingresos', 'ingresos.id', '=', 'detalle_ingresos.ingreso_id')
+            ->whereDate('ingresos.fecha_ingreso', '>=', $desde->toDateString())
+            ->whereDate('ingresos.fecha_ingreso', '<=', $hasta->toDateString())
+            ->count();
+
+        $eventos = EventoSanitario::query()
+            ->whereDate('fecha', '>=', $desde->toDateString())
+            ->whereDate('fecha', '<=', $hasta->toDateString());
+        $animalesAtendidos = (int) (DB::table('detalle_eventos_sanitarios')
+            ->join('eventos_sanitarios', 'eventos_sanitarios.id', '=', 'detalle_eventos_sanitarios.evento_sanitario_id')
+            ->whereDate('eventos_sanitarios.fecha', '>=', $desde->toDateString())
+            ->whereDate('eventos_sanitarios.fecha', '<=', $hasta->toDateString())
+            ->selectRaw('COUNT(DISTINCT detalle_eventos_sanitarios.animal_id) as total')
+            ->value('total') ?? 0);
+
+        $vacunacion = $this->vacunacion($desde, $hasta);
+
+        $peso = DB::table('detalle_pesajes')
+            ->join('pesajes', 'pesajes.id', '=', 'detalle_pesajes.pesaje_id')
+            ->whereDate('pesajes.fecha_pesaje', '>=', $desde->toDateString())
+            ->whereDate('pesajes.fecha_pesaje', '<=', $hasta->toDateString());
+
+        return [
+            'hato' => [
+                'hato_actual' => $hatoActual,
+                'ingresos' => $ingresos,
+                'nacimientos_vivos' => $nacidosVivos,
+                'muertes' => $muertes,
+                'ventas' => $ventas,
+                'otras_bajas' => $perdidos + $robos,
+                'variacion_neta' => $ingresos + $nacidosVivos - $muertes - $ventas - $perdidos - $robos,
+                'formula' => 'Variación neta = animales ingresados + nacidos vivos − muertes − ventas − perdido − robo, en el período. No reconstruye el stock de cada mes.',
+                'serie' => $this->serieCrecimiento($desde, $hasta),
+            ],
+            'mortalidad' => [
+                'cantidad' => $muertes,
+                'tasa' => $this->tasa($muertes, $hatoActual + $muertes),
+                'formula' => 'Muertes del período (salidas tipo Muerte, una línea por animal) / (hato actual + esas muertes) × 100. No incluye crías muertas al nacer.',
+            ],
+            'natalidad' => [
+                'nacidos_vivos' => $nacidosVivos,
+                'nacidos_muertos' => $nacidosMuertos,
+                'tasa' => $this->tasa($nacidosVivos, $hembras),
+                'formula' => 'Nacidos vivos del período (un registro de nacimiento) / hembras del hato actual × 100. No es tasa histórica de exposición.',
+            ],
+            'descarte' => [
+                'disponible' => false,
+                'cantidad' => null,
+                'tasa' => null,
+                'motivo' => 'No existe estado ni tipo de salida Descarte. No se calcula una tasa.',
+            ],
+            'sanidad' => [
+                'eventos' => (clone $eventos)->count(),
+                'animales_atendidos' => $animalesAtendidos,
+                'cobertura' => $this->tasa($animalesAtendidos, $hatoActual),
+                'formula_cobertura' => 'Animales distintos con al menos un evento sanitario en el período / hato actual × 100. No es cobertura de vacunación.',
+                'vacunacion' => $vacunacion,
+            ],
+            'reproduccion' => [
+                'gestaciones_activas' => Gestacion::query()->where('estado', Gestacion::ESTADO_ACTIVA)->count(),
+                'gestaciones_confirmadas' => Gestacion::query()
+                    ->whereDate('fecha_confirmacion', '>=', $desde->toDateString())
+                    ->whereDate('fecha_confirmacion', '<=', $hasta->toDateString())
+                    ->count(),
+                'gestaciones_parto_proximo' => Gestacion::query()
+                    ->where('estado', Gestacion::ESTADO_ACTIVA)
+                    ->whereNotNull('fecha_probable_parto')
+                    ->whereDate('fecha_probable_parto', '<=', now()->addDays(14)->toDateString())
+                    ->whereDate('fecha_probable_parto', '>=', now()->toDateString())
+                    ->count(),
+                'partos' => Parto::query()
+                    ->whereDate('fecha_parto', '>=', $desde->toDateString())
+                    ->whereDate('fecha_parto', '<=', $hasta->toDateString())
+                    ->count(),
+                'nota_parto_proximo' => 'Gestaciones activas con parto probable en los próximos 14 días. No depende del período.',
+            ],
+            'productividad' => [
+                'peso_promedio_kg' => $this->decimal($peso->avg('detalle_pesajes.peso')),
+                'registros_pesaje' => (clone $peso)->count(),
+                'ganancia_promedio_kg' => $this->gananciaPeso($desde, $hasta),
+                'formula_ganancia' => 'Promedio, por animal con al menos dos pesajes en el período, de (último peso − primer peso).',
+            ],
+        ];
+    }
+
+    private function tasa(int $numerador, int $denominador): ?float
+    {
+        if ($denominador <= 0) {
+            return null;
+        }
+
+        return round(($numerador / $denominador) * 100, 1);
+    }
+
+    private function decimal(mixed $value): ?float
+    {
+        return $value === null ? null : round((float) $value, 2);
+    }
+
+    private function contarNacimientos(Carbon $desde, Carbon $hasta, string $estado): int
+    {
+        return Nacimiento::query()
+            ->where('estado_nacimiento', $estado)
+            ->whereHas('parto', function ($query) use ($desde, $hasta) {
+                $query->whereDate('fecha_parto', '>=', $desde->toDateString())
+                    ->whereDate('fecha_parto', '<=', $hasta->toDateString());
+            })
+            ->count();
+    }
+
+    private function contarSalidas(Carbon $desde, Carbon $hasta, string $nombre): int
+    {
+        return (int) DB::table('detalle_salidas')
+            ->join('salidas', 'salidas.id', '=', 'detalle_salidas.salida_id')
+            ->join('tipos_salidas', 'tipos_salidas.id', '=', 'salidas.tipo_salida_id')
+            ->whereNull('tipos_salidas.deleted_at')
+            ->where('tipos_salidas.nombre', $nombre)
+            ->whereDate('salidas.fecha_salida', '>=', $desde->toDateString())
+            ->whereDate('salidas.fecha_salida', '<=', $hasta->toDateString())
+            ->count();
+    }
+
+    /**
+     * @return array{disponible: bool, eventos: int, animales: int, tasa: float|null, nota: string}
+     */
+    private function vacunacion(Carbon $desde, Carbon $hasta): array
+    {
+        $tipoIds = DB::table('tipos_eventos_sanitarios')
+            ->whereNull('deleted_at')
+            ->where('nombre', 'ilike', '%vacun%')
+            ->pluck('id');
+
+        if ($tipoIds->isEmpty()) {
+            return [
+                'disponible' => false,
+                'eventos' => 0,
+                'animales' => 0,
+                'tasa' => null,
+                'nota' => 'Ningún tipo de evento sanitario se identifica como vacunación. No se calcula cobertura de vacuna.',
+            ];
+        }
+
+        $eventos = EventoSanitario::query()
+            ->whereIn('tipo_evento_id', $tipoIds)
+            ->whereDate('fecha', '>=', $desde->toDateString())
+            ->whereDate('fecha', '<=', $hasta->toDateString())
+            ->count();
+        $animales = (int) (DB::table('detalle_eventos_sanitarios')
+            ->join('eventos_sanitarios', 'eventos_sanitarios.id', '=', 'detalle_eventos_sanitarios.evento_sanitario_id')
+            ->whereIn('eventos_sanitarios.tipo_evento_id', $tipoIds)
+            ->whereDate('eventos_sanitarios.fecha', '>=', $desde->toDateString())
+            ->whereDate('eventos_sanitarios.fecha', '<=', $hasta->toDateString())
+            ->selectRaw('COUNT(DISTINCT detalle_eventos_sanitarios.animal_id) as total')
+            ->value('total') ?? 0);
+        $hato = Animal::query()->whereNotIn('estado', [Animal::ESTADO_MUERTO, Animal::ESTADO_VENDIDO])->count();
+
+        return [
+            'disponible' => true,
+            'eventos' => $eventos,
+            'animales' => $animales,
+            'tasa' => $this->tasa($animales, $hato),
+            'nota' => 'Animales distintos en eventos cuyo tipo contiene «vacun» / hato actual × 100.',
+        ];
+    }
+
+    private function gananciaPeso(Carbon $desde, Carbon $hasta): ?float
+    {
+        $valor = DB::selectOne(
+            'SELECT ROUND(AVG(ultimo - primero)::numeric, 2) AS ganancia
+             FROM (
+                SELECT
+                    (array_agg(detalle_pesajes.peso ORDER BY pesajes.fecha_pesaje ASC, detalle_pesajes.id ASC))[1] AS primero,
+                    (array_agg(detalle_pesajes.peso ORDER BY pesajes.fecha_pesaje DESC, detalle_pesajes.id DESC))[1] AS ultimo
+                FROM detalle_pesajes
+                INNER JOIN pesajes ON pesajes.id = detalle_pesajes.pesaje_id
+                WHERE pesajes.fecha_pesaje >= ? AND pesajes.fecha_pesaje <= ?
+                GROUP BY detalle_pesajes.animal_id
+                HAVING COUNT(*) >= 2
+             ) AS pesos',
+            [$desde->toDateString(), $hasta->toDateString()]
+        );
+
+        return $valor?->ganancia === null ? null : (float) $valor->ganancia;
+    }
+
+    /**
+     * @return list<array{mes: string, ingresos: int, nacimientos: int, muertes: int, ventas: int, otras_bajas: int}>
+     */
+    private function serieCrecimiento(Carbon $desde, Carbon $hasta): array
+    {
+        $ingresos = $this->seriePorMes(
+            'detalle_ingresos',
+            'ingresos',
+            'ingreso_id',
+            'fecha_ingreso',
+            $desde,
+            $hasta
+        );
+        $nacimientos = $this->serieNacimientos($desde, $hasta);
+        $muertes = $this->serieSalidas($desde, $hasta, TipoSalida::NOMBRE_MUERTE);
+        $ventas = $this->serieSalidas($desde, $hasta, TipoSalida::NOMBRE_VENTA);
+        $otras = [];
+        foreach ([$this->serieSalidas($desde, $hasta, TipoSalida::NOMBRE_PERDIDO), $this->serieSalidas($desde, $hasta, TipoSalida::NOMBRE_ROBO)] as $mapa) {
+            foreach ($mapa as $mes => $total) {
+                $otras[$mes] = ($otras[$mes] ?? 0) + $total;
+            }
+        }
+
+        $serie = [];
+        $cursor = $desde->copy()->startOfMonth();
+        $fin = $hasta->copy()->startOfMonth();
+        $limite = 0;
+        while ($cursor <= $fin && $limite < 60) {
+            $mes = $cursor->format('Y-m');
+            $serie[] = [
+                'mes' => $mes,
+                'ingresos' => $ingresos[$mes] ?? 0,
+                'nacimientos' => $nacimientos[$mes] ?? 0,
+                'muertes' => $muertes[$mes] ?? 0,
+                'ventas' => $ventas[$mes] ?? 0,
+                'otras_bajas' => $otras[$mes] ?? 0,
+            ];
+            $cursor->addMonth();
+            $limite++;
+        }
+
+        return $serie;
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function seriePorMes(string $detalle, string $cabecera, string $fk, string $fecha, Carbon $desde, Carbon $hasta): array
+    {
+        return DB::table($detalle)
+            ->join($cabecera, $cabecera.'.id', '=', $detalle.'.'.$fk)
+            ->whereDate($cabecera.'.'.$fecha, '>=', $desde->toDateString())
+            ->whereDate($cabecera.'.'.$fecha, '<=', $hasta->toDateString())
+            ->selectRaw("to_char({$cabecera}.{$fecha}, 'YYYY-MM') as mes, COUNT(*) as total")
+            ->groupByRaw("to_char({$cabecera}.{$fecha}, 'YYYY-MM')")
+            ->pluck('total', 'mes')
+            ->map(fn ($total) => (int) $total)
+            ->all();
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function serieNacimientos(Carbon $desde, Carbon $hasta): array
+    {
+        return DB::table('nacimientos')
+            ->join('partos', 'partos.id', '=', 'nacimientos.parto_id')
+            ->where('nacimientos.estado_nacimiento', Nacimiento::ESTADO_VIVO)
+            ->whereDate('partos.fecha_parto', '>=', $desde->toDateString())
+            ->whereDate('partos.fecha_parto', '<=', $hasta->toDateString())
+            ->selectRaw("to_char(partos.fecha_parto, 'YYYY-MM') as mes, COUNT(*) as total")
+            ->groupByRaw("to_char(partos.fecha_parto, 'YYYY-MM')")
+            ->pluck('total', 'mes')
+            ->map(fn ($total) => (int) $total)
+            ->all();
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function serieSalidas(Carbon $desde, Carbon $hasta, string $nombre): array
+    {
+        return DB::table('detalle_salidas')
+            ->join('salidas', 'salidas.id', '=', 'detalle_salidas.salida_id')
+            ->join('tipos_salidas', 'tipos_salidas.id', '=', 'salidas.tipo_salida_id')
+            ->whereNull('tipos_salidas.deleted_at')
+            ->where('tipos_salidas.nombre', $nombre)
+            ->whereDate('salidas.fecha_salida', '>=', $desde->toDateString())
+            ->whereDate('salidas.fecha_salida', '<=', $hasta->toDateString())
+            ->selectRaw("to_char(salidas.fecha_salida, 'YYYY-MM') as mes, COUNT(*) as total")
+            ->groupByRaw("to_char(salidas.fecha_salida, 'YYYY-MM')")
+            ->pluck('total', 'mes')
+            ->map(fn ($total) => (int) $total)
+            ->all();
     }
 }

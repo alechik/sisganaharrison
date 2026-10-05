@@ -4,3 +4,4 @@ export { default as WeightTrendChart } from "./WeightTrendChart";
 export { default as OccupancyTable } from "./OccupancyTable";
 export { default as PendingList } from "./PendingList";
 export { default as RecentActivity } from "./RecentActivity";
+export { default as HerdFlowTable } from "./HerdFlowTable";

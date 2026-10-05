@@ -79,4 +79,75 @@ export interface DashboardData {
   };
   pendientes: PendienteItem[];
   actividad_reciente: ActividadItem[];
+  periodo: {
+    desde: string;
+    hasta: string;
+  };
+  estrategicos: IndicadoresEstrategicos;
+}
+
+export interface FlujoMensual {
+  mes: string;
+  ingresos: number;
+  nacimientos: number;
+  muertes: number;
+  ventas: number;
+  otras_bajas: number;
+}
+
+export interface IndicadoresEstrategicos {
+  hato: {
+    hato_actual: number;
+    ingresos: number;
+    nacimientos_vivos: number;
+    muertes: number;
+    ventas: number;
+    otras_bajas: number;
+    variacion_neta: number;
+    formula: string;
+    serie: FlujoMensual[];
+  };
+  mortalidad: {
+    cantidad: number;
+    tasa: number | null;
+    formula: string;
+  };
+  natalidad: {
+    nacidos_vivos: number;
+    nacidos_muertos: number;
+    tasa: number | null;
+    formula: string;
+  };
+  descarte: {
+    disponible: boolean;
+    cantidad: number | null;
+    tasa: number | null;
+    motivo: string;
+  };
+  sanidad: {
+    eventos: number;
+    animales_atendidos: number;
+    cobertura: number | null;
+    formula_cobertura: string;
+    vacunacion: {
+      disponible: boolean;
+      eventos: number;
+      animales: number;
+      tasa: number | null;
+      nota: string;
+    };
+  };
+  reproduccion: {
+    gestaciones_activas: number;
+    gestaciones_confirmadas: number;
+    gestaciones_parto_proximo: number;
+    partos: number;
+    nota_parto_proximo: string;
+  };
+  productividad: {
+    peso_promedio_kg: number | null;
+    registros_pesaje: number;
+    ganancia_promedio_kg: number | null;
+    formula_ganancia: string;
+  };
 }

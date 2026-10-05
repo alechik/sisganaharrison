@@ -14,7 +14,9 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 **Ubicación:** el traspaso sigue siendo el registro del movimiento. `GET /api/animales/{animal}/ubicacion` muestra la ubicación actual y el historial (ingresos, traspasos y salidas) en la ficha. Sin tabla nueva. `AnimalUbicacionTest`.
 
-_Pendiente: tasas del dashboard (RF-18), alertas, CSV/Excel, respaldo._
+**Indicadores del dashboard:** `GET /api/dashboard` acepta mes, trimestre, año o rango. Calcula variación del hato, natalidad, mortalidad, cobertura sanitaria, reproducción y peso/ganancia sobre datos reales. El descarte queda «No disponible». `DashboardEstrategicoTest`.
+
+_Pendiente: descarte y tasas históricas (RF-18), alertas, CSV/Excel, respaldo._
 
 ---
 

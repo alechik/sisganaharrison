@@ -1,1 +1,1 @@
-export type { DashboardData, NamedCount, PesoMensual, LoteOcupacion, PendienteItem, ActividadItem } from "./dashboard";
+export type { DashboardData, NamedCount, PesoMensual, LoteOcupacion, PendienteItem, ActividadItem, FlujoMensual } from "./dashboard";

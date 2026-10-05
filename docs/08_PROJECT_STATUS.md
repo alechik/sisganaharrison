@@ -18,7 +18,7 @@
 
 ## Pendiente prioritario
 
-- Tasas estratégicas del dashboard (RF-18), alertas y respaldo
+- Descarte, tasas históricas, alertas y respaldo
 - Tests Feature auth/usuarios/permisos
 - AuthContext frontend (mejora sobre localStorage)
 
