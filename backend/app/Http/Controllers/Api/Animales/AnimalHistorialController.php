@@ -7,6 +7,7 @@ use App\Http\Requests\Animales\AnimalHistorialRequest;
 use App\Http\Resources\Animales\AnimalHistorialItemResource;
 use App\Models\Animal;
 use App\Services\AnimalHistorialService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AnimalHistorialController extends Controller
@@ -23,5 +24,14 @@ class AnimalHistorialController extends Controller
 
         return AnimalHistorialItemResource::collection($historial['data'])
             ->additional(['meta' => $historial['meta']]);
+    }
+
+    public function ubicacion(Animal $animal): JsonResponse
+    {
+        $this->authorize('view', $animal);
+
+        return response()->json([
+            'data' => $this->animalHistorialService->ubicacion($animal),
+        ]);
     }
 }

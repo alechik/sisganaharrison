@@ -18,7 +18,6 @@
 
 ## Pendiente prioritario
 
-- Movimientos (transaccionales sobre animales)
 - Tasas estratégicas del dashboard (RF-18), alertas y respaldo
 - Tests Feature auth/usuarios/permisos
 - AuthContext frontend (mejora sobre localStorage)

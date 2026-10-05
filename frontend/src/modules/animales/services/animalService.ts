@@ -6,6 +6,7 @@ import {
   AnimalHistorialFilters,
   AnimalHistorialResponse,
   AnimalListParams,
+  AnimalUbicacionResponse,
   AnimalUpdateRequest,
 } from "../types";
 
@@ -132,4 +133,9 @@ export const animalHistorialApi = {
 
     return response.data;
   },
+};
+
+export const getAnimalUbicacion = async (animalId: number): Promise<AnimalUbicacionResponse> => {
+  const response = await api.get<{ data: AnimalUbicacionResponse }>(`/animales/${animalId}/ubicacion`);
+  return response.data.data;
 };

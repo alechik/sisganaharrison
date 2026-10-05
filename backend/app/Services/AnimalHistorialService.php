@@ -10,9 +10,12 @@ use App\Models\DetallePesaje;
 use App\Models\DetalleSalida;
 use App\Models\DetalleTraspaso;
 use App\Models\Gestacion;
+use App\Models\Lote;
 use App\Models\Nacimiento;
 use App\Models\Parto;
 use App\Models\ServicioReproductivo;
+use App\Models\TipoMovimiento;
+use App\Models\TipoSalida;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -116,6 +119,232 @@ class AnimalHistorialService
                 ],
             ],
         ];
+    }
+
+    /**
+     * Ubicación actual y cambios de lugar reconstruidos desde ingresos, traspasos y salidas.
+     *
+     * @return array{actual: array<string, mixed>, historial: list<array<string, mixed>>}
+     */
+    public function ubicacion(Animal $animal): array
+    {
+        $tipos = TipoMovimiento::query()->pluck('nombre', 'codigo');
+        $nombreTipo = function (string $codigo, string $defecto) use ($tipos): string {
+            $nombre = $tipos->get($codigo);
+
+            return is_string($nombre) && $nombre !== '' ? $nombre : $defecto;
+        };
+
+        $crudos = array_merge(
+            $this->movimientosIngreso($animal, $nombreTipo),
+            $this->movimientosTraspaso($animal, $nombreTipo),
+            $this->movimientosSalida($animal, $nombreTipo),
+        );
+
+        usort($crudos, function (array $a, array $b): int {
+            $fecha = strcmp((string) $a['fecha'], (string) $b['fecha']);
+            if ($fecha !== 0) {
+                return $fecha;
+            }
+
+            return ((int) $a['proceso_id']) <=> ((int) $b['proceso_id']);
+        });
+
+        $loteIds = array_filter([
+            $animal->lote_id,
+            ...array_column($crudos, 'origen_lote_id'),
+            ...array_column($crudos, 'destino_lote_id'),
+        ]);
+        $lotes = $this->cargarLotes($loteIds);
+
+        $historial = array_map(function (array $movimiento) use ($lotes): array {
+            return [
+                'fecha' => $movimiento['fecha'],
+                'tipo' => $movimiento['tipo'],
+                'tipo_nombre' => $movimiento['tipo_nombre'],
+                'origen' => $this->lugar($lotes->get($movimiento['origen_lote_id'])),
+                'destino' => $this->lugar($lotes->get($movimiento['destino_lote_id'])),
+                'referencia' => $movimiento['referencia'],
+                'observacion' => $movimiento['observacion'],
+                'usuario' => $movimiento['usuario'],
+                'proceso' => $movimiento['proceso'],
+                'proceso_id' => $movimiento['proceso_id'],
+            ];
+        }, $crudos);
+
+        $ultimo = $historial === [] ? null : $historial[array_key_last($historial)]['fecha'];
+
+        return [
+            'actual' => [
+                'ubicacion' => $this->lugar($animal->lote_id !== null ? $lotes->get((int) $animal->lote_id) : null),
+                'fecha_ultimo_cambio' => $ultimo,
+            ],
+            'historial' => $historial,
+        ];
+    }
+
+    /**
+     * @param  \Closure(string, string): string  $nombreTipo
+     * @return list<array<string, mixed>>
+     */
+    private function movimientosIngreso(Animal $animal, \Closure $nombreTipo): array
+    {
+        return DetalleIngreso::query()
+            ->select(['id', 'ingreso_id', 'animal_id'])
+            ->where('animal_id', $animal->id)
+            ->with([
+                'ingreso:id,fecha_ingreso,lote_id,codigo,observaciones,user_id',
+                'ingreso.creador:id,nombre,apellido',
+            ])
+            ->get()
+            ->map(function (DetalleIngreso $detalle) use ($nombreTipo): array {
+                $ingreso = $detalle->ingreso;
+
+                return [
+                    'fecha' => $this->formatDate($ingreso?->fecha_ingreso) ?? '',
+                    'tipo' => 'COMPRA',
+                    'tipo_nombre' => $nombreTipo('COMPRA', 'Compra'),
+                    'origen_lote_id' => null,
+                    'destino_lote_id' => $ingreso?->lote_id,
+                    'referencia' => $ingreso?->codigo,
+                    'observacion' => $ingreso?->observaciones,
+                    'usuario' => $this->nombreUsuario($ingreso?->creador),
+                    'proceso' => 'ingresos',
+                    'proceso_id' => (int) ($ingreso?->id ?? $detalle->ingreso_id),
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * @param  \Closure(string, string): string  $nombreTipo
+     * @return list<array<string, mixed>>
+     */
+    private function movimientosTraspaso(Animal $animal, \Closure $nombreTipo): array
+    {
+        return DetalleTraspaso::query()
+            ->select(['id', 'traspaso_id', 'animal_id'])
+            ->where('animal_id', $animal->id)
+            ->with([
+                'traspaso:id,fecha_traspaso,lote_salida_id,lote_ingreso_id,observacion,user_id',
+                'traspaso.usuario:id,nombre,apellido',
+            ])
+            ->get()
+            ->map(function (DetalleTraspaso $detalle) use ($nombreTipo): array {
+                $traspaso = $detalle->traspaso;
+
+                return [
+                    'fecha' => $this->formatDate($traspaso?->fecha_traspaso) ?? '',
+                    'tipo' => 'TRASLADO',
+                    'tipo_nombre' => $nombreTipo('TRASLADO', 'Traslado'),
+                    'origen_lote_id' => $traspaso?->lote_salida_id,
+                    'destino_lote_id' => $traspaso?->lote_ingreso_id,
+                    'referencia' => $traspaso ? 'TR-'.$traspaso->id : null,
+                    'observacion' => $traspaso?->observacion,
+                    'usuario' => $this->nombreUsuario($traspaso?->usuario),
+                    'proceso' => 'traspasos',
+                    'proceso_id' => (int) ($traspaso?->id ?? $detalle->traspaso_id),
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * @param  \Closure(string, string): string  $nombreTipo
+     * @return list<array<string, mixed>>
+     */
+    private function movimientosSalida(Animal $animal, \Closure $nombreTipo): array
+    {
+        return DetalleSalida::query()
+            ->select(['id', 'salida_id', 'animal_id', 'lote_id'])
+            ->where('animal_id', $animal->id)
+            ->with([
+                'salida:id,fecha_salida,tipo_salida_id,codigo,user_id',
+                'salida.tipoSalida:id,nombre',
+                'salida.creador:id,nombre,apellido',
+            ])
+            ->get()
+            ->map(function (DetalleSalida $detalle) use ($nombreTipo): array {
+                $salida = $detalle->salida;
+                $codigo = match ($salida?->tipoSalida?->nombre) {
+                    TipoSalida::NOMBRE_VENTA => 'VENTA',
+                    TipoSalida::NOMBRE_MUERTE => 'MUERTE',
+                    default => 'BAJA',
+                };
+                $defecto = match ($codigo) {
+                    'VENTA' => 'Venta',
+                    'MUERTE' => 'Muerte',
+                    default => 'Baja',
+                };
+
+                return [
+                    'fecha' => $this->formatDate($salida?->fecha_salida) ?? '',
+                    'tipo' => $codigo,
+                    'tipo_nombre' => $nombreTipo($codigo, $defecto),
+                    'origen_lote_id' => $detalle->lote_id,
+                    'destino_lote_id' => null,
+                    'referencia' => $salida?->codigo,
+                    'observacion' => null,
+                    'usuario' => $this->nombreUsuario($salida?->creador),
+                    'proceso' => 'salidas',
+                    'proceso_id' => (int) ($salida?->id ?? $detalle->salida_id),
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * @param  array<int, mixed>  $ids
+     * @return Collection<int, Lote>
+     */
+    private function cargarLotes(array $ids): Collection
+    {
+        $ids = array_values(array_unique(array_filter(array_map(
+            fn (mixed $id) => $id === null ? null : (int) $id,
+            $ids
+        ))));
+
+        if ($ids === []) {
+            return new Collection;
+        }
+
+        return Lote::withTrashed()
+            ->with([
+                'potrero' => fn ($query) => $query->withTrashed()->with([
+                    'establecimiento' => fn ($query) => $query->withTrashed(),
+                ]),
+            ])
+            ->whereIn('id', $ids)
+            ->get()
+            ->keyBy('id');
+    }
+
+    /**
+     * @return array{lote_id: int, lote_nombre: string, potrero_nombre: string|null, establecimiento_nombre: string|null}|null
+     */
+    private function lugar(?Lote $lote): ?array
+    {
+        if ($lote === null) {
+            return null;
+        }
+
+        return [
+            'lote_id' => $lote->id,
+            'lote_nombre' => $lote->nombre,
+            'potrero_nombre' => $lote->potrero?->nombre,
+            'establecimiento_nombre' => $lote->potrero?->establecimiento?->nombre,
+        ];
+    }
+
+    private function nombreUsuario(mixed $usuario): ?string
+    {
+        if ($usuario === null) {
+            return null;
+        }
+
+        $nombre = trim(((string) ($usuario->nombre ?? '')).' '.((string) ($usuario->apellido ?? '')));
+
+        return $nombre !== '' ? $nombre : null;
     }
 
     /**

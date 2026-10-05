@@ -6,7 +6,7 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import { formatMoney } from "@/utils/formatMoney";
-import { AnimalStatusBadge, AnimalTimeline } from "../components";
+import { AnimalStatusBadge, AnimalTimeline, AnimalUbicacion } from "../components";
 import { ANIMAL_ROUTES } from "../constants";
 import { ANIMALES_PERMISSIONS } from "../permissions";
 import { getAnimal } from "../services";
@@ -182,6 +182,10 @@ export default function AnimalDetailPage() {
 
       <PermissionGate permission={ANIMALES_PERMISSIONS.view}>
         <div className="space-y-6">
+          <ComponentCard title="Ubicación y movimientos">
+            <AnimalUbicacion animalId={animal.id} />
+          </ComponentCard>
+
           <ComponentCard title="Historial">
             <AnimalTimeline animalId={animal.id} />
           </ComponentCard>

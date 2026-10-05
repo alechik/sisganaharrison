@@ -10,9 +10,11 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
 ### Added
 
-**Reportes:** cinco informes sobre datos existentes (inventario, sanidad, reproducción, movimientos, productividad). API `GET /api/reportes/{tipo}` (`reportes.view`) y PDF `GET /api/reportes/{tipo}/pdf` (`reportes.export`). UI `/reportes`. Sin tablas nuevas. `ReporteTest`.
+**Reportes:** cinco informes sobre datos existentes (inventario, sanidad, reproducción, movimientos, productividad). API `GET /api/reportes/{tipo}` y PDF. UI `/reportes`.
 
-_Pendiente: módulos transaccionales (Movimientos), tasas del dashboard (RF-18), alertas, CSV/Excel, respaldo._
+**Ubicación:** el traspaso sigue siendo el registro del movimiento. `GET /api/animales/{animal}/ubicacion` muestra la ubicación actual y el historial (ingresos, traspasos y salidas) en la ficha. Sin tabla nueva. `AnimalUbicacionTest`.
+
+_Pendiente: tasas del dashboard (RF-18), alertas, CSV/Excel, respaldo._
 
 ---
 

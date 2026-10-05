@@ -35,8 +35,9 @@
 | Ventas | ✅ | `/api/ventas` | `ventas.view`, `ventas.create`, `ventas.update`, `ventas.authorize` | `modules/ventas/` (PENDIENTE→reserva; gerencia autoriza/anula; PDF) |
 | Salidas | ✅ | `/api/salidas` | `salidas.view`, `salidas.create` | `modules/salidas/` (Venta usa venta autorizada; otros tipos independientes; confirma estado del animal) |
 | Traspasos | ✅ | `/api/traspasos` | `traspasos.view`, `traspasos.create`, `traspasos.update` | `modules/traspasos/` (PDF; edición solo administrador/gerencia) |
-| Movimientos | ❌ | — | permisos seed | — |
+| Movimientos | ✅ | Traspasos + `GET /api/animales/{animal}/ubicacion` | `traspasos.*`, `animales.view` | Sin tabla `movimientos_animales` |
 | Reportes | ✅ | `/api/reportes/{tipo}` y `/pdf` | `reportes.view`, `reportes.export` | `modules/reportes/` (inventario, sanidad, reproducción, movimientos, productividad) |
+| Ubicación del animal | ✅ | `GET /api/animales/{animal}/ubicacion` | `animales.view` | Ficha «Ubicación y movimientos»; el registro sigue en traspasos |
 | Auditoría | ❌ | — | permisos seed | — |
 
 ## Spec BD por dominio

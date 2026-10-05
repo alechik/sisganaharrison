@@ -580,6 +580,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('animales/{animal}/historial', [AnimalHistorialController::class, 'show'])
         ->middleware('permission:animales.view');
 
+    Route::get('animales/{animal}/ubicacion', [AnimalHistorialController::class, 'ubicacion'])
+        ->middleware('permission:animales.view');
+
     Route::post('animales', [AnimalController::class, 'store'])
         ->middleware('permission:animales.create');
 
