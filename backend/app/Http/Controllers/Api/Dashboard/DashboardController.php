@@ -18,7 +18,7 @@ class DashboardController extends Controller
         [$desde, $hasta] = $request->periodo();
 
         return response()->json([
-            'data' => $this->dashboardService->summary($desde, $hasta),
+            'data' => $this->dashboardService->summary($desde, $hasta, $request->user()),
         ]);
     }
 }

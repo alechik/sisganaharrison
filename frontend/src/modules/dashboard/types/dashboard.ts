@@ -84,6 +84,24 @@ export interface DashboardData {
     hasta: string;
   };
   estrategicos: IndicadoresEstrategicos;
+  alertas: AlertaItem[] | null;
+}
+
+export interface AlertaItem {
+  tipo: string;
+  nivel: "info" | "warning" | "error";
+  titulo: string;
+  mensaje: string;
+  fecha: string | null;
+  animal: {
+    id: number;
+    codigo: string;
+    arete: string | null;
+  } | null;
+  referencia: {
+    proceso: "gestacion" | "parto" | "servicio" | "animal" | string;
+    id: number;
+  };
 }
 
 export interface FlujoMensual {

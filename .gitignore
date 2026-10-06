@@ -29,7 +29,7 @@ Thumbs.db
 /ganaderia_diagrama_v3.sql
 
 # Documentación local/no publicar
-/docs/
+/docs/*
 
 # Configuración local
-/.cursor/
+./.cursor/*

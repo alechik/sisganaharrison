@@ -9,6 +9,7 @@ import PageMeta from "@/components/common/PageMeta";
 import {
   DistributionChart,
   HerdFlowTable,
+  AlertList,
   KpiCard,
   OccupancyTable,
   PendingList,
@@ -323,6 +324,19 @@ export default function DashboardPage() {
           </section>
 
           <section>
+            {data.alertas !== null ? (
+              <>
+                <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Alertas</h2>
+                <div className="mb-6">
+                  <ComponentCard
+                    title="Situaciones que requieren atención"
+                    desc="Parto próximo o atrasado, parto sin finalizar, servicio con resultado pendiente y animal enfermo."
+                  >
+                    <AlertList items={data.alertas} />
+                  </ComponentCard>
+                </div>
+              </>
+            ) : null}
             <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">
               Pendientes y actividad
             </h2>

@@ -18,6 +18,7 @@ use App\Models\Salida;
 use App\Models\ServicioReproductivo;
 use App\Models\TipoSalida;
 use App\Models\Traspaso;
+use App\Models\User;
 use App\Models\Venta;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +28,7 @@ class DashboardService
     /**
      * @return array<string, mixed>
      */
-    public function summary(?Carbon $desde = null, ?Carbon $hasta = null): array
+    public function summary(?Carbon $desde = null, ?Carbon $hasta = null, ?User $user = null): array
     {
         $desde = ($desde ?? now()->copy()->startOfYear())->copy()->startOfDay();
         $hasta = ($hasta ?? now())->copy()->endOfDay();
@@ -191,6 +192,7 @@ class DashboardService
                 'hasta' => $hasta->toDateString(),
             ],
             'estrategicos' => $this->estrategicos($desde, $hasta, (clone $hato)->count()),
+            'alertas' => $this->alertas($user),
         ];
     }
 
@@ -622,5 +624,205 @@ class DashboardService
             ->pluck('total', 'mes')
             ->map(fn ($total) => (int) $total)
             ->all();
+    }
+
+    /**
+     * Situaciones actuales que requieren atención.
+     * Vacunación pendiente y peso bajo no se calculan: no hay fecha programada ni umbral.
+     * Un servicio con resultado PENDIENTE no se llama vencido: no existe fecha de vencimiento.
+     *
+     * @return list<array<string, mixed>>|null
+     */
+    private function alertas(?User $user): ?array
+    {
+        if ($user === null || ! $user->can('alertas.view')) {
+            return null;
+        }
+
+        $items = [];
+
+        if ($user->can('reproduccion.view')) {
+            array_push($items, ...$this->alertasPartoProximo(), ...$this->alertasPartoPendiente(), ...$this->alertasServicioPendiente());
+        }
+
+        if ($user->can('animales.view')) {
+            array_push($items, ...$this->alertasEnfermos());
+        }
+
+        usort($items, function (array $a, array $b): int {
+            $orden = ['error' => 0, 'warning' => 1, 'info' => 2];
+            $nivel = ($orden[$a['nivel']] ?? 3) <=> ($orden[$b['nivel']] ?? 3);
+
+            return $nivel !== 0 ? $nivel : strcmp((string) $a['fecha'], (string) $b['fecha']);
+        });
+
+        return array_slice($items, 0, 50);
+    }
+
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<*>  $query
+     */
+    private function hembraEnHato(mixed $query): void
+    {
+        $query->whereNotIn('estado', [Animal::ESTADO_MUERTO, Animal::ESTADO_VENDIDO]);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function alertasPartoProximo(): array
+    {
+        $hoy = now()->toDateString();
+        $hasta = now()->addDays(14)->toDateString();
+
+        return Gestacion::query()
+            ->with(['servicio.hembra'])
+            ->where('estado', Gestacion::ESTADO_ACTIVA)
+            ->whereNotNull('fecha_probable_parto')
+            ->whereDate('fecha_probable_parto', '<=', $hasta)
+            ->whereDoesntHave('parto')
+            ->whereHas('servicio.hembra', fn ($query) => $this->hembraEnHato($query))
+            ->orderBy('fecha_probable_parto')
+            ->get()
+            ->map(function (Gestacion $gestacion) use ($hoy) {
+                $fecha = $this->fecha($gestacion->fecha_probable_parto);
+                $atrasado = $fecha !== null && $fecha < $hoy;
+
+                return $this->alerta(
+                    'PARTO_PROXIMO',
+                    $atrasado ? 'error' : 'warning',
+                    $atrasado ? 'Parto probable atrasado' : 'Parto próximo',
+                    $atrasado
+                        ? 'La gestación sigue activa y la fecha probable ya pasó.'
+                        : 'La fecha probable de parto está dentro de los próximos 14 días.',
+                    $fecha,
+                    $gestacion->servicio?->hembra,
+                    'gestacion',
+                    $gestacion->id
+                );
+            })
+            ->all();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function alertasPartoPendiente(): array
+    {
+        $hoy = now()->toDateString();
+
+        return Parto::query()
+            ->with(['gestacion.servicio.hembra'])
+            ->where('estado', Parto::ESTADO_PENDIENTE)
+            ->whereHas('gestacion.servicio.hembra', fn ($query) => $this->hembraEnHato($query))
+            ->orderBy('fecha_parto')
+            ->get()
+            ->map(function (Parto $parto) use ($hoy) {
+                $fecha = $this->fecha($parto->fecha_parto);
+                $atrasado = $fecha !== null && $fecha < $hoy;
+
+                return $this->alerta(
+                    'PARTO_PENDIENTE',
+                    $atrasado ? 'error' : 'warning',
+                    'Parto pendiente de finalizar',
+                    'El parto está registrado y aún no se finaliza.',
+                    $fecha,
+                    $parto->gestacion?->servicio?->hembra,
+                    'parto',
+                    $parto->id
+                );
+            })
+            ->all();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function alertasServicioPendiente(): array
+    {
+        return ServicioReproductivo::query()
+            ->with('hembra')
+            ->where('resultado', 'PENDIENTE')
+            ->whereDoesntHave('gestacion')
+            ->whereHas('hembra', fn ($query) => $this->hembraEnHato($query))
+            ->orderBy('fecha_servicio')
+            ->get()
+            ->map(fn (ServicioReproductivo $servicio) => $this->alerta(
+                'SERVICIO_PENDIENTE',
+                'info',
+                'Servicio reproductivo pendiente',
+                'El resultado del servicio sigue pendiente. No hay fecha de vencimiento en el registro.',
+                $this->fecha($servicio->fecha_servicio),
+                $servicio->hembra,
+                'servicio',
+                $servicio->id
+            ))
+            ->all();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function alertasEnfermos(): array
+    {
+        return Animal::query()
+            ->where('estado', Animal::ESTADO_ENFERMO)
+            ->orderBy('codigo')
+            ->get()
+            ->map(fn (Animal $animal) => $this->alerta(
+                'ANIMAL_ENFERMO',
+                'error',
+                'Animal enfermo',
+                'El animal está en estado ENFERMO y sigue en el hato.',
+                null,
+                $animal,
+                'animal',
+                $animal->id
+            ))
+            ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function alerta(
+        string $tipo,
+        string $nivel,
+        string $titulo,
+        string $mensaje,
+        ?string $fecha,
+        ?Animal $animal,
+        string $proceso,
+        int $id
+    ): array {
+        return [
+            'tipo' => $tipo,
+            'nivel' => $nivel,
+            'titulo' => $titulo,
+            'mensaje' => $mensaje,
+            'fecha' => $fecha,
+            'animal' => $animal === null ? null : [
+                'id' => $animal->id,
+                'codigo' => $animal->codigo,
+                'arete' => $animal->arete,
+            ],
+            'referencia' => [
+                'proceso' => $proceso,
+                'id' => $id,
+            ],
+        ];
+    }
+
+    private function fecha(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d');
+        }
+
+        return substr((string) $value, 0, 10);
     }
 }
