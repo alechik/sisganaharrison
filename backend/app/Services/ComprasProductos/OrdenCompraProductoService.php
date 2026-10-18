@@ -6,6 +6,7 @@ use App\Models\Medicamento;
 use App\Models\OrdenCompraProducto;
 use App\Models\Persona;
 use App\Models\TipoPersona;
+use App\Models\User;
 use App\Services\Documentos\PdfGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,9 +33,9 @@ class OrdenCompraProductoService
     /**
      * @param  array<string, mixed>  $filters
      */
-    public function paginate(array $filters = []): LengthAwarePaginator
+    public function paginate(array $filters = [], ?User $actor = null): LengthAwarePaginator
     {
-        return $this->buildQuery($filters)->paginate((int) ($filters['per_page'] ?? 10));
+        return $this->buildQuery($filters, $actor)->paginate((int) ($filters['per_page'] ?? 10));
     }
 
     public function find(int $id): OrdenCompraProducto
@@ -144,9 +145,14 @@ class OrdenCompraProductoService
      * @param  array<string, mixed>  $filters
      * @return Builder<OrdenCompraProducto>
      */
-    private function buildQuery(array $filters): Builder
+    private function buildQuery(array $filters, ?User $actor = null): Builder
     {
         $query = OrdenCompraProducto::query()->with(self::RELATIONS);
+
+        if ($actor && ! $actor->can('compras_productos.authorize') && ! $actor->hasRole('super-admin')) {
+            $query->where('user_id', $actor->id);
+        }
+
         if (! empty($filters['search'])) {
             $search = (string) $filters['search'];
             $query->where(function (Builder $builder) use ($search) {
@@ -154,11 +160,20 @@ class OrdenCompraProductoService
                     ->orWhereHas('proveedor', fn (Builder $q) => $q->where('razon_social', 'ilike', '%'.$search.'%'));
             });
         }
+        if (! empty($filters['cod_compra'])) {
+            $query->where('cod_compra', 'ilike', '%'.$filters['cod_compra'].'%');
+        }
         if (! empty($filters['estado'])) {
-            $query->where('estado', $filters['estado']);
+            $query->where('estado', strtoupper((string) $filters['estado']));
         }
         if (! empty($filters['proveedor_id'])) {
             $query->where('proveedor_id', (int) $filters['proveedor_id']);
+        }
+        if (! empty($filters['user_id'])) {
+            $query->where('user_id', (int) $filters['user_id']);
+        }
+        if (! empty($filters['fecha'])) {
+            $query->whereDate('fecha', $filters['fecha']);
         }
         $sortBy = in_array($filters['sort_by'] ?? '', self::SORTABLE_COLUMNS, true) ? $filters['sort_by'] : 'created_at';
         $sortDir = strtolower((string) ($filters['sort_dir'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';

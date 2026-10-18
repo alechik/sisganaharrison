@@ -51,4 +51,15 @@
             <td class="text-right"><strong>{{ \App\Support\Money::format($orden->monto_total) }}</strong></td>
         </tr>
     </table>
+
+    @if ($orden->fecha_decision)
+        <p style="margin-top: 20px;">
+            <strong>Decisión:</strong> {{ $estado_label }}
+            el {{ $orden->fecha_decision->format('d/m/Y H:i') }}
+            por {{ trim(($orden->autorizador?->nombre ?? '').' '.($orden->autorizador?->apellido ?? '')) ?: '—' }}.
+            @if ($orden->observacion_estado)
+                <br><span class="muted">{{ $orden->observacion_estado }}</span>
+            @endif
+        </p>
+    @endif
 @endsection

@@ -14,7 +14,15 @@ class OrdenCompraProductoPolicy
 
     public function view(User $user, OrdenCompraProducto $ordenCompraProducto): bool
     {
-        return $user->can('compras_productos.view');
+        if (! $user->can('compras_productos.view')) {
+            return false;
+        }
+
+        if ($user->can('compras_productos.authorize')) {
+            return true;
+        }
+
+        return $ordenCompraProducto->user_id === $user->id;
     }
 
     public function create(User $user): bool
@@ -24,7 +32,15 @@ class OrdenCompraProductoPolicy
 
     public function update(User $user, OrdenCompraProducto $ordenCompraProducto): bool
     {
-        return $user->can('compras_productos.update') && $ordenCompraProducto->esModificable();
+        if (! $user->can('compras_productos.update') || ! $ordenCompraProducto->esModificable()) {
+            return false;
+        }
+
+        if ($user->can('compras_productos.authorize')) {
+            return true;
+        }
+
+        return $ordenCompraProducto->user_id === $user->id;
     }
 
     public function authorize(User $user, OrdenCompraProducto $ordenCompraProducto): bool

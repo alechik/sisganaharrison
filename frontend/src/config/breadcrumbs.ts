@@ -281,6 +281,18 @@ export const breadcrumbs = {
     { title: "Órdenes de productos" },
   ],
 
+  ordenProductoCrear: [
+    { title: "Compras" },
+    { title: "Órdenes de productos", path: "/compras-productos/ordenes" },
+    { title: "Nueva orden" },
+  ],
+
+  ordenProductoEditar: [
+    { title: "Compras" },
+    { title: "Órdenes de productos", path: "/compras-productos/ordenes" },
+    { title: "Editar orden" },
+  ],
+
   ordenProductoDetalle: [
     { title: "Compras" },
     { title: "Órdenes de productos", path: "/compras-productos/ordenes" },

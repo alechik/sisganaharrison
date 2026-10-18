@@ -16,6 +16,7 @@ class OrdenCompraProductoResource extends JsonResource
             'estado' => $this->estado,
             'descuento' => (float) $this->descuento,
             'monto_total' => (float) $this->monto_total,
+            'cantidad_total' => $this->whenLoaded('detalles', fn () => (int) $this->detalles->sum('cantidad')),
             'proveedor_id' => $this->proveedor_id,
             'proveedor_razon_social' => $this->whenLoaded('proveedor', fn () => $this->proveedor?->razon_social),
             'proveedor_nit' => $this->whenLoaded('proveedor', fn () => $this->proveedor?->nit),

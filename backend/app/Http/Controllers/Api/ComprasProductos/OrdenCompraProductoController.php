@@ -23,7 +23,7 @@ class OrdenCompraProductoController extends Controller
     {
         $this->authorize('viewAny', OrdenCompraProducto::class);
 
-        return OrdenCompraProductoResource::collection($this->service->paginate($request->all()));
+        return OrdenCompraProductoResource::collection($this->service->paginate($request->all(), $request->user()));
     }
 
     public function show(OrdenCompraProducto $ordenCompraProducto): OrdenCompraProductoResource
