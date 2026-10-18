@@ -3,6 +3,7 @@
 namespace App\Services\Establecimientos;
 
 use App\Models\Establecimiento;
+use App\Services\Almacenes\AlmacenService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,10 @@ use Illuminate\Validation\ValidationException;
 class EstablecimientoService
 {
     private const SORTABLE_COLUMNS = ['nombre', 'codigo', 'departamento', 'created_at'];
+
+    public function __construct(
+        private readonly AlmacenService $almacenService
+    ) {}
 
     /**
      * @param  array<string, mixed>  $filters
@@ -41,7 +46,10 @@ class EstablecimientoService
      */
     public function create(array $data): Establecimiento
     {
-        return Establecimiento::query()->create($data);
+        $establecimiento = Establecimiento::query()->create($data);
+        $this->almacenService->asegurarParaEstablecimiento($establecimiento);
+
+        return $establecimiento->fresh();
     }
 
     /**

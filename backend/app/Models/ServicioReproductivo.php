@@ -6,6 +6,7 @@ use Database\Factories\ServicioReproductivoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -30,11 +31,13 @@ class ServicioReproductivo extends Model
         'TRANSFERENCIA_EMBRION',
     ];
 
+    public const RESULTADO_PENDIENTE = 'PENDIENTE';
+
     public const RESULTADO_PRENADA = 'PRENADA';
 
     public const RESULTADOS = [
-        'PENDIENTE',
-        'PRENADA',
+        self::RESULTADO_PENDIENTE,
+        self::RESULTADO_PRENADA,
         'VACIA',
         'ABORTO',
     ];
@@ -44,16 +47,22 @@ class ServicioReproductivo extends Model
     protected $fillable = [
         'hembra_id',
         'macho_id',
+        'user_id',
+        'codigo_servicio',
         'fecha_servicio',
         'tipo_servicio',
         'resultado',
         'observaciones',
+        'total',
+        'inventario_aplicado_at',
     ];
 
     protected function casts(): array
     {
         return [
             'fecha_servicio' => 'date',
+            'total' => 'decimal:2',
+            'inventario_aplicado_at' => 'datetime',
         ];
     }
 
@@ -79,5 +88,26 @@ class ServicioReproductivo extends Model
     public function gestacion(): HasOne
     {
         return $this->hasOne(Gestacion::class, 'servicio_id');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function usuario(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<ProductoServicio, $this>
+     */
+    public function insumos(): HasMany
+    {
+        return $this->hasMany(ProductoServicio::class, 'servicio_id');
+    }
+
+    public function debeConsumirInventario(): bool
+    {
+        return $this->resultado !== null && $this->resultado !== self::RESULTADO_PENDIENTE;
     }
 }

@@ -55,6 +55,8 @@ class SalidaResource extends JsonResource
                     'categoria_nombre' => $detalle->animal?->categoria?->nombre,
                     'lote_id' => $detalle->lote_id,
                     'lote_nombre' => $detalle->lote?->nombre ?? $detalle->animal?->lote?->nombre,
+                    'grupo_id' => $detalle->grupo_id ?? $detalle->animal?->grupo_id,
+                    'grupo_nombre' => $detalle->grupo?->nombre ?? $detalle->animal?->grupo?->nombre,
                     'potrero_nombre' => $detalle->lote?->potrero?->nombre
                         ?? $detalle->animal?->lote?->potrero?->nombre,
                     'cantidad' => $detalle->cantidad,

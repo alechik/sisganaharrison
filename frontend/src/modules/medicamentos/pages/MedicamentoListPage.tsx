@@ -84,8 +84,8 @@ export default function MedicamentoListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Medicamentos</h1>
-          <PageBreadCrumb pageTitle="Medicamentos" items={breadcrumbs.medicamentos} />
+          <h1 className="text-2xl font-bold">Productos</h1>
+          <PageBreadCrumb pageTitle="Productos" items={breadcrumbs.medicamentos} />
         </div>
         <MedicamentoToolbar />
       </div>

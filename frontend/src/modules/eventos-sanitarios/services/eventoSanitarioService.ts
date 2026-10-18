@@ -58,6 +58,16 @@ export const createEventoSanitario = async (data: EventoSanitarioCreateRequest) 
   return response.data;
 };
 
+export const downloadEventoSanitarioPdf = async (id: number, codigo: string) => {
+  const response = await api.get(`/eventos-sanitarios/${id}/pdf`, { responseType: "blob" });
+  const href = window.URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = `${codigo}.pdf`;
+  link.click();
+  window.URL.revokeObjectURL(href);
+};
+
 export const buscarAnimalesEventoSanitario = async (search: string) => {
   const response = await api.get<{ data: AnimalDisponibleVenta[] }>(
     "/eventos-sanitarios/animales-disponibles",

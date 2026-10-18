@@ -11,8 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { breadcrumbs } from "@/config/breadcrumbs";
+import Button from "@/components/ui/button/Button";
 import { EVENTO_SANITARIO_ROUTES } from "../constants";
-import { getEventoSanitario } from "../services";
+import { downloadEventoSanitarioPdf, getEventoSanitario } from "../services";
 import { EventoSanitario } from "../types";
 import { formatAnimalLabel, formatMoney } from "../utils";
 
@@ -58,10 +59,19 @@ export default function EventoSanitarioDetailPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <PageBreadCrumb
-          pageTitle={`Evento #${evento.id}`}
+          pageTitle={evento.codigo_evento_sanitario || `Evento #${evento.id}`}
           items={breadcrumbs.eventoSanitarioDetalle}
         />
         <div className="flex gap-3">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              downloadEventoSanitarioPdf(evento.id, evento.codigo_evento_sanitario || `EVS-${evento.id}`)
+            }
+          >
+            PDF
+          </Button>
           <Link
             to={EVENTO_SANITARIO_ROUTES.list}
             className="inline-flex items-center justify-center rounded-lg bg-white px-4 py-3 text-sm text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700"
@@ -73,6 +83,12 @@ export default function EventoSanitarioDetailPage() {
 
       <ComponentCard title="Cabecera del evento sanitario">
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Código</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {evento.codigo_evento_sanitario || "—"}
+            </dd>
+          </div>
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Tipo de evento</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
@@ -130,15 +146,17 @@ export default function EventoSanitarioDetailPage() {
                 <TableCell isHeader className="px-4 py-3 font-semibold">Arete</TableCell>
                 <TableCell isHeader className="px-4 py-3 font-semibold">Potrero del evento</TableCell>
                 <TableCell isHeader className="px-4 py-3 font-semibold">Peso del evento</TableCell>
-                <TableCell isHeader className="px-4 py-3 font-semibold">Medicamento</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Producto</TableCell>
                 <TableCell isHeader className="px-4 py-3 font-semibold">Presentación</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Almacén</TableCell>
+                <TableCell isHeader className="px-4 py-3 font-semibold">Cantidad</TableCell>
                 <TableCell isHeader className="px-4 py-3 font-semibold">Precio</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>
               {(evento.detalles ?? []).length === 0 ? (
                 <TableRow>
-                  <TableCell className="px-4 py-6 text-center text-gray-500" colSpan={8}>
+                  <TableCell className="px-4 py-6 text-center text-gray-500" colSpan={10}>
                     Sin detalles.
                   </TableCell>
                 </TableRow>
@@ -157,6 +175,8 @@ export default function EventoSanitarioDetailPage() {
                       {detalle.medicamento_codigo ? ` (${detalle.medicamento_codigo})` : ""}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-sm">{detalle.presentacion_descripcion || "—"}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{detalle.almacen_nombre || "—"}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{detalle.cantidad ?? 1}</TableCell>
                     <TableCell className="px-4 py-3 text-sm">{formatMoney(detalle.precio_medicamento)}</TableCell>
                   </TableRow>
                 ))

@@ -44,6 +44,8 @@ export interface Ingreso {
   cuarentena_codigo?: string | null;
   lote_id: number;
   lote_nombre?: string | null;
+  grupo_id?: number | null;
+  grupo_nombre?: string | null;
   lote_codigo?: string | null;
   cantidad_total?: number;
   detalles?: IngresoDetalle[];
@@ -99,6 +101,7 @@ export interface IngresoDetalleRequest {
 export interface IngresoCreateRequest {
   cuarentena_id: number;
   lote_id: number;
+  grupo_id?: number | null;
   fecha_ingreso: string;
   observaciones?: string | null;
   descuento?: number;

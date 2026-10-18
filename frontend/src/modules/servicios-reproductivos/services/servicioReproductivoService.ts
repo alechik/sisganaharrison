@@ -63,6 +63,16 @@ export const createServicioReproductivo = async (data: ServicioReproductivoCreat
   return response.data;
 };
 
+export const downloadServicioReproductivoPdf = async (id: number, codigo: string) => {
+  const response = await api.get(`/servicios-reproductivos/${id}/pdf`, { responseType: "blob" });
+  const href = window.URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = `${codigo}.pdf`;
+  link.click();
+  window.URL.revokeObjectURL(href);
+};
+
 export const updateServicioReproductivo = async (
   id: number,
   data: ServicioReproductivoUpdateRequest

@@ -39,6 +39,7 @@ class Ingreso extends Model
         'user_id',
         'cuarentena_id',
         'lote_id',
+        'grupo_id',
         'fecha_ingreso',
         'estado',
         'observaciones',
@@ -87,6 +88,14 @@ class Ingreso extends Model
     public function lote(): BelongsTo
     {
         return $this->belongsTo(Lote::class, 'lote_id');
+    }
+
+    /**
+     * @return BelongsTo<Grupo, $this>
+     */
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(Grupo::class, 'grupo_id');
     }
 
     /**

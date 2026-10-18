@@ -65,6 +65,14 @@ class Lote extends Model
     }
 
     /**
+     * @return HasMany<Grupo, $this>
+     */
+    public function grupos(): HasMany
+    {
+        return $this->hasMany(Grupo::class);
+    }
+
+    /**
      * @param  Builder<Lote>  $query
      * @return Builder<Lote>
      */

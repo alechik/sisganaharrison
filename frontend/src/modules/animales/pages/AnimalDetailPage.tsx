@@ -147,6 +147,10 @@ export default function AnimalDetailPage() {
             <dd className="font-medium text-gray-800 dark:text-white/90">{animal.lote_nombre || "—"}</dd>
           </div>
           <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Grupo</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{animal.grupo_nombre || "—"}</dd>
+          </div>
+          <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Madre</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">{animal.madre_nombre || "—"}</dd>
           </div>

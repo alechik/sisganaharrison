@@ -23,6 +23,7 @@ interface LineState {
   animal_arete: string;
   lote_nombre: string;
   potrero_nombre: string;
+  grupo_nombre: string;
   peso: number;
   precio: number;
   descuento: number;
@@ -34,6 +35,7 @@ const emptyLine = (): LineState => ({
   animal_arete: "",
   lote_nombre: "",
   potrero_nombre: "",
+  grupo_nombre: "",
   peso: 0,
   precio: 0,
   descuento: 0,
@@ -119,6 +121,7 @@ export default function SalidaForm() {
           animal_arete: detalle.animal_arete ?? "",
           lote_nombre: detalle.lote_nombre ?? "",
           potrero_nombre: detalle.potrero_nombre ?? "",
+          grupo_nombre: detalle.grupo_nombre ?? "",
           peso: detalle.peso,
           precio: detalle.precio,
           descuento: detalle.descuento,
@@ -148,6 +151,7 @@ export default function SalidaForm() {
               animal_arete: animal.arete ?? "",
               lote_nombre: animal.lote_nombre ?? "",
               potrero_nombre: animal.potrero_nombre ?? "",
+              grupo_nombre: animal.grupo_nombre ?? "",
               peso: animal.peso ?? line.peso,
               precio:
                 animal.precio_kilo && animal.peso
@@ -311,7 +315,7 @@ export default function SalidaForm() {
               <Label>Parcela / Potrero</Label>
               <InputField
                 type="text"
-                value={`${line.potrero_nombre || "—"} / ${line.lote_nombre || "—"}`}
+                value={`${line.potrero_nombre || "—"} / ${line.lote_nombre || "—"}${line.grupo_nombre ? ` / ${line.grupo_nombre}` : ""}`}
                 disabled
               />
             </div>

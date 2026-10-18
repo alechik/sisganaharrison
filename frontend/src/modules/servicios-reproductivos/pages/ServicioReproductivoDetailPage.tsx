@@ -5,9 +5,10 @@ import PermissionGate from "@/components/auth/PermissionGate";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
+import Button from "@/components/ui/button/Button";
 import { SERVICIO_REPRODUCTIVO_ROUTES } from "../constants";
 import { SERVICIOS_REPRODUCTIVOS_PERMISSIONS } from "../permissions";
-import { getServicioReproductivo } from "../services";
+import { downloadServicioReproductivoPdf, getServicioReproductivo } from "../services";
 import { ServicioReproductivo } from "../types";
 import { formatAnimalLabel, getResultadoLabel, getTipoServicioLabel } from "../utils";
 
@@ -53,10 +54,19 @@ export default function ServicioReproductivoDetailPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <PageBreadCrumb
-          pageTitle={`Servicio #${servicio.id}`}
+          pageTitle={servicio.codigo_servicio || `Servicio #${servicio.id}`}
           items={breadcrumbs.servicioReproductivoDetalle}
         />
         <div className="flex gap-3">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              downloadServicioReproductivoPdf(servicio.id, servicio.codigo_servicio || `SRV-${servicio.id}`)
+            }
+          >
+            PDF
+          </Button>
           <Link
             to={SERVICIO_REPRODUCTIVO_ROUTES.list}
             className="inline-flex items-center justify-center rounded-lg bg-white px-4 py-3 text-sm text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700"
@@ -76,6 +86,18 @@ export default function ServicioReproductivoDetailPage() {
 
       <ComponentCard title="Detalle de Servicio Reproductivo">
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Código</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {servicio.codigo_servicio || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Registrado por</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {servicio.usuario_nombre || "—"}
+            </dd>
+          </div>
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Hembra</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
@@ -125,6 +147,31 @@ export default function ServicioReproductivoDetailPage() {
             </dd>
           </div>
         </dl>
+      </ComponentCard>
+
+      <ComponentCard title="Insumos asociados">
+        {(servicio.insumos ?? []).length === 0 ? (
+          <p className="text-sm text-gray-500">Sin insumos registrados.</p>
+        ) : (
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr>
+                <th className="px-3 py-2 text-left">Producto</th>
+                <th className="px-3 py-2 text-left">Almacén</th>
+                <th className="px-3 py-2 text-right">Cantidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(servicio.insumos ?? []).map((insumo) => (
+                <tr key={insumo.id ?? `${insumo.medicamento_id}-${insumo.almacen_id}`}>
+                  <td className="px-3 py-2">{insumo.producto_nombre || insumo.producto_codigo || insumo.medicamento_id}</td>
+                  <td className="px-3 py-2">{insumo.almacen_nombre || "—"}</td>
+                  <td className="px-3 py-2 text-right">{insumo.cantidad}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </ComponentCard>
     </div>
   );

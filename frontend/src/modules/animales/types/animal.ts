@@ -14,6 +14,8 @@ export interface Animal {
   estado_productivo_nombre?: string | null;
   lote_id: number | null;
   lote_nombre?: string | null;
+  grupo_id: number | null;
+  grupo_nombre?: string | null;
   madre_id: number | null;
   madre_nombre?: string | null;
   padre_id: number | null;
@@ -41,6 +43,7 @@ export interface AnimalCreateRequest {
   categoria_id: number;
   estado_productivo_id?: number | null;
   lote_id?: number | null;
+  grupo_id?: number | null;
   madre_id?: number | null;
   padre_id?: number | null;
   color?: string | null;

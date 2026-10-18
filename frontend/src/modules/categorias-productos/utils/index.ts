@@ -1,0 +1,1 @@
+﻿export { defaultCategoriaProductoFilters } from "./defaultFilters";

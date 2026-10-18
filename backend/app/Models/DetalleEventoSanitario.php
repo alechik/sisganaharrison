@@ -25,6 +25,8 @@ class DetalleEventoSanitario extends Model
         'animal_id',
         'lote_id',
         'medicamento_id',
+        'almacen_id',
+        'cantidad',
         'peso_animal',
         'precio_medicamento',
     ];
@@ -34,6 +36,7 @@ class DetalleEventoSanitario extends Model
         return [
             'peso_animal' => 'decimal:2',
             'precio_medicamento' => 'decimal:2',
+            'cantidad' => 'decimal:2',
         ];
     }
 
@@ -67,5 +70,13 @@ class DetalleEventoSanitario extends Model
     public function medicamento(): BelongsTo
     {
         return $this->belongsTo(Medicamento::class, 'medicamento_id');
+    }
+
+    /**
+     * @return BelongsTo<Almacen, $this>
+     */
+    public function almacen(): BelongsTo
+    {
+        return $this->belongsTo(Almacen::class, 'almacen_id');
     }
 }

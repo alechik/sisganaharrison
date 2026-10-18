@@ -6,7 +6,9 @@ import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
+import { getCategoriasProductos } from "@/modules/categorias-productos/services";
 import { getPresentaciones } from "@/modules/presentaciones/services";
+import { getSubcategoriasProductos } from "@/modules/subcategorias-productos/services";
 import { MEDICAMENTO_ROUTES } from "../constants";
 import { useCreateMedicamento } from "../hooks/useCreateMedicamento";
 import { useUpdateMedicamento } from "../hooks/useUpdateMedicamento";
@@ -19,6 +21,7 @@ interface Props {
 
 const emptyForm: MedicamentoCreateRequest = {
   presentacion_id: 0,
+  subcategoria_producto_id: 0,
   codigo: "",
   nombre: "",
   laboratorio: "",
@@ -32,8 +35,11 @@ export default function MedicamentoForm({ medicamentoId }: Props) {
   const { create, loading: creating, error: createError, setError: setCreateError } = useCreateMedicamento();
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateMedicamento();
   const [form, setForm] = useState<MedicamentoCreateRequest>(emptyForm);
+  const [categoriaId, setCategoriaId] = useState(0);
   const [loading, setLoading] = useState(isEdit);
   const [presentaciones, setPresentaciones] = useState<{ value: string; label: string }[]>([]);
+  const [categorias, setCategorias] = useState<{ value: string; label: string }[]>([]);
+  const [subcategorias, setSubcategorias] = useState<{ value: string; label: string }[]>([]);
 
   const saving = creating || updating;
   const error = createError || updateError;
@@ -44,7 +50,30 @@ export default function MedicamentoForm({ medicamentoId }: Props) {
         setPresentaciones(res.data.map((item) => ({ value: String(item.id), label: item.descripcion })))
       )
       .catch(console.error);
+    getCategoriasProductos({ per_page: 100, activo: true, sort_by: "nombre", sort_dir: "asc" })
+      .then((res) =>
+        setCategorias(res.data.map((item) => ({ value: String(item.id), label: item.nombre })))
+      )
+      .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (!categoriaId) {
+      setSubcategorias([]);
+      return;
+    }
+    getSubcategoriasProductos({
+      per_page: 100,
+      activo: true,
+      categoria_producto_id: categoriaId,
+      sort_by: "nombre",
+      sort_dir: "asc",
+    })
+      .then((res) =>
+        setSubcategorias(res.data.map((item) => ({ value: String(item.id), label: item.nombre })))
+      )
+      .catch(console.error);
+  }, [categoriaId]);
 
   useEffect(() => {
     if (!medicamentoId) {
@@ -54,8 +83,10 @@ export default function MedicamentoForm({ medicamentoId }: Props) {
     const loadMedicamento = async () => {
       try {
         const medicamento = await getMedicamento(medicamentoId);
+        setCategoriaId(medicamento.categoria_producto_id ?? 0);
         setForm({
           presentacion_id: medicamento.presentacion_id,
+          subcategoria_producto_id: medicamento.subcategoria_producto_id ?? 0,
           codigo: medicamento.codigo,
           nombre: medicamento.nombre,
           laboratorio: medicamento.laboratorio ?? "",
@@ -64,7 +95,7 @@ export default function MedicamentoForm({ medicamentoId }: Props) {
         });
       } catch (err) {
         console.error(err);
-        setUpdateError("No se pudo cargar el medicamento.");
+        setUpdateError("No se pudo cargar el producto.");
       } finally {
         setLoading(false);
       }
@@ -88,6 +119,10 @@ export default function MedicamentoForm({ medicamentoId }: Props) {
 
     if (!form.presentacion_id) {
       setCreateError("Debe seleccionar una presentación.");
+      return;
+    }
+    if (!form.subcategoria_producto_id) {
+      setCreateError("Debe seleccionar una categoría y una subcategoría.");
       return;
     }
 
@@ -127,6 +162,27 @@ export default function MedicamentoForm({ medicamentoId }: Props) {
           />
         </div>
         <div>
+          <Label>Categoría *</Label>
+          <Select
+            value={categoriaId ? String(categoriaId) : ""}
+            placeholder="Seleccione categoría"
+            options={categorias}
+            onChange={(value) => {
+              setCategoriaId(Number(value));
+              setForm((current) => ({ ...current, subcategoria_producto_id: 0 }));
+            }}
+          />
+        </div>
+        <div>
+          <Label>Subcategoría *</Label>
+          <Select
+            value={form.subcategoria_producto_id ? String(form.subcategoria_producto_id) : ""}
+            placeholder="Seleccione subcategoría"
+            options={subcategorias}
+            onChange={(value) => setForm((current) => ({ ...current, subcategoria_producto_id: Number(value) }))}
+          />
+        </div>
+        <div>
           <Label>Código *</Label>
           <InputField type="text" name="codigo" value={form.codigo} onChange={handleChange} />
         </div>
@@ -161,7 +217,7 @@ export default function MedicamentoForm({ medicamentoId }: Props) {
 
       <div className="mt-6 flex gap-3">
         <Button size="sm" type="submit" disabled={saving}>
-          {saving ? "Guardando..." : isEdit ? "Actualizar medicamento" : "Guardar medicamento"}
+          {saving ? "Guardando..." : isEdit ? "Actualizar producto" : "Guardar producto"}
         </Button>
         <Button size="sm" variant="outline" type="button" onClick={() => navigate(MEDICAMENTO_ROUTES.list)}>
           Cancelar

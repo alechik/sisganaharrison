@@ -9,6 +9,8 @@ export interface SalidaDetalle {
   lote_id?: number | null;
   lote_nombre?: string | null;
   potrero_nombre?: string | null;
+  grupo_id?: number | null;
+  grupo_nombre?: string | null;
   cantidad: number;
   peso: number;
   precio: number;

@@ -7,6 +7,7 @@ import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import { useAnimalReferenceOptions } from "@/modules/animales/hooks/useAnimalReferenceOptions";
+import { useGruposByLote } from "@/modules/grupos/hooks";
 import { INGRESO_ROUTES } from "../constants";
 import { useCreateIngreso } from "../hooks";
 import { getCuarentenasDisponiblesIngreso, getPendientesIngreso } from "../services";
@@ -60,6 +61,8 @@ export default function IngresoForm() {
   const [pendientes, setPendientes] = useState<IngresoPendientes | null>(null);
   const [loadingPendientes, setLoadingPendientes] = useState(false);
   const [loteId, setLoteId] = useState("");
+  const [grupoId, setGrupoId] = useState("");
+  const { options: grupoOptions, loading: loadingGrupos } = useGruposByLote(loteId ? Number(loteId) : null);
   const [fechaIngreso, setFechaIngreso] = useState(new Date().toISOString().slice(0, 10));
   const [observaciones, setObservaciones] = useState("");
   const [lines, setLines] = useState<Record<number, LineState>>({});
@@ -187,6 +190,7 @@ export default function IngresoForm() {
       const response = await create({
         cuarentena_id: Number(cuarentenaId),
         lote_id: Number(loteId),
+        grupo_id: grupoId ? Number(grupoId) : null,
         fecha_ingreso: fechaIngreso,
         observaciones: observaciones || null,
         detalles: selected.map((linea) => {
@@ -249,7 +253,19 @@ export default function IngresoForm() {
             value={loteId}
             placeholder="Seleccione un potrero"
             options={loteOptions}
-            onChange={setLoteId}
+            onChange={(value) => {
+              setLoteId(value);
+              setGrupoId("");
+            }}
+          />
+        </div>
+        <div>
+          <Label>Grupo</Label>
+          <Select
+            value={grupoId}
+            placeholder={!loteId ? "Seleccione un potrero" : loadingGrupos ? "Cargando..." : "Sin grupo"}
+            options={grupoOptions}
+            onChange={setGrupoId}
           />
         </div>
         <div>

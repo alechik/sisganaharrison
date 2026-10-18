@@ -26,7 +26,12 @@ import UserList from "./modules/user/pages/UserList";
 import { razaRoutes } from "./modules/razas/routes";
 import { categoriaAnimalRoutes } from "./modules/categorias-animales/routes";
 import { presentacionRoutes } from "./modules/presentaciones/routes";
+import { categoriaProductoRoutes } from "./modules/categorias-productos/routes";
+import { subcategoriaProductoRoutes } from "./modules/subcategorias-productos/routes";
 import { medicamentoRoutes } from "./modules/medicamentos/routes";
+import { almacenRoutes } from "./modules/almacenes/routes";
+import { inventarioRoutes } from "./modules/inventario/routes";
+import { comprasProductosRoutes } from "./modules/compras-productos/routes";
 import { estadoProductivoRoutes } from "./modules/estados-productivos/routes";
 import { tipoEventoSanitarioRoutes } from "./modules/tipos-eventos-sanitarios/routes";
 import { tipoMovimientoRoutes } from "./modules/tipos-movimientos/routes";
@@ -35,6 +40,7 @@ import { tipoSalidaRoutes } from "./modules/tipos-salidas/routes";
 import { establecimientoRoutes } from "./modules/establecimientos/routes";
 import { potreroRoutes } from "./modules/potreros/routes";
 import { loteRoutes } from "./modules/lotes/routes";
+import { grupoRoutes } from "./modules/grupos/routes";
 import { animalRoutes } from "./modules/animales/routes";
 import { ventasRoutes } from "./modules/ventas/routes";
 import { salidasRoutes } from "./modules/salidas/routes";
@@ -74,6 +80,8 @@ export default function App() {
             {razaRoutes}
             {categoriaAnimalRoutes}
             {presentacionRoutes}
+            {categoriaProductoRoutes}
+            {subcategoriaProductoRoutes}
             {medicamentoRoutes}
             {estadoProductivoRoutes}
             {tipoEventoSanitarioRoutes}
@@ -83,6 +91,8 @@ export default function App() {
             {establecimientoRoutes}
             {potreroRoutes}
             {loteRoutes}
+            {grupoRoutes}
+            {almacenRoutes}
             {animalRoutes}
             {pesajeRoutes}
             {eventoSanitarioRoutes}
@@ -92,6 +102,8 @@ export default function App() {
             {nacimientoRoutes}
             {sociosDeNegocioRoutes}
             {comprasRoutes}
+            {comprasProductosRoutes}
+            {inventarioRoutes}
             {ventasRoutes}
             {salidasRoutes}
             {traspasoRoutes}

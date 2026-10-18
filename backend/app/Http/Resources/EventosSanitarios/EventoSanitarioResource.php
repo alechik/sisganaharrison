@@ -14,6 +14,7 @@ class EventoSanitarioResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'codigo_evento_sanitario' => $this->codigo_evento_sanitario,
             'tipo_evento_id' => $this->tipo_evento_id,
             'tipo_evento_nombre' => $this->whenLoaded('tipoEvento', fn () => $this->tipoEvento?->nombre),
             'tipo_evento_codigo' => $this->whenLoaded('tipoEvento', fn () => $this->tipoEvento?->codigo),
@@ -42,6 +43,9 @@ class EventoSanitarioResource extends JsonResource
                     'medicamento_codigo' => $detalle->medicamento?->codigo,
                     'medicamento_nombre' => $detalle->medicamento?->nombre,
                     'presentacion_descripcion' => $detalle->medicamento?->presentacion?->descripcion,
+                    'almacen_id' => $detalle->almacen_id,
+                    'almacen_nombre' => $detalle->almacen?->nombre,
+                    'cantidad' => (float) $detalle->cantidad,
                     'peso_animal' => (float) $detalle->peso_animal,
                     'precio_medicamento' => (float) $detalle->precio_medicamento,
                 ])->values();

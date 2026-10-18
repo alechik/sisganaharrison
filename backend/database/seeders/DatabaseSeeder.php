@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             CategoriaAnimalSeeder::class,
             PresentacionSeeder::class,
             MedicamentoSeeder::class,
+            CategoriaProductoSeeder::class,
             EstadoProductivoSeeder::class,
             TipoEventoSanitarioSeeder::class,
             TipoMovimientoSeeder::class,
@@ -32,6 +33,7 @@ class DatabaseSeeder extends Seeder
             TipoSalidaSeeder::class,
             TipoPersonaSeeder::class,
             EstablecimientoSeeder::class,
+            AlmacenSeeder::class,
             PotreroSeeder::class,
             LoteSeeder::class,
         ]);

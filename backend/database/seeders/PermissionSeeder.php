@@ -97,6 +97,32 @@ class PermissionSeeder extends Seeder
         'medicamentos.restore',
         'medicamentos.activate',
 
+        'categorias_productos.view',
+        'categorias_productos.create',
+        'categorias_productos.update',
+        'categorias_productos.delete',
+        'categorias_productos.restore',
+        'categorias_productos.activate',
+
+        'subcategorias_productos.view',
+        'subcategorias_productos.create',
+        'subcategorias_productos.update',
+        'subcategorias_productos.delete',
+        'subcategorias_productos.restore',
+        'subcategorias_productos.activate',
+
+        'almacenes.view',
+        'almacenes.create',
+        'almacenes.update',
+        'almacenes.delete',
+        'almacenes.restore',
+        'almacenes.activate',
+
+        'compras_productos.view',
+        'compras_productos.create',
+        'compras_productos.update',
+        'compras_productos.authorize',
+
         // Estados productivos
         'estados_productivos.view',
         'estados_productivos.create',
@@ -159,6 +185,14 @@ class PermissionSeeder extends Seeder
         'lotes.delete',
         'lotes.restore',
         'lotes.activate',
+
+        // Grupos
+        'grupos.view',
+        'grupos.create',
+        'grupos.update',
+        'grupos.delete',
+        'grupos.restore',
+        'grupos.activate',
 
         // Animales
         'animales.view',

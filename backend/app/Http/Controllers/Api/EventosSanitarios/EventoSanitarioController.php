@@ -11,6 +11,7 @@ use App\Services\EventosSanitarios\EventoSanitarioService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
 class EventoSanitarioController extends Controller
@@ -48,6 +49,7 @@ class EventoSanitarioController extends Controller
             'detalles.lote:id,nombre,codigo',
             'detalles.medicamento:id,codigo,nombre,presentacion_id,precio',
             'detalles.medicamento.presentacion:id,descripcion',
+            'detalles.almacen:id,nombre',
         ]);
 
         return new EventoSanitarioResource($eventoSanitario);
@@ -70,5 +72,12 @@ class EventoSanitarioController extends Controller
             'message' => 'Evento sanitario registrado correctamente',
             'data' => new EventoSanitarioResource($evento),
         ], 201);
+    }
+
+    public function pdf(EventoSanitario $eventoSanitario): Response
+    {
+        $this->authorize('view', $eventoSanitario);
+
+        return $this->eventoSanitarioService->pdf($eventoSanitario);
     }
 }

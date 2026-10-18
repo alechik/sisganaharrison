@@ -2,10 +2,18 @@
 
 namespace App\Services\ServiciosReproductivos;
 
+use App\Models\Almacen;
 use App\Models\Animal;
+use App\Models\Medicamento;
+use App\Models\MovimientoInventario;
 use App\Models\ServicioReproductivo;
+use App\Services\Documentos\PdfGenerator;
+use App\Services\Inventario\InventarioService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ServicioReproductivoService
@@ -15,7 +23,15 @@ class ServicioReproductivoService
     private const RELATIONS = [
         'hembra:id,codigo,arete,sexo',
         'macho:id,codigo,arete,sexo',
+        'usuario:id,nombre,apellido',
+        'insumos.medicamento:id,codigo,nombre,precio',
+        'insumos.almacen:id,nombre',
     ];
+
+    public function __construct(
+        private readonly InventarioService $inventarioService,
+        private readonly PdfGenerator $pdfGenerator
+    ) {}
 
     /**
      * @param  array<string, mixed>  $filters
@@ -39,10 +55,24 @@ class ServicioReproductivoService
     public function create(array $data): ServicioReproductivo
     {
         $this->assertAnimalesValidos($data);
+        $insumos = $this->normalizeInsumos($data['insumos'] ?? []);
 
-        return ServicioReproductivo::query()
-            ->create($data)
-            ->load(self::RELATIONS);
+        return DB::transaction(function () use ($data, $insumos) {
+            unset($data['insumos']);
+            $data['user_id'] = Auth::id();
+            $data['codigo_servicio'] = $this->nextCodigo();
+            $data['total'] = $this->totalInsumos($insumos);
+
+            $servicio = ServicioReproductivo::query()->create($data);
+            foreach ($insumos as $linea) {
+                $servicio->insumos()->create($linea);
+            }
+
+            $servicio = $servicio->fresh(self::RELATIONS);
+            $this->aplicarInventarioSiCorresponde($servicio);
+
+            return $servicio->fresh(self::RELATIONS);
+        });
     }
 
     /**
@@ -51,10 +81,46 @@ class ServicioReproductivoService
     public function update(ServicioReproductivo $servicio, array $data): ServicioReproductivo
     {
         $this->assertAnimalesValidos($data);
+        $insumos = array_key_exists('insumos', $data)
+            ? $this->normalizeInsumos($data['insumos'] ?? [])
+            : null;
 
-        $servicio->update($data);
+        return DB::transaction(function () use ($servicio, $data, $insumos) {
+            unset($data['insumos'], $data['user_id'], $data['codigo_servicio']);
 
-        return $servicio->fresh(self::RELATIONS);
+            if ($insumos !== null) {
+                if ($servicio->inventario_aplicado_at) {
+                    throw ValidationException::withMessages([
+                        'insumos' => 'No se pueden modificar insumos de un servicio que ya consumió inventario.',
+                    ]);
+                }
+                $servicio->insumos()->delete();
+                foreach ($insumos as $linea) {
+                    $servicio->insumos()->create($linea);
+                }
+                $data['total'] = $this->totalInsumos($insumos);
+            }
+
+            $servicio->update($data);
+            $servicio = $servicio->fresh(self::RELATIONS);
+            $this->aplicarInventarioSiCorresponde($servicio);
+
+            return $servicio->fresh(self::RELATIONS);
+        });
+    }
+
+    public function pdf(ServicioReproductivo $servicio): Response
+    {
+        $servicio->load(self::RELATIONS);
+
+        return $this->pdfGenerator->download(
+            'documentos.servicio-reproductivo',
+            [
+                'titulo' => 'Servicio Reproductivo',
+                'servicio' => $servicio,
+            ],
+            ($servicio->codigo_servicio ?? 'SRV-'.$servicio->id).'.pdf'
+        );
     }
 
     /**
@@ -71,6 +137,7 @@ class ServicioReproductivoService
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('tipo_servicio', 'like', "%{$search}%")
                     ->orWhere('resultado', 'like', "%{$search}%")
+                    ->orWhere('codigo_servicio', 'like', "%{$search}%")
                     ->orWhere('observaciones', 'like', "%{$search}%")
                     ->orWhereHas('hembra', function (Builder $hembraQuery) use ($search) {
                         $hembraQuery->where('codigo', 'like', "%{$search}%")
@@ -180,5 +247,94 @@ class ServicioReproductivoService
         }
 
         return $animal;
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $insumos
+     * @return list<array{medicamento_id:int, almacen_id:int, precio:float, cantidad:int}>
+     */
+    private function normalizeInsumos(array $insumos): array
+    {
+        $normalizados = [];
+        $vistos = [];
+        foreach ($insumos as $index => $linea) {
+            $productoId = (int) ($linea['medicamento_id'] ?? 0);
+            $almacenId = (int) ($linea['almacen_id'] ?? 0);
+            $cantidad = (int) ($linea['cantidad'] ?? 0);
+            if ($productoId < 1 || $almacenId < 1 || $cantidad < 1) {
+                throw ValidationException::withMessages([
+                    "insumos.$index.medicamento_id" => 'Cada insumo requiere producto, almacén y cantidad.',
+                ]);
+            }
+            $clave = $productoId.'-'.$almacenId;
+            if (in_array($clave, $vistos, true)) {
+                throw ValidationException::withMessages([
+                    "insumos.$index.medicamento_id" => 'El mismo producto no puede repetirse para el mismo almacén.',
+                ]);
+            }
+            $producto = Medicamento::query()->whereKey($productoId)->where('activo', true)->whereNull('deleted_at')->first();
+            $almacen = Almacen::query()->whereKey($almacenId)->where('activo', true)->whereNull('deleted_at')->first();
+            if (! $producto || ! $almacen) {
+                throw ValidationException::withMessages([
+                    "insumos.$index.medicamento_id" => 'El producto o el almacén no están activos.',
+                ]);
+            }
+            $vistos[] = $clave;
+            $normalizados[] = [
+                'medicamento_id' => $producto->id,
+                'almacen_id' => $almacen->id,
+                'precio' => round((float) $producto->precio, 2),
+                'cantidad' => $cantidad,
+            ];
+        }
+
+        return $normalizados;
+    }
+
+    /**
+     * @param  list<array{precio:float, cantidad:int}>  $insumos
+     */
+    private function totalInsumos(array $insumos): float
+    {
+        $total = 0;
+        foreach ($insumos as $linea) {
+            $total += $linea['precio'] * $linea['cantidad'];
+        }
+
+        return round($total, 2);
+    }
+
+    private function aplicarInventarioSiCorresponde(ServicioReproductivo $servicio): void
+    {
+        if ($servicio->inventario_aplicado_at || ! $servicio->debeConsumirInventario()) {
+            return;
+        }
+
+        foreach ($servicio->insumos as $insumo) {
+            $this->inventarioService->registrar([
+                'almacen_id' => (int) $insumo->almacen_id,
+                'medicamento_id' => (int) $insumo->medicamento_id,
+                'tipo' => MovimientoInventario::TIPO_CONSUMO_REPRODUCTIVO,
+                'cantidad' => -1 * (int) $insumo->cantidad,
+                'precio_unitario' => (float) $insumo->precio,
+                'origen_type' => 'servicio_reproductivo',
+                'origen_id' => $insumo->id,
+                'observaciones' => 'Consumo '.$servicio->codigo_servicio,
+            ]);
+        }
+
+        $servicio->inventario_aplicado_at = now();
+        $servicio->save();
+    }
+
+    private function nextCodigo(): string
+    {
+        $ultimo = ServicioReproductivo::query()->lockForUpdate()->orderByDesc('id')->value('codigo_servicio');
+        $n = 1;
+        if (is_string($ultimo) && preg_match('/(\d+)$/', $ultimo, $m)) {
+            $n = (int) $m[1] + 1;
+        }
+
+        return 'SRV-'.str_pad((string) $n, 6, '0', STR_PAD_LEFT);
     }
 }

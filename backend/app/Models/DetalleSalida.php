@@ -28,6 +28,7 @@ class DetalleSalida extends Model
         'cantidad',
         'peso',
         'lote_id',
+        'grupo_id',
         'precio',
         'descuento',
         'subtotal',
@@ -66,5 +67,13 @@ class DetalleSalida extends Model
     public function lote(): BelongsTo
     {
         return $this->belongsTo(Lote::class, 'lote_id');
+    }
+
+    /**
+     * @return BelongsTo<Grupo, $this>
+     */
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(Grupo::class, 'grupo_id');
     }
 }

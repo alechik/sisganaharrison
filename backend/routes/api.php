@@ -8,6 +8,12 @@ use App\Http\Controllers\Api\CategoriasAnimales\CategoriaAnimalController;
 use App\Http\Controllers\Api\Vacunas\VacunaController;
 use App\Http\Controllers\Api\Presentaciones\PresentacionController;
 use App\Http\Controllers\Api\Medicamentos\MedicamentoController;
+use App\Http\Controllers\Api\CategoriasProductos\CategoriaProductoController;
+use App\Http\Controllers\Api\SubcategoriasProductos\SubcategoriaProductoController;
+use App\Http\Controllers\Api\Almacenes\AlmacenController;
+use App\Http\Controllers\Api\Inventario\MovimientoInventarioController;
+use App\Http\Controllers\Api\ComprasProductos\OrdenCompraProductoController;
+use App\Http\Controllers\Api\ComprasProductos\IngresoProductoController;
 use App\Http\Controllers\Api\EstadosProductivos\EstadoProductivoController;
 use App\Http\Controllers\Api\TiposEventosSanitarios\TipoEventoSanitarioController;
 use App\Http\Controllers\Api\TiposMovimientos\TipoMovimientoController;
@@ -16,6 +22,7 @@ use App\Http\Controllers\Api\TiposSalidas\TipoSalidaController;
 use App\Http\Controllers\Api\Establecimientos\EstablecimientoController;
 use App\Http\Controllers\Api\Potreros\PotreroController;
 use App\Http\Controllers\Api\Lotes\LoteController;
+use App\Http\Controllers\Api\Grupos\GrupoController;
 use App\Http\Controllers\Api\Animales\AnimalController;
 use App\Http\Controllers\Api\Animales\AnimalHistorialController;
 use App\Http\Controllers\Api\Pesajes\PesajeController;
@@ -280,6 +287,55 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('medicamentos/{medicamento}/estado', [MedicamentoController::class, 'changeStatus'])
         ->middleware('permission:medicamentos.activate');
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('categorias-productos/eliminados', [CategoriaProductoController::class, 'deleted'])->middleware('permission:categorias_productos.view');
+    Route::post('categorias-productos/{id}/restaurar', [CategoriaProductoController::class, 'restore'])->middleware('permission:categorias_productos.restore');
+    Route::get('categorias-productos', [CategoriaProductoController::class, 'index'])->middleware('permission:categorias_productos.view');
+    Route::post('categorias-productos', [CategoriaProductoController::class, 'store'])->middleware('permission:categorias_productos.create');
+    Route::get('categorias-productos/{categoria_producto}', [CategoriaProductoController::class, 'show'])->middleware('permission:categorias_productos.view');
+    Route::put('categorias-productos/{categoria_producto}', [CategoriaProductoController::class, 'update'])->middleware('permission:categorias_productos.update');
+    Route::patch('categorias-productos/{categoria_producto}', [CategoriaProductoController::class, 'update'])->middleware('permission:categorias_productos.update');
+    Route::delete('categorias-productos/{categoria_producto}', [CategoriaProductoController::class, 'destroy'])->middleware('permission:categorias_productos.delete');
+    Route::patch('categorias-productos/{categoria_producto}/estado', [CategoriaProductoController::class, 'changeStatus'])->middleware('permission:categorias_productos.activate');
+
+    Route::get('subcategorias-productos/eliminados', [SubcategoriaProductoController::class, 'deleted'])->middleware('permission:subcategorias_productos.view');
+    Route::post('subcategorias-productos/{id}/restaurar', [SubcategoriaProductoController::class, 'restore'])->middleware('permission:subcategorias_productos.restore');
+    Route::get('subcategorias-productos', [SubcategoriaProductoController::class, 'index'])->middleware('permission:subcategorias_productos.view');
+    Route::post('subcategorias-productos', [SubcategoriaProductoController::class, 'store'])->middleware('permission:subcategorias_productos.create');
+    Route::get('subcategorias-productos/{subcategoria_producto}', [SubcategoriaProductoController::class, 'show'])->middleware('permission:subcategorias_productos.view');
+    Route::put('subcategorias-productos/{subcategoria_producto}', [SubcategoriaProductoController::class, 'update'])->middleware('permission:subcategorias_productos.update');
+    Route::patch('subcategorias-productos/{subcategoria_producto}', [SubcategoriaProductoController::class, 'update'])->middleware('permission:subcategorias_productos.update');
+    Route::delete('subcategorias-productos/{subcategoria_producto}', [SubcategoriaProductoController::class, 'destroy'])->middleware('permission:subcategorias_productos.delete');
+    Route::patch('subcategorias-productos/{subcategoria_producto}/estado', [SubcategoriaProductoController::class, 'changeStatus'])->middleware('permission:subcategorias_productos.activate');
+
+    Route::get('almacenes/eliminados', [AlmacenController::class, 'deleted'])->middleware('permission:almacenes.view');
+    Route::post('almacenes/{id}/restaurar', [AlmacenController::class, 'restore'])->middleware('permission:almacenes.restore');
+    Route::get('almacenes', [AlmacenController::class, 'index'])->middleware('permission:almacenes.view');
+    Route::post('almacenes', [AlmacenController::class, 'store'])->middleware('permission:almacenes.create');
+    Route::get('almacenes/{almacen}', [AlmacenController::class, 'show'])->middleware('permission:almacenes.view');
+    Route::put('almacenes/{almacen}', [AlmacenController::class, 'update'])->middleware('permission:almacenes.update');
+    Route::patch('almacenes/{almacen}', [AlmacenController::class, 'update'])->middleware('permission:almacenes.update');
+    Route::delete('almacenes/{almacen}', [AlmacenController::class, 'destroy'])->middleware('permission:almacenes.delete');
+    Route::patch('almacenes/{almacen}/estado', [AlmacenController::class, 'changeStatus'])->middleware('permission:almacenes.activate');
+
+    Route::get('inventario/stock', [MovimientoInventarioController::class, 'stock'])->middleware('permission:movimientos.view');
+    Route::get('inventario/movimientos', [MovimientoInventarioController::class, 'index'])->middleware('permission:movimientos.view');
+
+    Route::get('compras-productos/ordenes', [OrdenCompraProductoController::class, 'index'])->middleware('permission:compras_productos.view');
+    Route::post('compras-productos/ordenes', [OrdenCompraProductoController::class, 'store'])->middleware('permission:compras_productos.create');
+    Route::get('compras-productos/ordenes/{orden_compra_producto}', [OrdenCompraProductoController::class, 'show'])->middleware('permission:compras_productos.view');
+    Route::put('compras-productos/ordenes/{orden_compra_producto}', [OrdenCompraProductoController::class, 'update'])->middleware('permission:compras_productos.update');
+    Route::post('compras-productos/ordenes/{orden_compra_producto}/autorizar', [OrdenCompraProductoController::class, 'autorizar'])->middleware('permission:compras_productos.authorize');
+    Route::post('compras-productos/ordenes/{orden_compra_producto}/cancelar', [OrdenCompraProductoController::class, 'cancelar'])->middleware('permission:compras_productos.authorize');
+    Route::get('compras-productos/ordenes/{orden_compra_producto}/pdf', [OrdenCompraProductoController::class, 'pdf'])->middleware('permission:compras_productos.view');
+
+    Route::get('compras-productos/ingresos/traer', [IngresoProductoController::class, 'traer'])->middleware('permission:compras_productos.create');
+    Route::get('compras-productos/ingresos', [IngresoProductoController::class, 'index'])->middleware('permission:compras_productos.view');
+    Route::post('compras-productos/ingresos', [IngresoProductoController::class, 'store'])->middleware('permission:compras_productos.create');
+    Route::get('compras-productos/ingresos/{ingreso_producto}', [IngresoProductoController::class, 'show'])->middleware('permission:compras_productos.view');
+    Route::get('compras-productos/ingresos/{ingreso_producto}/pdf', [IngresoProductoController::class, 'pdf'])->middleware('permission:compras_productos.view');
 });
 
 /*
@@ -561,6 +617,41 @@ Route::middleware('auth:sanctum')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| GRUPOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('grupos/eliminados', [GrupoController::class, 'deleted'])
+        ->middleware('permission:grupos.view');
+
+    Route::post('grupos/{id}/restaurar', [GrupoController::class, 'restore'])
+        ->middleware('permission:grupos.restore');
+
+    Route::get('grupos', [GrupoController::class, 'index'])
+        ->middleware('permission:grupos.view');
+
+    Route::post('grupos', [GrupoController::class, 'store'])
+        ->middleware('permission:grupos.create');
+
+    Route::get('grupos/{grupo}', [GrupoController::class, 'show'])
+        ->middleware('permission:grupos.view');
+
+    Route::put('grupos/{grupo}', [GrupoController::class, 'update'])
+        ->middleware('permission:grupos.update');
+
+    Route::patch('grupos/{grupo}', [GrupoController::class, 'update'])
+        ->middleware('permission:grupos.update');
+
+    Route::delete('grupos/{grupo}', [GrupoController::class, 'destroy'])
+        ->middleware('permission:grupos.delete');
+
+    Route::patch('grupos/{grupo}/estado', [GrupoController::class, 'changeStatus'])
+        ->middleware('permission:grupos.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
 | ANIMALES
 |--------------------------------------------------------------------------
 */
@@ -640,6 +731,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('eventos-sanitarios/{evento_sanitario}', [EventoSanitarioController::class, 'show'])
         ->middleware('permission:sanitario.view');
+
+    Route::get('eventos-sanitarios/{evento_sanitario}/pdf', [EventoSanitarioController::class, 'pdf'])
+        ->middleware('permission:sanitario.view');
 });
 
 /*
@@ -663,6 +757,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('servicios-reproductivos/{servicio_reproductivo}', [ServicioReproductivoController::class, 'update'])
         ->middleware('permission:reproduccion.update');
+
+    Route::get('servicios-reproductivos/{servicio_reproductivo}/pdf', [ServicioReproductivoController::class, 'pdf'])
+        ->middleware('permission:reproduccion.view');
 });
 
 /*

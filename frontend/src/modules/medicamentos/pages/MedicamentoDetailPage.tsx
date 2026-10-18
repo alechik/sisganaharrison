@@ -92,6 +92,18 @@ export default function MedicamentoDetailPage() {
             </dd>
           </div>
           <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Categoría</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {medicamento.categoria_producto_nombre || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Subcategoría</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {medicamento.subcategoria_nombre || "—"}
+            </dd>
+          </div>
+          <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Precio</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {formatMoney(medicamento.precio)}

@@ -35,7 +35,7 @@ class UpdateAnimalRequest extends FormRequest
             }
         }
 
-        foreach (['raza_id', 'estado_productivo_id', 'lote_id', 'madre_id', 'padre_id'] as $field) {
+        foreach (['raza_id', 'estado_productivo_id', 'lote_id', 'grupo_id', 'madre_id', 'padre_id'] as $field) {
             if ($this->exists($field) && ($this->input($field) === '' || $this->input($field) === '0')) {
                 $merge[$field] = null;
             }
@@ -84,6 +84,13 @@ class UpdateAnimalRequest extends FormRequest
                 'nullable',
                 'integer',
                 Rule::exists('lotes', 'id')
+                    ->whereNull('deleted_at')
+                    ->where('activo', true),
+            ],
+            'grupo_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('grupos', 'id')
                     ->whereNull('deleted_at')
                     ->where('activo', true),
             ],

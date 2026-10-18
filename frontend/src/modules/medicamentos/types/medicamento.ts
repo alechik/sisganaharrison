@@ -2,6 +2,10 @@
   id: number;
   presentacion_id: number;
   presentacion_descripcion?: string | null;
+  subcategoria_producto_id: number | null;
+  subcategoria_nombre?: string | null;
+  categoria_producto_id?: number | null;
+  categoria_producto_nombre?: string | null;
   codigo: string;
   nombre: string;
   laboratorio: string | null;
@@ -15,6 +19,7 @@
 
 export interface MedicamentoCreateRequest {
   presentacion_id: number;
+  subcategoria_producto_id: number;
   codigo: string;
   nombre: string;
   laboratorio?: string | null;
@@ -30,6 +35,7 @@ export interface MedicamentoListParams {
   search?: string;
   activo?: boolean;
   presentacion_id?: number;
+  subcategoria_producto_id?: number;
   sort_by?: string;
   sort_dir?: "asc" | "desc";
 }

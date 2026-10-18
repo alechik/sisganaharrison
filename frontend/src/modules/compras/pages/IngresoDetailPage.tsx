@@ -125,6 +125,10 @@ export default function IngresoDetailPage() {
             </dd>
           </div>
           <div>
+            <dt className="text-sm text-gray-500">Grupo</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{item.grupo_nombre || "—"}</dd>
+          </div>
+          <div>
             <dt className="text-sm text-gray-500">Usuario</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">{item.creador_nombre || "—"}</dd>
           </div>

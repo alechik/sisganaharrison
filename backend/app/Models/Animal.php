@@ -51,6 +51,7 @@ class Animal extends Model
         'categoria_id',
         'estado_productivo_id',
         'lote_id',
+        'grupo_id',
         'madre_id',
         'padre_id',
         'color',
@@ -137,6 +138,14 @@ class Animal extends Model
     public function lote(): BelongsTo
     {
         return $this->belongsTo(Lote::class);
+    }
+
+    /**
+     * @return BelongsTo<Grupo, $this>
+     */
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(Grupo::class);
     }
 
     /**

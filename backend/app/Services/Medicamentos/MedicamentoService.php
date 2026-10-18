@@ -32,7 +32,7 @@ class MedicamentoService
     public function find(int $id): Medicamento
     {
         return Medicamento::query()
-            ->with('presentacion:id,descripcion')
+            ->with(['presentacion:id,descripcion', 'subcategoria:id,nombre,categoria_producto_id', 'subcategoria.categoria:id,nombre'])
             ->findOrFail($id);
     }
 
@@ -43,7 +43,7 @@ class MedicamentoService
     {
         return Medicamento::query()
             ->create($data)
-            ->load('presentacion:id,descripcion');
+            ->load(['presentacion:id,descripcion', 'subcategoria:id,nombre,categoria_producto_id', 'subcategoria.categoria:id,nombre']);
     }
 
     /**
@@ -53,7 +53,7 @@ class MedicamentoService
     {
         $medicamento->update($data);
 
-        return $medicamento->fresh('presentacion:id,descripcion');
+        return $medicamento->fresh(['presentacion:id,descripcion', 'subcategoria:id,nombre,categoria_producto_id', 'subcategoria.categoria:id,nombre']);
     }
 
     public function delete(Medicamento $medicamento): void
@@ -74,7 +74,7 @@ class MedicamentoService
         $medicamento = Medicamento::onlyTrashed()->findOrFail($id);
         $medicamento->restore();
 
-        return $medicamento->fresh('presentacion:id,descripcion');
+        return $medicamento->fresh(['presentacion:id,descripcion', 'subcategoria:id,nombre,categoria_producto_id', 'subcategoria.categoria:id,nombre']);
     }
 
     public function toggleStatus(Medicamento $medicamento): Medicamento
@@ -82,7 +82,7 @@ class MedicamentoService
         $medicamento->activo = ! $medicamento->activo;
         $medicamento->save();
 
-        return $medicamento->fresh('presentacion:id,descripcion');
+        return $medicamento->fresh(['presentacion:id,descripcion', 'subcategoria:id,nombre,categoria_producto_id', 'subcategoria.categoria:id,nombre']);
     }
 
     /**
@@ -92,8 +92,8 @@ class MedicamentoService
     private function buildQuery(array $filters, bool $onlyTrashed = false): Builder
     {
         $query = $onlyTrashed
-            ? Medicamento::onlyTrashed()->with('presentacion:id,descripcion')
-            : Medicamento::query()->with('presentacion:id,descripcion');
+            ? Medicamento::onlyTrashed()->with(['presentacion:id,descripcion', 'subcategoria:id,nombre,categoria_producto_id', 'subcategoria.categoria:id,nombre'])
+            : Medicamento::query()->with(['presentacion:id,descripcion', 'subcategoria:id,nombre,categoria_producto_id', 'subcategoria.categoria:id,nombre']);
 
         if (! empty($filters['search'])) {
             $search = (string) $filters['search'];
@@ -108,6 +108,17 @@ class MedicamentoService
 
         if (! empty($filters['presentacion_id'])) {
             $query->where('presentacion_id', (int) $filters['presentacion_id']);
+        }
+
+        if (! empty($filters['subcategoria_producto_id'])) {
+            $query->where('subcategoria_producto_id', (int) $filters['subcategoria_producto_id']);
+        }
+
+        if (! empty($filters['categoria_producto_id'])) {
+            $query->whereHas(
+                'subcategoria',
+                fn (Builder $builder) => $builder->where('categoria_producto_id', (int) $filters['categoria_producto_id'])
+            );
         }
 
         if (array_key_exists('activo', $filters) && $filters['activo'] !== null && $filters['activo'] !== '') {

@@ -34,6 +34,7 @@ class UpdateMedicamentoRequest extends FormRequest
 
         return [
             'presentacion_id' => 'required|integer|exists:presentaciones,id',
+            'subcategoria_producto_id' => 'required|integer|exists:subcategorias_productos,id',
             'codigo' => [
                 'required',
                 'string',
@@ -42,6 +43,7 @@ class UpdateMedicamentoRequest extends FormRequest
                 Rule::unique('medicamentos', 'codigo')->ignore($medicamento?->id),
             ],
             'nombre' => 'required|string|max:100',
+            'nombre_cientifico' => 'nullable|string|max:120',
             'laboratorio' => 'nullable|string|max:120',
             'precio' => 'required|numeric|min:0|max:999999.99',
             'descripcion' => 'required|string|max:2000',

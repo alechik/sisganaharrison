@@ -27,6 +27,8 @@ class AnimalDisponibleVentaResource extends JsonResource
             'categoria_nombre' => $this->categoria?->nombre,
             'lote_id' => $this->lote_id,
             'lote_nombre' => $this->lote?->nombre,
+            'grupo_id' => $this->grupo_id,
+            'grupo_nombre' => $this->grupo?->nombre,
             'potrero_id' => $this->lote?->potrero_id,
             'potrero_nombre' => $this->lote?->potrero?->nombre,
             'peso' => $ultimoPesaje?->peso !== null ? (float) $ultimoPesaje->peso : null,

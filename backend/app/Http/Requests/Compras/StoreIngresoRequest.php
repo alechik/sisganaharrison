@@ -79,6 +79,11 @@ class StoreIngresoRequest extends FormRequest
                 'integer',
                 Rule::exists('lotes', 'id')->whereNull('deleted_at')->where('activo', true),
             ],
+            'grupo_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('grupos', 'id')->whereNull('deleted_at')->where('activo', true),
+            ],
             'fecha_ingreso' => 'required|date|before_or_equal:today',
             'observaciones' => 'nullable|string|max:2000',
             'descuento' => 'nullable|numeric|min:0',

@@ -8,6 +8,8 @@ export interface VentaDetalle {
   categoria_nombre?: string | null;
   lote_id?: number | null;
   lote_nombre?: string | null;
+  grupo_id?: number | null;
+  grupo_nombre?: string | null;
   potrero_nombre?: string | null;
   cantidad: number;
   peso: number;
@@ -77,6 +79,8 @@ export interface AnimalDisponibleVenta {
   categoria_nombre?: string | null;
   lote_id: number | null;
   lote_nombre?: string | null;
+  grupo_id?: number | null;
+  grupo_nombre?: string | null;
   potrero_id?: number | null;
   potrero_nombre?: string | null;
   peso?: number | null;

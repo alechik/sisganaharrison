@@ -49,6 +49,11 @@ class IngresoResource extends JsonResource
                 'lote',
                 fn () => $this->lote?->codigo
             ),
+            'grupo_id' => $this->grupo_id,
+            'grupo_nombre' => $this->whenLoaded(
+                'grupo',
+                fn () => $this->grupo?->nombre
+            ),
             'cantidad_total' => $this->whenLoaded(
                 'detalles',
                 fn () => $this->detalles->count()

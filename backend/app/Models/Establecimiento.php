@@ -70,4 +70,12 @@ class Establecimiento extends Model
     {
         return $this->hasMany(Potrero::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Almacen, $this>
+     */
+    public function almacen(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Almacen::class);
+    }
 }

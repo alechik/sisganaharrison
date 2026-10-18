@@ -59,6 +59,14 @@ const navItems: NavItem[] = [
         name: "Potreros",
         path: "/lotes",
       },
+      {
+        name: "Grupos",
+        path: "/grupos",
+      },
+      {
+        name: "Almacenes",
+        path: "/almacenes",
+      },
     ],
   },
 
@@ -127,6 +135,24 @@ const navItems: NavItem[] = [
         name: "Ingresos",
         path: "/compras/ingresos",
       },
+      {
+        name: "Órdenes de productos",
+        path: "/compras-productos/ordenes",
+      },
+      {
+        name: "Ingresos de productos",
+        path: "/compras-productos/ingresos",
+      },
+    ],
+  },
+  {
+    icon: <ListIcon />,
+    name: "Inventario",
+    subItems: [
+      {
+        name: "Movimientos de inventario",
+        path: "/inventario",
+      },
     ],
   },
 
@@ -166,7 +192,15 @@ const navItems: NavItem[] = [
         path: "/presentaciones",
       },
       {
-        name: "Medicamentos",
+        name: "Categorías de productos",
+        path: "/categorias-productos",
+      },
+      {
+        name: "Subcategorías de productos",
+        path: "/subcategorias-productos",
+      },
+      {
+        name: "Productos",
         path: "/medicamentos",
       },
       {

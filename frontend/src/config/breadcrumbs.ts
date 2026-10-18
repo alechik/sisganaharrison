@@ -184,9 +184,123 @@ export const breadcrumbs = {
     { title: "Eliminadas" },
   ],
 
+  categoriasProductos: [
+    { title: "Catálogos" },
+    { title: "Categorías de productos" },
+  ],
+
+  categoriaProductoCrear: [
+    { title: "Catálogos" },
+    { title: "Categorías de productos", path: "/categorias-productos" },
+    { title: "Nueva categoría" },
+  ],
+
+  categoriaProductoEditar: [
+    { title: "Catálogos" },
+    { title: "Categorías de productos", path: "/categorias-productos" },
+    { title: "Editar categoría" },
+  ],
+
+  categoriaProductoDetalle: [
+    { title: "Catálogos" },
+    { title: "Categorías de productos", path: "/categorias-productos" },
+    { title: "Detalle" },
+  ],
+
+  categoriasProductosEliminados: [
+    { title: "Catálogos" },
+    { title: "Categorías de productos", path: "/categorias-productos" },
+    { title: "Eliminadas" },
+  ],
+
+  subcategoriasProductos: [
+    { title: "Catálogos" },
+    { title: "Subcategorías de productos" },
+  ],
+
+  subcategoriaProductoCrear: [
+    { title: "Catálogos" },
+    { title: "Subcategorías de productos", path: "/subcategorias-productos" },
+    { title: "Nueva subcategoría" },
+  ],
+
+  subcategoriaProductoEditar: [
+    { title: "Catálogos" },
+    { title: "Subcategorías de productos", path: "/subcategorias-productos" },
+    { title: "Editar subcategoría" },
+  ],
+
+  subcategoriaProductoDetalle: [
+    { title: "Catálogos" },
+    { title: "Subcategorías de productos", path: "/subcategorias-productos" },
+    { title: "Detalle" },
+  ],
+
+  subcategoriasProductosEliminados: [
+    { title: "Catálogos" },
+    { title: "Subcategorías de productos", path: "/subcategorias-productos" },
+    { title: "Eliminadas" },
+  ],
+
+  almacenes: [
+    { title: "Infraestructura" },
+    { title: "Almacenes" },
+  ],
+
+  almacenCrear: [
+    { title: "Infraestructura" },
+    { title: "Almacenes", path: "/almacenes" },
+    { title: "Nuevo almacén" },
+  ],
+
+  almacenEditar: [
+    { title: "Infraestructura" },
+    { title: "Almacenes", path: "/almacenes" },
+    { title: "Editar almacén" },
+  ],
+
+  almacenDetalle: [
+    { title: "Infraestructura" },
+    { title: "Almacenes", path: "/almacenes" },
+    { title: "Detalle" },
+  ],
+
+  almacenesEliminados: [
+    { title: "Infraestructura" },
+    { title: "Almacenes", path: "/almacenes" },
+    { title: "Eliminados" },
+  ],
+
+  inventario: [
+    { title: "Inventario" },
+    { title: "Movimientos de inventario" },
+  ],
+
+  ordenesProductos: [
+    { title: "Compras" },
+    { title: "Órdenes de productos" },
+  ],
+
+  ordenProductoDetalle: [
+    { title: "Compras" },
+    { title: "Órdenes de productos", path: "/compras-productos/ordenes" },
+    { title: "Detalle" },
+  ],
+
+  ingresosProductos: [
+    { title: "Compras" },
+    { title: "Ingresos de productos" },
+  ],
+
+  ingresoProductoDetalle: [
+    { title: "Compras" },
+    { title: "Ingresos de productos", path: "/compras-productos/ingresos" },
+    { title: "Detalle" },
+  ],
+
   medicamentos: [
     { title: "Ganadería" },
-    { title: "Medicamentos" },
+    { title: "Productos" },
   ],
 
   medicamentoCrear: [
@@ -471,6 +585,35 @@ export const breadcrumbs = {
   lotesEliminados: [
     { title: "Ganadería" },
     { title: "Potreros", path: "/lotes" },
+    { title: "Eliminados" },
+  ],
+
+  grupos: [
+    { title: "Infraestructura" },
+    { title: "Grupos" },
+  ],
+
+  grupoCrear: [
+    { title: "Infraestructura" },
+    { title: "Grupos", path: "/grupos" },
+    { title: "Nuevo grupo" },
+  ],
+
+  grupoEditar: [
+    { title: "Infraestructura" },
+    { title: "Grupos", path: "/grupos" },
+    { title: "Editar grupo" },
+  ],
+
+  grupoDetalle: [
+    { title: "Infraestructura" },
+    { title: "Grupos", path: "/grupos" },
+    { title: "Detalle" },
+  ],
+
+  gruposEliminados: [
+    { title: "Infraestructura" },
+    { title: "Grupos", path: "/grupos" },
     { title: "Eliminados" },
   ],
 

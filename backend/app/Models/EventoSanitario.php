@@ -30,6 +30,7 @@ class EventoSanitario extends Model
     protected $fillable = [
         'tipo_evento_id',
         'user_id',
+        'codigo_evento_sanitario',
         'fecha',
         'diagnostico',
         'tratamiento',

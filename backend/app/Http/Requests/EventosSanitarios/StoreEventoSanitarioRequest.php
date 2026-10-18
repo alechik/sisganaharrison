@@ -31,8 +31,10 @@ class StoreEventoSanitarioRequest extends FormRequest
             'tratamiento' => 'nullable|string|max:2000',
             'observaciones' => 'nullable|string|max:2000',
             'detalles' => 'required|array|min:1',
-            'detalles.*.animal_id' => 'required|integer|distinct|exists:animales,id',
+            'detalles.*.animal_id' => 'required|integer|exists:animales,id',
             'detalles.*.medicamento_id' => 'required|integer|exists:medicamentos,id',
+            'detalles.*.almacen_id' => 'required|integer|exists:almacenes,id',
+            'detalles.*.cantidad' => 'required|numeric|min:0.01',
         ];
     }
 

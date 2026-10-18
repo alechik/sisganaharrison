@@ -16,6 +16,7 @@ import {
   useUpdateNacimiento,
 } from "../hooks";
 import { ESTADOS_NACIMIENTO, NACIMIENTO_ROUTES, SEXOS_NACIMIENTO } from "../constants";
+import { useGruposByLote } from "@/modules/grupos/hooks";
 import { getNacimiento } from "../services";
 import { NacimientoAnimalPayload, NacimientoCreateRequest } from "../types";
 
@@ -29,6 +30,7 @@ const emptyAnimal: NacimientoAnimalPayload = {
   raza_id: null,
   estado_productivo_id: null,
   lote_id: null,
+  grupo_id: null,
   color: "",
   observaciones: "",
 };
@@ -52,6 +54,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateNacimiento();
 
   const [form, setForm] = useState<NacimientoCreateRequest>(emptyForm);
+  const { options: grupoOptions, loading: loadingGrupos } = useGruposByLote(form.animal?.lote_id ?? null);
   const [categorias, setCategorias] = useState<CategoriaAnimal[]>([]);
   const [codigoPreview, setCodigoPreview] = useState("");
   const [loading, setLoading] = useState(isEdit);
@@ -120,6 +123,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
             raza_id: ficha.raza_id,
             estado_productivo_id: ficha.estado_productivo_id,
             lote_id: ficha.lote_id,
+            grupo_id: ficha.grupo_id,
             color: ficha.color ?? "",
             observaciones: ficha.observaciones ?? "",
           };
@@ -382,7 +386,16 @@ export default function NacimientoForm({ nacimientoId }: Props) {
                 value={form.animal?.lote_id ? String(form.animal.lote_id) : ""}
                 placeholder="Sin potrero"
                 options={loteOptions}
-                onChange={(value) => handleAnimalChange({ lote_id: value ? Number(value) : null })}
+                onChange={(value) => handleAnimalChange({ lote_id: value ? Number(value) : null, grupo_id: null })}
+              />
+            </div>
+            <div>
+              <Label>Grupo</Label>
+              <Select
+                value={form.animal?.grupo_id ? String(form.animal.grupo_id) : ""}
+                placeholder={!form.animal?.lote_id ? "Seleccione un potrero" : loadingGrupos ? "Cargando..." : "Sin grupo"}
+                options={grupoOptions}
+                onChange={(value) => handleAnimalChange({ grupo_id: value ? Number(value) : null })}
               />
             </div>
             <div>

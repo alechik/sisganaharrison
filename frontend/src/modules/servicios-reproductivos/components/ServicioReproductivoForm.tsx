@@ -6,6 +6,8 @@ import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
+import { getAlmacenes } from "@/modules/almacenes/services";
+import { getMedicamentos } from "@/modules/medicamentos/services";
 import {
   useCreateServicioReproductivo,
   useReproduccionAnimalOptions,
@@ -14,6 +16,12 @@ import {
 import { RESULTADOS_SERVICIO, SERVICIO_REPRODUCTIVO_ROUTES, TIPOS_SERVICIO } from "../constants";
 import { getServicioReproductivo } from "../services";
 import { ServicioReproductivoCreateRequest } from "../types";
+
+interface InsumoLine {
+  medicamento_id: number;
+  almacen_id: number;
+  cantidad: number;
+}
 
 interface Props {
   servicioId?: number;
@@ -38,8 +46,12 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
     useUpdateServicioReproductivo();
 
   const [form, setForm] = useState<ServicioReproductivoCreateRequest>(emptyForm);
+  const [insumos, setInsumos] = useState<InsumoLine[]>([]);
+  const [inventarioAplicado, setInventarioAplicado] = useState(false);
   const [loading, setLoading] = useState(isEdit);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [productoOptions, setProductoOptions] = useState<{ value: string; label: string }[]>([]);
+  const [almacenOptions, setAlmacenOptions] = useState<{ value: string; label: string }[]>([]);
 
   const {
     hembraOptions,
@@ -54,6 +66,17 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
 
   const saving = creating || updating;
   const error = createError || updateError;
+
+  useEffect(() => {
+    getMedicamentos({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" })
+      .then((res) =>
+        setProductoOptions(res.data.map((item) => ({ value: String(item.id), label: `${item.codigo} — ${item.nombre}` })))
+      )
+      .catch(console.error);
+    getAlmacenes({ per_page: 50, activo: true })
+      .then((res) => setAlmacenOptions(res.data.map((item) => ({ value: String(item.id), label: item.nombre }))))
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (!servicioId) {
@@ -71,6 +94,14 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
           resultado: servicio.resultado,
           observaciones: servicio.observaciones ?? "",
         });
+        setInventarioAplicado(Boolean(servicio.inventario_aplicado_at));
+        setInsumos(
+          (servicio.insumos ?? []).map((item) => ({
+            medicamento_id: item.medicamento_id,
+            almacen_id: item.almacen_id,
+            cantidad: item.cantidad,
+          }))
+        );
       } catch (err) {
         console.error(err);
         setUpdateError("No se pudo cargar el servicio reproductivo.");
@@ -129,10 +160,16 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
       return;
     }
 
+    if (insumos.some((item) => !item.medicamento_id || !item.almacen_id || item.cantidad < 1)) {
+      setValidationError("Cada insumo debe tener producto, almacén y cantidad.");
+      return;
+    }
+
     const payload: ServicioReproductivoCreateRequest = {
       ...form,
       macho_id: form.macho_id || null,
       resultado: form.resultado || null,
+      ...(inventarioAplicado ? {} : { insumos }),
     };
 
     try {
@@ -253,6 +290,71 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
             onChange={(value) => setForm((current) => ({ ...current, observaciones: value }))}
           />
         </div>
+      </div>
+
+      <div className="mt-6 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-gray-800 dark:text-white">Insumos utilizados</h3>
+          {!inventarioAplicado && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setInsumos((current) => [...current, { medicamento_id: 0, almacen_id: 0, cantidad: 1 }])}
+            >
+              + Insumo
+            </Button>
+          )}
+        </div>
+        {inventarioAplicado && (
+          <p className="text-sm text-gray-500">Los insumos ya consumieron inventario y no pueden modificarse.</p>
+        )}
+        {insumos.map((linea, index) => (
+          <div key={index} className="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 p-4 dark:border-white/[0.05] md:grid-cols-4">
+            <div>
+              <Label>Producto</Label>
+              <Select
+                value={linea.medicamento_id ? String(linea.medicamento_id) : ""}
+                placeholder="Seleccione producto"
+                options={productoOptions}
+                onChange={(value) =>
+                  setInsumos((current) => current.map((item, i) => (i === index ? { ...item, medicamento_id: Number(value) } : item)))
+                }
+              />
+            </div>
+            <div>
+              <Label>Almacén</Label>
+              <Select
+                value={linea.almacen_id ? String(linea.almacen_id) : ""}
+                placeholder="Seleccione almacén"
+                options={almacenOptions}
+                onChange={(value) =>
+                  setInsumos((current) => current.map((item, i) => (i === index ? { ...item, almacen_id: Number(value) } : item)))
+                }
+              />
+            </div>
+            <div>
+              <Label>Cantidad</Label>
+              <InputField
+                type="number"
+                min="1"
+                value={String(linea.cantidad)}
+                onChange={(e) =>
+                  setInsumos((current) =>
+                    current.map((item, i) => (i === index ? { ...item, cantidad: Number(e.target.value) } : item))
+                  )
+                }
+              />
+            </div>
+            {!inventarioAplicado && (
+              <div className="flex items-end">
+                <button type="button" className="text-sm text-red-600" onClick={() => setInsumos((current) => current.filter((_, i) => i !== index))}>
+                  Quitar
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       <div className="mt-6 flex gap-3">

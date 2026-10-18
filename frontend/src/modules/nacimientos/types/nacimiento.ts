@@ -30,6 +30,7 @@ export interface NacimientoAnimalPayload {
   raza_id?: number | null;
   estado_productivo_id?: number | null;
   lote_id?: number | null;
+  grupo_id?: number | null;
   color?: string | null;
   observaciones?: string | null;
 }

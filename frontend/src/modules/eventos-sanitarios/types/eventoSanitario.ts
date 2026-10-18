@@ -9,12 +9,16 @@ export interface DetalleEventoSanitario {
   medicamento_codigo?: string | null;
   medicamento_nombre?: string | null;
   presentacion_descripcion?: string | null;
+  almacen_id?: number | null;
+  almacen_nombre?: string | null;
+  cantidad?: number;
   peso_animal: number;
   precio_medicamento: number;
 }
 
 export interface EventoSanitario {
   id: number;
+  codigo_evento_sanitario?: string | null;
   tipo_evento_id: number;
   tipo_evento_nombre?: string | null;
   tipo_evento_codigo?: string | null;
@@ -34,6 +38,8 @@ export interface EventoSanitario {
 export interface EventoSanitarioDetalleRequest {
   animal_id: number;
   medicamento_id: number;
+  almacen_id: number;
+  cantidad: number;
 }
 
 export interface EventoSanitarioCreateRequest {

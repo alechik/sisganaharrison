@@ -31,10 +31,14 @@ class Medicamento extends Model
 
     protected $fillable = [
         'presentacion_id',
+        'subcategoria_producto_id',
         'codigo',
         'nombre',
+        'nombre_cientifico',
         'laboratorio',
         'precio',
+        'cantidad_acumulada',
+        'valor_acumulado',
         'descripcion',
         'activo',
     ];
@@ -43,6 +47,8 @@ class Medicamento extends Model
     {
         return [
             'precio' => 'decimal:2',
+            'cantidad_acumulada' => 'decimal:2',
+            'valor_acumulado' => 'decimal:2',
             'activo' => 'boolean',
         ];
     }
@@ -62,6 +68,14 @@ class Medicamento extends Model
     public function presentacion(): BelongsTo
     {
         return $this->belongsTo(Presentacion::class, 'presentacion_id');
+    }
+
+    /**
+     * @return BelongsTo<SubcategoriaProducto, $this>
+     */
+    public function subcategoria(): BelongsTo
+    {
+        return $this->belongsTo(SubcategoriaProducto::class, 'subcategoria_producto_id');
     }
 
     /**

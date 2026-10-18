@@ -6,6 +6,7 @@ use App\Models\AnimalEvento;
 use App\Models\Cuarentena;
 use App\Models\CuarentenaDetalle;
 use App\Models\DetalleIngreso;
+use App\Models\Grupo;
 use App\Models\Ingreso;
 use App\Models\Lote;
 use App\Models\Pesaje;
@@ -33,6 +34,7 @@ class IngresoService
         'proveedor:id,razon_social,nit,email',
         'creador:id,nombre,apellido',
         'lote:id,nombre,codigo',
+        'grupo:id,nombre,lote_id',
         'cuarentena:id,cod_compra,estado,origen,proveedor_id,fecha_inicio,fecha_fin',
         'detalles.animal:id,codigo,sexo,categoria_id,arete,nombre,edad_inicial,edad_actual,precio_kilo,lote_id',
         'detalles.animal.categoria:id,codigo,nombre',
@@ -166,15 +168,19 @@ class IngresoService
             ]);
         }
 
+        $grupoId = isset($data['grupo_id']) && $data['grupo_id'] !== '' ? (int) $data['grupo_id'] : null;
+        Grupo::assertCompatibleConLote($grupoId, (int) $data['lote_id']);
+
         $seleccion = $this->normalizeDetalles($cuarentena, $data['detalles'] ?? []);
 
-        return DB::transaction(function () use ($data, $cuarentena, $seleccion) {
+        return DB::transaction(function () use ($data, $cuarentena, $seleccion, $grupoId) {
             $ingreso = Ingreso::query()->create([
                 'codigo' => $this->nextCodigo(),
                 'proveedor_id' => $cuarentena->proveedor_id,
                 'user_id' => Auth::id(),
                 'cuarentena_id' => $cuarentena->id,
                 'lote_id' => (int) $data['lote_id'],
+                'grupo_id' => $grupoId,
                 'fecha_ingreso' => $data['fecha_ingreso'],
                 'estado' => Ingreso::ESTADO_REGISTRADO,
                 'observaciones' => $data['observaciones'] ?? null,
@@ -202,9 +208,11 @@ class IngresoService
                     (float) $payload['peso_ingreso']
                 );
 
+                $ficha = $payload['animal'] ?? [];
+                $ficha['grupo_id'] = $grupoId;
                 $this->animalService->completarDesdeIngreso(
                     $animal,
-                    $payload['animal'] ?? [],
+                    $ficha,
                     (int) $data['lote_id'],
                     (string) $data['fecha_ingreso'],
                     $precioKilo

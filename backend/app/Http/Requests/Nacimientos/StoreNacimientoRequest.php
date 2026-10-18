@@ -38,7 +38,7 @@ class StoreNacimientoRequest extends FormRequest
                     $animal[$field] = null;
                 }
             }
-            foreach (['raza_id', 'estado_productivo_id', 'lote_id'] as $field) {
+            foreach (['raza_id', 'estado_productivo_id', 'lote_id', 'grupo_id'] as $field) {
                 if (($animal[$field] ?? '') === '' || ($animal[$field] ?? null) === '0') {
                     $animal[$field] = null;
                 }
@@ -98,6 +98,11 @@ class StoreNacimientoRequest extends FormRequest
                 'nullable',
                 'integer',
                 Rule::exists('lotes', 'id')->whereNull('deleted_at')->where('activo', true),
+            ],
+            'animal.grupo_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('grupos', 'id')->whereNull('deleted_at')->where('activo', true),
             ],
             'animal.color' => 'nullable|string|max:60',
             'animal.observaciones' => 'nullable|string|max:2000',

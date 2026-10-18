@@ -4,6 +4,7 @@ namespace App\Services\Animales;
 
 use App\Models\Animal;
 use App\Models\CategoriaAnimal;
+use App\Models\Grupo;
 use App\Models\Lote;
 use App\Models\User;
 use Carbon\Carbon;
@@ -24,6 +25,7 @@ class AnimalService
         'estadoProductivo:id,nombre',
         'lote:id,nombre,codigo,potrero_id',
         'lote.potrero:id,nombre',
+        'grupo:id,nombre,lote_id',
         'madre:id,nombre,codigo',
         'padre:id,nombre,codigo',
     ];
@@ -144,6 +146,16 @@ class AnimalService
                 $this->assertLoteTieneCapacidad((int) $contexto['lote_id'], $animal->id);
             }
 
+            $payloadNacimiento = [
+                'lote_id' => array_key_exists('lote_id', $contexto)
+                    ? $this->nullableId($contexto['lote_id'])
+                    : $animal->lote_id,
+                'grupo_id' => array_key_exists('grupo_id', $contexto)
+                    ? $this->nullableId($contexto['grupo_id'])
+                    : $animal->grupo_id,
+            ];
+            $this->aplicarGrupo($payloadNacimiento);
+
             $animal->update([
                 'sexo' => $sexo,
                 'categoria_id' => $categoria->id,
@@ -160,9 +172,8 @@ class AnimalService
                 'estado_productivo_id' => array_key_exists('estado_productivo_id', $contexto)
                     ? $this->nullableId($contexto['estado_productivo_id'])
                     : $animal->estado_productivo_id,
-                'lote_id' => array_key_exists('lote_id', $contexto)
-                    ? $this->nullableId($contexto['lote_id'])
-                    : $animal->lote_id,
+                'lote_id' => $payloadNacimiento['lote_id'],
+                'grupo_id' => $payloadNacimiento['grupo_id'],
                 'color' => array_key_exists('color', $contexto)
                     ? $this->nullableString($contexto['color'])
                     : $animal->color,
@@ -192,6 +203,7 @@ class AnimalService
             'raza_id' => $this->nullableId($contexto['raza_id'] ?? null),
             'estado_productivo_id' => $this->nullableId($contexto['estado_productivo_id'] ?? null),
             'lote_id' => $this->nullableId($contexto['lote_id'] ?? null),
+            'grupo_id' => $this->nullableId($contexto['grupo_id'] ?? null),
             'color' => $this->nullableString($contexto['color'] ?? null),
             'observaciones' => $this->nullableString($contexto['observaciones'] ?? null),
             'user_id' => $contexto['user_id'] ?? Auth::id(),
@@ -306,6 +318,8 @@ class AnimalService
                 $this->assertLoteTieneCapacidad((int) $data['lote_id']);
             }
 
+            $this->aplicarGrupo($data);
+
             if (empty($data['user_id'])) {
                 $data['user_id'] = Auth::id() ?? User::query()->orderBy('id')->value('id');
             }
@@ -328,6 +342,12 @@ class AnimalService
     {
         if (! empty($data['lote_id'])) {
             $this->assertLoteTieneCapacidad((int) $data['lote_id'], $animal->id);
+        }
+
+        if (array_key_exists('lote_id', $data) || array_key_exists('grupo_id', $data)) {
+            $data['lote_id'] = array_key_exists('lote_id', $data) ? $this->nullableId($data['lote_id']) : $animal->lote_id;
+            $data['grupo_id'] = array_key_exists('grupo_id', $data) ? $this->nullableId($data['grupo_id']) : $animal->grupo_id;
+            $this->aplicarGrupo($data);
         }
 
         $animal->update($data);
@@ -377,6 +397,7 @@ class AnimalService
             'raza_id' => $this->nullableId($data['raza_id'] ?? $animal->raza_id),
             'estado_productivo_id' => $this->nullableId($data['estado_productivo_id'] ?? $animal->estado_productivo_id),
             'lote_id' => $loteId,
+            'grupo_id' => $this->nullableId($data['grupo_id'] ?? null),
             'madre_id' => $this->nullableId($data['madre_id'] ?? $animal->madre_id),
             'padre_id' => $this->nullableId($data['padre_id'] ?? $animal->padre_id),
             'color' => $this->nullableString($data['color'] ?? $animal->color),
@@ -389,6 +410,7 @@ class AnimalService
             $payload['precio_kilo'] = round($precioKilo, 2);
         }
 
+        $this->aplicarGrupo($payload);
         $animal->update($payload);
 
         return $animal->fresh(self::RELATIONS) ?? $animal;
@@ -573,6 +595,17 @@ class AnimalService
                 'lote_id' => "El lote {$lote->nombre} ha alcanzado su capacidad máxima ({$lote->capacidad_animales} animales).",
             ]);
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function aplicarGrupo(array &$data): void
+    {
+        $grupoId = $this->nullableId($data['grupo_id'] ?? null);
+        $loteId = $this->nullableId($data['lote_id'] ?? null);
+        $data['grupo_id'] = $grupoId;
+        Grupo::assertCompatibleConLote($grupoId, $loteId);
     }
 
     private function nullableString(mixed $value): ?string

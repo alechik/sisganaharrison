@@ -118,7 +118,7 @@ class TraspasoService
 
             Animal::query()
                 ->whereIn('id', $animalIds)
-                ->update(['lote_id' => $loteIngresoId]);
+                ->update(['lote_id' => $loteIngresoId, 'grupo_id' => null]);
 
             $traspaso->total_peso = round($totalPeso, 2);
             $traspaso->monto_total = round($montoTotal, 2);
@@ -166,15 +166,15 @@ class TraspasoService
             $this->assertAnimalesEnLote($agregados, $loteSalidaId, 'El animal no pertenece actualmente al lote de salida.');
 
             if ($removidos !== []) {
-                Animal::query()->whereIn('id', $removidos)->update(['lote_id' => $loteSalidaAnterior]);
+                Animal::query()->whereIn('id', $removidos)->update(['lote_id' => $loteSalidaAnterior, 'grupo_id' => null]);
             }
 
             if ($agregados !== []) {
-                Animal::query()->whereIn('id', $agregados)->update(['lote_id' => $loteIngresoId]);
+                Animal::query()->whereIn('id', $agregados)->update(['lote_id' => $loteIngresoId, 'grupo_id' => null]);
             }
 
             if ($conservados !== [] && $loteIngresoAnterior !== $loteIngresoId) {
-                Animal::query()->whereIn('id', $conservados)->update(['lote_id' => $loteIngresoId]);
+                Animal::query()->whereIn('id', $conservados)->update(['lote_id' => $loteIngresoId, 'grupo_id' => null]);
             }
 
             $traspaso->detalles()->delete();

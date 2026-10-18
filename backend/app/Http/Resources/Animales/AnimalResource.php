@@ -28,6 +28,8 @@ class AnimalResource extends JsonResource
             'estado_productivo_nombre' => $this->estadoProductivo?->nombre,
             'lote_id' => $this->lote_id,
             'lote_nombre' => $this->lote?->nombre,
+            'grupo_id' => $this->grupo_id,
+            'grupo_nombre' => $this->grupo?->nombre,
             'madre_id' => $this->madre_id,
             'madre_nombre' => $this->madre?->nombre ?? $this->madre?->codigo,
             'padre_id' => $this->padre_id,

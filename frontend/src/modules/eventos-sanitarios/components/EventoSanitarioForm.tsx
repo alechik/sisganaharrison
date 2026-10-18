@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import InputField from "@/components/form/input/InputField";
@@ -6,6 +6,7 @@ import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
+import { getAlmacenes } from "@/modules/almacenes/services";
 import { AnimalDisponibleVenta } from "@/modules/ventas/types";
 import { useCreateEventoSanitario, useSanitarioReferenceOptions } from "../hooks";
 import { EVENTO_SANITARIO_ROUTES } from "../constants";
@@ -22,6 +23,8 @@ interface LineState {
   peso_animal: number | null;
   presentacion_id: number | null;
   medicamento_id: number | null;
+  almacen_id: number | null;
+  cantidad: number;
   precio_medicamento: number;
 }
 
@@ -34,6 +37,8 @@ const emptyLine = (): LineState => ({
   peso_animal: null,
   presentacion_id: null,
   medicamento_id: null,
+  almacen_id: null,
+  cantidad: 1,
   precio_medicamento: 0,
 });
 
@@ -56,14 +61,24 @@ export default function EventoSanitarioForm() {
   const [tratamiento, setTratamiento] = useState("");
   const [observaciones, setObservaciones] = useState("");
   const [lines, setLines] = useState<LineState[]>([emptyLine()]);
+  const [almacenOptions, setAlmacenOptions] = useState<{ value: string; label: string }[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getAlmacenes({ per_page: 50, activo: true })
+      .then((res) => setAlmacenOptions(res.data.map((item) => ({ value: String(item.id), label: item.nombre }))))
+      .catch(console.error);
+  }, []);
 
   const selectedIds = useMemo(
     () => lines.map((line) => line.animal_id).filter((id): id is number => Boolean(id)),
     [lines]
   );
 
-  const totalEstimado = lines.reduce((acc, line) => acc + (Number(line.precio_medicamento) || 0), 0);
+  const totalEstimado = lines.reduce(
+    (acc, line) => acc + (Number(line.precio_medicamento) || 0) * (Number(line.cantidad) || 0),
+    0
+  );
 
   const medicamentosFiltrados = (presentacionId: number | null) =>
     medicamentos.filter((item) => !presentacionId || item.presentacion_id === presentacionId);
@@ -117,8 +132,8 @@ export default function EventoSanitarioForm() {
       return;
     }
 
-    if (lines.some((line) => !line.animal_id || !line.medicamento_id)) {
-      setValidationError("Cada línea debe tener un animal y un medicamento.");
+    if (lines.some((line) => !line.animal_id || !line.medicamento_id || !line.almacen_id || !line.cantidad)) {
+      setValidationError("Cada línea debe tener animal, producto, almacén y cantidad.");
       return;
     }
 
@@ -131,6 +146,8 @@ export default function EventoSanitarioForm() {
       detalles: lines.map((line) => ({
         animal_id: Number(line.animal_id),
         medicamento_id: Number(line.medicamento_id),
+        almacen_id: Number(line.almacen_id),
+        cantidad: Number(line.cantidad),
       })),
     };
 
@@ -250,16 +267,45 @@ export default function EventoSanitarioForm() {
                 />
               </div>
               <div>
-                <Label>Medicamento *</Label>
+                <Label>Producto *</Label>
                 <Select
                   value={line.medicamento_id ? String(line.medicamento_id) : ""}
-                  placeholder="Seleccione un medicamento activo"
+                  placeholder="Seleccione un producto activo"
                   options={medOptions}
                   onChange={(value) => applyMedicamento(index, Number(value))}
                 />
               </div>
               <div>
-                <Label>Precio del medicamento</Label>
+                <Label>Almacén *</Label>
+                <Select
+                  value={line.almacen_id ? String(line.almacen_id) : ""}
+                  placeholder="Seleccione almacén"
+                  options={almacenOptions}
+                  onChange={(value) =>
+                    setLines((current) =>
+                      current.map((item, i) => (i === index ? { ...item, almacen_id: Number(value) } : item))
+                    )
+                  }
+                />
+              </div>
+              <div>
+                <Label>Cantidad *</Label>
+                <InputField
+                  type="number"
+                  min="0.01"
+                  step={0.01}
+                  value={String(line.cantidad)}
+                  onChange={(e) =>
+                    setLines((current) =>
+                      current.map((item, i) =>
+                        i === index ? { ...item, cantidad: Number(e.target.value) } : item
+                      )
+                    )
+                  }
+                />
+              </div>
+              <div>
+                <Label>Precio del producto</Label>
                 <InputField type="text" value={formatMoney(line.precio_medicamento)} disabled />
               </div>
               {lines.length > 1 && (

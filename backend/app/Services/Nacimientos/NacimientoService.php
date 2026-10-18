@@ -167,6 +167,7 @@ class NacimientoService
             'raza_id' => $ficha['raza_id'] ?? $servicio?->hembra?->raza_id,
             'estado_productivo_id' => $ficha['estado_productivo_id'] ?? null,
             'lote_id' => $ficha['lote_id'] ?? null,
+            'grupo_id' => $ficha['grupo_id'] ?? null,
             'color' => $ficha['color'] ?? null,
             'observaciones' => $ficha['observaciones'] ?? null,
             'user_id' => $data['registrado_por'] ?? Auth::id(),

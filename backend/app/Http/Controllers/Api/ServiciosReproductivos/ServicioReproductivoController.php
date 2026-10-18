@@ -11,6 +11,7 @@ use App\Services\ServiciosReproductivos\ServicioReproductivoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
 class ServicioReproductivoController extends Controller
@@ -35,6 +36,9 @@ class ServicioReproductivoController extends Controller
         $servicioReproductivo->load([
             'hembra:id,codigo,arete,sexo',
             'macho:id,codigo,arete,sexo',
+            'usuario:id,nombre,apellido',
+            'insumos.medicamento:id,codigo,nombre,precio',
+            'insumos.almacen:id,nombre',
         ]);
 
         return new ServicioReproductivoResource($servicioReproductivo);
@@ -81,5 +85,12 @@ class ServicioReproductivoController extends Controller
             'message' => 'Servicio reproductivo actualizado correctamente',
             'data' => new ServicioReproductivoResource($servicio),
         ]);
+    }
+
+    public function pdf(ServicioReproductivo $servicioReproductivo): Response
+    {
+        $this->authorize('view', $servicioReproductivo);
+
+        return $this->servicioReproductivoService->pdf($servicioReproductivo);
     }
 }

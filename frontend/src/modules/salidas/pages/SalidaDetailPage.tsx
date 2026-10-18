@@ -137,6 +137,7 @@ export default function SalidaDetailPage() {
                 </TableCell>
                 <TableCell className="px-4 py-3">
                   {detalle.potrero_nombre || "—"} / {detalle.lote_nombre || "—"}
+                  {detalle.grupo_nombre ? ` / ${detalle.grupo_nombre}` : ""}
                 </TableCell>
                 <TableCell className="px-4 py-3">{formatPeso(detalle.peso)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.precio)}</TableCell>
