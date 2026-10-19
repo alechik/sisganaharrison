@@ -4,15 +4,22 @@
     <table class="meta">
         <tr>
             <td width="50%"><strong>Código:</strong> {{ $ingreso->cod_ingreso }}</td>
-            <td><strong>Fecha:</strong> {{ $ingreso->fecha?->format('d/m/Y') }}</td>
-        </tr>
-        <tr>
-            <td><strong>Orden de origen:</strong> {{ $ingreso->orden?->cod_compra ?? '—' }}</td>
-            <td><strong>Almacén:</strong> {{ $ingreso->almacen?->nombre ?? '—' }}</td>
+            <td><strong>Fecha de ingreso:</strong> {{ $ingreso->fecha?->format('d/m/Y') }}</td>
         </tr>
         <tr>
             <td><strong>Proveedor:</strong> {{ $ingreso->proveedor?->razon_social }}</td>
-            <td><strong>Registrado por:</strong> {{ trim(($ingreso->creador?->nombre ?? '').' '.($ingreso->creador?->apellido ?? '')) }}</td>
+            <td><strong>NIT:</strong> {{ $ingreso->proveedor?->nit ?: '—' }}</td>
+        </tr>
+        <tr>
+            <td><strong>Orden de origen:</strong> {{ $ingreso->orden?->cod_compra ?: '—' }}</td>
+            <td><strong>Almacén:</strong> {{ $ingreso->almacen?->nombre ?? '—' }}</td>
+        </tr>
+        <tr>
+            <td><strong>Usuario:</strong> {{ trim(($ingreso->creador?->nombre ?? '').' '.($ingreso->creador?->apellido ?? '')) }}</td>
+            <td><strong>Estado:</strong> Registrado</td>
+        </tr>
+        <tr>
+            <td colspan="2"><strong>Observación general:</strong> {{ $ingreso->observaciones ?: '—' }}</td>
         </tr>
     </table>
 
@@ -42,6 +49,10 @@
     </table>
 
     <table class="totals">
+        <tr>
+            <td>Unidades</td>
+            <td class="text-right">{{ (int) $ingreso->detalles->sum('cantidad') }}</td>
+        </tr>
         <tr>
             <td>Descuento general</td>
             <td class="text-right">{{ \App\Support\Money::format($ingreso->descuento) }}</td>

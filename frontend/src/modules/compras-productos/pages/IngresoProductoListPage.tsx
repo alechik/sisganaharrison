@@ -1,35 +1,56 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
-import { getIngresosProductos } from "../services";
+import { IngresoProductoFiltersBar, IngresoProductoTable, IngresoProductoToolbar } from "../components";
+import { useIngresosProductos } from "../hooks";
+import { downloadIngresoProductoPdf } from "../services";
 import { IngresoProducto } from "../types";
 
 export default function IngresoProductoListPage() {
-  const [items, setItems] = useState<IngresoProducto[]>([]);
-  useEffect(() => { getIngresosProductos({ per_page: 20 }).then((res) => setItems(res.data)); }, []);
+  const { ingresos, loading, error, meta, filters, setPage, updateFilters } = useIngresosProductos();
+  const [pdfError, setPdfError] = useState<string | null>(null);
+
+  const handlePdf = async (item: IngresoProducto) => {
+    try {
+      setPdfError(null);
+      await downloadIngresoProductoPdf(item.id, item.cod_ingreso);
+    } catch (err) {
+      console.error(err);
+      setPdfError("No se pudo generar el PDF.");
+    }
+  };
+
+  if (loading && ingresos.length === 0) {
+    return <div>Cargando ingresos de productos...</div>;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Ingresos de productos</h1>
           <PageBreadCrumb pageTitle="Ingresos de productos" items={breadcrumbs.ingresosProductos} />
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Cada ingreso debe proceder de una orden de compra de productos autorizada. Puede ser parcial.
+          </p>
         </div>
-        <Link to="/compras-productos/ingresos/crear" className="rounded-lg bg-brand-500 px-4 py-3 text-sm text-white">+ Nuevo ingreso</Link>
+        <IngresoProductoToolbar />
       </div>
-      <table className="min-w-full text-sm">
-        <thead><tr><th className="px-3 py-2 text-left">Código</th><th className="px-3 py-2 text-left">Orden</th><th className="px-3 py-2 text-left">Almacén</th><th></th></tr></thead>
-        <tbody>
-          {items.map((item) => (
-            <tr key={item.id} className="border-t border-gray-100 dark:border-white/[0.05]">
-              <td className="px-3 py-2">{item.cod_ingreso}</td>
-              <td className="px-3 py-2">{item.orden_cod_compra}</td>
-              <td className="px-3 py-2">{item.almacen_nombre}</td>
-              <td className="px-3 py-2 text-right"><Link className="text-brand-500" to={`/compras-productos/ingresos/${item.id}`}>Ver</Link></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+      {(error || pdfError) && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+          {error || pdfError}
+        </div>
+      )}
+
+      <IngresoProductoFiltersBar filters={filters} onChange={updateFilters} />
+      <IngresoProductoTable
+        ingresos={ingresos}
+        meta={meta}
+        onPageChange={setPage}
+        onDownloadPdf={handlePdf}
+      />
     </div>
   );
 }

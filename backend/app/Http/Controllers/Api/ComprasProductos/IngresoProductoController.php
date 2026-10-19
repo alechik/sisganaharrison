@@ -36,6 +36,12 @@ class IngresoProductoController extends Controller
     {
         $this->authorize('create', IngresoProducto::class);
         $ordenId = (int) $request->query('orden_compra_id', 0);
+        if ($ordenId < 1) {
+            return response()->json([
+                'message' => 'Debe seleccionar una orden de compra de productos autorizada.',
+                'errors' => ['orden_compra_id' => ['Debe seleccionar una orden de compra de productos autorizada.']],
+            ], 422);
+        }
         try {
             $orden = $this->service->previewOrden($ordenId);
         } catch (ValidationException $exception) {

@@ -2,6 +2,8 @@ import api from "@/api/axios";
 import { PaginatedResponse } from "@/types/api";
 import {
   IngresoProducto,
+  IngresoProductoCreateRequest,
+  IngresoProductoListParams,
   OrdenCompraProducto,
   OrdenCompraProductoCreateRequest,
   OrdenCompraProductoListParams,
@@ -75,13 +77,32 @@ export const downloadOrdenProductoPdf = (id: number, codigo: string) =>
 export const traerOrdenProducto = async (ordenId: number) =>
   (await api.get<{ data: OrdenCompraProducto }>("/compras-productos/ingresos/traer", { params: { orden_compra_id: ordenId } })).data.data;
 
-export const getIngresosProductos = async (params: Record<string, unknown> = {}) =>
-  (await api.get<{ data: IngresoProducto[] }>("/compras-productos/ingresos", { params })).data;
+export const getIngresosProductos = async (
+  params: IngresoProductoListParams = {},
+  signal?: AbortSignal
+): Promise<PaginatedResponse<IngresoProducto>> => {
+  const response = await api.get<LaravelPaginatedResponse<IngresoProducto>>("/compras-productos/ingresos", {
+    signal,
+    params: {
+      page: params.page ?? 1,
+      per_page: params.per_page ?? 10,
+      search: params.search || undefined,
+      cod_ingreso: params.cod_ingreso || undefined,
+      orden_compra_id: params.orden_compra_id,
+      proveedor_id: params.proveedor_id,
+      almacen_id: params.almacen_id,
+      fecha: params.fecha || undefined,
+      sort_by: params.sort_by,
+      sort_dir: params.sort_dir,
+    },
+  });
+  return mapPaginated(response.data);
+};
 
 export const getIngresoProducto = async (id: number) =>
   (await api.get<{ data: IngresoProducto }>(`/compras-productos/ingresos/${id}`)).data.data;
 
-export const createIngresoProducto = async (data: unknown) =>
+export const createIngresoProducto = async (data: IngresoProductoCreateRequest) =>
   (await api.post<{ message: string; data: IngresoProducto }>("/compras-productos/ingresos", data)).data;
 
 export const downloadIngresoProductoPdf = (id: number, codigo: string) =>

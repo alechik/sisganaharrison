@@ -20,6 +20,8 @@ class IngresoProductoResource extends JsonResource
             'observaciones' => $this->observaciones,
             'proveedor_id' => $this->proveedor_id,
             'proveedor_razon_social' => $this->whenLoaded('proveedor', fn () => $this->proveedor?->razon_social),
+            'proveedor_nit' => $this->whenLoaded('proveedor', fn () => $this->proveedor?->nit),
+            'cantidad_total' => $this->whenLoaded('detalles', fn () => (int) $this->detalles->sum('cantidad')),
             'almacen_id' => $this->almacen_id,
             'almacen_nombre' => $this->whenLoaded('almacen', fn () => $this->almacen?->nombre),
             'creador_nombre' => $this->whenLoaded('creador', fn () => $this->creador ? trim("{$this->creador->nombre} {$this->creador->apellido}") : null),

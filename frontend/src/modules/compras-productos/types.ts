@@ -4,6 +4,7 @@ export interface OrdenCompraProductoDetalle {
   producto_codigo?: string | null;
   producto_nombre?: string | null;
   cantidad: number;
+  cantidad_pendiente?: number | null;
   precio: number;
   descuento: number;
   subtotal: number;
@@ -78,8 +79,43 @@ export interface IngresoProducto {
   fecha: string;
   descuento: number;
   monto_total: number;
+  observaciones?: string | null;
+  cantidad_total?: number;
   almacen_id: number;
   almacen_nombre?: string | null;
+  proveedor_id?: number;
   proveedor_razon_social?: string | null;
+  proveedor_nit?: string | null;
+  creador_nombre?: string | null;
   detalles?: OrdenCompraProductoDetalle[];
+}
+
+export interface IngresoProductoCreateRequest {
+  orden_compra_id: number;
+  almacen_id: number;
+  fecha: string;
+  descuento?: number;
+  observaciones?: string | null;
+  detalles: OrdenCompraProductoDetalleRequest[];
+}
+
+export interface IngresoProductoListParams {
+  page?: number;
+  per_page?: number;
+  search?: string;
+  cod_ingreso?: string;
+  orden_compra_id?: number;
+  proveedor_id?: number;
+  almacen_id?: number;
+  fecha?: string;
+  sort_by?: string;
+  sort_dir?: "asc" | "desc";
+}
+
+export type IngresoProductoSortField = "created_at" | "fecha" | "cod_ingreso" | "monto_total";
+export type IngresoProductoSortDirection = "asc" | "desc";
+
+export interface IngresoProductoFilters extends IngresoProductoListParams {
+  sort_by: IngresoProductoSortField;
+  sort_dir: IngresoProductoSortDirection;
 }

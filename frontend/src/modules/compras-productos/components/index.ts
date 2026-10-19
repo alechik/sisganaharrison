@@ -4,3 +4,7 @@ export { default as OrdenProductoFiltersBar } from "./OrdenProductoFiltersBar";
 export { default as OrdenProductoToolbar } from "./OrdenProductoToolbar";
 export { default as OrdenProductoStatusBadge } from "./OrdenProductoStatusBadge";
 export { default as OrdenProductoDecisionCard } from "./OrdenProductoDecisionCard";
+export { default as IngresoProductoTable } from "./IngresoProductoTable";
+export { default as IngresoProductoForm } from "./IngresoProductoForm";
+export { default as IngresoProductoFiltersBar } from "./IngresoProductoFiltersBar";
+export { default as IngresoProductoToolbar } from "./IngresoProductoToolbar";

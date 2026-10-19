@@ -33,6 +33,7 @@ class OrdenCompraProductoResource extends JsonResource
                     'producto_codigo' => $detalle->medicamento?->codigo,
                     'producto_nombre' => $detalle->medicamento?->nombre,
                     'cantidad' => $detalle->cantidad,
+                    'cantidad_pendiente' => $detalle->cantidad_pendiente ?? null,
                     'precio' => (float) $detalle->precio,
                     'descuento' => (float) $detalle->descuento,
                     'subtotal' => (float) $detalle->subtotal,

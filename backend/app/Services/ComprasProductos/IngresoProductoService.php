@@ -58,6 +58,14 @@ class IngresoProductoService
             ]);
         }
 
+        $yaIngresado = $this->cantidadesIngresadas($orden->id);
+        foreach ($orden->detalles as $detalle) {
+            $detalle->cantidad_pendiente = max(
+                0,
+                (int) $detalle->cantidad - (int) ($yaIngresado[$detalle->medicamento_id] ?? 0)
+            );
+        }
+
         return $orden;
     }
 
@@ -160,6 +168,15 @@ class IngresoProductoService
         if (! empty($filters['almacen_id'])) {
             $query->where('almacen_id', (int) $filters['almacen_id']);
         }
+        if (! empty($filters['proveedor_id'])) {
+            $query->where('proveedor_id', (int) $filters['proveedor_id']);
+        }
+        if (! empty($filters['cod_ingreso'])) {
+            $query->where('cod_ingreso', 'ilike', '%'.$filters['cod_ingreso'].'%');
+        }
+        if (! empty($filters['fecha'])) {
+            $query->whereDate('fecha', $filters['fecha']);
+        }
         $sortBy = in_array($filters['sort_by'] ?? '', self::SORTABLE_COLUMNS, true) ? $filters['sort_by'] : 'created_at';
         $sortDir = strtolower((string) ($filters['sort_dir'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
 
@@ -177,11 +194,7 @@ class IngresoProductoService
         }
 
         $autorizados = $orden->detalles->keyBy('medicamento_id');
-        $yaIngresado = DetalleIngresoProducto::query()
-            ->whereHas('ingreso', fn (Builder $q) => $q->where('orden_compra_id', $orden->id))
-            ->selectRaw('medicamento_id, sum(cantidad) as total')
-            ->groupBy('medicamento_id')
-            ->pluck('total', 'medicamento_id');
+        $yaIngresado = $this->cantidadesIngresadas($orden->id);
 
         $normalizados = [];
         $vistos = [];
@@ -219,6 +232,18 @@ class IngresoProductoService
         }
 
         return $normalizados;
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int|string, mixed>
+     */
+    private function cantidadesIngresadas(int $ordenId)
+    {
+        return DetalleIngresoProducto::query()
+            ->whereHas('ingreso', fn (Builder $q) => $q->where('orden_compra_id', $ordenId))
+            ->selectRaw('medicamento_id, sum(cantidad) as total')
+            ->groupBy('medicamento_id')
+            ->pluck('total', 'medicamento_id');
     }
 
     private function nextCodigo(): string
