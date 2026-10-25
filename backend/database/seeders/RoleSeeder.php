@@ -71,6 +71,9 @@ class RoleSeeder extends Seeder
             'alertas.view',
             'alertas.resolve',
             'reportes.view',
+            'tareas.view',
+            'tareas.update',
+            'tareas.complete',
         ]);
 
         $veterinario->syncPermissions([
@@ -121,6 +124,9 @@ class RoleSeeder extends Seeder
             'alertas.resolve',
             'reportes.view',
             'reportes.export',
+            'tareas.view',
+            'tareas.update',
+            'tareas.complete',
         ]);
     }
 }

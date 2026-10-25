@@ -41,7 +41,8 @@ use App\Http\Controllers\Api\Salidas\SalidaController;
 use App\Http\Controllers\Api\Traspasos\TraspasoController;
 use App\Http\Controllers\Api\Dashboard\DashboardController;
 use App\Http\Controllers\Api\Reportes\ReporteController;
-use Spatie\Permission\Models\Role;
+use App\Http\Controllers\Api\Roles\RoleController;
+use App\Http\Controllers\Api\Tareas\TareaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -114,9 +115,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('usuarios/{user}/estado', [UserController::class, 'changeStatus'])
         ->middleware('permission:usuarios.activate');
 
-    Route::get('/roles', function () {
-        return Role::all();
-    })->middleware('permission:usuarios.view');
+    Route::get('roles/permisos', [RoleController::class, 'permissions']);
+    Route::get('roles', [RoleController::class, 'index']);
+    Route::get('roles/{role}', [RoleController::class, 'show']);
+    Route::put('roles/{role}', [RoleController::class, 'update']);
+
+    Route::get('tareas/asignables', [TareaController::class, 'asignables']);
+    Route::get('tareas', [TareaController::class, 'index']);
+    Route::post('tareas', [TareaController::class, 'store']);
+    Route::get('tareas/{tarea}', [TareaController::class, 'show']);
+    Route::put('tareas/{tarea}', [TareaController::class, 'update']);
+    Route::patch('tareas/{tarea}', [TareaController::class, 'update']);
+    Route::patch('tareas/{tarea}/terminar', [TareaController::class, 'terminar']);
 });
 
 /*

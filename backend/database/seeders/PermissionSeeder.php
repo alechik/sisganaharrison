@@ -242,6 +242,16 @@ class PermissionSeeder extends Seeder
 
         // Auditoría
         'auditoria.view',
+
+        // Roles (catálogo Spatie; el acceso real exige rol administrador o gerencia)
+        'roles.view',
+        'roles.update',
+
+        // Tareas
+        'tareas.view',
+        'tareas.create',
+        'tareas.update',
+        'tareas.complete',
     ];
 
     public function run(): void

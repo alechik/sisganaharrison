@@ -1,7 +1,8 @@
-export const saveAuth = (token: string, user: any, permissions: string[] = []) => {
+export const saveAuth = (token: string, user: any, permissions: string[] = [], roles: string[] = []) => {
   localStorage.setItem("token", token);
   localStorage.setItem("user", JSON.stringify(user));
   localStorage.setItem("permissions", JSON.stringify(permissions));
+  localStorage.setItem("roles", JSON.stringify(roles));
 };
 
 export const getUser = () => {
@@ -18,6 +19,7 @@ export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   localStorage.removeItem("permissions");
+  localStorage.removeItem("roles");
   localStorage.removeItem("notificaciones");
 };
 

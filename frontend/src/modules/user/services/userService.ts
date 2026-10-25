@@ -74,5 +74,6 @@ export const restoreUser = async (id: number) => {
 
 export const getRoles = async () => {
   const response = await api.get("/roles");
-  return response.data;
+  const payload = response.data;
+  return Array.isArray(payload) ? payload : payload.data ?? [];
 };

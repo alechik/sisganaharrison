@@ -48,6 +48,46 @@ export const breadcrumbs = {
     },
   ],
 
+  roles: [
+    { title: "Gestión de Personal" },
+    { title: "Roles" },
+  ],
+
+  rolDetalle: [
+    { title: "Gestión de Personal" },
+    { title: "Roles", path: "/roles" },
+    { title: "Detalle" },
+  ],
+
+  rolEditar: [
+    { title: "Gestión de Personal" },
+    { title: "Roles", path: "/roles" },
+    { title: "Editar permisos" },
+  ],
+
+  tareas: [
+    { title: "Gestión de Personal" },
+    { title: "Tareas" },
+  ],
+
+  tareaCrear: [
+    { title: "Gestión de Personal" },
+    { title: "Tareas", path: "/tareas" },
+    { title: "Nueva tarea" },
+  ],
+
+  tareaDetalle: [
+    { title: "Gestión de Personal" },
+    { title: "Tareas", path: "/tareas" },
+    { title: "Detalle" },
+  ],
+
+  tareaEditar: [
+    { title: "Gestión de Personal" },
+    { title: "Tareas", path: "/tareas" },
+    { title: "Responder" },
+  ],
+
   socios: [
     { title: "Gestión de Personal" },
     { title: "Socios de Negocios" },

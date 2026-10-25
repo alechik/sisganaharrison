@@ -6,6 +6,7 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import api from "../../api/axios";
+import { asStringArray } from "@/utils/roles";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -40,7 +41,12 @@ export default function SignInForm() {
 
       localStorage.setItem(
         "permissions",
-        JSON.stringify(response.data.permissions ?? [])
+        JSON.stringify(asStringArray(response.data.permissions))
+      );
+
+      localStorage.setItem(
+        "roles",
+        JSON.stringify(asStringArray(response.data.roles))
       );
 
       const notificaciones = response.data.notificaciones ?? [];

@@ -54,6 +54,8 @@ import { partoRoutes } from "./modules/partos/routes";
 import { nacimientoRoutes } from "./modules/nacimientos/routes";
 import { sociosDeNegocioRoutes } from "./modules/socios-de-negocio/routes";
 import { comprasRoutes } from "./modules/compras/routes";
+import { roleRoutes } from "./modules/roles/routes";
+import { tareaRoutes } from "./modules/tareas/routes";
 
 
 export default function App() {
@@ -77,6 +79,8 @@ export default function App() {
             <Route path="/usuarios/crear" element={<UserCreate />} />
             <Route path="/usuarios/eliminados" element={<UserDeleted />} />
             <Route path="/usuarios/:id/editar" element={<UserEdit />} />
+            {roleRoutes}
+            {tareaRoutes}
             {razaRoutes}
             {categoriaAnimalRoutes}
             {presentacionRoutes}

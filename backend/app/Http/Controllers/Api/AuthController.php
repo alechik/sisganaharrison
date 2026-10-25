@@ -44,8 +44,8 @@ class AuthController extends Controller
             'message' => 'Login correcto',
             'token' => $token,
             'user' => $user,
-            'roles' => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name')->values(),
+            'roles' => $user->getRoleNames()->values()->all(),
+            'permissions' => $user->getAllPermissions()->pluck('name')->values()->all(),
             'notificaciones' => $this->buildNotificaciones($user),
         ]);
     }
@@ -81,8 +81,8 @@ class AuthController extends Controller
 
         return response()->json([
             'user' => $user,
-            'roles' => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name')->values(),
+            'roles' => $user->getRoleNames()->values()->all(),
+            'permissions' => $user->getAllPermissions()->pluck('name')->values()->all(),
             'notificaciones' => $this->buildNotificaciones($user),
         ]);
     }
