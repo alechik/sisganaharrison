@@ -289,7 +289,7 @@ try {
     Write-Host 'Origin: OK'
     Write-Host 'Upstream: OK'
 
-    $null = Invoke-Git check-ignore -q $EnvPath
+    $null = Invoke-Git check-ignore '-q' $EnvPath
     if ($script:LastExit -ne 0) {
         Abort ($EnvPath + ' no esta ignorado por .gitignore.') 'No se corrige automaticamente.'
     }
@@ -473,7 +473,7 @@ try {
 
     # --- 2) rama temporal desde main ----------------------------------------
     $tempBranch = 'sync/omar-' + $timestamp
-    $null = Invoke-Git switch -c $tempBranch
+    $null = Invoke-Git switch '-c' $tempBranch
     if ($script:LastExit -ne 0) { Abort ('No se pudo crear la rama temporal ' + $tempBranch + '.') }
     Write-Host ('Rama temporal: ' + $tempBranch + '  (nace en main, no en upstream)')
 
@@ -497,7 +497,7 @@ try {
         Write-Host ''
         Write-Host ('===== COMMIT ' + $idx + '/' + $newShas.Count + ' : ' + $s.Substring(0, 7) + ' =====')
 
-        $null = Invoke-Git show -s --format=%P $s
+        $null = Invoke-Git show '-s' --format=%P $s
         $parents = @(($script:LastOut -join ' ') -split '\s+' | Where-Object { $_ -ne '' })
         if ($parents.Count -eq 0) {
             Abort ('El commit upstream ' + $s + ' es un commit raiz. No se procesa.')
@@ -556,7 +556,7 @@ try {
         # ---- .gitignore: integracion segura ---------------------------------
         if ($touchesGi) {
             $gitignoreCommits++
-            $null = Invoke-Git cat-file -e ($s + ':' + $GitignorePath)
+            $null = Invoke-Git cat-file '-e' ($s + ':' + $GitignorePath)
             if ($script:LastExit -eq 0) {
                 $giTmp = Join-Path $TempDir 'up-gitignore.txt'
                 $null = cmd /c ('git show "' + $s + ':' + $GitignorePath + '" > "' + $giTmp + '"')
@@ -571,7 +571,7 @@ try {
                 [System.IO.File]::WriteAllBytes($GitignorePath, $Utf8.GetBytes($mergedText))
 
                 # validacion obligatoria del .gitignore resultante
-                $null = Invoke-Git check-ignore -q $EnvPath
+                $null = Invoke-Git check-ignore '-q' $EnvPath
                 if ($script:LastExit -ne 0) {
                     [System.IO.File]::WriteAllBytes($GitignorePath, $Utf8.GetBytes($gitignoreBase))
                     Abort ($EnvPath + ' dejo de estar ignorado tras integrar .gitignore.') `
@@ -696,7 +696,7 @@ try {
     }
     Write-Host '  merges            : 0'
 
-    $null = Invoke-Git check-ignore -q $EnvPath
+    $null = Invoke-Git check-ignore '-q' $EnvPath
     if ($script:LastExit -ne 0) { Abort ($EnvPath + ' dejo de estar ignorado.') }
     $null = Invoke-Git ls-files --error-unmatch $EnvPath
     if ($script:LastExit -eq 0) { Abort ($EnvPath + ' esta trackeado.') }
