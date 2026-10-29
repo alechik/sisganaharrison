@@ -596,7 +596,10 @@ try {
         }
 
         # ---- commit ----------------------------------------------------------
-        $null = Invoke-Git add -A
+        # OJO: '-A' debe ir entre comillas. Sin comillas PowerShell lo liga al
+        # parametro -ArgList de Invoke-Git (es su prefijo unico) y aborta con
+        # "Falta un argumento para el parametro 'ArgList'".
+        $null = Invoke-Git add '-A'
         if ($script:LastExit -ne 0) { Abort ('Fallo git add -A tras ' + $s.Substring(0, 7) + '.') }
 
         [System.IO.File]::WriteAllText($msgFile, $upMsg + "`n", $Utf8)
