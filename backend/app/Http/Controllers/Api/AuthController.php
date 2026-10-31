@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\InformeDiario;
 use App\Models\OrdenCompra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class AuthController extends Controller
 {
@@ -138,25 +140,45 @@ class AuthController extends Controller
      */
     private function buildNotificaciones($user): array
     {
-        if (! $user->can('compras.authorize')) {
-            return [];
+        $items = [];
+
+        if ($user->can('compras.authorize')) {
+            $pendientes = OrdenCompra::query()
+                ->where('estado', OrdenCompra::ESTADO_PENDIENTE)
+                ->count();
+
+            if ($pendientes > 0) {
+                $items[] = [
+                    'tipo' => 'orden_compra_pendiente',
+                    'titulo' => 'Órdenes de compra pendientes',
+                    'mensaje' => $pendientes === 1
+                        ? 'Hay 1 orden de compra pendiente de autorización.'
+                        : "Hay {$pendientes} órdenes de compra pendientes de autorización.",
+                    'ruta' => '/compras/ordenes-compra?estado=PENDIENTE',
+                ];
+            }
         }
 
-        $pendientes = OrdenCompra::query()
-            ->where('estado', OrdenCompra::ESTADO_PENDIENTE)
-            ->count();
+        if ($user->hasAnyRole(['administrador', 'gerencia']) && Schema::hasTable('informe_diarios')) {
+            $informes = InformeDiario::query()
+                ->with('trabajador')
+                ->where('revisado', InformeDiario::REVISADO_NO)
+                ->orderByDesc('fecha')
+                ->orderByDesc('id')
+                ->get();
 
-        if ($pendientes === 0) {
-            return [];
+            foreach ($informes as $informe) {
+                $trabajador = $informe->trabajador?->nombre_completo ?? 'Trabajador';
+                $fecha = $informe->fecha?->format('d/m/Y') ?? '';
+                $items[] = [
+                    'tipo' => 'informe_diario_pendiente_'.$informe->id,
+                    'titulo' => 'Informe diario pendiente de revisión',
+                    'mensaje' => trim("{$informe->codigo_informe} — {$trabajador} {$fecha}"),
+                    'ruta' => '/informes-diarios/'.$informe->id,
+                ];
+            }
         }
 
-        return [[
-            'tipo' => 'orden_compra_pendiente',
-            'titulo' => 'Órdenes de compra pendientes',
-            'mensaje' => $pendientes === 1
-                ? 'Hay 1 orden de compra pendiente de autorización.'
-                : "Hay {$pendientes} órdenes de compra pendientes de autorización.",
-            'ruta' => '/compras/ordenes-compra?estado=PENDIENTE',
-        ]];
+        return $items;
     }
 }

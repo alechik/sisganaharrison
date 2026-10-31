@@ -3,9 +3,12 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Link } from "react-router";
 import { hasPermission } from "@/utils/permissions";
+import { canRevisarInformesDiarios } from "@/utils/roles";
 import { getOrdenesPendientes } from "@/modules/compras/services";
 import { COMPRAS_PERMISSIONS } from "@/modules/compras/permissions";
 import { ORDEN_COMPRA_ROUTES } from "@/modules/compras/constants";
+import { getInformesPendientes } from "@/modules/informes-diarios/services";
+import { INFORME_DIARIO_ROUTES } from "@/modules/informes-diarios/constants";
 
 interface Notificacion {
   tipo: string;
@@ -29,16 +32,13 @@ export default function NotificationDropdown() {
 
   useEffect(() => {
     const load = async () => {
-      if (!hasPermission(COMPRAS_PERMISSIONS.authorize)) {
-        setItems([]);
-        return;
-      }
+      const next: Notificacion[] = [];
 
-      try {
-        const response = await getOrdenesPendientes();
-        if (response.total > 0) {
-          const next: Notificacion[] = [
-            {
+      if (hasPermission(COMPRAS_PERMISSIONS.authorize)) {
+        try {
+          const response = await getOrdenesPendientes();
+          if (response.total > 0) {
+            next.push({
               tipo: "orden_compra_pendiente",
               titulo: "Órdenes de compra pendientes",
               mensaje:
@@ -46,17 +46,36 @@ export default function NotificationDropdown() {
                   ? "Hay 1 orden de compra pendiente de autorización."
                   : `Hay ${response.total} órdenes de compra pendientes de autorización.`,
               ruta: ORDEN_COMPRA_ROUTES.pendientes,
-            },
-          ];
-          setItems(next);
-          localStorage.setItem("notificaciones", JSON.stringify(next));
-          return;
+            });
+          }
+        } catch {
+          // Conserva las de compra ya almacenadas si el recálculo falla.
+          next.push(
+            ...readStored().filter((item) => item.tipo === "orden_compra_pendiente")
+          );
         }
-        setItems([]);
-        localStorage.setItem("notificaciones", "[]");
-      } catch {
-        setItems(readStored());
       }
+
+      if (canRevisarInformesDiarios()) {
+        try {
+          const response = await getInformesPendientes();
+          response.data.forEach((informe) => {
+            next.push({
+              tipo: `informe_diario_pendiente_${informe.id}`,
+              titulo: "Informe diario pendiente de revisión",
+              mensaje: `${informe.codigo_informe} — ${informe.trabajador?.nombre ?? "Trabajador"}`,
+              ruta: INFORME_DIARIO_ROUTES.detail(informe.id),
+            });
+          });
+        } catch {
+          next.push(
+            ...readStored().filter((item) => item.tipo.startsWith("informe_diario_pendiente_"))
+          );
+        }
+      }
+
+      setItems(next);
+      localStorage.setItem("notificaciones", JSON.stringify(next));
     };
 
     load();
@@ -71,6 +90,8 @@ export default function NotificationDropdown() {
   }
 
   const notifying = items.length > 0;
+  const hasOrdenes = items.some((item) => item.tipo === "orden_compra_pendiente");
+  const hasInformes = items.some((item) => item.tipo.startsWith("informe_diario_pendiente_"));
 
   return (
     <div className="relative">
@@ -78,13 +99,13 @@ export default function NotificationDropdown() {
         className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full dropdown-toggle hover:text-gray-700 h-11 w-11 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
         onClick={toggleDropdown}
       >
-        <span
-          className={`absolute right-0 top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400 ${
-            !notifying ? "hidden" : "flex"
-          }`}
-        >
-          <span className="absolute inline-flex w-full h-full bg-orange-400 rounded-full opacity-75 animate-ping"></span>
-        </span>
+        {notifying ? (
+          <span className="absolute -right-1 -top-1 z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-400 px-1 text-[10px] font-semibold text-white">
+            {items.length > 9 ? "9+" : items.length}
+          </span>
+        ) : (
+          <span className="absolute right-0 top-0.5 z-10 hidden h-2 w-2 rounded-full bg-orange-400" />
+        )}
         <svg
           className="fill-current"
           width="20"
@@ -143,13 +164,22 @@ export default function NotificationDropdown() {
             ))
           )}
         </ul>
-        {items.length > 0 && (
+        {hasOrdenes && (
           <Link
             to={ORDEN_COMPRA_ROUTES.pendientes}
             onClick={closeDropdown}
             className="block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
           >
             Ver órdenes pendientes
+          </Link>
+        )}
+        {hasInformes && (
+          <Link
+            to={INFORME_DIARIO_ROUTES.pendientes}
+            onClick={closeDropdown}
+            className="block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+          >
+            Ver informes pendientes
           </Link>
         )}
       </Dropdown>

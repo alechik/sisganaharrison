@@ -252,6 +252,12 @@ class PermissionSeeder extends Seeder
         'tareas.create',
         'tareas.update',
         'tareas.complete',
+
+        // Informes diarios
+        'informes_diarios.view',
+        'informes_diarios.create',
+        'informes_diarios.update',
+        'informes_diarios.review',
     ];
 
     public function run(): void

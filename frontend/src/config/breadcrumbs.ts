@@ -88,6 +88,29 @@ export const breadcrumbs = {
     { title: "Responder" },
   ],
 
+  informesDiarios: [
+    { title: "Gestión de Personal" },
+    { title: "Informes diarios" },
+  ],
+
+  informeDiarioCrear: [
+    { title: "Gestión de Personal" },
+    { title: "Informes diarios", path: "/informes-diarios" },
+    { title: "Nuevo informe" },
+  ],
+
+  informeDiarioDetalle: [
+    { title: "Gestión de Personal" },
+    { title: "Informes diarios", path: "/informes-diarios" },
+    { title: "Detalle" },
+  ],
+
+  informeDiarioEditar: [
+    { title: "Gestión de Personal" },
+    { title: "Informes diarios", path: "/informes-diarios" },
+    { title: "Editar" },
+  ],
+
   socios: [
     { title: "Gestión de Personal" },
     { title: "Socios de Negocios" },

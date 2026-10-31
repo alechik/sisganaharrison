@@ -34,3 +34,6 @@ Thumbs.db
 # Configuración local
 /.cursor/*
 /ganaderia_diagrama_v6.sql
+/ganaderia_diagrama_v7.sql
+/ganaderia_diagrama_v5.sql
+/appmovil/*

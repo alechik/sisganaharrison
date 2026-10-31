@@ -74,6 +74,9 @@ class RoleSeeder extends Seeder
             'tareas.view',
             'tareas.update',
             'tareas.complete',
+            'informes_diarios.view',
+            'informes_diarios.create',
+            'informes_diarios.update',
         ]);
 
         $veterinario->syncPermissions([

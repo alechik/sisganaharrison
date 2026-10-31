@@ -70,6 +70,7 @@ use App\Models\Venta;
 use App\Models\Salida;
 use App\Models\Traspaso;
 use App\Models\Tarea;
+use App\Models\InformeDiario;
 use App\Policies\VentaPolicy;
 use App\Policies\SalidaPolicy;
 use App\Policies\TraspasoPolicy;
@@ -77,6 +78,7 @@ use App\Policies\PersonaPolicy;
 use App\Policies\TipoPersonaPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\TareaPolicy;
+use App\Policies\InformeDiarioPolicy;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -135,6 +137,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Traspaso::class, TraspasoPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Tarea::class, TareaPolicy::class);
+        Gate::policy(InformeDiario::class, InformeDiarioPolicy::class);
 
         Route::bind('categoria', fn (string $value) => CategoriaAnimal::query()->findOrFail($value));
         Route::bind('vacuna', fn (string $value) => Vacuna::query()->findOrFail($value));
@@ -165,6 +168,7 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('traspaso', fn (string $value) => Traspaso::query()->findOrFail($value));
         Route::bind('role', fn (string $value) => Role::query()->where('guard_name', 'web')->findOrFail($value));
         Route::bind('tarea', fn (string $value) => Tarea::query()->findOrFail($value));
+        Route::bind('informeDiario', fn (string $value) => InformeDiario::query()->findOrFail($value));
 
         Gate::before(function (User $user, string $ability) {
             return $user->hasRole('super-admin') ? true : null;

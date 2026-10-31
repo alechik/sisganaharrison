@@ -56,6 +56,7 @@ import { sociosDeNegocioRoutes } from "./modules/socios-de-negocio/routes";
 import { comprasRoutes } from "./modules/compras/routes";
 import { roleRoutes } from "./modules/roles/routes";
 import { tareaRoutes } from "./modules/tareas/routes";
+import { informeDiarioRoutes } from "./modules/informes-diarios/routes";
 
 
 export default function App() {
@@ -81,6 +82,7 @@ export default function App() {
             <Route path="/usuarios/:id/editar" element={<UserEdit />} />
             {roleRoutes}
             {tareaRoutes}
+            {informeDiarioRoutes}
             {razaRoutes}
             {categoriaAnimalRoutes}
             {presentacionRoutes}

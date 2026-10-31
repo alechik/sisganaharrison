@@ -51,6 +51,10 @@ export const canManageTareas = (): boolean =>
 export const canReceiveTareas = (): boolean =>
   hasAnyRole(ASIGNABLES_TAREA) || hasPermission("tareas.update") || hasPermission("tareas.complete");
 
+export const canCrearInformesDiarios = (): boolean => hasRole("trabajador");
+
+export const canRevisarInformesDiarios = (): boolean => hasAnyRole(GESTORES_ROLES);
+
 export const canEditRole = (roleName?: string | null): boolean => {
   if (!canManageRoles()) {
     return false;

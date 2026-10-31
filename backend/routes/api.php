@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\Dashboard\DashboardController;
 use App\Http\Controllers\Api\Reportes\ReporteController;
 use App\Http\Controllers\Api\Roles\RoleController;
 use App\Http\Controllers\Api\Tareas\TareaController;
+use App\Http\Controllers\Api\InformesDiarios\InformeDiarioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -127,6 +128,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('tareas/{tarea}', [TareaController::class, 'update']);
     Route::patch('tareas/{tarea}', [TareaController::class, 'update']);
     Route::patch('tareas/{tarea}/terminar', [TareaController::class, 'terminar']);
+
+    Route::get('informes-diarios/pendientes', [InformeDiarioController::class, 'pendientes']);
+    Route::get('informes-diarios/trabajadores', [InformeDiarioController::class, 'trabajadores']);
+    Route::get('informes-diarios', [InformeDiarioController::class, 'index']);
+    Route::post('informes-diarios', [InformeDiarioController::class, 'store']);
+    Route::get('informes-diarios/{informeDiario}', [InformeDiarioController::class, 'show']);
+    Route::put('informes-diarios/{informeDiario}', [InformeDiarioController::class, 'update']);
+    Route::patch('informes-diarios/{informeDiario}', [InformeDiarioController::class, 'update']);
+    Route::patch('informes-diarios/{informeDiario}/revisar', [InformeDiarioController::class, 'revisar']);
 });
 
 /*

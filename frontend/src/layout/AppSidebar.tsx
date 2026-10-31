@@ -45,6 +45,10 @@ const navItems: NavItem[] = [
         path: "/tareas",
       },
       {
+        name: "Informes diarios",
+        path: "/informes-diarios",
+      },
+      {
         name: "Socios de Negocios",
         path: "/socios-de-negocio",
       },
