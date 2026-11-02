@@ -1,17 +1,17 @@
-# appmovil
+# Agropecuaria Harrison — app móvil
 
-A new Flutter project.
+Cliente Flutter de autenticación e Informes Diarios. Consume la API Laravel (`/api`) con Sanctum Bearer. No duplica reglas de negocio.
 
-## Getting Started
+## Arranque
 
-This project is a starting point for a Flutter application.
+Requiere el backend en `http://127.0.0.1:8000` (`php artisan serve` desde `backend/`).
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+cd appmovil
+flutter pub get
+flutter run -d chrome
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Por defecto la API es `http://127.0.0.1:8000/api`. En emulador Android, `http://10.0.2.2:8000/api`. En un dispositivo físico: `php artisan serve --host=0.0.0.0` y `flutter run --dart-define=API_BASE_URL=http://IP_LAN:8000/api`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+El token se guarda con `flutter_secure_storage` (no SharedPreferences).

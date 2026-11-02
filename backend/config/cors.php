@@ -11,13 +11,17 @@ return [
         'http://127.0.0.1:5173',
     ],
 
-    'allowed_origins_patterns' => [],
+    // Flutter web usa un puerto aleatorio (Chrome/Edge). El SPA Vite sigue en 5173.
+    'allowed_origins_patterns' => [
+        '/^https?:\/\/localhost(:\d+)?$/',
+        '/^https?:\/\/127\.0\.0\.1(:\d+)?$/',
+    ],
 
     'allowed_headers' => ['*'],
 
     'exposed_headers' => [],
 
-    'max_age' => 0,
+    'max_age' => 3600,
 
     'supports_credentials' => true,
 
