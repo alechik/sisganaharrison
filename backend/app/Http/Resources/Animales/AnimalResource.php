@@ -37,6 +37,10 @@ class AnimalResource extends JsonResource
             'color' => $this->color,
             'observaciones' => $this->observaciones,
             'user_id' => $this->user_id,
+            'usuario_nombre' => $this->whenLoaded(
+                'usuario',
+                fn () => $this->usuario ? trim("{$this->usuario->nombre} {$this->usuario->apellido}") : null
+            ),
             'edad_inicial' => $this->edad_inicial,
             'edad_actual' => $this->edad_actual,
             'precio_kilo' => $this->precio_kilo !== null ? (float) $this->precio_kilo : null,

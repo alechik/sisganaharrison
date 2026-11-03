@@ -86,12 +86,6 @@ export const formatAnimalOptionLabel = (animal: {
   return `${codigo} — ${arete}`;
 };
 
-export const formatUserOptionLabel = (user: {
-  nombre: string;
-  apellido: string;
-  email: string;
-}): string => `${user.nombre} ${user.apellido} (${user.email})`;
-
 export const getApiErrorMessage = (err: unknown, fallback: string): string => {
   const data = (
     err as {

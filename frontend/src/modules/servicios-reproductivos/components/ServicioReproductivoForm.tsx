@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import RegistradoPorField from "@/components/form/RegistradoPorField";
 import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
@@ -49,6 +50,7 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
   const [insumos, setInsumos] = useState<InsumoLine[]>([]);
   const [inventarioAplicado, setInventarioAplicado] = useState(false);
   const [loading, setLoading] = useState(isEdit);
+  const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [productoOptions, setProductoOptions] = useState<{ value: string; label: string }[]>([]);
   const [almacenOptions, setAlmacenOptions] = useState<{ value: string; label: string }[]>([]);
@@ -94,6 +96,7 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
           resultado: servicio.resultado,
           observaciones: servicio.observaciones ?? "",
         });
+        setRegistradoPorNombre(servicio.usuario_nombre ?? null);
         setInventarioAplicado(Boolean(servicio.inventario_aplicado_at));
         setInsumos(
           (servicio.insumos ?? []).map((item) => ({
@@ -200,6 +203,7 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
       )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {isEdit ? <RegistradoPorField nombre={registradoPorNombre} /> : null}
         <div>
           <Label>Hembra</Label>
           <Select

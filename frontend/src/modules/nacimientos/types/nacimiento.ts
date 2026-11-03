@@ -43,7 +43,6 @@ export interface NacimientoCreateRequest {
   estado_nacimiento: string;
   causa_muerte?: string | null;
   observaciones?: string | null;
-  registrado_por?: number | null;
   animal?: NacimientoAnimalPayload | null;
 }
 

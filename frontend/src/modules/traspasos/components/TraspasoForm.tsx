@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import RegistradoPorField from "@/components/form/RegistradoPorField";
 import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
@@ -46,6 +47,7 @@ export default function TraspasoForm({ traspasoId }: Props) {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loadingAnimales, setLoadingAnimales] = useState(false);
   const [loadingTraspaso, setLoadingTraspaso] = useState(isEdit);
+  const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const saving = creating || updating;
@@ -84,6 +86,7 @@ export default function TraspasoForm({ traspasoId }: Props) {
         setLoteIngresoId(traspaso.lote_ingreso_id);
         setFecha(traspaso.fecha_traspaso);
         setObservacion(traspaso.observacion ?? "");
+        setRegistradoPorNombre(traspaso.usuario_nombre ?? null);
         setSelectedIds((traspaso.detalles ?? []).map((detalle) => detalle.animal_id));
       } catch (err) {
         console.error(err);
@@ -249,6 +252,7 @@ export default function TraspasoForm({ traspasoId }: Props) {
           <Label>Observación</Label>
           <TextArea rows={3} value={observacion} onChange={setObservacion} />
         </div>
+        {isEdit ? <RegistradoPorField nombre={registradoPorNombre} /> : null}
       </div>
 
       <div className="space-y-3">

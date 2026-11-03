@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import RegistradoPorField from "@/components/form/RegistradoPorField";
 import MultiSelect from "@/components/form/MultiSelect";
 import Select from "@/components/form/Select";
 import Button from "@/components/ui/button/Button";
@@ -37,6 +38,7 @@ export default function SocioForm({ socioId }: Props) {
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateSocio();
 
   const [form, setForm] = useState<SocioCreateRequest>(emptyForm);
+  const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
   const [loading, setLoading] = useState(isEdit);
 
   const saving = creating || updating;
@@ -63,6 +65,7 @@ export default function SocioForm({ socioId }: Props) {
           direccion: socio.direccion ?? "",
           tipo_ids: (socio.tipos ?? []).map((tipo) => tipo.id),
         });
+        setRegistradoPorNombre(socio.registrado_por_nombre ?? null);
       } catch (err) {
         console.error(err);
         setUpdateError("No se pudo cargar el socio de negocio.");
@@ -191,6 +194,7 @@ export default function SocioForm({ socioId }: Props) {
           <Label>Dirección</Label>
           <InputField type="text" name="direccion" value={form.direccion ?? ""} onChange={handleChange} />
         </div>
+        {isEdit ? <RegistradoPorField nombre={registradoPorNombre} /> : null}
       </div>
 
       <div className="mt-6 flex gap-3">

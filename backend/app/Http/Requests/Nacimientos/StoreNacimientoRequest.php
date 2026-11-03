@@ -75,7 +75,6 @@ class StoreNacimientoRequest extends FormRequest
             'estado_nacimiento' => ['required', 'string', 'max:10', Rule::in(Nacimiento::ESTADOS)],
             'causa_muerte' => 'nullable|string|max:150',
             'observaciones' => 'nullable|string|max:2000',
-            'registrado_por' => 'nullable|integer|exists:users,id',
             'animal' => 'nullable|array',
             'animal.arete' => [
                 'nullable',
@@ -118,7 +117,6 @@ class StoreNacimientoRequest extends FormRequest
             'parto_id.exists' => 'El parto seleccionado no existe.',
             'arete.unique' => 'El arete ya existe.',
             'animal.arete.unique' => 'El arete ya existe.',
-            'registrado_por.exists' => 'El usuario registrador seleccionado no existe.',
             'sexo.in' => 'El sexo seleccionado no es válido.',
             'estado_nacimiento.in' => 'El estado de nacimiento seleccionado no es válido.',
         ];

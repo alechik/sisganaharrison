@@ -9,10 +9,10 @@ import { useAnimalReferenceOptions } from "@/modules/animales/hooks/useAnimalRef
 import { getAnimal, getSiguienteCodigoAnimal } from "@/modules/animales/services";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
 import { CategoriaAnimal } from "@/modules/categorias-animales/types";
+import RegistradoPorField from "@/components/form/RegistradoPorField";
 import {
   useCreateNacimiento,
   usePartoOptions,
-  useRegistradoPorOptions,
   useUpdateNacimiento,
 } from "../hooks";
 import { ESTADOS_NACIMIENTO, NACIMIENTO_ROUTES, SEXOS_NACIMIENTO } from "../constants";
@@ -43,7 +43,6 @@ const emptyForm: NacimientoCreateRequest = {
   estado_nacimiento: "",
   causa_muerte: "",
   observaciones: "",
-  registrado_por: null,
   animal: emptyAnimal,
 };
 
@@ -54,6 +53,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateNacimiento();
 
   const [form, setForm] = useState<NacimientoCreateRequest>(emptyForm);
+  const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
   const { options: grupoOptions, loading: loadingGrupos } = useGruposByLote(form.animal?.lote_id ?? null);
   const [categorias, setCategorias] = useState<CategoriaAnimal[]>([]);
   const [codigoPreview, setCodigoPreview] = useState("");
@@ -64,7 +64,6 @@ export default function NacimientoForm({ nacimientoId }: Props) {
     soloPendientes: true,
     incluirId: isEdit ? form.parto_id : undefined,
   });
-  const { userOptions, loading: loadingUsers, error: userError } = useRegistradoPorOptions();
   const {
     razaOptions,
     estadoProductivoOptions,
@@ -137,9 +136,9 @@ export default function NacimientoForm({ nacimientoId }: Props) {
           estado_nacimiento: data.estado_nacimiento,
           causa_muerte: data.causa_muerte ?? "",
           observaciones: data.observaciones ?? "",
-          registrado_por: data.registrado_por,
           animal,
         });
+        setRegistradoPorNombre(data.registrado_por_nombre ?? null);
       } catch (err) {
         console.error(err);
         setUpdateError("No se pudo cargar el nacimiento.");
@@ -222,7 +221,6 @@ export default function NacimientoForm({ nacimientoId }: Props) {
           estado_nacimiento: "MUERTO",
           causa_muerte: form.causa_muerte || null,
           observaciones: form.observaciones || null,
-          registrado_por: form.registrado_por || null,
         }
       : {
           parto_id: form.parto_id,
@@ -231,7 +229,6 @@ export default function NacimientoForm({ nacimientoId }: Props) {
           estado_nacimiento: "VIVO",
           causa_muerte: null,
           observaciones: form.observaciones || null,
-          registrado_por: form.registrado_por || null,
           arete: form.animal?.arete || form.arete || null,
           animal: {
             arete: form.animal?.arete || null,
@@ -257,11 +254,11 @@ export default function NacimientoForm({ nacimientoId }: Props) {
     }
   };
 
-  if (loading || loadingPartos || loadingUsers || loadingRefs) {
+  if (loading || loadingPartos || loadingRefs) {
     return <div>Cargando formulario...</div>;
   }
 
-  const displayError = validationError || createError || updateError || partoError || userError || refsError;
+  const displayError = validationError || createError || updateError || partoError || refsError;
 
   return (
     <form onSubmit={handleSubmit}>
@@ -295,20 +292,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
           />
         </div>
 
-        <div>
-          <Label>Registrado por (opcional)</Label>
-          <Select
-            value={form.registrado_por ? String(form.registrado_por) : ""}
-            placeholder="Sin registrador"
-            options={userOptions}
-            onChange={(value) =>
-              setForm((current) => ({
-                ...current,
-                registrado_por: value ? Number(value) : null,
-              }))
-            }
-          />
-        </div>
+        {isEdit ? <RegistradoPorField nombre={registradoPorNombre} /> : null}
 
         {esVivo && (
           <>

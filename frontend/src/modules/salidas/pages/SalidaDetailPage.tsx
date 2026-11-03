@@ -109,6 +109,10 @@ export default function SalidaDetailPage() {
               <SalidaStatusBadge estado={salida.estado} />
             </dd>
           </div>
+          <div>
+            <dt className="text-sm text-gray-500">Registrado por</dt>
+            <dd className="font-medium">{salida.creador_nombre || "—"}</dd>
+          </div>
         </dl>
       </ComponentCard>
 

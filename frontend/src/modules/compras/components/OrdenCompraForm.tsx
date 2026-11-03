@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import RegistradoPorField from "@/components/form/RegistradoPorField";
 import Select from "@/components/form/Select";
 import Button from "@/components/ui/button/Button";
 import { ANIMAL_SEXO_OPTIONS } from "@/modules/animales/constants";
@@ -50,6 +51,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
     detalles: [emptyLine()],
   });
   const [loading, setLoading] = useState(isEdit);
+  const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
 
   const saving = creating || updating;
   const error = createError || updateError;
@@ -106,6 +108,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
             descuento: detalle.descuento,
           })),
         });
+        setRegistradoPorNombre(orden.creador_nombre ?? null);
       } catch (err) {
         console.error(err);
         setUpdateError("No se pudo cargar la orden de compra.");
@@ -258,6 +261,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
             }
           />
         </div>
+        {isEdit ? <RegistradoPorField nombre={registradoPorNombre} /> : null}
       </div>
 
       <div className="space-y-3">

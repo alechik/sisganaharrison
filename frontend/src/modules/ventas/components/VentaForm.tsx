@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import RegistradoPorField from "@/components/form/RegistradoPorField";
 import Select from "@/components/form/Select";
 import Button from "@/components/ui/button/Button";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
@@ -58,6 +59,7 @@ export default function VentaForm({ ventaId }: Props) {
   const [lotesByPotrero, setLotesByPotrero] = useState<Record<number, { value: string; label: string }[]>>({});
   const [animales, setAnimales] = useState<AnimalDisponibleVenta[]>([]);
   const [loadingEdit, setLoadingEdit] = useState(isEdit);
+  const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -98,6 +100,7 @@ export default function VentaForm({ ventaId }: Props) {
           navigate(VENTA_ROUTES.detail(ventaId));
           return;
         }
+        setRegistradoPorNombre(venta.creador_nombre ?? null);
         setClienteId(venta.cliente_id);
         setFechaVenta(venta.fecha_venta);
         setDescuento(venta.descuento ?? 0);
@@ -285,6 +288,7 @@ export default function VentaForm({ ventaId }: Props) {
             onChange={(e) => setDescuento(Number(e.target.value) || 0)}
           />
         </div>
+        {isEdit ? <RegistradoPorField nombre={registradoPorNombre} /> : null}
       </div>
 
       <div className="space-y-3">

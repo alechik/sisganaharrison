@@ -168,6 +168,12 @@ export default function AnimalDetailPage() {
             </dd>
           </div>
           <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Registrado por</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {animal.usuario_nombre || "—"}
+            </dd>
+          </div>
+          <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha de registro</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {animal.created_at

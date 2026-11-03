@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import RegistradoPorField from "@/components/form/RegistradoPorField";
 import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
@@ -65,6 +66,7 @@ export default function AnimalForm({ animalId }: Props) {
   } = useUpdateAnimal();
 
   const [form, setForm] = useState<AnimalCreateRequest>(emptyForm);
+  const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
   const [loading, setLoading] = useState(isEdit);
   const { options: grupoOptions, loading: loadingGrupos } = useGruposByLote(form.lote_id ?? null);
 
@@ -97,6 +99,7 @@ export default function AnimalForm({ animalId }: Props) {
           edad_inicial: animal.edad_inicial ?? null,
           edad_actual: animal.edad_actual ?? null,
         });
+        setRegistradoPorNombre(animal.usuario_nombre ?? null);
       } catch (err) {
         console.error(err);
         setUpdateError("No se pudo cargar el animal.");
@@ -183,6 +186,7 @@ export default function AnimalForm({ animalId }: Props) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {isEdit ? <RegistradoPorField nombre={registradoPorNombre} /> : null}
         <div>
           <Label>Código (se genera con la categoría)</Label>
           <InputField

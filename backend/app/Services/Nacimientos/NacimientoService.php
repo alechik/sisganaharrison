@@ -5,7 +5,6 @@ namespace App\Services\Nacimientos;
 use App\Models\Animal;
 use App\Models\Nacimiento;
 use App\Models\Parto;
-use App\Models\User;
 use App\Services\Animales\AnimalService;
 use App\Services\Pesajes\PesajeService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -57,6 +56,7 @@ class NacimientoService
         $this->validateBusinessRules($data);
 
         return DB::transaction(function () use ($data) {
+            $data['registrado_por'] = Auth::id();
             $data = $this->resolverCriaYPesaje($data);
 
             return Nacimiento::query()
@@ -73,7 +73,9 @@ class NacimientoService
         $this->validateBusinessRules($data, $nacimiento);
 
         return DB::transaction(function () use ($nacimiento, $data) {
+            unset($data['registrado_por']);
             $data = $this->resolverCriaYPesaje($data, $nacimiento);
+            unset($data['registrado_por']);
 
             $nacimiento->update($data);
 
@@ -170,7 +172,7 @@ class NacimientoService
             'grupo_id' => $ficha['grupo_id'] ?? null,
             'color' => $ficha['color'] ?? null,
             'observaciones' => $ficha['observaciones'] ?? null,
-            'user_id' => $data['registrado_por'] ?? Auth::id(),
+            'user_id' => Auth::id(),
         ]);
 
         $data['animal_id'] = $animal->id;
@@ -182,7 +184,7 @@ class NacimientoService
                 (string) $parto->fecha_parto?->format('Y-m-d'),
                 (float) $data['peso_nacimiento'],
                 'PAR-'.$parto->id,
-                (int) ($data['registrado_por'] ?? Auth::id())
+                (int) Auth::id()
             );
         }
 
@@ -199,7 +201,6 @@ class NacimientoService
             $existente?->parto_id
         );
         $this->assertAreteUnico($data, $existente);
-        $this->assertRegistradoPorExiste($data['registrado_por'] ?? null);
         $this->assertReglasEstadoNacimiento($data);
     }
 
@@ -250,19 +251,6 @@ class NacimientoService
         if (! $parto->estaPendiente()) {
             throw ValidationException::withMessages([
                 'parto_id' => 'Solo un parto PENDIENTE puede utilizarse para registrar un nacimiento.',
-            ]);
-        }
-    }
-
-    private function assertRegistradoPorExiste(mixed $userId): void
-    {
-        if ($userId === null || $userId === '') {
-            return;
-        }
-
-        if (! User::query()->whereKey((int) $userId)->exists()) {
-            throw ValidationException::withMessages([
-                'registrado_por' => 'El usuario registrador seleccionado no existe.',
             ]);
         }
     }

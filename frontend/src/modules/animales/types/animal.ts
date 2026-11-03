@@ -23,6 +23,7 @@ export interface Animal {
   color: string | null;
   observaciones: string | null;
   user_id?: number | null;
+  usuario_nombre?: string | null;
   edad_inicial?: number | null;
   edad_actual?: number | null;
   precio_kilo?: number | null;

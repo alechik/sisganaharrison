@@ -28,6 +28,7 @@ class AnimalService
         'grupo:id,nombre,lote_id',
         'madre:id,nombre,codigo',
         'padre:id,nombre,codigo',
+        'usuario:id,nombre,apellido',
     ];
 
     /**
@@ -108,7 +109,7 @@ class AnimalService
             'sexo' => $sexo,
             'categoria_id' => $categoriaId,
             'estado' => Animal::ESTADO_ACTIVO,
-            'user_id' => $extra['user_id'] ?? Auth::id(),
+            'user_id' => Auth::id(),
             'edad_inicial' => $edad,
             'edad_actual' => $edad,
         ]);
@@ -206,7 +207,7 @@ class AnimalService
             'grupo_id' => $this->nullableId($contexto['grupo_id'] ?? null),
             'color' => $this->nullableString($contexto['color'] ?? null),
             'observaciones' => $this->nullableString($contexto['observaciones'] ?? null),
-            'user_id' => $contexto['user_id'] ?? Auth::id(),
+            'user_id' => Auth::id(),
             'edad_inicial' => 0,
             'edad_actual' => 0,
             'estado' => Animal::ESTADO_ACTIVO,
@@ -320,9 +321,8 @@ class AnimalService
 
             $this->aplicarGrupo($data);
 
-            if (empty($data['user_id'])) {
-                $data['user_id'] = Auth::id() ?? User::query()->orderBy('id')->value('id');
-            }
+            unset($data['user_id']);
+            $data['user_id'] = Auth::id() ?? User::query()->orderBy('id')->value('id');
 
             if (array_key_exists('edad_inicial', $data) && $data['edad_inicial'] !== null
                 && (! array_key_exists('edad_actual', $data) || $data['edad_actual'] === null)) {
@@ -340,6 +340,8 @@ class AnimalService
      */
     public function update(Animal $animal, array $data): Animal
     {
+        unset($data['user_id']);
+
         if (! empty($data['lote_id'])) {
             $this->assertLoteTieneCapacidad((int) $data['lote_id'], $animal->id);
         }
