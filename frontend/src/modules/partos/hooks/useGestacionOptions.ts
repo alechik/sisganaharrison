@@ -35,6 +35,7 @@ export const useGestacionOptions = ({
   incluirId,
 }: Options = {}) => {
   const [gestacionOptions, setGestacionOptions] = useState<SelectOption[]>([]);
+  const [gestaciones, setGestaciones] = useState<Gestacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const incluir = incluirId && incluirId > 0 ? incluirId : undefined;
@@ -59,6 +60,7 @@ export const useGestacionOptions = ({
             : {}),
         });
 
+        setGestaciones(response.data);
         setGestacionOptions(
           response.data.map((gestacion) => ({
             value: String(gestacion.id),
@@ -76,5 +78,5 @@ export const useGestacionOptions = ({
     loadGestaciones();
   }, [soloDisponiblesParaParto, incluir]);
 
-  return { gestacionOptions, loading, error };
+  return { gestacionOptions, gestaciones, loading, error };
 };

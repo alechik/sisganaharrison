@@ -4,6 +4,7 @@ export interface Animal {
   arete: string | null;
   nombre: string | null;
   sexo: "M" | "H";
+  castrado?: boolean;
   fecha_nacimiento: string | null;
   raza_id: number | null;
   raza_nombre?: string | null;
@@ -39,6 +40,7 @@ export interface AnimalCreateRequest {
   arete?: string | null;
   nombre?: string | null;
   sexo: "M" | "H";
+  castrado?: boolean;
   fecha_nacimiento?: string | null;
   raza_id?: number | null;
   categoria_id: number;

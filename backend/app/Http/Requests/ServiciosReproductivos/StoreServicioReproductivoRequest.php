@@ -41,7 +41,7 @@ class StoreServicioReproductivoRequest extends FormRequest
                     Animal::aplicarFiltroAreteValido($query);
                 }),
             ],
-            'fecha_servicio' => 'required|date',
+            'fecha_servicio' => 'required|date|before_or_equal:today',
             'tipo_servicio' => ['required', 'string', 'max:30', Rule::in(ServicioReproductivo::TIPOS_SERVICIO)],
             'resultado' => ['nullable', 'string', 'max:30', Rule::in(ServicioReproductivo::RESULTADOS)],
             'observaciones' => 'nullable|string|max:2000',
@@ -61,6 +61,7 @@ class StoreServicioReproductivoRequest extends FormRequest
             'hembra_id.exists' => 'La hembra seleccionada no está activa, no tiene un arete válido o no es de sexo femenino.',
             'macho_id.exists' => 'El macho seleccionado no está activo, no tiene un arete válido o no es de sexo masculino.',
             'fecha_servicio.required' => 'La fecha de servicio es obligatoria.',
+            'fecha_servicio.before_or_equal' => 'La fecha de servicio no puede ser futura.',
             'tipo_servicio.in' => 'El tipo de servicio seleccionado no es válido.',
             'resultado.in' => 'El resultado seleccionado no es válido.',
         ];

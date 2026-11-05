@@ -35,7 +35,7 @@ class CuarentenaService
         'creador:id,nombre,apellido',
         'ordenCompra:id,cod_compra,estado,fecha',
         'detalles.categoria:id,codigo,nombre',
-        'detalles.animal:id,codigo,sexo,categoria_id',
+        'detalles.animal:id,codigo,sexo,castrado,categoria_id',
     ];
 
     public function __construct(
@@ -375,6 +375,7 @@ class CuarentenaService
                 'edad' => isset($detalle['edad']) && $detalle['edad'] !== '' && $detalle['edad'] !== null
                     ? (int) $detalle['edad']
                     : null,
+                'castrado' => (bool) ($detalle['castrado'] ?? false),
                 'precio' => $precio,
                 'descuento' => $descuento,
                 'estado' => Cuarentena::ESTADO_PROCESADO,

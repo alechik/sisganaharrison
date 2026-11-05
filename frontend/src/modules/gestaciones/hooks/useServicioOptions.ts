@@ -30,6 +30,7 @@ export const useServicioOptions = ({
   incluirId,
 }: Options = {}) => {
   const [servicioOptions, setServicioOptions] = useState<SelectOption[]>([]);
+  const [servicios, setServicios] = useState<ServicioReproductivo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const incluir = incluirId && incluirId > 0 ? incluirId : undefined;
@@ -54,6 +55,7 @@ export const useServicioOptions = ({
             : {}),
         });
 
+        setServicios(response.data);
         setServicioOptions(
           response.data.map((servicio) => ({
             value: String(servicio.id),
@@ -71,5 +73,5 @@ export const useServicioOptions = ({
     loadServicios();
   }, [soloDisponiblesParaGestacion, incluir]);
 
-  return { servicioOptions, loading, error };
+  return { servicioOptions, servicios, loading, error };
 };

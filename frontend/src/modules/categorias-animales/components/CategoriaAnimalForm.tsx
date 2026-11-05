@@ -116,7 +116,7 @@ export default function CategoriaAnimalForm({ categoriaId }: Props) {
             name="codigo"
             value={form.codigo}
             onChange={handleChange}
-            placeholder="Ej: TERNERO"
+            placeholder="Ej: TERNEROS"
           />
         </div>
 

@@ -7,6 +7,7 @@ use App\Models\Nacimiento;
 use App\Models\Parto;
 use App\Services\Animales\AnimalService;
 use App\Services\Pesajes\PesajeService;
+use App\Support\ReglasReproductivas;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -200,6 +201,7 @@ class NacimientoService
             (int) $data['parto_id'],
             $existente?->parto_id
         );
+        $this->assertFechasCoherentes((int) $data['parto_id']);
         $this->assertAreteUnico($data, $existente);
         $this->assertReglasEstadoNacimiento($data);
     }
@@ -232,6 +234,37 @@ class NacimientoService
                 'arete' => 'El arete ya existe.',
             ]);
         }
+    }
+
+    private function assertFechasCoherentes(int $partoId): void
+    {
+        $parto = Parto::query()
+            ->with('gestacion.servicio')
+            ->find($partoId);
+
+        if (! $parto) {
+            return;
+        }
+
+        ReglasReproductivas::assertFechaOcurrida(
+            'parto_id',
+            $parto->fecha_parto,
+            'No se puede registrar un nacimiento asociado a un parto con fecha futura.'
+        );
+
+        $fechaServicio = $parto->gestacion?->servicio?->fecha_servicio;
+        ReglasReproductivas::assertNoAnterior(
+            'parto_id',
+            $parto->fecha_parto,
+            $fechaServicio,
+            'El parto asociado tiene una fecha anterior al servicio reproductivo.'
+        );
+        ReglasReproductivas::assertNoAnterior(
+            'parto_id',
+            $parto->fecha_parto,
+            $parto->gestacion?->fecha_confirmacion,
+            'El parto asociado tiene una fecha anterior a la confirmación de gestación.'
+        );
     }
 
     private function assertPartoDisponibleParaNacimiento(int $partoId, ?int $partoActualId = null): void

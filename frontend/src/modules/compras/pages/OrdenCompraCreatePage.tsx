@@ -7,7 +7,7 @@ export default function OrdenCompraCreatePage() {
   return (
     <div className="space-y-6">
       <PageBreadCrumb pageTitle="Nueva orden de compra" items={breadcrumbs.ordenCompraCrear} />
-      <ComponentCard title="Registrar orden de compra">
+      <ComponentCard title="Solicitud o autorización previa de compra">
         <OrdenCompraForm />
       </ComponentCard>
     </div>

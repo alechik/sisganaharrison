@@ -25,7 +25,7 @@ class OrdenCompraService
         'creador:id,nombre,apellido',
         'autorizador:id,nombre,apellido',
         'detalles.categoria:id,codigo,nombre',
-        'detalles.animal:id,codigo,sexo,categoria_id',
+        'detalles.animal:id,codigo,sexo,castrado,categoria_id',
         'cuarentena:id,orden_compra_id,estado',
     ];
 
@@ -324,6 +324,7 @@ class OrdenCompraService
                 'edad' => isset($detalle['edad']) && $detalle['edad'] !== '' && $detalle['edad'] !== null
                     ? (int) $detalle['edad']
                     : null,
+                'castrado' => (bool) ($detalle['castrado'] ?? false),
                 'precio' => $precio,
                 'descuento' => $descuento,
                 'subtotal' => $subtotal,

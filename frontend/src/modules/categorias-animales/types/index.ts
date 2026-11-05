@@ -1,5 +1,6 @@
 export type {
   CategoriaAnimal,
+  CategoriaAnimalRegla,
   CategoriaAnimalCreateRequest,
   CategoriaAnimalUpdateRequest,
   CategoriaAnimalListParams,

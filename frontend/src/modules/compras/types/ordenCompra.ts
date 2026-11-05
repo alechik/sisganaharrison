@@ -12,6 +12,7 @@ export interface OrdenCompraDetalle {
   animal_id?: number | null;
   animal_codigo?: string | null;
   sexo?: "M" | "H" | null;
+  castrado?: boolean;
 }
 
 export interface OrdenCompra {
@@ -47,6 +48,7 @@ export interface OrdenCompraDetalleRequest {
   cantidad: number;
   peso: number;
   edad?: number | null;
+  castrado?: boolean;
   precio: number;
   descuento?: number;
 }

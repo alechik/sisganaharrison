@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $arete
  * @property string|null $nombre
  * @property string $sexo
+ * @property bool $castrado
  * @property string|null $fecha_nacimiento
  * @property int|null $raza_id
  * @property int $categoria_id
@@ -46,6 +47,7 @@ class Animal extends Model
         'arete',
         'nombre',
         'sexo',
+        'castrado',
         'fecha_nacimiento',
         'raza_id',
         'categoria_id',
@@ -102,6 +104,7 @@ class Animal extends Model
     {
         return [
             'fecha_nacimiento' => 'date',
+            'castrado' => 'boolean',
             'edad_inicial' => 'integer',
             'edad_actual' => 'integer',
             'precio_kilo' => 'decimal:2',

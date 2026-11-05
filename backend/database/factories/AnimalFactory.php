@@ -27,6 +27,7 @@ class AnimalFactory extends Factory
             'arete' => Str::upper(fake()->unique()->bothify('AR-####')),
             'nombre' => fake()->optional()->firstName(),
             'sexo' => fake()->randomElement(['M', 'H']),
+            'castrado' => false,
             'fecha_nacimiento' => fake()->optional()->dateTimeBetween('-5 years', '-3 months')?->format('Y-m-d'),
             'raza_id' => Raza::factory(),
             'categoria_id' => CategoriaAnimal::factory(),

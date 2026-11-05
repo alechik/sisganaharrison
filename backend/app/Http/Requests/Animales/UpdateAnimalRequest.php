@@ -58,6 +58,7 @@ class UpdateAnimalRequest extends FormRequest
             'arete' => 'nullable|string|max:30|unique:animales,arete,'.$animalId,
             'nombre' => 'nullable|string|max:100',
             'sexo' => 'required|string|in:M,H',
+            'castrado' => 'nullable|boolean',
             'fecha_nacimiento' => 'nullable|date|before_or_equal:today',
             'raza_id' => [
                 'nullable',

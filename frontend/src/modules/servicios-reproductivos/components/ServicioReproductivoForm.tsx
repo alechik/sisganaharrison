@@ -17,6 +17,7 @@ import {
 import { RESULTADOS_SERVICIO, SERVICIO_REPRODUCTIVO_ROUTES, TIPOS_SERVICIO } from "../constants";
 import { getServicioReproductivo } from "../services";
 import { ServicioReproductivoCreateRequest } from "../types";
+import { hoyISO, validarFechaServicio } from "@/utils/reglasReproductivas";
 
 interface InsumoLine {
   medicamento_id: number;
@@ -148,8 +149,9 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
       return;
     }
 
-    if (!form.fecha_servicio) {
-      setValidationError("La fecha de servicio es obligatoria.");
+    const fechaError = validarFechaServicio(form.fecha_servicio);
+    if (fechaError) {
+      setValidationError(fechaError);
       return;
     }
 
@@ -243,8 +245,12 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
             type="date"
             name="fecha_servicio"
             value={form.fecha_servicio}
+            max={hoyISO()}
             onChange={handleChange}
           />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            El servicio es un evento ocurrido: no se admite fecha futura.
+          </p>
         </div>
 
         <div>

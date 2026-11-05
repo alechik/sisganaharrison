@@ -32,8 +32,8 @@ export default function IngresoListPage() {
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Ingresos</h1>
           <PageBreadCrumb pageTitle="Ingresos" items={breadcrumbs.ingresos} />
           <p className="mt-1 text-sm text-gray-500">
-            Tercera etapa del flujo Compras. Un ingreso solo se genera desde una cuarentena completada
-            y puede ser parcial (distintas fechas o potreros).
+            Alta definitiva al hato. Parte siempre de una cuarentena (desde orden o compra efectuada)
+            y puede ser parcial (distintas fechas o potreros). Cada línea es un animal individual.
           </p>
         </div>
         <IngresoToolbar />

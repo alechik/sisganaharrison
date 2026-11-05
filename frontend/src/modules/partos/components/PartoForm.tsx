@@ -10,6 +10,7 @@ import { useCreateParto, useGestacionOptions, useUpdateParto } from "../hooks";
 import { PARTO_ROUTES } from "../constants";
 import { getParto } from "../services";
 import { PartoCreateRequest } from "../types";
+import { hoyISO, validarFechaPartoExitoso } from "@/utils/reglasReproductivas";
 
 interface Props {
   partoId?: number;
@@ -36,6 +37,7 @@ export default function PartoForm({ partoId }: Props) {
 
   const {
     gestacionOptions,
+    gestaciones,
     loading: loadingOptions,
     error: optionsError,
   } = useGestacionOptions({
@@ -89,8 +91,14 @@ export default function PartoForm({ partoId }: Props) {
       return;
     }
 
-    if (!form.fecha_parto) {
-      setValidationError("La fecha de parto es obligatoria.");
+    const gestacionSeleccionada = gestaciones.find((item) => item.id === form.gestacion_id);
+    const fechasError = validarFechaPartoExitoso({
+      fechaParto: form.fecha_parto,
+      fechaServicio: gestacionSeleccionada?.servicio_fecha_servicio,
+      fechaConfirmacion: gestacionSeleccionada?.fecha_confirmacion,
+    });
+    if (fechasError) {
+      setValidationError(fechasError);
       return;
     }
 
@@ -141,7 +149,8 @@ export default function PartoForm({ partoId }: Props) {
             }
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Solo gestaciones activas sin parto. Al registrar el parto, la gestación pasará a FINALIZADA.
+            Solo gestaciones activas sin parto. Un parto es un resultado exitoso: debe ocurrir entre
+            8,5 y 9,5 meses después del servicio. Abortos o pérdidas se registran en la gestación.
           </p>
         </div>
 
@@ -151,6 +160,7 @@ export default function PartoForm({ partoId }: Props) {
             type="date"
             name="fecha_parto"
             value={form.fecha_parto}
+            max={hoyISO()}
             onChange={handleChange}
           />
         </div>

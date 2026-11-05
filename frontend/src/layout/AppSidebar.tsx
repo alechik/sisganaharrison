@@ -136,11 +136,11 @@ const navItems: NavItem[] = [
     name: "Compras",
     subItems: [
       {
-        name: "Órdenes de Compra",
+        name: "Órdenes (solicitud)",
         path: "/compras/ordenes-compra",
       },
       {
-        name: "Cuarentenas",
+        name: "Cuarentenas / compras",
         path: "/compras/cuarentenas",
       },
       {

@@ -77,12 +77,8 @@ export default function NacimientoForm({ nacimientoId }: Props) {
   const esMuerto = form.estado_nacimiento === "MUERTO";
 
   const categoriaCria = useMemo(() => {
-    if (form.sexo !== "M" && form.sexo !== "H") {
-      return null;
-    }
-    const codigo = form.sexo === "H" ? "TERNERA" : "TERNERO";
-    return categorias.find((item) => item.codigo === codigo) ?? null;
-  }, [categorias, form.sexo]);
+    return categorias.find((item) => item.codigo === "TERNEROS") ?? null;
+  }, [categorias]);
 
   const fechaNacimiento = useMemo(() => {
     const parto = partos.find((item) => item.id === form.parto_id);
@@ -320,7 +316,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
               <Label>Categoría</Label>
               <InputField
                 type="text"
-                value={categoriaCria ? `${categoriaCria.codigo} — ${categoriaCria.nombre}` : "Según el sexo"}
+                value={categoriaCria ? `${categoriaCria.codigo} — ${categoriaCria.nombre}` : "TERNEROS"}
                 disabled
               />
             </div>

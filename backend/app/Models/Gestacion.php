@@ -27,11 +27,15 @@ class Gestacion extends Model
 
     public const ESTADO_FINALIZADA = 'FINALIZADA';
 
+    public const ESTADO_ABORTADA = 'ABORTADA';
+
+    public const ESTADO_PERDIDA = 'PERDIDA';
+
     public const ESTADOS = [
-        'ACTIVA',
-        'FINALIZADA',
-        'ABORTADA',
-        'PERDIDA',
+        self::ESTADO_ACTIVA,
+        self::ESTADO_FINALIZADA,
+        self::ESTADO_ABORTADA,
+        self::ESTADO_PERDIDA,
     ];
 
     protected $table = 'gestaciones';

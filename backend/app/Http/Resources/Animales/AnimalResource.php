@@ -18,6 +18,7 @@ class AnimalResource extends JsonResource
             'arete' => $this->arete,
             'nombre' => $this->nombre,
             'sexo' => $this->sexo,
+            'castrado' => (bool) $this->castrado,
             'fecha_nacimiento' => $this->fecha_nacimiento?->format('Y-m-d'),
             'raza_id' => $this->raza_id,
             'raza_nombre' => $this->raza?->nombre,

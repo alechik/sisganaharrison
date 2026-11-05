@@ -9,6 +9,7 @@ use App\Models\MovimientoInventario;
 use App\Models\ServicioReproductivo;
 use App\Services\Documentos\PdfGenerator;
 use App\Services\Inventario\InventarioService;
+use App\Support\ReglasReproductivas;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
@@ -55,6 +56,7 @@ class ServicioReproductivoService
     public function create(array $data): ServicioReproductivo
     {
         $this->assertAnimalesValidos($data);
+        $this->assertFechaServicio($data);
         $insumos = $this->normalizeInsumos($data['insumos'] ?? []);
 
         return DB::transaction(function () use ($data, $insumos) {
@@ -81,6 +83,7 @@ class ServicioReproductivoService
     public function update(ServicioReproductivo $servicio, array $data): ServicioReproductivo
     {
         $this->assertAnimalesValidos($data);
+        $this->assertFechaServicio($data);
         $insumos = array_key_exists('insumos', $data)
             ? $this->normalizeInsumos($data['insumos'] ?? [])
             : null;
@@ -197,6 +200,18 @@ class ServicioReproductivoService
     /**
      * @param  array<string, mixed>  $data
      */
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function assertFechaServicio(array $data): void
+    {
+        ReglasReproductivas::assertFechaOcurrida(
+            'fecha_servicio',
+            $data['fecha_servicio'] ?? null,
+            'La fecha de servicio no puede ser futura.'
+        );
+    }
+
     private function assertAnimalesValidos(array $data): void
     {
         $hembra = $this->assertAnimalActivoPorSexo((int) $data['hembra_id'], 'H', 'hembra_id');

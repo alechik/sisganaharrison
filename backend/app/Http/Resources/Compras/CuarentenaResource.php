@@ -61,6 +61,7 @@ class CuarentenaResource extends JsonResource
                     'animal_id' => $detalle->animal_id,
                     'animal_codigo' => $detalle->animal?->codigo,
                     'sexo' => $detalle->animal?->sexo,
+                    'castrado' => (bool) ($detalle->animal?->castrado ?? false),
                 ])->values();
             }),
             'created_at' => $this->created_at?->toIso8601String(),

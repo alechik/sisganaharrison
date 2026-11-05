@@ -9,6 +9,8 @@ import Button from "@/components/ui/button/Button";
 import { ANIMAL_SEXO_OPTIONS } from "@/modules/animales/constants";
 import { getSiguienteCodigoAnimal } from "@/modules/animales/services";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
+import { CategoriaAnimal } from "@/modules/categorias-animales/types";
+import { mensajeCategoriaIncompatible } from "@/modules/categorias-animales/utils";
 import { getSocios } from "@/modules/socios-de-negocio/services";
 import { ORDEN_COMPRA_ROUTES } from "../constants";
 import { useCreateOrdenCompra, useUpdateOrdenCompra } from "../hooks";
@@ -28,6 +30,7 @@ const emptyLine = (): OrdenCompraDetalleRequest => ({
   cantidad: 1,
   peso: 0,
   edad: 0,
+  castrado: false,
   precio: 0,
   descuento: 0,
 });
@@ -44,6 +47,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
 
   const [proveedores, setProveedores] = useState<{ value: string; label: string }[]>([]);
   const [categorias, setCategorias] = useState<{ value: string; label: string }[]>([]);
+  const [categoriasData, setCategoriasData] = useState<CategoriaAnimal[]>([]);
   const [form, setForm] = useState<OrdenCompraCreateRequest>({
     proveedor_id: 0,
     fecha: today(),
@@ -69,6 +73,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
             label: socio.razon_social,
           }))
         );
+        setCategoriasData(cats.data);
         setCategorias(
           cats.data.map((categoria) => ({
             value: String(categoria.id),
@@ -104,6 +109,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
             cantidad: detalle.cantidad,
             peso: detalle.peso,
             edad: detalle.edad ?? 0,
+            castrado: Boolean(detalle.castrado),
             precio: detalle.precio,
             descuento: detalle.descuento,
           })),
@@ -194,6 +200,19 @@ export default function OrdenCompraForm({ ordenId }: Props) {
       return;
     }
 
+    for (const line of form.detalles) {
+      const incompatibilidad = mensajeCategoriaIncompatible({
+        categoria: categoriasData.find((item) => item.id === line.categoria_animal_id),
+        sexo: line.sexo,
+        edad: line.edad,
+        castrado: line.castrado,
+      });
+      if (incompatibilidad) {
+        setCreateError(incompatibilidad);
+        return;
+      }
+    }
+
     const payload: OrdenCompraCreateRequest = {
       ...form,
       descuento: form.descuento ?? 0,
@@ -204,6 +223,7 @@ export default function OrdenCompraForm({ ordenId }: Props) {
         cantidad: line.cantidad,
         peso: line.peso,
         edad: line.edad ?? 0,
+        castrado: Boolean(line.castrado),
         precio: line.precio,
         descuento: line.descuento ?? 0,
       })),
@@ -230,6 +250,13 @@ export default function OrdenCompraForm({ ordenId }: Props) {
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {error}
+        </div>
+      )}
+
+      {!isEdit && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200">
+          Esta es una solicitud o autorización previa. Si la compra ya se efectuó, registre una
+          cuarentena directa (compra efectuada) sin orden.
         </div>
       )}
 
@@ -272,9 +299,8 @@ export default function OrdenCompraForm({ ordenId }: Props) {
           </Button>
         </div>
         <p className="text-sm text-gray-500">
-          Cada línea identifica un animal preliminar (código, sexo y categoría). La cantidad debe
-          coincidir con los ejemplares. Capture la edad inicial en meses. Arete, raza y fecha de nacimiento
-          se completan en el Ingreso.
+          La cantidad genera un animal preliminar por cada ejemplar (código propio). Datos comunes
+          de la línea se copian; arete, raza y fecha de nacimiento se completan en el Ingreso.
         </p>
         {form.detalles.map((line, index) => (
           <div
@@ -294,9 +320,26 @@ export default function OrdenCompraForm({ ordenId }: Props) {
                   value: option.value,
                   label: option.label,
                 }))}
-                onChange={(value) => updateLine(index, { sexo: value as "M" | "H" })}
+                onChange={(value) =>
+                  updateLine(index, {
+                    sexo: value as "M" | "H",
+                    castrado: value === "H" ? false : line.castrado,
+                  })
+                }
               />
             </div>
+            {line.sexo === "M" ? (
+              <div className="flex items-end pb-2">
+                <label className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(line.castrado)}
+                    onChange={(e) => updateLine(index, { castrado: e.target.checked })}
+                  />
+                  Castrado
+                </label>
+              </div>
+            ) : null}
             <div className="md:col-span-2">
               <Label>Categoría</Label>
               <Select
@@ -305,10 +348,19 @@ export default function OrdenCompraForm({ ordenId }: Props) {
                 options={categorias}
                 onChange={(value) => {
                   const categoriaId = Number(value);
+                  const regla = categoriasData.find((item) => item.id === categoriaId)?.regla;
                   updateLine(index, {
                     categoria_animal_id: categoriaId,
                     animal_id: null,
                     animal_codigo: "",
+                    castrado:
+                      line.sexo === "H"
+                        ? false
+                        : regla?.castrado === true
+                          ? true
+                          : regla?.castrado === false
+                            ? false
+                            : Boolean(line.castrado),
                   });
                   void previewCodigo(index, categoriaId, null);
                 }}

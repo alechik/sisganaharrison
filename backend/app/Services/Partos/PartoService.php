@@ -4,6 +4,7 @@ namespace App\Services\Partos;
 
 use App\Models\Gestacion;
 use App\Models\Parto;
+use App\Support\ReglasReproductivas;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +47,7 @@ class PartoService
         $this->assertGestacionExiste($gestacionId);
         $this->assertGestacionActiva($gestacionId);
         $this->assertUnicoPartoPorGestacion($gestacionId);
+        $this->assertFechasCoherentes($gestacionId, $data['fecha_parto'] ?? null);
 
         $data['estado'] = Parto::ESTADO_PENDIENTE;
 
@@ -73,6 +75,8 @@ class PartoService
         if ($gestacionId !== (int) $parto->gestacion_id) {
             $this->assertGestacionActiva($gestacionId);
         }
+
+        $this->assertFechasCoherentes($gestacionId, $data['fecha_parto'] ?? null);
 
         unset($data['estado']);
 
@@ -156,6 +160,44 @@ class PartoService
         $sortDir = strtolower((string) ($filters['sort_dir'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
 
         return $query->orderBy($sortBy, $sortDir);
+    }
+
+    private function assertFechasCoherentes(int $gestacionId, mixed $fechaParto): void
+    {
+        $gestacion = Gestacion::query()->with('servicio')->find($gestacionId);
+        if (! $gestacion) {
+            return;
+        }
+
+        if (ReglasReproductivas::esGestacionFallida((string) $gestacion->estado)) {
+            throw ValidationException::withMessages([
+                'gestacion_id' => 'Una gestación abortada o perdida no puede registrar un parto exitoso.',
+            ]);
+        }
+
+        ReglasReproductivas::assertFechaOcurrida(
+            'fecha_parto',
+            $fechaParto,
+            'La fecha de parto no puede ser futura.'
+        );
+
+        $fechaServicio = $gestacion->servicio?->fecha_servicio;
+        ReglasReproductivas::assertNoAnterior(
+            'fecha_parto',
+            $fechaParto,
+            $fechaServicio,
+            'La fecha de parto no puede ser anterior a la fecha del servicio reproductivo.'
+        );
+        ReglasReproductivas::assertNoAnterior(
+            'fecha_parto',
+            $fechaParto,
+            $gestacion->fecha_confirmacion,
+            'La fecha de parto no puede ser anterior a la confirmación de gestación.'
+        );
+
+        if ($fechaServicio && $fechaParto) {
+            ReglasReproductivas::assertVentanaPartoExitoso($fechaServicio, $fechaParto);
+        }
     }
 
     private function assertGestacionExiste(int $gestacionId): void

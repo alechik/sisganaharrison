@@ -28,6 +28,7 @@ class StoreOrdenCompraRequest extends FormRequest
             'detalles.*.cantidad' => 'required|integer|min:1',
             'detalles.*.peso' => 'required|numeric|min:0.01|max:999999.99',
             'detalles.*.edad' => 'required|integer|min:0|max:600',
+            'detalles.*.castrado' => 'nullable|boolean',
             'detalles.*.precio' => 'required|numeric|min:0',
             'detalles.*.descuento' => 'nullable|numeric|min:0',
         ];

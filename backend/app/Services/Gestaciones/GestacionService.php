@@ -4,6 +4,7 @@ namespace App\Services\Gestaciones;
 
 use App\Models\Gestacion;
 use App\Models\ServicioReproductivo;
+use App\Support\ReglasReproductivas;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
@@ -43,6 +44,7 @@ class GestacionService
         $this->assertServicioPrenada((int) $data['servicio_id']);
         $this->assertUnicaGestacionPorServicio((int) $data['servicio_id']);
         $this->assertUnicaGestacionActiva((int) $data['servicio_id'], $data['estado']);
+        $this->assertFechasCoherentes($data);
 
         return Gestacion::query()
             ->create($data)
@@ -62,6 +64,7 @@ class GestacionService
             $data['estado'],
             $gestacion->id
         );
+        $this->assertFechasCoherentes($data);
 
         $gestacion->update($data);
 
@@ -134,6 +137,43 @@ class GestacionService
         $sortDir = strtolower((string) ($filters['sort_dir'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
 
         return $query->orderBy($sortBy, $sortDir);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function assertFechasCoherentes(array $data): void
+    {
+        $servicio = ServicioReproductivo::query()->find((int) $data['servicio_id']);
+        if (! $servicio) {
+            return;
+        }
+
+        $fechaServicio = $servicio->fecha_servicio?->format('Y-m-d');
+
+        ReglasReproductivas::assertFechaOcurrida(
+            'fecha_confirmacion',
+            $data['fecha_confirmacion'] ?? null,
+            'La fecha de confirmación de gestación no puede ser futura.'
+        );
+        ReglasReproductivas::assertNoAnterior(
+            'fecha_confirmacion',
+            $data['fecha_confirmacion'] ?? null,
+            $fechaServicio,
+            'La fecha de confirmación no puede ser anterior a la fecha del servicio reproductivo.'
+        );
+        ReglasReproductivas::assertNoAnterior(
+            'fecha_probable_parto',
+            $data['fecha_probable_parto'] ?? null,
+            $fechaServicio,
+            'La fecha probable de parto no puede ser anterior a la fecha del servicio reproductivo.'
+        );
+        ReglasReproductivas::assertNoAnterior(
+            'fecha_probable_parto',
+            $data['fecha_probable_parto'] ?? null,
+            $data['fecha_confirmacion'] ?? null,
+            'La fecha probable de parto debe ser igual o posterior a la fecha de confirmación.'
+        );
     }
 
     private function assertServicioExiste(int $servicioId): void

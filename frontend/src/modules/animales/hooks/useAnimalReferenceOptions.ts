@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getRazas } from "@/modules/razas/services";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
+import { CategoriaAnimal } from "@/modules/categorias-animales/types";
 import { getEstadosProductivos } from "@/modules/estados-productivos/services";
 import { getLotes } from "@/modules/lotes/services";
 import { getAnimales } from "../services";
@@ -13,6 +14,7 @@ export interface SelectOption {
 export const useAnimalReferenceOptions = (excludeAnimalId?: number) => {
   const [razaOptions, setRazaOptions] = useState<SelectOption[]>([]);
   const [categoriaOptions, setCategoriaOptions] = useState<SelectOption[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaAnimal[]>([]);
   const [estadoProductivoOptions, setEstadoProductivoOptions] = useState<SelectOption[]>([]);
   const [loteOptions, setLoteOptions] = useState<SelectOption[]>([]);
   const [parentOptions, setParentOptions] = useState<SelectOption[]>([]);
@@ -35,8 +37,14 @@ export const useAnimalReferenceOptions = (excludeAnimalId?: number) => {
       setRazaOptions(
         razas.data.map((item) => ({ value: String(item.id), label: item.nombre }))
       );
+      setCategorias(categorias.data);
       setCategoriaOptions(
-        categorias.data.map((item) => ({ value: String(item.id), label: item.nombre }))
+        categorias.data.map((item) => ({
+          value: String(item.id),
+          label: item.regla
+            ? `${item.nombre} (${item.regla.edad_max_meses === null ? `${item.regla.edad_min_meses}+` : `${item.regla.edad_min_meses}-${item.regla.edad_max_meses}`} meses)`
+            : item.nombre,
+        }))
       );
       setEstadoProductivoOptions(
         estados.data.map((item) => ({ value: String(item.id), label: item.nombre }))
@@ -67,6 +75,7 @@ export const useAnimalReferenceOptions = (excludeAnimalId?: number) => {
   return {
     razaOptions,
     categoriaOptions,
+    categorias,
     estadoProductivoOptions,
     loteOptions,
     parentOptions,

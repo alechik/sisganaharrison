@@ -32,8 +32,8 @@ export default function CuarentenaListPage() {
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Cuarentenas</h1>
           <PageBreadCrumb pageTitle="Cuarentenas" items={breadcrumbs.cuarentenas} />
           <p className="mt-1 text-sm text-gray-500">
-            Segunda etapa del flujo Compras. Puede originarse en una orden autorizada o registrarse
-            como excepción directa.
+            Recepción y aislamiento del ganado. Puede nacer de una orden autorizada o registrarse
+            como compra ya efectuada (sin orden).
           </p>
         </div>
         <CuarentenaToolbar />

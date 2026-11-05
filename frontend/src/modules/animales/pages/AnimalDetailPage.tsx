@@ -94,6 +94,7 @@ export default function AnimalDetailPage() {
             <dt className="text-sm text-gray-500 dark:text-gray-400">Sexo</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {animal.sexo === "M" ? "Macho" : "Hembra"}
+              {animal.sexo === "M" ? ` · ${animal.castrado ? "Castrado" : "Entero"}` : ""}
             </dd>
           </div>
           <div>

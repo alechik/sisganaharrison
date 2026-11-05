@@ -6,8 +6,8 @@ import { CuarentenaForm } from "../components";
 export default function CuarentenaCreatePage() {
   return (
     <div className="space-y-6">
-      <PageBreadCrumb pageTitle="Cuarentena directa" items={breadcrumbs.cuarentenaCrear} />
-      <ComponentCard title="Registrar cuarentena por excepción">
+      <PageBreadCrumb pageTitle="Compra efectuada" items={breadcrumbs.cuarentenaCrear} />
+      <ComponentCard title="Registrar compra ya efectuada (sin orden)">
         <CuarentenaForm />
       </ComponentCard>
     </div>

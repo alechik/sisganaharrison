@@ -7,6 +7,7 @@ use App\Models\CategoriaAnimal;
 use App\Models\Grupo;
 use App\Models\Lote;
 use App\Models\User;
+use App\Support\CategoriaAnimalReglas;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -90,6 +91,14 @@ class AnimalService
         $edad = array_key_exists('edad_inicial', $extra) && $extra['edad_inicial'] !== null
             ? (int) $extra['edad_inicial']
             : null;
+        $castrado = (bool) ($extra['castrado'] ?? false);
+
+        CategoriaAnimalReglas::assertCompatibilidad([
+            'categoria_id' => $categoriaId,
+            'sexo' => $sexo,
+            'edad_inicial' => $edad,
+            'castrado' => $castrado,
+        ]);
 
         if ($animalId) {
             $animal = Animal::query()->findOrFail($animalId);
@@ -112,6 +121,7 @@ class AnimalService
             'user_id' => Auth::id(),
             'edad_inicial' => $edad,
             'edad_actual' => $edad,
+            'castrado' => $castrado,
         ]);
     }
 
@@ -124,13 +134,14 @@ class AnimalService
     {
         $sexo = strtoupper((string) ($contexto['sexo'] ?? ''));
         $categoria = CategoriaAnimal::query()
-            ->where('codigo', $sexo === 'H' ? 'TERNERA' : 'TERNERO')
+            ->whereIn('codigo', ['TERNEROS', $sexo === 'H' ? 'TERNERA' : 'TERNERO'])
             ->whereNull('deleted_at')
+            ->orderByRaw("case when codigo = 'TERNEROS' then 0 else 1 end")
             ->first();
 
         if (! $categoria) {
             throw ValidationException::withMessages([
-                'categoria_id' => 'No existe la categoría TERNERO/TERNERA para registrar la cría.',
+                'categoria_id' => 'No existe la categoría TERNEROS para registrar la cría.',
             ]);
         }
 
@@ -231,6 +242,7 @@ class AnimalService
             $categoriaId = (int) ($linea['categoria_animal_id'] ?? 0);
             $cantidad = (int) ($linea['cantidad'] ?? 0);
             $animalId = ! empty($linea['animal_id']) ? (int) $linea['animal_id'] : null;
+            $castrado = (bool) ($linea['castrado'] ?? false);
             $cantidadSolicitada += $cantidad;
 
             if (! in_array($sexo, ['M', 'H'], true)) {
@@ -264,6 +276,7 @@ class AnimalService
 
                 $animal = $this->asegurarPreliminar($animalId, $categoriaId, $sexo, [
                     'edad_inicial' => $edad,
+                    'castrado' => $castrado,
                 ]);
                 $identificada = $this->mergeLineaIdentificada($linea, $animal, $index);
                 $identificada['edad'] = $edad ?? $animal->edad_inicial;
@@ -275,6 +288,7 @@ class AnimalService
             for ($i = 0; $i < $cantidad; $i++) {
                 $animal = $this->asegurarPreliminar(null, $categoriaId, $sexo, [
                     'edad_inicial' => $edad,
+                    'castrado' => $castrado,
                 ]);
                 $fila = $this->mergeLineaIdentificada($linea, $animal, $index);
                 $fila['cantidad'] = 1;
@@ -320,6 +334,7 @@ class AnimalService
             }
 
             $this->aplicarGrupo($data);
+            CategoriaAnimalReglas::assertCompatibilidad($data);
 
             unset($data['user_id']);
             $data['user_id'] = Auth::id() ?? User::query()->orderBy('id')->value('id');
@@ -351,6 +366,23 @@ class AnimalService
             $data['grupo_id'] = array_key_exists('grupo_id', $data) ? $this->nullableId($data['grupo_id']) : $animal->grupo_id;
             $this->aplicarGrupo($data);
         }
+
+        CategoriaAnimalReglas::assertCompatibilidad([
+            'categoria_id' => $data['categoria_id'] ?? $animal->categoria_id,
+            'sexo' => $data['sexo'] ?? $animal->sexo,
+            'fecha_nacimiento' => array_key_exists('fecha_nacimiento', $data)
+                ? $data['fecha_nacimiento']
+                : $animal->fecha_nacimiento,
+            'edad_inicial' => array_key_exists('edad_inicial', $data)
+                ? $data['edad_inicial']
+                : $animal->edad_inicial,
+            'edad_actual' => array_key_exists('edad_actual', $data)
+                ? $data['edad_actual']
+                : $animal->edad_actual,
+            'castrado' => array_key_exists('castrado', $data)
+                ? $data['castrado']
+                : $animal->castrado,
+        ], $animal->id);
 
         $animal->update($data);
 
@@ -413,6 +445,19 @@ class AnimalService
         }
 
         $this->aplicarGrupo($payload);
+        CategoriaAnimalReglas::assertCompatibilidad([
+            'categoria_id' => $animal->categoria_id,
+            'sexo' => $animal->sexo,
+            'fecha_nacimiento' => $fechaNacimiento,
+            'edad_inicial' => $edadInicial,
+            'edad_actual' => $edadActual,
+            'castrado' => array_key_exists('castrado', $data) ? $data['castrado'] : $animal->castrado,
+        ], $animal->id, Carbon::parse($fechaIngreso));
+
+        if (array_key_exists('castrado', $data)) {
+            $payload['castrado'] = (bool) $data['castrado'];
+        }
+
         $animal->update($payload);
 
         return $animal->fresh(self::RELATIONS) ?? $animal;

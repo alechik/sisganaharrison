@@ -9,6 +9,8 @@ import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import { ANIMAL_ROUTES, ANIMAL_SEXO_OPTIONS } from "../constants";
 import { useGruposByLote } from "@/modules/grupos/hooks";
+import { mensajeCategoriaIncompatible, textoRegla } from "@/modules/categorias-animales/utils";
+import { hoyISO } from "@/utils/reglasReproductivas";
 import { useAnimalReferenceOptions } from "../hooks/useAnimalReferenceOptions";
 import { useCreateAnimal } from "../hooks/useCreateAnimal";
 import { useUpdateAnimal } from "../hooks/useUpdateAnimal";
@@ -24,6 +26,7 @@ const emptyForm: AnimalCreateRequest = {
   arete: "",
   nombre: "",
   sexo: "M",
+  castrado: false,
   fecha_nacimiento: "",
   raza_id: null,
   categoria_id: 0,
@@ -45,6 +48,7 @@ export default function AnimalForm({ animalId }: Props) {
   const {
     razaOptions,
     categoriaOptions,
+    categorias,
     estadoProductivoOptions,
     loteOptions,
     parentOptions,
@@ -86,6 +90,7 @@ export default function AnimalForm({ animalId }: Props) {
           arete: animal.arete ?? "",
           nombre: animal.nombre ?? "",
           sexo: animal.sexo,
+          castrado: Boolean(animal.castrado),
           fecha_nacimiento: animal.fecha_nacimiento ?? "",
           raza_id: animal.raza_id,
           categoria_id: animal.categoria_id,
@@ -132,6 +137,19 @@ export default function AnimalForm({ animalId }: Props) {
       return;
     }
 
+    const categoria = categorias.find((item) => item.id === form.categoria_id);
+    const incompatibilidad = mensajeCategoriaIncompatible({
+      categoria,
+      sexo: form.sexo,
+      fechaNacimiento: form.fecha_nacimiento,
+      edad: form.edad_actual ?? form.edad_inicial,
+      castrado: form.castrado,
+    });
+    if (incompatibilidad) {
+      setCreateError(incompatibilidad);
+      return;
+    }
+
     const payload: AnimalCreateRequest = {
       ...form,
       codigo: form.codigo || null,
@@ -148,6 +166,7 @@ export default function AnimalForm({ animalId }: Props) {
       observaciones: form.observaciones || null,
       edad_inicial: form.edad_inicial ?? null,
       edad_actual: form.edad_actual ?? null,
+      castrado: form.sexo === "M" ? Boolean(form.castrado) : false,
     };
 
     try {
@@ -231,10 +250,26 @@ export default function AnimalForm({ animalId }: Props) {
               setForm((current) => ({
                 ...current,
                 sexo: value as AnimalCreateRequest["sexo"],
+                castrado: value === "H" ? false : current.castrado,
               }))
             }
           />
         </div>
+
+        {form.sexo === "M" ? (
+          <div className="flex items-end pb-2">
+            <label className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <input
+                type="checkbox"
+                checked={Boolean(form.castrado)}
+                onChange={(e) =>
+                  setForm((current) => ({ ...current, castrado: e.target.checked }))
+                }
+              />
+              Castrado
+            </label>
+          </div>
+        ) : null}
 
         <div>
           <Label>Fecha de nacimiento</Label>
@@ -242,6 +277,7 @@ export default function AnimalForm({ animalId }: Props) {
             type="date"
             name="fecha_nacimiento"
             value={form.fecha_nacimiento ?? ""}
+            max={hoyISO()}
             onChange={handleChange}
           />
         </div>
@@ -321,6 +357,11 @@ export default function AnimalForm({ animalId }: Props) {
               }
             }}
           />
+          {textoRegla(categorias.find((item) => item.id === form.categoria_id)?.regla) ? (
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              {textoRegla(categorias.find((item) => item.id === form.categoria_id)?.regla)}
+            </p>
+          ) : null}
         </div>
 
         <div>

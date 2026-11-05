@@ -21,7 +21,7 @@ class StoreGestacionRequest extends FormRequest
     {
         return [
             'servicio_id' => 'required|integer|exists:servicios_reproductivos,id',
-            'fecha_confirmacion' => 'nullable|date',
+            'fecha_confirmacion' => 'nullable|date|before_or_equal:today',
             'fecha_probable_parto' => 'nullable|date|after_or_equal:fecha_confirmacion',
             'estado' => ['required', 'string', 'max:30', Rule::in(Gestacion::ESTADOS)],
             'observaciones' => 'nullable|string|max:2000',
@@ -36,6 +36,7 @@ class StoreGestacionRequest extends FormRequest
         return [
             'servicio_id.exists' => 'El servicio reproductivo seleccionado no existe.',
             'estado.in' => 'El estado seleccionado no es válido.',
+            'fecha_confirmacion.before_or_equal' => 'La fecha de confirmación de gestación no puede ser futura.',
             'fecha_probable_parto.after_or_equal' => 'La fecha probable de parto debe ser igual o posterior a la fecha de confirmación.',
         ];
     }

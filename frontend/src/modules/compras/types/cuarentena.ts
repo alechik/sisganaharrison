@@ -13,6 +13,7 @@ export interface CuarentenaDetalle {
   animal_id?: number | null;
   animal_codigo?: string | null;
   sexo?: "M" | "H" | null;
+  castrado?: boolean;
 }
 
 export interface Cuarentena {
@@ -46,6 +47,7 @@ export interface CuarentenaDetalleRequest {
   cantidad: number;
   peso: number;
   edad?: number | null;
+  castrado?: boolean;
   precio: number;
   descuento?: number;
 }

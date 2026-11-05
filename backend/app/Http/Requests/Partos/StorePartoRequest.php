@@ -19,7 +19,7 @@ class StorePartoRequest extends FormRequest
     {
         return [
             'gestacion_id' => 'required|integer|exists:gestaciones,id',
-            'fecha_parto' => 'required|date',
+            'fecha_parto' => 'required|date|before_or_equal:today',
             'observaciones' => 'nullable|string|max:2000',
         ];
     }
@@ -32,6 +32,7 @@ class StorePartoRequest extends FormRequest
         return [
             'gestacion_id.exists' => 'La gestación seleccionada no existe.',
             'fecha_parto.required' => 'La fecha de parto es obligatoria.',
+            'fecha_parto.before_or_equal' => 'La fecha de parto no puede ser futura.',
         ];
     }
 }

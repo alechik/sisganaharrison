@@ -14,6 +14,7 @@ import {
 import { ESTADOS_GESTACION, GESTACION_ROUTES } from "../constants";
 import { getGestacion } from "../services";
 import { GestacionCreateRequest } from "../types";
+import { hoyISO, validarFechasGestacion } from "@/utils/reglasReproductivas";
 
 interface Props {
   gestacionId?: number;
@@ -42,6 +43,7 @@ export default function GestacionForm({ gestacionId }: Props) {
 
   const {
     servicioOptions,
+    servicios,
     loading: loadingOptions,
     error: optionsError,
   } = useServicioOptions({
@@ -102,14 +104,14 @@ export default function GestacionForm({ gestacionId }: Props) {
       return;
     }
 
-    if (
-      form.fecha_confirmacion &&
-      form.fecha_probable_parto &&
-      form.fecha_probable_parto < form.fecha_confirmacion
-    ) {
-      setValidationError(
-        "La fecha probable de parto debe ser igual o posterior a la fecha de confirmación."
-      );
+    const servicioSeleccionado = servicios.find((item) => item.id === form.servicio_id);
+    const fechasError = validarFechasGestacion({
+      fechaConfirmacion: form.fecha_confirmacion,
+      fechaProbableParto: form.fecha_probable_parto,
+      fechaServicio: servicioSeleccionado?.fecha_servicio,
+    });
+    if (fechasError) {
+      setValidationError(fechasError);
       return;
     }
 
@@ -172,8 +174,12 @@ export default function GestacionForm({ gestacionId }: Props) {
             type="date"
             name="fecha_confirmacion"
             value={form.fecha_confirmacion ?? ""}
+            max={hoyISO()}
             onChange={handleChange}
           />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Evento ocurrido: no puede ser futura ni anterior al servicio.
+          </p>
         </div>
 
         <div>
@@ -184,6 +190,9 @@ export default function GestacionForm({ gestacionId }: Props) {
             value={form.fecha_probable_parto ?? ""}
             onChange={handleChange}
           />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Estimación: puede ser futura. Los abortos o pérdidas se marcan en Estado, no como parto.
+          </p>
         </div>
 
         <div>

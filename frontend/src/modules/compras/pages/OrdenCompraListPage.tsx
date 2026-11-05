@@ -53,7 +53,8 @@ export default function OrdenCompraListPage() {
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Órdenes de Compra</h1>
           <PageBreadCrumb pageTitle="Órdenes de Compra" items={breadcrumbs.ordenesCompra} />
           <p className="mt-1 text-sm text-gray-500">
-            Primera etapa del flujo Compras. Las órdenes quedan pendientes hasta la autorización.
+            Solicitud o autorización previa de ganado. No es obligatoria si la compra ya se efectuó:
+            en ese caso use Cuarentenas → Compra efectuada.
           </p>
         </div>
         <OrdenCompraToolbar />
