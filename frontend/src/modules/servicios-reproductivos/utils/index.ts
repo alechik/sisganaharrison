@@ -45,6 +45,32 @@ export const getTipoServicioLabel = (value: string): string => {
   return labels[value] ?? value;
 };
 
+export const extractApiError = (err: unknown, fallback: string): string => {
+  const data = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
+    ?.response?.data;
+  const firstError = data?.errors ? Object.values(data.errors).flat()[0] : undefined;
+  if (typeof firstError === "string" && firstError.trim() !== "") {
+    return firstError;
+  }
+  return data?.message ?? fallback;
+};
+
+export const puedeConfirmarGestacion = (servicio: {
+  resultado?: string | null;
+  gestacion?: { parto?: unknown } | null;
+}): boolean => {
+  if (servicio.resultado === "VACIA" || servicio.resultado === "ABORTO") {
+    return false;
+  }
+  return !servicio.gestacion?.parto;
+};
+
+export const puedeRegistrarParto = (servicio: {
+  gestacion?: { estado?: string; parto?: unknown } | null;
+}): boolean => {
+  return servicio.gestacion?.estado === "ACTIVA" && !servicio.gestacion?.parto;
+};
+
 export const getResultadoLabel = (value?: string | null): string => {
   if (!value) {
     return "—";

@@ -1,13 +1,29 @@
+import { useState } from "react";
+
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import {
+  ConfirmarGestacionModal,
+  RegistrarPartoNacimientoModal,
   ServicioReproductivoFiltersBar,
   ServicioReproductivoTable,
   ServicioReproductivoToolbar,
 } from "../components";
+import { TIPO_INSEMINACION_ARTIFICIAL, TIPO_MONTA_NATURAL } from "../constants";
 import { useServiciosReproductivos } from "../hooks";
+import { ServicioReproductivo } from "../types";
 
-export default function ServicioReproductivoListPage() {
+interface Props {
+  tipoServicio: string;
+}
+
+export default function ServicioReproductivoListPage({ tipoServicio }: Props) {
+  const esIa = tipoServicio === TIPO_INSEMINACION_ARTIFICIAL;
+  const title = esIa ? "Inseminación Artificial" : "Monta Natural";
+  const crumb = esIa
+    ? breadcrumbs.serviciosReproductivosInseminacion
+    : breadcrumbs.serviciosReproductivosMontaNatural;
+
   const {
     servicios,
     loading,
@@ -17,8 +33,15 @@ export default function ServicioReproductivoListPage() {
     successMessage,
     setPage,
     updateFilters,
+    refresh,
+    showSuccess,
     clearSuccess,
-  } = useServiciosReproductivos();
+  } = useServiciosReproductivos({
+    initialFilters: { tipo_servicio: tipoServicio },
+  });
+
+  const [servicioGestacion, setServicioGestacion] = useState<ServicioReproductivo | null>(null);
+  const [servicioParto, setServicioParto] = useState<ServicioReproductivo | null>(null);
 
   if (loading && servicios.length === 0) {
     return <div>Cargando servicios reproductivos...</div>;
@@ -28,15 +51,10 @@ export default function ServicioReproductivoListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Servicios Reproductivos
-          </h1>
-          <PageBreadCrumb
-            pageTitle="Servicios Reproductivos"
-            items={breadcrumbs.serviciosReproductivos}
-          />
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{title}</h1>
+          <PageBreadCrumb pageTitle={title} items={crumb} />
         </div>
-        <ServicioReproductivoToolbar />
+        <ServicioReproductivoToolbar tipoServicio={tipoServicio} />
       </div>
 
       {successMessage && (
@@ -54,9 +72,48 @@ export default function ServicioReproductivoListPage() {
         </div>
       )}
 
-      <ServicioReproductivoFiltersBar filters={filters} onChange={updateFilters} />
+      <ServicioReproductivoFiltersBar
+        filters={filters}
+        onChange={(partial) => updateFilters({ ...partial, tipo_servicio: tipoServicio })}
+        ocultarTipo
+      />
 
-      <ServicioReproductivoTable servicios={servicios} meta={meta} onPageChange={setPage} />
+      <ServicioReproductivoTable
+        servicios={servicios}
+        meta={meta}
+        onPageChange={setPage}
+        mostrarTipo={false}
+        onConfirmarGestacion={setServicioGestacion}
+        onRegistrarParto={setServicioParto}
+      />
+
+      <ConfirmarGestacionModal
+        isOpen={Boolean(servicioGestacion)}
+        servicio={servicioGestacion}
+        onClose={() => setServicioGestacion(null)}
+        onSaved={(message) => {
+          showSuccess(message);
+          refresh();
+        }}
+      />
+
+      <RegistrarPartoNacimientoModal
+        isOpen={Boolean(servicioParto)}
+        servicio={servicioParto}
+        onClose={() => setServicioParto(null)}
+        onSaved={(message) => {
+          showSuccess(message);
+          refresh();
+        }}
+      />
     </div>
   );
+}
+
+export function MontaNaturalListPage() {
+  return <ServicioReproductivoListPage tipoServicio={TIPO_MONTA_NATURAL} />;
+}
+
+export function InseminacionArtificialListPage() {
+  return <ServicioReproductivoListPage tipoServicio={TIPO_INSEMINACION_ARTIFICIAL} />;
 }

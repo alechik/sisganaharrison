@@ -15,11 +15,20 @@ import {
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 
+type NavSubItem = {
+  name: string;
+  path?: string;
+  pro?: boolean;
+  new?: boolean;
+  children?: { name: string; path: string }[];
+};
+
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  matchPrefix?: string;
+  subItems?: NavSubItem[];
 };
 
 const navItems: NavItem[] = [
@@ -111,22 +120,20 @@ const navItems: NavItem[] = [
   {
     icon: <HeartIcon />,
     name: "Reproducción",
+    matchPrefix: "/servicios-reproductivos",
     subItems: [
       {
-        name: "Servicios Reproductivos",
-        path: "/servicios-reproductivos",
-      },
-      {
-        name: "Gestaciones",
-        path: "/gestaciones",
-      },
-      {
-        name: "Partos",
-        path: "/partos",
-      },
-      {
-        name: "Nacimientos",
-        path: "/nacimientos",
+        name: "Servicio Reproductivo",
+        children: [
+          {
+            name: "Monta Natural",
+            path: "/servicios-reproductivos/monta-natural",
+          },
+          {
+            name: "Inseminación Artificial",
+            path: "/servicios-reproductivos/inseminacion-artificial",
+          },
+        ],
       },
     ],
   },
@@ -264,9 +271,9 @@ const AppSidebar: React.FC = () => {
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
-    (path: string) => location.pathname === path,
+    (path: string) =>
+      location.pathname === path || location.pathname.startsWith(`${path}/`),
     [location.pathname]
   );
 
@@ -275,9 +282,17 @@ const AppSidebar: React.FC = () => {
     ["main", "others"].forEach((menuType) => {
       const items = menuType === "main" ? navItems : othersItems;
       items.forEach((nav, index) => {
+        if (nav.matchPrefix && location.pathname.startsWith(nav.matchPrefix)) {
+          setOpenSubmenu({
+            type: menuType as "main" | "others",
+            index,
+          });
+          submenuMatched = true;
+        }
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
-            if (isActive(subItem.path)) {
+            const childMatch = subItem.children?.some((child) => isActive(child.path));
+            if ((subItem.path && isActive(subItem.path)) || childMatch) {
               setOpenSubmenu({
                 type: menuType as "main" | "others",
                 index,
@@ -392,37 +407,62 @@ const AppSidebar: React.FC = () => {
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((subItem) => (
                   <li key={subItem.name}>
-                    <Link
-                      to={subItem.path}
-                      className={`menu-dropdown-item ${isActive(subItem.path)
-                        ? "menu-dropdown-item-active"
-                        : "menu-dropdown-item-inactive"
-                        }`}
-                    >
-                      {subItem.name}
-                      <span className="flex items-center gap-1 ml-auto">
-                        {subItem.new && (
-                          <span
-                            className={`ml-auto ${isActive(subItem.path)
-                              ? "menu-dropdown-badge-active"
-                              : "menu-dropdown-badge-inactive"
-                              } menu-dropdown-badge`}
-                          >
-                            new
+                    {subItem.children ? (
+                      <div>
+                        <span className="menu-dropdown-item menu-dropdown-item-inactive cursor-default">
+                          {subItem.name}
+                        </span>
+                        <ul className="mt-1 space-y-1 ml-3">
+                          {subItem.children.map((child) => (
+                            <li key={child.path}>
+                              <Link
+                                to={child.path}
+                                className={`menu-dropdown-item ${isActive(child.path)
+                                  ? "menu-dropdown-item-active"
+                                  : "menu-dropdown-item-inactive"
+                                  }`}
+                              >
+                                {child.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      subItem.path && (
+                        <Link
+                          to={subItem.path}
+                          className={`menu-dropdown-item ${isActive(subItem.path)
+                            ? "menu-dropdown-item-active"
+                            : "menu-dropdown-item-inactive"
+                            }`}
+                        >
+                          {subItem.name}
+                          <span className="flex items-center gap-1 ml-auto">
+                            {subItem.new && (
+                              <span
+                                className={`ml-auto ${isActive(subItem.path)
+                                  ? "menu-dropdown-badge-active"
+                                  : "menu-dropdown-badge-inactive"
+                                  } menu-dropdown-badge`}
+                              >
+                                new
+                              </span>
+                            )}
+                            {subItem.pro && (
+                              <span
+                                className={`ml-auto ${isActive(subItem.path)
+                                  ? "menu-dropdown-badge-active"
+                                  : "menu-dropdown-badge-inactive"
+                                  } menu-dropdown-badge`}
+                              >
+                                pro
+                              </span>
+                            )}
                           </span>
-                        )}
-                        {subItem.pro && (
-                          <span
-                            className={`ml-auto ${isActive(subItem.path)
-                              ? "menu-dropdown-badge-active"
-                              : "menu-dropdown-badge-inactive"
-                              } menu-dropdown-badge`}
-                          >
-                            pro
-                          </span>
-                        )}
-                      </span>
-                    </Link>
+                        </Link>
+                      )
+                    )}
                   </li>
                 ))}
               </ul>

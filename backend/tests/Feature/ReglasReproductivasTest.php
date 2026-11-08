@@ -61,7 +61,7 @@ class ReglasReproductivasTest extends TestCase
         ]);
     }
 
-    public function test_parto_exitoso_exige_ventana_de_gestacion(): void
+    public function test_parto_fuera_del_intervalo_estimado_se_registra(): void
     {
         Sanctum::actingAs($this->userWithPermissions(['reproduccion.create']));
         $servicio = $this->servicioPrenada(now()->subDays(30)->toDateString());
@@ -72,25 +72,6 @@ class ReglasReproductivasTest extends TestCase
             'estado' => Gestacion::ESTADO_ACTIVA,
         ]);
 
-        $this->expectException(ValidationException::class);
-        app(PartoService::class)->create([
-            'gestacion_id' => $gestacion->id,
-            'fecha_parto' => now()->toDateString(),
-        ]);
-    }
-
-    public function test_parto_exitoso_dentro_de_8_5_a_9_5_meses(): void
-    {
-        Sanctum::actingAs($this->userWithPermissions(['reproduccion.create']));
-        $fechaServicio = now()->subDays(283)->toDateString();
-        $servicio = $this->servicioPrenada($fechaServicio);
-        $gestacion = app(GestacionService::class)->create([
-            'servicio_id' => $servicio->id,
-            'fecha_confirmacion' => now()->subDays(250)->toDateString(),
-            'fecha_probable_parto' => now()->toDateString(),
-            'estado' => Gestacion::ESTADO_ACTIVA,
-        ]);
-
         $parto = app(PartoService::class)->create([
             'gestacion_id' => $gestacion->id,
             'fecha_parto' => now()->toDateString(),
@@ -98,6 +79,26 @@ class ReglasReproductivasTest extends TestCase
 
         $this->assertSame(now()->toDateString(), $parto->fecha_parto->format('Y-m-d'));
         $this->assertSame(Gestacion::ESTADO_FINALIZADA, $gestacion->fresh()->estado);
+    }
+
+    public function test_parto_con_fecha_futura_se_registra(): void
+    {
+        Sanctum::actingAs($this->userWithPermissions(['reproduccion.create']));
+        $servicio = $this->servicioPrenada(now()->subDays(10)->toDateString());
+        $gestacion = app(GestacionService::class)->create([
+            'servicio_id' => $servicio->id,
+            'fecha_confirmacion' => now()->subDays(5)->toDateString(),
+            'fecha_probable_parto' => now()->addMonths(9)->toDateString(),
+            'estado' => Gestacion::ESTADO_ACTIVA,
+        ]);
+
+        $fechaFutura = now()->addDays(20)->toDateString();
+        $parto = app(PartoService::class)->create([
+            'gestacion_id' => $gestacion->id,
+            'fecha_parto' => $fechaFutura,
+        ]);
+
+        $this->assertSame($fechaFutura, $parto->fecha_parto->format('Y-m-d'));
     }
 
     public function test_gestacion_abortada_no_genera_parto(): void
@@ -118,10 +119,13 @@ class ReglasReproductivasTest extends TestCase
         ]);
     }
 
-    public function test_constantes_de_ventana_bovina(): void
+    public function test_fecha_probable_informativa_usa_media_bovina(): void
     {
-        $this->assertSame(259, ReglasReproductivas::GESTACION_EXITOSA_MIN_DIAS);
-        $this->assertSame(289, ReglasReproductivas::GESTACION_EXITOSA_MAX_DIAS);
+        $this->assertSame(283, ReglasReproductivas::DIAS_GESTACION_MEDIA);
+        $this->assertSame(
+            now()->addDays(283)->toDateString(),
+            ReglasReproductivas::fechaProbableParto(now()->toDateString())
+        );
     }
 
     /**

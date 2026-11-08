@@ -9,6 +9,31 @@ export interface ServicioReproductivoInsumo {
   cantidad: number;
 }
 
+export interface ServicioReproductivoNacimientoResumen {
+  id: number;
+  estado_nacimiento: string;
+  sexo: string;
+  arete: string | null;
+  animal_id: number | null;
+}
+
+export interface ServicioReproductivoPartoResumen {
+  id: number;
+  fecha_parto: string | null;
+  estado: string;
+  observaciones: string | null;
+  nacimiento: ServicioReproductivoNacimientoResumen | null;
+}
+
+export interface ServicioReproductivoGestacion {
+  id: number;
+  estado: string;
+  fecha_confirmacion: string | null;
+  fecha_probable_parto: string | null;
+  observaciones: string | null;
+  parto: ServicioReproductivoPartoResumen | null;
+}
+
 export interface ServicioReproductivo {
   id: number;
   codigo_servicio?: string | null;
@@ -26,6 +51,7 @@ export interface ServicioReproductivo {
   observaciones: string | null;
   total?: number;
   inventario_aplicado_at?: string | null;
+  gestacion?: ServicioReproductivoGestacion | null;
   insumos?: ServicioReproductivoInsumo[];
   created_at?: string | null;
   updated_at?: string | null;
@@ -46,6 +72,35 @@ export interface ServicioReproductivoCreateRequest {
 }
 
 export interface ServicioReproductivoUpdateRequest extends ServicioReproductivoCreateRequest {}
+
+export interface ConfirmarGestacionRequest {
+  fecha_confirmacion: string;
+  fecha_probable_parto?: string | null;
+  observaciones?: string | null;
+}
+
+export interface RegistrarPartoNacimientoRequest {
+  fecha_parto: string;
+  observaciones?: string | null;
+  nacimiento: {
+    sexo: string;
+    peso_nacimiento?: number | null;
+    estado_nacimiento: string;
+    causa_muerte?: string | null;
+    observaciones?: string | null;
+    arete?: string | null;
+    animal?: {
+      arete?: string | null;
+      nombre?: string | null;
+      raza_id?: number | null;
+      estado_productivo_id?: number | null;
+      lote_id?: number | null;
+      grupo_id?: number | null;
+      color?: string | null;
+      observaciones?: string | null;
+    } | null;
+  };
+}
 
 export interface ServicioReproductivoListParams {
   page?: number;

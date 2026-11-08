@@ -780,6 +780,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('servicios-reproductivos/{servicio_reproductivo}/pdf', [ServicioReproductivoController::class, 'pdf'])
         ->middleware('permission:reproduccion.view');
+
+    Route::post('servicios-reproductivos/{servicio_reproductivo}/confirmar-gestacion', [ServicioReproductivoController::class, 'confirmarGestacion'])
+        ->middleware('permission:reproduccion.create');
+
+    Route::post('servicios-reproductivos/{servicio_reproductivo}/registrar-parto', [ServicioReproductivoController::class, 'registrarParto'])
+        ->middleware('permission:reproduccion.create');
 });
 
 /*

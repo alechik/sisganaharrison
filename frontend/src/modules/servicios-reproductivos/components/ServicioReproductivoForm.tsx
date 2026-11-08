@@ -14,9 +14,16 @@ import {
   useReproduccionAnimalOptions,
   useUpdateServicioReproductivo,
 } from "../hooks";
-import { RESULTADOS_SERVICIO, SERVICIO_REPRODUCTIVO_ROUTES, TIPOS_SERVICIO } from "../constants";
+import {
+  RESULTADOS_SERVICIO,
+  SERVICIO_REPRODUCTIVO_ROUTES,
+  TIPO_INSEMINACION_ARTIFICIAL,
+  TIPO_MONTA_NATURAL,
+  TIPOS_SERVICIO,
+} from "../constants";
 import { getServicioReproductivo } from "../services";
 import { ServicioReproductivoCreateRequest } from "../types";
+import { getTipoServicioLabel } from "../utils";
 import { hoyISO, validarFechaServicio } from "@/utils/reglasReproductivas";
 
 interface InsumoLine {
@@ -27,28 +34,35 @@ interface InsumoLine {
 
 interface Props {
   servicioId?: number;
+  tipoServicioFijo?: string;
 }
 
-const emptyForm: ServicioReproductivoCreateRequest = {
+const emptyForm = (tipoServicio = ""): ServicioReproductivoCreateRequest => ({
   hembra_id: 0,
   macho_id: null,
   fecha_servicio: "",
-  tipo_servicio: "",
+  tipo_servicio: tipoServicio,
   resultado: null,
   observaciones: "",
-};
+});
 
-export default function ServicioReproductivoForm({ servicioId }: Props) {
+export default function ServicioReproductivoForm({ servicioId, tipoServicioFijo }: Props) {
   const navigate = useNavigate();
   const isEdit = Boolean(servicioId);
+  const esIa = (tipoServicioFijo ?? "") === TIPO_INSEMINACION_ARTIFICIAL;
+  const esMonta = (tipoServicioFijo ?? "") === TIPO_MONTA_NATURAL;
 
   const { create, loading: creating, error: createError, setError: setCreateError } =
     useCreateServicioReproductivo();
   const { update, loading: updating, error: updateError, setError: setUpdateError } =
     useUpdateServicioReproductivo();
 
-  const [form, setForm] = useState<ServicioReproductivoCreateRequest>(emptyForm);
-  const [insumos, setInsumos] = useState<InsumoLine[]>([]);
+  const [form, setForm] = useState<ServicioReproductivoCreateRequest>(
+    emptyForm(tipoServicioFijo ?? "")
+  );
+  const [insumos, setInsumos] = useState<InsumoLine[]>(
+    !isEdit && esIa ? [{ medicamento_id: 0, almacen_id: 0, cantidad: 1 }] : []
+  );
   const [inventarioAplicado, setInventarioAplicado] = useState(false);
   const [loading, setLoading] = useState(isEdit);
   const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
@@ -69,6 +83,8 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
 
   const saving = creating || updating;
   const error = createError || updateError;
+  const tipoActual = form.tipo_servicio || tipoServicioFijo || "";
+  const listPath = SERVICIO_REPRODUCTIVO_ROUTES.listByTipo(tipoActual);
 
   useEffect(() => {
     getMedicamentos({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" })
@@ -160,13 +176,29 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
       return;
     }
 
+    if (form.tipo_servicio === TIPO_MONTA_NATURAL && !form.macho_id) {
+      setValidationError("La monta natural requiere un macho.");
+      return;
+    }
+
     if (form.macho_id && form.macho_id === form.hembra_id) {
       setValidationError("La hembra y el macho no pueden ser el mismo animal.");
       return;
     }
 
+    if (form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL && !inventarioAplicado) {
+      if (insumos.length === 0) {
+        setValidationError("La inseminación artificial requiere el semen comprado (producto en frasco) y el almacén.");
+        return;
+      }
+    }
+
     if (insumos.some((item) => !item.medicamento_id || !item.almacen_id || item.cantidad < 1)) {
-      setValidationError("Cada insumo debe tener producto, almacén y cantidad.");
+      setValidationError(
+        form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL
+          ? "Debe seleccionar el semen (producto), el almacén y la cantidad."
+          : "Cada insumo debe tener producto, almacén y cantidad."
+      );
       return;
     }
 
@@ -195,6 +227,7 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
   }
 
   const displayError = validationError || error || optionsError;
+  const tipoBloqueado = Boolean(tipoServicioFijo) || isEdit;
 
   return (
     <form onSubmit={handleSubmit}>
@@ -222,12 +255,18 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
         </div>
 
         <div>
-          <Label>Macho (opcional)</Label>
+          <Label>{esMonta || form.tipo_servicio === TIPO_MONTA_NATURAL ? "Macho" : "Macho (opcional)"}</Label>
           <Select
             value={form.macho_id ? String(form.macho_id) : ""}
-            placeholder="Sin macho / seleccione un macho con arete"
+            placeholder={
+              esMonta || form.tipo_servicio === TIPO_MONTA_NATURAL
+                ? "Seleccione un macho con arete"
+                : "Sin macho / seleccione un macho con arete"
+            }
             options={[
-              { value: "", label: "Sin macho" },
+              ...(esMonta || form.tipo_servicio === TIPO_MONTA_NATURAL
+                ? []
+                : [{ value: "", label: "Sin macho" }]),
               ...machoOptions.filter((option) => Number(option.value) !== form.hembra_id),
             ]}
             onChange={(value) =>
@@ -255,20 +294,29 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
 
         <div>
           <Label>Tipo de servicio</Label>
-          <Select
-            value={form.tipo_servicio}
-            placeholder="Seleccione el tipo"
-            options={TIPOS_SERVICIO.map((item) => ({
-              value: item.value,
-              label: item.label,
-            }))}
-            onChange={(value) =>
-              setForm((current) => ({
-                ...current,
-                tipo_servicio: value,
-              }))
-            }
-          />
+          {tipoBloqueado ? (
+            <>
+              <InputField type="text" value={getTipoServicioLabel(form.tipo_servicio)} disabled />
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                El tipo queda fijado según el listado de origen.
+              </p>
+            </>
+          ) : (
+            <Select
+              value={form.tipo_servicio}
+              placeholder="Seleccione el tipo"
+              options={TIPOS_SERVICIO.map((item) => ({
+                value: item.value,
+                label: item.label,
+              }))}
+              onChange={(value) =>
+                setForm((current) => ({
+                  ...current,
+                  tipo_servicio: value,
+                }))
+              }
+            />
+          )}
         </div>
 
         <div>
@@ -304,7 +352,11 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
 
       <div className="mt-6 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-800 dark:text-white">Insumos utilizados</h3>
+          <h3 className="font-semibold text-gray-800 dark:text-white">
+            {esIa || form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL
+              ? "Semen utilizado (producto comprado en frasco)"
+              : "Insumos utilizados"}
+          </h3>
           {!inventarioAplicado && (
             <Button
               type="button"
@@ -312,17 +364,25 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
               variant="outline"
               onClick={() => setInsumos((current) => [...current, { medicamento_id: 0, almacen_id: 0, cantidad: 1 }])}
             >
-              + Insumo
+              {esIa || form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL ? "+ Semen" : "+ Insumo"}
             </Button>
           )}
         </div>
+        {(esIa || form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL) && (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Seleccione el semen del catálogo de productos y el almacén. El stock se descuenta cuando el
+            resultado deja de estar pendiente (al confirmar la gestación o al registrar preñez).
+          </p>
+        )}
         {inventarioAplicado && (
           <p className="text-sm text-gray-500">Los insumos ya consumieron inventario y no pueden modificarse.</p>
         )}
         {insumos.map((linea, index) => (
           <div key={index} className="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 p-4 dark:border-white/[0.05] md:grid-cols-4">
             <div>
-              <Label>Producto</Label>
+              <Label>
+                {esIa || form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL ? "Semen / producto" : "Producto"}
+              </Label>
               <Select
                 value={linea.medicamento_id ? String(linea.medicamento_id) : ""}
                 placeholder="Seleccione producto"
@@ -380,7 +440,7 @@ export default function ServicioReproductivoForm({ servicioId }: Props) {
           size="sm"
           variant="outline"
           type="button"
-          onClick={() => navigate(SERVICIO_REPRODUCTIVO_ROUTES.list)}
+          onClick={() => navigate(listPath)}
         >
           Cancelar
         </Button>

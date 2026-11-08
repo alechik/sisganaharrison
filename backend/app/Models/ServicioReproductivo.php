@@ -25,10 +25,16 @@ class ServicioReproductivo extends Model
     /** @use HasFactory<ServicioReproductivoFactory> */
     use HasFactory;
 
+    public const TIPO_MONTA_NATURAL = 'MONTA_NATURAL';
+
+    public const TIPO_INSEMINACION_ARTIFICIAL = 'INSEMINACION_ARTIFICIAL';
+
+    public const TIPO_TRANSFERENCIA_EMBRION = 'TRANSFERENCIA_EMBRION';
+
     public const TIPOS_SERVICIO = [
-        'MONTA_NATURAL',
-        'INSEMINACION_ARTIFICIAL',
-        'TRANSFERENCIA_EMBRION',
+        self::TIPO_MONTA_NATURAL,
+        self::TIPO_INSEMINACION_ARTIFICIAL,
+        self::TIPO_TRANSFERENCIA_EMBRION,
     ];
 
     public const RESULTADO_PENDIENTE = 'PENDIENTE';

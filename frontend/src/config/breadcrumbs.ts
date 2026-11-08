@@ -763,24 +763,48 @@ export const breadcrumbs = {
 
   serviciosReproductivos: [
     { title: "Reproducción" },
-    { title: "Servicios Reproductivos" },
+    { title: "Servicio Reproductivo" },
+  ],
+
+  serviciosReproductivosMontaNatural: [
+    { title: "Reproducción" },
+    { title: "Servicio Reproductivo" },
+    { title: "Monta Natural" },
+  ],
+
+  serviciosReproductivosInseminacion: [
+    { title: "Reproducción" },
+    { title: "Servicio Reproductivo" },
+    { title: "Inseminación Artificial" },
   ],
 
   servicioReproductivoCrear: [
     { title: "Reproducción" },
-    { title: "Servicios Reproductivos", path: "/servicios-reproductivos" },
+    { title: "Monta Natural", path: "/servicios-reproductivos/monta-natural" },
     { title: "Nuevo Servicio" },
+  ],
+
+  servicioReproductivoCrearMonta: [
+    { title: "Reproducción" },
+    { title: "Monta Natural", path: "/servicios-reproductivos/monta-natural" },
+    { title: "Nueva monta natural" },
+  ],
+
+  servicioReproductivoCrearInseminacion: [
+    { title: "Reproducción" },
+    { title: "Inseminación Artificial", path: "/servicios-reproductivos/inseminacion-artificial" },
+    { title: "Nueva inseminación" },
   ],
 
   servicioReproductivoEditar: [
     { title: "Reproducción" },
-    { title: "Servicios Reproductivos", path: "/servicios-reproductivos" },
+    { title: "Servicio Reproductivo", path: "/servicios-reproductivos/monta-natural" },
     { title: "Editar Servicio" },
   ],
 
   servicioReproductivoDetalle: [
     { title: "Reproducción" },
-    { title: "Servicios Reproductivos", path: "/servicios-reproductivos" },
+    { title: "Servicio Reproductivo", path: "/servicios-reproductivos/monta-natural" },
     { title: "Detalle" },
   ],
 

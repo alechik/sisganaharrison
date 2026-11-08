@@ -4,11 +4,15 @@ namespace App\Services\ServiciosReproductivos;
 
 use App\Models\Almacen;
 use App\Models\Animal;
+use App\Models\Gestacion;
 use App\Models\Medicamento;
 use App\Models\MovimientoInventario;
 use App\Models\ServicioReproductivo;
 use App\Services\Documentos\PdfGenerator;
+use App\Services\Gestaciones\GestacionService;
 use App\Services\Inventario\InventarioService;
+use App\Services\Nacimientos\NacimientoService;
+use App\Services\Partos\PartoService;
 use App\Support\ReglasReproductivas;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,11 +31,17 @@ class ServicioReproductivoService
         'usuario:id,nombre,apellido',
         'insumos.medicamento:id,codigo,nombre,precio',
         'insumos.almacen:id,nombre',
+        'gestacion:id,servicio_id,estado,fecha_confirmacion,fecha_probable_parto,observaciones',
+        'gestacion.parto:id,gestacion_id,fecha_parto,estado,observaciones',
+        'gestacion.parto.nacimientos:id,parto_id,estado_nacimiento,sexo,arete,animal_id',
     ];
 
     public function __construct(
         private readonly InventarioService $inventarioService,
-        private readonly PdfGenerator $pdfGenerator
+        private readonly PdfGenerator $pdfGenerator,
+        private readonly GestacionService $gestacionService,
+        private readonly PartoService $partoService,
+        private readonly NacimientoService $nacimientoService
     ) {}
 
     /**
@@ -57,6 +67,7 @@ class ServicioReproductivoService
     {
         $this->assertAnimalesValidos($data);
         $this->assertFechaServicio($data);
+        $this->assertReglasPorTipo($data);
         $insumos = $this->normalizeInsumos($data['insumos'] ?? []);
 
         return DB::transaction(function () use ($data, $insumos) {
@@ -84,6 +95,7 @@ class ServicioReproductivoService
     {
         $this->assertAnimalesValidos($data);
         $this->assertFechaServicio($data);
+        $this->assertReglasPorTipo($data, $servicio);
         $insumos = array_key_exists('insumos', $data)
             ? $this->normalizeInsumos($data['insumos'] ?? [])
             : null;
@@ -107,6 +119,98 @@ class ServicioReproductivoService
             $servicio->update($data);
             $servicio = $servicio->fresh(self::RELATIONS);
             $this->aplicarInventarioSiCorresponde($servicio);
+
+            return $servicio->fresh(self::RELATIONS);
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function confirmarGestacion(ServicioReproductivo $servicio, array $data): ServicioReproductivo
+    {
+        if (in_array($servicio->resultado, ['VACIA', 'ABORTO'], true)) {
+            throw ValidationException::withMessages([
+                'servicio_id' => 'No se puede confirmar gestación de un servicio con resultado VACÍA o ABORTO.',
+            ]);
+        }
+
+        $servicio->loadMissing('gestacion.parto');
+
+        if ($servicio->gestacion?->parto) {
+            throw ValidationException::withMessages([
+                'servicio_id' => 'Este servicio ya tiene un parto registrado. No se puede modificar la confirmación.',
+            ]);
+        }
+
+        $fechaConfirmacion = (string) $data['fecha_confirmacion'];
+        $fechaProbable = $data['fecha_probable_parto'] ?? null;
+        if ($fechaProbable === null || $fechaProbable === '') {
+            $fechaProbable = ReglasReproductivas::fechaProbableParto($fechaConfirmacion);
+        }
+
+        return DB::transaction(function () use ($servicio, $data, $fechaConfirmacion, $fechaProbable) {
+            if ($servicio->resultado !== ServicioReproductivo::RESULTADO_PRENADA) {
+                $this->update($servicio, [
+                    'hembra_id' => $servicio->hembra_id,
+                    'macho_id' => $servicio->macho_id,
+                    'fecha_servicio' => $servicio->fecha_servicio?->format('Y-m-d'),
+                    'tipo_servicio' => $servicio->tipo_servicio,
+                    'resultado' => ServicioReproductivo::RESULTADO_PRENADA,
+                    'observaciones' => $servicio->observaciones,
+                ]);
+                $servicio->refresh();
+            }
+
+            $payload = [
+                'servicio_id' => $servicio->id,
+                'fecha_confirmacion' => $fechaConfirmacion,
+                'fecha_probable_parto' => $fechaProbable,
+                'estado' => Gestacion::ESTADO_ACTIVA,
+                'observaciones' => $data['observaciones'] ?? null,
+            ];
+
+            if ($servicio->gestacion) {
+                $this->gestacionService->update($servicio->gestacion, $payload);
+            } else {
+                $this->gestacionService->create($payload);
+            }
+
+            return $servicio->fresh(self::RELATIONS);
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function registrarPartoYNacimiento(ServicioReproductivo $servicio, array $data): ServicioReproductivo
+    {
+        $servicio->loadMissing('gestacion.parto.nacimientos');
+        $gestacion = $servicio->gestacion;
+
+        if ($gestacion?->parto) {
+            throw ValidationException::withMessages([
+                'fecha_parto' => 'Ya existe un parto registrado para esta gestación.',
+            ]);
+        }
+
+        if (! $gestacion || ! $gestacion->esActiva()) {
+            throw ValidationException::withMessages([
+                'servicio_id' => 'Debe confirmar la gestación antes de registrar el parto.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($gestacion, $data, $servicio) {
+            $parto = $this->partoService->create([
+                'gestacion_id' => $gestacion->id,
+                'fecha_parto' => $data['fecha_parto'],
+                'observaciones' => $data['observaciones'] ?? null,
+            ]);
+
+            $nacimiento = is_array($data['nacimiento'] ?? null) ? $data['nacimiento'] : [];
+            $nacimiento['parto_id'] = $parto->id;
+            $this->nacimientoService->create($nacimiento);
+            $this->partoService->finalizar($parto);
 
             return $servicio->fresh(self::RELATIONS);
         });
@@ -200,6 +304,40 @@ class ServicioReproductivoService
     /**
      * @param  array<string, mixed>  $data
      */
+    private function assertReglasPorTipo(array $data, ?ServicioReproductivo $existente = null): void
+    {
+        $tipo = (string) ($data['tipo_servicio'] ?? $existente?->tipo_servicio ?? '');
+
+        if ($tipo === ServicioReproductivo::TIPO_MONTA_NATURAL && empty($data['macho_id'])) {
+            throw ValidationException::withMessages([
+                'macho_id' => 'La monta natural requiere un macho.',
+            ]);
+        }
+
+        if ($tipo !== ServicioReproductivo::TIPO_INSEMINACION_ARTIFICIAL) {
+            return;
+        }
+
+        if (array_key_exists('insumos', $data)) {
+            $insumos = $data['insumos'] ?? [];
+            if (! is_array($insumos) || $insumos === []) {
+                throw ValidationException::withMessages([
+                    'insumos' => 'La inseminación artificial requiere el semen (producto en frasco) y el almacén.',
+                ]);
+            }
+
+            return;
+        }
+
+        if ($existente && $existente->insumos()->exists()) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'insumos' => 'La inseminación artificial requiere el semen (producto en frasco) y el almacén.',
+        ]);
+    }
+
     /**
      * @param  array<string, mixed>  $data
      */

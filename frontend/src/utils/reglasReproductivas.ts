@@ -1,5 +1,4 @@
-export const GESTACION_EXITOSA_MIN_DIAS = 259;
-export const GESTACION_EXITOSA_MAX_DIAS = 289;
+export const DIAS_GESTACION_MEDIA = 283;
 
 export function hoyISO(): string {
   const fecha = new Date();
@@ -17,6 +16,15 @@ export function diasEntre(desde: string, hasta: string): number {
 
 export function esFechaFutura(fecha: string, hoy = hoyISO()): boolean {
   return Boolean(fecha) && fecha > hoy;
+}
+
+export function fechaProbableParto(fechaBase: string): string {
+  const fecha = new Date(`${fechaBase}T00:00:00`);
+  fecha.setDate(fecha.getDate() + DIAS_GESTACION_MEDIA);
+  const year = fecha.getFullYear();
+  const month = String(fecha.getMonth() + 1).padStart(2, "0");
+  const day = String(fecha.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 export function validarFechaServicio(fecha: string): string | null {
@@ -61,20 +69,11 @@ export function validarFechaPartoExitoso(params: {
   if (!fechaParto) {
     return "La fecha de parto es obligatoria.";
   }
-  if (esFechaFutura(fechaParto)) {
-    return "La fecha de parto no puede ser futura.";
-  }
   if (fechaServicio && fechaParto < fechaServicio) {
     return "La fecha de parto no puede ser anterior a la fecha del servicio.";
   }
   if (fechaConfirmacion && fechaParto < fechaConfirmacion) {
     return "La fecha de parto no puede ser anterior a la confirmación de gestación.";
-  }
-  if (fechaServicio) {
-    const dias = diasEntre(fechaServicio, fechaParto);
-    if (dias < GESTACION_EXITOSA_MIN_DIAS || dias > GESTACION_EXITOSA_MAX_DIAS) {
-      return "Un parto exitoso debe ocurrir entre 8,5 y 9,5 meses después del servicio (259 a 289 días). Los abortos o pérdidas se registran en la gestación.";
-    }
   }
   return null;
 }

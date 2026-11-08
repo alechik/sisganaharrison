@@ -201,6 +201,7 @@ class NacimientoService
             (int) $data['parto_id'],
             $existente?->parto_id
         );
+        $this->assertUnicoNacimientoPorParto((int) $data['parto_id'], $existente?->id);
         $this->assertFechasCoherentes((int) $data['parto_id']);
         $this->assertAreteUnico($data, $existente);
         $this->assertReglasEstadoNacimiento($data);
@@ -246,12 +247,6 @@ class NacimientoService
             return;
         }
 
-        ReglasReproductivas::assertFechaOcurrida(
-            'parto_id',
-            $parto->fecha_parto,
-            'No se puede registrar un nacimiento asociado a un parto con fecha futura.'
-        );
-
         $fechaServicio = $parto->gestacion?->servicio?->fecha_servicio;
         ReglasReproductivas::assertNoAnterior(
             'parto_id',
@@ -265,6 +260,20 @@ class NacimientoService
             $parto->gestacion?->fecha_confirmacion,
             'El parto asociado tiene una fecha anterior a la confirmación de gestación.'
         );
+    }
+
+    private function assertUnicoNacimientoPorParto(int $partoId, ?int $excludeId = null): void
+    {
+        $query = Nacimiento::query()->where('parto_id', $partoId);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        if ($query->exists()) {
+            throw ValidationException::withMessages([
+                'parto_id' => 'El parto ya tiene un nacimiento registrado. Un parto admite un solo nacimiento.',
+            ]);
+        }
     }
 
     private function assertPartoDisponibleParaNacimiento(int $partoId, ?int $partoActualId = null): void

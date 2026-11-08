@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api\ServiciosReproductivos;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ServiciosReproductivos\ConfirmarGestacionServicioRequest;
+use App\Http\Requests\ServiciosReproductivos\RegistrarPartoNacimientoServicioRequest;
 use App\Http\Requests\ServiciosReproductivos\StoreServicioReproductivoRequest;
 use App\Http\Requests\ServiciosReproductivos\UpdateServicioReproductivoRequest;
 use App\Http\Resources\ServiciosReproductivos\ServicioReproductivoResource;
+use App\Models\Parto;
 use App\Models\ServicioReproductivo;
 use App\Services\ServiciosReproductivos\ServicioReproductivoService;
 use Illuminate\Http\JsonResponse;
@@ -39,6 +42,7 @@ class ServicioReproductivoController extends Controller
             'usuario:id,nombre,apellido',
             'insumos.medicamento:id,codigo,nombre,precio',
             'insumos.almacen:id,nombre',
+            'gestacion.parto.nacimientos',
         ]);
 
         return new ServicioReproductivoResource($servicioReproductivo);
@@ -85,6 +89,54 @@ class ServicioReproductivoController extends Controller
             'message' => 'Servicio reproductivo actualizado correctamente',
             'data' => new ServicioReproductivoResource($servicio),
         ]);
+    }
+
+    public function confirmarGestacion(
+        ConfirmarGestacionServicioRequest $request,
+        ServicioReproductivo $servicioReproductivo
+    ): JsonResponse {
+        $this->authorize('create', ServicioReproductivo::class);
+
+        try {
+            $servicio = $this->servicioReproductivoService->confirmarGestacion(
+                $servicioReproductivo,
+                $request->validated()
+            );
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Gestación confirmada correctamente',
+            'data' => new ServicioReproductivoResource($servicio),
+        ]);
+    }
+
+    public function registrarParto(
+        RegistrarPartoNacimientoServicioRequest $request,
+        ServicioReproductivo $servicioReproductivo
+    ): JsonResponse {
+        $this->authorize('create', Parto::class);
+
+        try {
+            $servicio = $this->servicioReproductivoService->registrarPartoYNacimiento(
+                $servicioReproductivo,
+                $request->validated()
+            );
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Parto y nacimiento registrados correctamente',
+            'data' => new ServicioReproductivoResource($servicio),
+        ], 201);
     }
 
     public function pdf(ServicioReproductivo $servicioReproductivo): Response

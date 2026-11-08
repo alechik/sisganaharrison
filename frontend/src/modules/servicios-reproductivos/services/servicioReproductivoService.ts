@@ -1,6 +1,8 @@
 import api from "@/api/axios";
 import { PaginatedResponse } from "@/types/api";
 import {
+  ConfirmarGestacionRequest,
+  RegistrarPartoNacimientoRequest,
   ServicioReproductivo,
   ServicioReproductivoCreateRequest,
   ServicioReproductivoListParams,
@@ -79,6 +81,28 @@ export const updateServicioReproductivo = async (
 ) => {
   const response = await api.put<{ message: string; data: ServicioReproductivo }>(
     `/servicios-reproductivos/${id}`,
+    data
+  );
+  return response.data;
+};
+
+export const confirmarGestacionServicio = async (
+  id: number,
+  data: ConfirmarGestacionRequest
+) => {
+  const response = await api.post<{ message: string; data: ServicioReproductivo }>(
+    `/servicios-reproductivos/${id}/confirmar-gestacion`,
+    data
+  );
+  return response.data;
+};
+
+export const registrarPartoNacimientoServicio = async (
+  id: number,
+  data: RegistrarPartoNacimientoRequest
+) => {
+  const response = await api.post<{ message: string; data: ServicioReproductivo }>(
+    `/servicios-reproductivos/${id}/registrar-parto`,
     data
   );
   return response.data;

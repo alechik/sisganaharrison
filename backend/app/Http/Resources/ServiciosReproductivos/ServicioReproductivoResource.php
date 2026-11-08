@@ -32,6 +32,37 @@ class ServicioReproductivoResource extends JsonResource
             'observaciones' => $this->observaciones,
             'total' => $this->total !== null ? (float) $this->total : 0,
             'inventario_aplicado_at' => $this->inventario_aplicado_at?->toIso8601String(),
+            'gestacion' => $this->whenLoaded('gestacion', function () {
+                if (! $this->gestacion) {
+                    return null;
+                }
+
+                $parto = $this->gestacion->relationLoaded('parto') ? $this->gestacion->parto : null;
+                $nacimiento = $parto && $parto->relationLoaded('nacimientos')
+                    ? $parto->nacimientos->first()
+                    : null;
+
+                return [
+                    'id' => $this->gestacion->id,
+                    'estado' => $this->gestacion->estado,
+                    'fecha_confirmacion' => $this->gestacion->fecha_confirmacion?->format('Y-m-d'),
+                    'fecha_probable_parto' => $this->gestacion->fecha_probable_parto?->format('Y-m-d'),
+                    'observaciones' => $this->gestacion->observaciones,
+                    'parto' => $parto ? [
+                        'id' => $parto->id,
+                        'fecha_parto' => $parto->fecha_parto?->format('Y-m-d'),
+                        'estado' => $parto->estado,
+                        'observaciones' => $parto->observaciones,
+                        'nacimiento' => $nacimiento ? [
+                            'id' => $nacimiento->id,
+                            'estado_nacimiento' => $nacimiento->estado_nacimiento,
+                            'sexo' => $nacimiento->sexo,
+                            'arete' => $nacimiento->arete,
+                            'animal_id' => $nacimiento->animal_id,
+                        ] : null,
+                    ] : null,
+                ];
+            }),
             'insumos' => $this->whenLoaded('insumos', function () {
                 return $this->insumos->map(fn ($insumo) => [
                     'id' => $insumo->id,

@@ -13,9 +13,14 @@ import { ServicioReproductivoFilters, ServicioReproductivoSortDirection } from "
 interface Props {
   filters: ServicioReproductivoFilters;
   onChange: (partial: Partial<ServicioReproductivoFilters>) => void;
+  ocultarTipo?: boolean;
 }
 
-export default function ServicioReproductivoFiltersBar({ filters, onChange }: Props) {
+export default function ServicioReproductivoFiltersBar({
+  filters,
+  onChange,
+  ocultarTipo = false,
+}: Props) {
   const { hembraOptions, machoOptions } = useReproduccionAnimalOptions();
 
   return (
@@ -57,22 +62,24 @@ export default function ServicioReproductivoFiltersBar({ filters, onChange }: Pr
         />
       </div>
 
-      <div>
-        <Label>Tipo de servicio</Label>
-        <Select
-          value={filters.tipo_servicio ?? "all"}
-          placeholder="Todos"
-          options={[
-            { value: "all", label: "Todos" },
-            ...TIPOS_SERVICIO.map((item) => ({ value: item.value, label: item.label })),
-          ]}
-          onChange={(value) =>
-            onChange({
-              tipo_servicio: value === "all" ? undefined : value,
-            })
-          }
-        />
-      </div>
+      {!ocultarTipo && (
+        <div>
+          <Label>Tipo de servicio</Label>
+          <Select
+            value={filters.tipo_servicio ?? "all"}
+            placeholder="Todos"
+            options={[
+              { value: "all", label: "Todos" },
+              ...TIPOS_SERVICIO.map((item) => ({ value: item.value, label: item.label })),
+            ]}
+            onChange={(value) =>
+              onChange({
+                tipo_servicio: value === "all" ? undefined : value,
+              })
+            }
+          />
+        </div>
+      )}
 
       <div>
         <Label>Resultado</Label>

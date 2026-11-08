@@ -2,3 +2,5 @@ export { default as ServicioReproductivoFiltersBar } from "./ServicioReproductiv
 export { default as ServicioReproductivoForm } from "./ServicioReproductivoForm";
 export { default as ServicioReproductivoTable } from "./ServicioReproductivoTable";
 export { default as ServicioReproductivoToolbar } from "./ServicioReproductivoToolbar";
+export { default as ConfirmarGestacionModal } from "./ConfirmarGestacionModal";
+export { default as RegistrarPartoNacimientoModal } from "./RegistrarPartoNacimientoModal";

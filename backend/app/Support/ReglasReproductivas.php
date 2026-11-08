@@ -8,11 +8,8 @@ use Illuminate\Validation\ValidationException;
 
 class ReglasReproductivas
 {
-    /** 8,5 meses ≈ 259 días (mes promedio 30,44). */
-    public const GESTACION_EXITOSA_MIN_DIAS = 259;
-
-    /** 9,5 meses ≈ 289 días. */
-    public const GESTACION_EXITOSA_MAX_DIAS = 289;
+    /** Duración media bovina para estimar la fecha probable de parto (informativa). */
+    public const DIAS_GESTACION_MEDIA = 283;
 
     public static function assertFechaOcurrida(string $campo, mixed $fecha, string $mensaje): void
     {
@@ -45,23 +42,9 @@ class ReglasReproductivas
         return in_array($estado, [Gestacion::ESTADO_ABORTADA, Gestacion::ESTADO_PERDIDA], true);
     }
 
-    public static function assertVentanaPartoExitoso(mixed $fechaServicio, mixed $fechaParto): void
+    public static function fechaProbableParto(mixed $fechaBase): string
     {
-        $servicio = self::parseFecha($fechaServicio);
-        $parto = self::parseFecha($fechaParto);
-        $dias = (int) $servicio->diffInDays($parto, false);
-
-        if ($dias < 0) {
-            throw ValidationException::withMessages([
-                'fecha_parto' => 'La fecha de parto no puede ser anterior a la fecha del servicio reproductivo.',
-            ]);
-        }
-
-        if ($dias < self::GESTACION_EXITOSA_MIN_DIAS || $dias > self::GESTACION_EXITOSA_MAX_DIAS) {
-            throw ValidationException::withMessages([
-                'fecha_parto' => 'Un parto exitoso debe ocurrir entre 8,5 y 9,5 meses después del servicio (259 a 289 días). Los abortos o pérdidas se registran en la gestación, no como parto.',
-            ]);
-        }
+        return self::parseFecha($fechaBase)->addDays(self::DIAS_GESTACION_MEDIA)->toDateString();
     }
 
     public static function parseFecha(mixed $fecha): Carbon

@@ -175,12 +175,6 @@ class PartoService
             ]);
         }
 
-        ReglasReproductivas::assertFechaOcurrida(
-            'fecha_parto',
-            $fechaParto,
-            'La fecha de parto no puede ser futura.'
-        );
-
         $fechaServicio = $gestacion->servicio?->fecha_servicio;
         ReglasReproductivas::assertNoAnterior(
             'fecha_parto',
@@ -194,10 +188,6 @@ class PartoService
             $gestacion->fecha_confirmacion,
             'La fecha de parto no puede ser anterior a la confirmación de gestación.'
         );
-
-        if ($fechaServicio && $fechaParto) {
-            ReglasReproductivas::assertVentanaPartoExitoso($fechaServicio, $fechaParto);
-        }
     }
 
     private function assertGestacionExiste(int $gestacionId): void

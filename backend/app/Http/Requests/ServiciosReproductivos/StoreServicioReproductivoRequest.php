@@ -64,6 +64,29 @@ class StoreServicioReproductivoRequest extends FormRequest
             'fecha_servicio.before_or_equal' => 'La fecha de servicio no puede ser futura.',
             'tipo_servicio.in' => 'El tipo de servicio seleccionado no es válido.',
             'resultado.in' => 'El resultado seleccionado no es válido.',
+            'macho_id.required' => 'La monta natural requiere un macho.',
+            'insumos.required' => 'La inseminación artificial requiere el semen (producto en frasco) y el almacén.',
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $tipo = (string) $this->input('tipo_servicio');
+
+            if ($tipo === ServicioReproductivo::TIPO_MONTA_NATURAL && empty($this->input('macho_id'))) {
+                $validator->errors()->add('macho_id', 'La monta natural requiere un macho.');
+            }
+
+            if ($tipo === ServicioReproductivo::TIPO_INSEMINACION_ARTIFICIAL) {
+                $insumos = $this->input('insumos');
+                if (! is_array($insumos) || $insumos === []) {
+                    $validator->errors()->add(
+                        'insumos',
+                        'La inseminación artificial requiere seleccionar el semen comprado (producto) y el almacén.'
+                    );
+                }
+            }
+        });
     }
 }

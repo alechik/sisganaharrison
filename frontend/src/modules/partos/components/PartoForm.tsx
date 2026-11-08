@@ -10,7 +10,7 @@ import { useCreateParto, useGestacionOptions, useUpdateParto } from "../hooks";
 import { PARTO_ROUTES } from "../constants";
 import { getParto } from "../services";
 import { PartoCreateRequest } from "../types";
-import { hoyISO, validarFechaPartoExitoso } from "@/utils/reglasReproductivas";
+import { validarFechaPartoExitoso } from "@/utils/reglasReproductivas";
 
 interface Props {
   partoId?: number;
@@ -149,8 +149,9 @@ export default function PartoForm({ partoId }: Props) {
             }
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Solo gestaciones activas sin parto. Un parto es un resultado exitoso: debe ocurrir entre
-            8,5 y 9,5 meses después del servicio. Abortos o pérdidas se registran en la gestación.
+            Solo gestaciones activas sin parto. La fecha probable es informativa; el parto real debe
+            haber ocurrido entre 8,5 y 9,5 meses después del servicio. Abortos o pérdidas se
+            registran en la gestación.
           </p>
         </div>
 
@@ -160,7 +161,6 @@ export default function PartoForm({ partoId }: Props) {
             type="date"
             name="fecha_parto"
             value={form.fecha_parto}
-            max={hoyISO()}
             onChange={handleChange}
           />
         </div>

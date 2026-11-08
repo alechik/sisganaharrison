@@ -68,7 +68,7 @@ export default function ServicioReproductivoDetailPage() {
             PDF
           </Button>
           <Link
-            to={SERVICIO_REPRODUCTIVO_ROUTES.list}
+            to={SERVICIO_REPRODUCTIVO_ROUTES.listByTipo(servicio.tipo_servicio)}
             className="inline-flex items-center justify-center rounded-lg bg-white px-4 py-3 text-sm text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700"
           >
             Volver al listado
@@ -147,6 +147,53 @@ export default function ServicioReproductivoDetailPage() {
             </dd>
           </div>
         </dl>
+      </ComponentCard>
+
+      <ComponentCard title="Gestación, parto y nacimiento">
+        {!servicio.gestacion ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Aún no hay gestación confirmada para este servicio.
+          </p>
+        ) : (
+          <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <dt className="text-sm text-gray-500 dark:text-gray-400">Estado de gestación</dt>
+              <dd className="font-medium text-gray-800 dark:text-white/90">{servicio.gestacion.estado}</dd>
+            </div>
+            <div>
+              <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha de confirmación</dt>
+              <dd className="font-medium text-gray-800 dark:text-white/90">
+                {servicio.gestacion.fecha_confirmacion
+                  ? new Date(`${servicio.gestacion.fecha_confirmacion}T00:00:00`).toLocaleDateString("es-PY")
+                  : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha probable de parto</dt>
+              <dd className="font-medium text-gray-800 dark:text-white/90">
+                {servicio.gestacion.fecha_probable_parto
+                  ? new Date(`${servicio.gestacion.fecha_probable_parto}T00:00:00`).toLocaleDateString("es-PY")
+                  : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm text-gray-500 dark:text-gray-400">Parto</dt>
+              <dd className="font-medium text-gray-800 dark:text-white/90">
+                {servicio.gestacion.parto?.fecha_parto
+                  ? new Date(`${servicio.gestacion.parto.fecha_parto}T00:00:00`).toLocaleDateString("es-PY")
+                  : "Sin parto"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm text-gray-500 dark:text-gray-400">Nacimiento</dt>
+              <dd className="font-medium text-gray-800 dark:text-white/90">
+                {servicio.gestacion.parto?.nacimiento
+                  ? `${servicio.gestacion.parto.nacimiento.estado_nacimiento} — ${servicio.gestacion.parto.nacimiento.sexo}`
+                  : "Sin nacimiento"}
+              </dd>
+            </div>
+          </dl>
+        )}
       </ComponentCard>
 
       <ComponentCard title="Insumos asociados">

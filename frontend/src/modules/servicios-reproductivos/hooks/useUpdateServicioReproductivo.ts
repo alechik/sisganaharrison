@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { updateServicioReproductivo } from "../services";
 import { ServicioReproductivoUpdateRequest } from "../types";
+import { extractApiError } from "../utils";
 
 export const useUpdateServicioReproductivo = () => {
   const [loading, setLoading] = useState(false);
@@ -14,9 +15,7 @@ export const useUpdateServicioReproductivo = () => {
       const response = await updateServicioReproductivo(id, data);
       return response;
     } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "No se pudo actualizar el servicio reproductivo.";
+      const message = extractApiError(err, "No se pudo actualizar el servicio reproductivo.");
       setError(message);
       throw err;
     } finally {

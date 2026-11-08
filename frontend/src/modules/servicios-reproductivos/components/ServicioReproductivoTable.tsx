@@ -14,15 +14,46 @@ import { EyeIcon, PencilIcon } from "@/icons";
 import { SERVICIO_REPRODUCTIVO_ROUTES } from "../constants";
 import { SERVICIOS_REPRODUCTIVOS_PERMISSIONS } from "../permissions";
 import { ServicioReproductivo } from "../types";
-import { formatAnimalLabel, getResultadoLabel, getTipoServicioLabel } from "../utils";
+import {
+  formatAnimalLabel,
+  getResultadoLabel,
+  getTipoServicioLabel,
+  puedeConfirmarGestacion,
+  puedeRegistrarParto,
+} from "../utils";
 
 interface Props {
   servicios: ServicioReproductivo[];
   meta?: PaginationMeta;
   onPageChange?: (page: number) => void;
+  mostrarTipo?: boolean;
+  onConfirmarGestacion?: (servicio: ServicioReproductivo) => void;
+  onRegistrarParto?: (servicio: ServicioReproductivo) => void;
 }
 
-export default function ServicioReproductivoTable({ servicios, meta, onPageChange }: Props) {
+const gestacionLabel = (servicio: ServicioReproductivo): string => {
+  if (servicio.gestacion?.parto) {
+    return "Parto registrado";
+  }
+  if (servicio.gestacion?.estado === "ACTIVA") {
+    return "Gestación activa";
+  }
+  if (servicio.gestacion) {
+    return servicio.gestacion.estado;
+  }
+  return "Pendiente";
+};
+
+export default function ServicioReproductivoTable({
+  servicios,
+  meta,
+  onPageChange,
+  mostrarTipo = true,
+  onConfirmarGestacion,
+  onRegistrarParto,
+}: Props) {
+  const colSpan = mostrarTipo ? 7 : 6;
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
@@ -38,14 +69,19 @@ export default function ServicioReproductivoTable({ servicios, meta, onPageChang
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Fecha
               </TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Tipo
-              </TableCell>
+              {mostrarTipo && (
+                <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                  Tipo
+                </TableCell>
+              )}
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Resultado
               </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Gestación
+              </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-center text-gray-800 dark:text-white">
-                Opciones
+                Acciones
               </TableCell>
             </TableRow>
           </TableHeader>
@@ -53,7 +89,7 @@ export default function ServicioReproductivoTable({ servicios, meta, onPageChang
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {servicios.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={6}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={colSpan}>
                   No hay servicios reproductivos para mostrar.
                 </TableCell>
               </TableRow>
@@ -81,16 +117,22 @@ export default function ServicioReproductivoTable({ servicios, meta, onPageChang
                       : "—"}
                   </TableCell>
 
-                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {getTipoServicioLabel(servicio.tipo_servicio)}
-                  </TableCell>
+                  {mostrarTipo && (
+                    <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                      {getTipoServicioLabel(servicio.tipo_servicio)}
+                    </TableCell>
+                  )}
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
                     {getResultadoLabel(servicio.resultado)}
                   </TableCell>
 
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {gestacionLabel(servicio)}
+                  </TableCell>
+
                   <TableCell className="px-5 py-4">
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="flex flex-wrap items-center justify-center gap-2">
                       <PermissionGate permission={SERVICIOS_REPRODUCTIVOS_PERMISSIONS.view}>
                         <Link
                           to={SERVICIO_REPRODUCTIVO_ROUTES.detail(servicio.id)}
@@ -110,6 +152,30 @@ export default function ServicioReproductivoTable({ servicios, meta, onPageChang
                           <PencilIcon className="size-4" />
                         </Link>
                       </PermissionGate>
+
+                      {puedeConfirmarGestacion(servicio) && onConfirmarGestacion && (
+                        <PermissionGate permission={SERVICIOS_REPRODUCTIVOS_PERMISSIONS.create}>
+                          <button
+                            type="button"
+                            onClick={() => onConfirmarGestacion(servicio)}
+                            className="rounded-lg border border-gray-200 px-2 py-1 text-xs font-medium text-gray-700 transition hover:border-blue-200 hover:bg-blue-50 dark:border-white/[0.05] dark:text-gray-300 dark:hover:bg-white/[0.05]"
+                          >
+                            Confirmar gestación
+                          </button>
+                        </PermissionGate>
+                      )}
+
+                      {puedeRegistrarParto(servicio) && onRegistrarParto && (
+                        <PermissionGate permission={SERVICIOS_REPRODUCTIVOS_PERMISSIONS.create}>
+                          <button
+                            type="button"
+                            onClick={() => onRegistrarParto(servicio)}
+                            className="rounded-lg border border-gray-200 px-2 py-1 text-xs font-medium text-gray-700 transition hover:border-blue-200 hover:bg-blue-50 dark:border-white/[0.05] dark:text-gray-300 dark:hover:bg-white/[0.05]"
+                          >
+                            Registrar parto
+                          </button>
+                        </PermissionGate>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
