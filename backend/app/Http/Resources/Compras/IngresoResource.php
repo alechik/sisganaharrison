@@ -21,6 +21,15 @@ class IngresoResource extends JsonResource
             'descuento' => $this->descuento !== null ? (float) $this->descuento : 0,
             'total_peso' => $this->total_peso !== null ? (float) $this->total_peso : null,
             'monto_total' => $this->monto_total !== null ? (float) $this->monto_total : 0,
+            'tipo_ingreso_id' => $this->tipo_ingreso_id,
+            'tipo_ingreso_nombre' => $this->whenLoaded(
+                'tipoIngreso',
+                fn () => $this->tipoIngreso?->nombre
+            ),
+            'tipo_ingreso_codigo' => $this->whenLoaded(
+                'tipoIngreso',
+                fn () => $this->tipoIngreso?->codigo
+            ),
             'proveedor_id' => $this->proveedor_id,
             'proveedor_razon_social' => $this->whenLoaded(
                 'proveedor',
@@ -63,7 +72,10 @@ class IngresoResource extends JsonResource
                     'id' => $detalle->id,
                     'animal_id' => $detalle->animal_id,
                     'animal_codigo' => $detalle->animal?->codigo,
+                    'arete' => $detalle->animal?->arete,
                     'sexo' => $detalle->animal?->sexo,
+                    'color' => $detalle->animal?->color,
+                    'raza_nombre' => $detalle->animal?->raza?->nombre,
                     'categoria_codigo' => $detalle->animal?->categoria?->codigo,
                     'categoria_nombre' => $detalle->animal?->categoria?->nombre,
                     'edad' => $detalle->edad,

@@ -7,16 +7,24 @@
             <td><strong>Fecha de ingreso:</strong> {{ $ingreso->fecha_ingreso?->format('d/m/Y') }}</td>
         </tr>
         <tr>
-            <td><strong>Proveedor:</strong> {{ $ingreso->proveedor?->razon_social }}</td>
+            <td><strong>Tipo de ingreso:</strong> {{ $ingreso->tipoIngreso?->nombre ?: '—' }}</td>
+            <td><strong>Estado:</strong> Registrado</td>
+        </tr>
+        <tr>
+            <td><strong>Proveedor / persona:</strong> {{ $ingreso->proveedor?->razon_social ?: '—' }}</td>
             <td><strong>NIT:</strong> {{ $ingreso->proveedor?->nit ?: '—' }}</td>
         </tr>
         <tr>
-            <td><strong>Cuarentena de origen:</strong> {{ $ingreso->cuarentena?->cod_compra ?: '—' }}</td>
             <td><strong>Lote destino:</strong> {{ $ingreso->lote?->codigo ? $ingreso->lote->codigo.' — ' : '' }}{{ $ingreso->lote?->nombre }}</td>
+            <td><strong>Grupo:</strong> {{ $ingreso->grupo?->nombre ?: '—' }}</td>
         </tr>
         <tr>
             <td><strong>Usuario:</strong> {{ trim(($ingreso->creador?->nombre ?? '').' '.($ingreso->creador?->apellido ?? '')) }}</td>
-            <td><strong>Estado:</strong> Registrado</td>
+            <td>
+                @if ($ingreso->cuarentena)
+                    <strong>Cuarentena histórica:</strong> {{ $ingreso->cuarentena->cod_compra }}
+                @endif
+            </td>
         </tr>
         <tr>
             <td colspan="2"><strong>Observación general:</strong> {{ $ingreso->observaciones ?: '—' }}</td>
@@ -27,12 +35,13 @@
         <thead>
             <tr>
                 <th>Código</th>
+                <th>Arete</th>
                 <th>Sexo</th>
                 <th>Categoría</th>
+                <th>Raza</th>
                 <th class="text-right">Edad (meses)</th>
-                <th class="text-right">Peso cuarentena</th>
-                <th class="text-right">Peso ingreso</th>
-                <th class="text-right">Precio compra</th>
+                <th class="text-right">Peso (kg)</th>
+                <th class="text-right">Precio (Bs)</th>
                 <th>Observaciones</th>
             </tr>
         </thead>
@@ -44,10 +53,11 @@
                 @endphp
                 <tr>
                     <td>{{ $detalle->animal?->codigo ?: '—' }}</td>
+                    <td>{{ $detalle->animal?->arete ?: '—' }}</td>
                     <td>{{ $sexoLabel }}</td>
                     <td>{{ $detalle->animal?->categoria?->nombre ?: '—' }}</td>
+                    <td>{{ $detalle->animal?->raza?->nombre ?: '—' }}</td>
                     <td class="text-right">{{ $detalle->edad !== null ? $detalle->edad : '—' }}</td>
-                    <td class="text-right">{{ number_format((float) $detalle->peso_oc, 2, ',', '.') }}</td>
                     <td class="text-right">{{ number_format((float) $detalle->peso_ingreso, 2, ',', '.') }}</td>
                     <td class="text-right">{{ \App\Support\Money::format($detalle->precio_compra) }}</td>
                     <td>{{ $detalle->observaciones ?: '—' }}</td>
@@ -70,7 +80,7 @@
             <td class="text-right">{{ \App\Support\Money::format($ingreso->descuento) }}</td>
         </tr>
         <tr>
-            <td><strong>Monto total</strong></td>
+            <td><strong>Monto total (Bs)</strong></td>
             <td class="text-right"><strong>{{ \App\Support\Money::format($ingreso->monto_total) }}</strong></td>
         </tr>
     </table>

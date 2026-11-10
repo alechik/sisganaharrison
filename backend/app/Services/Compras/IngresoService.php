@@ -2,23 +2,31 @@
 
 namespace App\Services\Compras;
 
+use App\Models\Animal;
 use App\Models\AnimalEvento;
+use App\Models\CategoriaAnimal;
 use App\Models\Cuarentena;
 use App\Models\CuarentenaDetalle;
 use App\Models\DetalleIngreso;
 use App\Models\Grupo;
 use App\Models\Ingreso;
 use App\Models\Lote;
+use App\Models\Persona;
 use App\Models\Pesaje;
+use App\Models\Raza;
+use App\Models\TipoIngreso;
 use App\Services\Animales\AnimalService;
 use App\Services\Documentos\PdfGenerator;
 use App\Services\Pesajes\PesajeService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class IngresoService
 {
@@ -35,15 +43,18 @@ class IngresoService
         'creador:id,nombre,apellido',
         'lote:id,nombre,codigo',
         'grupo:id,nombre,lote_id',
+        'tipoIngreso:id,nombre,codigo,iniciales,requiere_proveedor',
         'cuarentena:id,cod_compra,estado,origen,proveedor_id,fecha_inicio,fecha_fin',
-        'detalles.animal:id,codigo,sexo,categoria_id,arete,nombre,edad_inicial,edad_actual,precio_kilo,lote_id',
+        'detalles.animal:id,codigo,sexo,categoria_id,raza_id,arete,nombre,edad_inicial,edad_actual,precio_kilo,lote_id,color',
         'detalles.animal.categoria:id,codigo,nombre',
+        'detalles.animal.raza:id,codigo,nombre',
     ];
 
     public function __construct(
         private readonly PdfGenerator $pdfGenerator,
         private readonly AnimalService $animalService,
-        private readonly PesajeService $pesajeService
+        private readonly PesajeService $pesajeService,
+        private readonly IngresoExcelService $excelService
     ) {}
 
     /**
@@ -62,7 +73,133 @@ class IngresoService
     }
 
     /**
-     * Cuarentenas COMPLETADO con animales aún no registrados en detalle_ingresos.
+     * @return array{filename: string, content: string, mime: string}
+     */
+    public function plantillaExcel(): array
+    {
+        return $this->excelService->plantilla();
+    }
+
+    /**
+     * @return array{filas: list<array<string, mixed>>, validas: int, con_errores: int}
+     */
+    public function previewExcel(UploadedFile $file): array
+    {
+        $crudas = $this->excelService->parse($file);
+        $filas = [];
+        $aretes = [];
+        $validas = 0;
+        $conErrores = 0;
+
+        foreach ($crudas as $cruda) {
+            $normalizada = $this->normalizarFilaExcel($cruda, $aretes);
+            if (($normalizada['errores'] ?? []) === []) {
+                $validas++;
+            } else {
+                $conErrores++;
+            }
+            $filas[] = $normalizada;
+        }
+
+        return [
+            'filas' => $filas,
+            'validas' => $validas,
+            'con_errores' => $conErrores,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function create(array $data): Ingreso
+    {
+        $tipo = TipoIngreso::query()
+            ->where('estado', true)
+            ->whereNull('deleted_at')
+            ->findOrFail((int) $data['tipo_ingreso_id']);
+
+        $this->assertProveedor($tipo, $data['proveedor_id'] ?? null);
+
+        if (! Lote::query()->whereKey((int) $data['lote_id'])->where('activo', true)->whereNull('deleted_at')->exists()) {
+            throw ValidationException::withMessages([
+                'lote_id' => 'El lote seleccionado no existe o no está activo.',
+            ]);
+        }
+
+        $grupoId = isset($data['grupo_id']) && $data['grupo_id'] !== '' ? (int) $data['grupo_id'] : null;
+        if ($grupoId === null) {
+            throw ValidationException::withMessages([
+                'grupo_id' => 'Debe seleccionar un grupo perteneciente al lote.',
+            ]);
+        }
+        Grupo::assertCompatibleConLote($grupoId, (int) $data['lote_id']);
+
+        $detalles = $this->normalizeDetallesFisicos($data['detalles'] ?? []);
+
+        return DB::transaction(function () use ($data, $tipo, $detalles, $grupoId) {
+            $ingreso = Ingreso::query()->create([
+                'codigo' => $this->nextCodigo($tipo),
+                'tipo_ingreso_id' => $tipo->id,
+                'proveedor_id' => isset($data['proveedor_id']) && $data['proveedor_id'] !== ''
+                    ? (int) $data['proveedor_id']
+                    : null,
+                'user_id' => Auth::id(),
+                'cuarentena_id' => null,
+                'lote_id' => (int) $data['lote_id'],
+                'grupo_id' => $grupoId,
+                'fecha_ingreso' => $data['fecha_ingreso'],
+                'estado' => Ingreso::ESTADO_REGISTRADO,
+                'observaciones' => $data['observaciones'] ?? null,
+                'descuento' => (float) ($data['descuento'] ?? 0),
+                'total_peso' => 0,
+                'monto_total' => 0,
+            ]);
+
+            foreach ($detalles as $index => $linea) {
+                $animal = $this->animalService->crearDesdeIngresoFisico(
+                    $linea,
+                    (int) $data['lote_id'],
+                    $grupoId,
+                    (string) $data['fecha_ingreso'],
+                    $index
+                );
+
+                $ingreso->detalles()->create([
+                    'animal_id' => $animal->id,
+                    'observaciones' => $linea['observaciones'] ?? null,
+                    'peso_oc' => (float) $linea['peso_ingreso'],
+                    'peso_ingreso' => (float) $linea['peso_ingreso'],
+                    'precio_compra' => (float) ($linea['precio_compra'] ?? 0),
+                    'edad' => (int) $linea['edad'],
+                ]);
+
+                AnimalEvento::query()->create([
+                    'animal_id' => $animal->id,
+                    'tipo' => AnimalEvento::TIPO_INGRESO,
+                    'fecha' => $data['fecha_ingreso'],
+                    'descripcion' => 'Ingreso físico '.$ingreso->codigo.' ('.$tipo->nombre.')',
+                    'metadata' => [
+                        'ingreso_id' => $ingreso->id,
+                        'ingreso_codigo' => $ingreso->codigo,
+                        'tipo_ingreso_id' => $tipo->id,
+                        'tipo_ingreso' => $tipo->codigo,
+                        'lote_id' => (int) $data['lote_id'],
+                        'grupo_id' => $grupoId,
+                        'peso_ingreso' => (float) $linea['peso_ingreso'],
+                        'precio_compra' => (float) ($linea['precio_compra'] ?? 0),
+                    ],
+                ]);
+            }
+
+            $this->recalculateTotals($ingreso);
+            $this->pesajeService->registrarDeIngreso($ingreso->load('detalles'));
+
+            return $ingreso->fresh(self::RELATIONS);
+        });
+    }
+
+    /**
+     * Cuarentenas COMPLETADO con animales aún no registrados. Conservado para historial.
      *
      * @return \Illuminate\Support\Collection<int, Cuarentena>
      */
@@ -154,101 +291,6 @@ class IngresoService
         ];
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function create(array $data): Ingreso
-    {
-        $cuarentena = Cuarentena::query()->with(['detalles.animal', 'detalles.categoria'])->findOrFail((int) $data['cuarentena_id']);
-        $this->assertCompletada($cuarentena);
-
-        if (! Lote::query()->whereKey((int) $data['lote_id'])->where('activo', true)->whereNull('deleted_at')->exists()) {
-            throw ValidationException::withMessages([
-                'lote_id' => 'El lote seleccionado no existe o no está activo.',
-            ]);
-        }
-
-        $grupoId = isset($data['grupo_id']) && $data['grupo_id'] !== '' ? (int) $data['grupo_id'] : null;
-        Grupo::assertCompatibleConLote($grupoId, (int) $data['lote_id']);
-
-        $seleccion = $this->normalizeDetalles($cuarentena, $data['detalles'] ?? []);
-
-        return DB::transaction(function () use ($data, $cuarentena, $seleccion, $grupoId) {
-            $ingreso = Ingreso::query()->create([
-                'codigo' => $this->nextCodigo(),
-                'proveedor_id' => $cuarentena->proveedor_id,
-                'user_id' => Auth::id(),
-                'cuarentena_id' => $cuarentena->id,
-                'lote_id' => (int) $data['lote_id'],
-                'grupo_id' => $grupoId,
-                'fecha_ingreso' => $data['fecha_ingreso'],
-                'estado' => Ingreso::ESTADO_REGISTRADO,
-                'observaciones' => $data['observaciones'] ?? null,
-                'descuento' => (float) ($data['descuento'] ?? 0),
-                'total_peso' => 0,
-                'monto_total' => 0,
-            ]);
-
-            foreach ($seleccion as $linea) {
-                $detalleCuarentena = $linea['detalle'];
-                $animal = $detalleCuarentena->animal;
-                $payload = $linea['payload'];
-
-                $ingreso->detalles()->create([
-                    'animal_id' => $animal->id,
-                    'observaciones' => $payload['observaciones'] ?? null,
-                    'peso_oc' => (float) $detalleCuarentena->peso,
-                    'peso_ingreso' => (float) $payload['peso_ingreso'],
-                    'precio_compra' => (float) $detalleCuarentena->precio,
-                    'edad' => $detalleCuarentena->edad ?? $animal->edad_inicial,
-                ]);
-
-                $precioKilo = $this->calcularPrecioKilo(
-                    (float) $detalleCuarentena->precio,
-                    (float) $payload['peso_ingreso']
-                );
-
-                $ficha = $payload['animal'] ?? [];
-                $ficha['grupo_id'] = $grupoId;
-                $this->animalService->completarDesdeIngreso(
-                    $animal,
-                    $ficha,
-                    (int) $data['lote_id'],
-                    (string) $data['fecha_ingreso'],
-                    $precioKilo
-                );
-
-                $this->pesajeService->registrarHistorico(
-                    $animal,
-                    $cuarentena->fecha_inicio?->format('Y-m-d') ?? $cuarentena->created_at?->toDateString() ?? (string) $data['fecha_ingreso'],
-                    (float) $detalleCuarentena->peso,
-                    Pesaje::OBSERVACION_CUARENTENA
-                );
-
-                AnimalEvento::query()->create([
-                    'animal_id' => $animal->id,
-                    'tipo' => AnimalEvento::TIPO_INGRESO,
-                    'fecha' => $data['fecha_ingreso'],
-                    'descripcion' => 'Ingreso al inventario desde cuarentena '.$cuarentena->cod_compra,
-                    'metadata' => [
-                        'ingreso_id' => $ingreso->id,
-                        'ingreso_codigo' => $ingreso->codigo,
-                        'cuarentena_id' => $cuarentena->id,
-                        'lote_id' => (int) $data['lote_id'],
-                        'peso_oc' => (float) $detalleCuarentena->peso,
-                        'peso_ingreso' => (float) $payload['peso_ingreso'],
-                        'precio_kilo' => $precioKilo,
-                    ],
-                ]);
-            }
-
-            $this->recalculateTotals($ingreso);
-            $this->pesajeService->registrarDeIngreso($ingreso->load('detalles'));
-
-            return $ingreso->fresh(self::RELATIONS);
-        });
-    }
-
     public function pdf(Ingreso $ingreso): Response
     {
         $ingreso->load(array_merge(self::RELATIONS, [
@@ -265,6 +307,17 @@ class IngresoService
         );
     }
 
+    public function descargarPlantilla(): StreamedResponse
+    {
+        $plantilla = $this->plantillaExcel();
+
+        return response()->streamDownload(function () use ($plantilla) {
+            echo $plantilla['content'];
+        }, $plantilla['filename'], [
+            'Content-Type' => $plantilla['mime'],
+        ]);
+    }
+
     /**
      * @param  array<string, mixed>  $filters
      * @return Builder<Ingreso>
@@ -279,6 +332,10 @@ class IngresoService
 
         if (! empty($filters['proveedor_id'])) {
             $query->where('proveedor_id', (int) $filters['proveedor_id']);
+        }
+
+        if (! empty($filters['tipo_ingreso_id'])) {
+            $query->where('tipo_ingreso_id', (int) $filters['tipo_ingreso_id']);
         }
 
         if (! empty($filters['cuarentena_id'])) {
@@ -310,10 +367,10 @@ class IngresoService
         return $query->orderBy($sortBy, $sortDir);
     }
 
-    private function nextCodigo(): string
+    private function nextCodigo(TipoIngreso $tipo): string
     {
-        $year = now()->year;
-        $prefix = "ING-{$year}-";
+        TipoIngreso::query()->whereKey($tipo->id)->lockForUpdate()->first();
+        $prefix = $tipo->prefijoCodigo();
 
         $ultimo = Ingreso::query()
             ->where('codigo', 'like', $prefix.'%')
@@ -322,18 +379,35 @@ class IngresoService
             ->value('codigo');
 
         $secuencia = 1;
-        if ($ultimo && preg_match('/ING-\d{4}-(\d+)/', $ultimo, $matches)) {
+        if ($ultimo && preg_match('/^'.preg_quote($prefix, '/').'(\d+)$/', $ultimo, $matches)) {
             $secuencia = ((int) $matches[1]) + 1;
         }
 
-        return $prefix.str_pad((string) $secuencia, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad((string) $secuencia, 6, '0', STR_PAD_LEFT);
+    }
+
+    private function assertProveedor(TipoIngreso $tipo, mixed $proveedorId): void
+    {
+        $id = $proveedorId === '' || $proveedorId === null ? null : (int) $proveedorId;
+
+        if ($tipo->esCompra() && $id === null) {
+            throw ValidationException::withMessages([
+                'proveedor_id' => 'Debe seleccionar el proveedor o persona relacionada para este tipo de ingreso.',
+            ]);
+        }
+
+        if ($id !== null && ! Persona::query()->whereKey($id)->whereNull('deleted_at')->exists()) {
+            throw ValidationException::withMessages([
+                'proveedor_id' => 'La persona seleccionada no existe.',
+            ]);
+        }
     }
 
     private function assertCompletada(Cuarentena $cuarentena): void
     {
         if (! $cuarentena->estaCompletada()) {
             throw ValidationException::withMessages([
-                'cuarentena_id' => 'Solo se puede generar un ingreso desde una cuarentena completada.',
+                'cuarentena_id' => 'Solo se puede consultar pendientes de una cuarentena completada.',
             ]);
         }
     }
@@ -354,70 +428,190 @@ class IngresoService
 
     /**
      * @param  array<int, array<string, mixed>>  $detalles
-     * @return list<array{detalle: CuarentenaDetalle, payload: array<string, mixed>}>
+     * @return list<array<string, mixed>>
      */
-    private function normalizeDetalles(Cuarentena $cuarentena, array $detalles): array
+    private function normalizeDetallesFisicos(array $detalles): array
     {
         if ($detalles === []) {
             throw ValidationException::withMessages([
-                'detalles' => 'Debe seleccionar al menos un animal para el ingreso.',
+                'detalles' => 'Debe registrar al menos un animal para el ingreso.',
             ]);
         }
 
-        $ingresados = $this->animalIdsIngresados($cuarentena->id);
-        $porAnimal = $cuarentena->detalles->keyBy('animal_id');
         $vistos = [];
         $normalizados = [];
 
         foreach ($detalles as $index => $payload) {
-            $animalId = (int) ($payload['animal_id'] ?? 0);
-
-            if ($animalId < 1) {
+            $arete = Str::upper(trim((string) ($payload['arete'] ?? '')));
+            if ($arete === '') {
                 throw ValidationException::withMessages([
-                    "detalles.$index.animal_id" => 'Debe indicar el animal a ingresar.',
+                    "detalles.$index.arete" => 'El arete es obligatorio.',
                 ]);
             }
 
-            if (in_array($animalId, $vistos, true)) {
+            if (in_array($arete, $vistos, true)) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.animal_id" => 'El mismo animal no puede repetirse en el ingreso.',
+                    "detalles.$index.arete" => 'El arete está duplicado en el mismo ingreso.',
                 ]);
             }
 
-            if (in_array($animalId, $ingresados, true)) {
+            if (Animal::query()->where('arete', $arete)->exists()) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.animal_id" => 'Este animal ya fue ingresado desde esta cuarentena.',
+                    "detalles.$index.arete" => "El arete {$arete} ya está asignado a otro animal.",
                 ]);
             }
 
-            /** @var CuarentenaDetalle|null $detalle */
-            $detalle = $porAnimal->get($animalId);
-
-            if (! $detalle || ! $detalle->animal) {
+            $sexo = strtoupper((string) ($payload['sexo'] ?? ''));
+            if (! in_array($sexo, ['M', 'H'], true)) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.animal_id" => 'El animal no pertenece a la cuarentena seleccionada.',
+                    "detalles.$index.sexo" => 'El sexo debe ser M o H.',
                 ]);
             }
 
-            $pesoIngreso = round((float) ($payload['peso_ingreso'] ?? 0), 2);
-            if ($pesoIngreso < 0.01) {
+            $edad = (int) ($payload['edad'] ?? 0);
+            if ($edad < 0 || $edad > 600) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.peso_ingreso" => 'El peso de ingreso debe ser mayor a cero.',
+                    "detalles.$index.edad" => 'La edad debe estar entre 0 y 600 meses.',
                 ]);
             }
 
-            $vistos[] = $animalId;
+            $peso = round((float) ($payload['peso_ingreso'] ?? $payload['peso_kg'] ?? 0), 2);
+            if ($peso < 0.01) {
+                throw ValidationException::withMessages([
+                    "detalles.$index.peso_ingreso" => 'El peso debe ser mayor a cero.',
+                ]);
+            }
+
+            $categoriaId = (int) ($payload['categoria_id'] ?? 0);
+            if ($categoriaId < 1 || ! CategoriaAnimal::query()->whereKey($categoriaId)->where('activo', true)->whereNull('deleted_at')->exists()) {
+                throw ValidationException::withMessages([
+                    "detalles.$index.categoria_id" => 'La categoría no existe o no está activa.',
+                ]);
+            }
+
+            $razaId = isset($payload['raza_id']) && $payload['raza_id'] !== '' ? (int) $payload['raza_id'] : null;
+            if ($razaId && ! Raza::query()->whereKey($razaId)->where('estado', true)->whereNull('deleted_at')->exists()) {
+                throw ValidationException::withMessages([
+                    "detalles.$index.raza_id" => 'La raza no existe o no está activa.',
+                ]);
+            }
+
+            $vistos[] = $arete;
             $normalizados[] = [
-                'detalle' => $detalle,
-                'payload' => [
-                    'observaciones' => $payload['observaciones'] ?? null,
-                    'peso_ingreso' => $pesoIngreso,
-                    'animal' => is_array($payload['animal'] ?? null) ? $payload['animal'] : [],
-                ],
+                'arete' => $arete,
+                'sexo' => $sexo,
+                'edad' => $edad,
+                'peso_ingreso' => $peso,
+                'precio_compra' => round((float) ($payload['precio_compra'] ?? $payload['precio'] ?? 0), 2),
+                'categoria_id' => $categoriaId,
+                'raza_id' => $razaId,
+                'color' => $this->nullableString($payload['color'] ?? null),
+                'observaciones' => $this->nullableString($payload['observaciones'] ?? null),
+                'castrado' => filter_var($payload['castrado'] ?? false, FILTER_VALIDATE_BOOLEAN),
             ];
         }
 
         return $normalizados;
+    }
+
+    /**
+     * @param  array<string, mixed>  $cruda
+     * @param  list<string>  $aretes
+     * @return array<string, mixed>
+     */
+    private function normalizarFilaExcel(array $cruda, array &$aretes): array
+    {
+        $errores = [];
+        $linea = (int) ($cruda['linea'] ?? 0);
+        $arete = Str::upper(trim((string) ($cruda['arete'] ?? '')));
+        $sexoRaw = trim((string) ($cruda['sexo'] ?? ''));
+        $sexo = $this->normalizarSexo($sexoRaw);
+        $edad = is_numeric($cruda['edad'] ?? null) ? (int) $cruda['edad'] : null;
+        $peso = is_numeric($cruda['peso_kg'] ?? null) ? round((float) $cruda['peso_kg'], 2) : null;
+        $precio = is_numeric($cruda['precio'] ?? null) ? round((float) $cruda['precio'], 2) : 0;
+        $categoriaCodigo = Str::upper(trim((string) ($cruda['categoria'] ?? '')));
+        $razaCodigo = Str::upper(trim((string) ($cruda['raza'] ?? '')));
+        $castrado = $this->normalizarCastrado((string) ($cruda['castrado'] ?? ''));
+
+        if ($arete === '') {
+            $errores[] = 'El arete es obligatorio.';
+        } elseif (in_array($arete, $aretes, true)) {
+            $errores[] = 'Arete duplicado en el archivo.';
+        } elseif (Animal::query()->where('arete', $arete)->exists()) {
+            $errores[] = "El arete {$arete} ya existe.";
+        }
+
+        if ($sexo === null) {
+            $errores[] = 'Sexo inválido. Use M/H o Macho/Hembra.';
+        }
+
+        if ($edad === null || $edad < 0 || $edad > 600) {
+            $errores[] = 'La edad debe ser un número de meses entre 0 y 600.';
+        }
+
+        if ($peso === null || $peso < 0.01) {
+            $errores[] = 'El peso en kg debe ser mayor a cero.';
+        }
+
+        $categoria = $categoriaCodigo !== ''
+            ? CategoriaAnimal::query()->whereRaw('upper(codigo) = ?', [$categoriaCodigo])->where('activo', true)->whereNull('deleted_at')->first()
+            : null;
+        if (! $categoria) {
+            $errores[] = 'La categoría no existe o no está activa. Use el código del catálogo.';
+        }
+
+        $raza = null;
+        if ($razaCodigo !== '') {
+            $raza = Raza::query()->whereRaw('upper(codigo) = ?', [$razaCodigo])->where('estado', true)->whereNull('deleted_at')->first();
+            if (! $raza) {
+                $errores[] = 'La raza no existe o no está activa. Use el código del catálogo.';
+            }
+        } else {
+            $errores[] = 'La raza es obligatoria.';
+        }
+
+        if ($arete !== '') {
+            $aretes[] = $arete;
+        }
+
+        return [
+            'linea' => $linea,
+            'arete' => $arete,
+            'sexo' => $sexo,
+            'edad' => $edad,
+            'peso_ingreso' => $peso,
+            'precio_compra' => $precio,
+            'categoria' => $categoriaCodigo,
+            'categoria_id' => $categoria?->id,
+            'categoria_nombre' => $categoria?->nombre,
+            'raza' => $razaCodigo,
+            'raza_id' => $raza?->id,
+            'raza_nombre' => $raza?->nombre,
+            'color' => $this->nullableString($cruda['color'] ?? null),
+            'observaciones' => $this->nullableString($cruda['observaciones'] ?? null),
+            'castrado' => $castrado,
+            'errores' => $errores,
+            'valida' => $errores === [],
+        ];
+    }
+
+    private function normalizarSexo(string $value): ?string
+    {
+        $value = Str::upper(trim($value));
+        $value = Str::of($value)->replace(['Á', 'É', 'Í', 'Ó', 'Ú'], ['A', 'E', 'I', 'O', 'U'])->value();
+
+        return match ($value) {
+            'M', 'MACHO' => 'M',
+            'H', 'HEMBRA' => 'H',
+            default => null,
+        };
+    }
+
+    private function normalizarCastrado(string $value): bool
+    {
+        $value = Str::upper(trim($value));
+
+        return in_array($value, ['1', 'SI', 'SÍ', 'TRUE', 'YES', 'Y'], true);
     }
 
     private function recalculateTotals(Ingreso $ingreso): void
@@ -428,8 +622,14 @@ class IngresoService
         $ingreso->save();
     }
 
-    private function calcularPrecioKilo(float $precioCompra, float $pesoKg): float
+    private function nullableString(mixed $value): ?string
     {
-        return round($precioCompra / $pesoKg, 2);
+        if ($value === null) {
+            return null;
+        }
+
+        $trimmed = trim((string) $value);
+
+        return $trimmed === '' ? null : $trimmed;
     }
 }

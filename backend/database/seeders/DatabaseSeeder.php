@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             TipoMovimientoSeeder::class,
             TipoAlertaSeeder::class,
             TipoSalidaSeeder::class,
+            TipoIngresoSeeder::class,
             TipoPersonaSeeder::class,
             EstablecimientoSeeder::class,
             AlmacenSeeder::class,

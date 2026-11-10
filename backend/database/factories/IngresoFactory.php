@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\Cuarentena;
 use App\Models\Ingreso;
 use App\Models\Lote;
 use App\Models\Persona;
+use App\Models\TipoIngreso;
 use App\Models\TipoPersona;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,12 +20,14 @@ class IngresoFactory extends Factory
     public function definition(): array
     {
         return [
-            'codigo' => 'ING-'.now()->year.'-'.str_pad((string) fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
+            'codigo' => 'INCO'.str_pad((string) fake()->unique()->numberBetween(1, 999999), 6, '0', STR_PAD_LEFT),
+            'tipo_ingreso_id' => TipoIngreso::query()->where('codigo', TipoIngreso::CODIGO_COMPRA)->value('id')
+                ?? TipoIngreso::factory()->create(['codigo' => 'COMPRA', 'iniciales' => 'CO', 'requiere_proveedor' => true])->id,
             'proveedor_id' => Persona::query()
                 ->whereHas('tipos', fn ($query) => $query->where('tipo.nombre', TipoPersona::PROVEEDOR))
                 ->value('id') ?? Persona::factory(),
             'user_id' => User::query()->value('id') ?? User::factory(),
-            'cuarentena_id' => Cuarentena::query()->value('id') ?? Cuarentena::factory()->completada(),
+            'cuarentena_id' => null,
             'lote_id' => Lote::query()->value('id') ?? Lote::factory(),
             'fecha_ingreso' => now()->toDateString(),
             'estado' => Ingreso::ESTADO_REGISTRADO,

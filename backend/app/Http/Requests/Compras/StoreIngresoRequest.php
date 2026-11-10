@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Compras;
 
-use App\Models\Animal;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class StoreIngresoRequest extends FormRequest
@@ -18,8 +18,8 @@ class StoreIngresoRequest extends FormRequest
     {
         $merge = [];
 
-        foreach (['observaciones'] as $field) {
-            if ($this->exists($field) && $this->input($field) === '') {
+        foreach (['observaciones', 'proveedor_id', 'grupo_id'] as $field) {
+            if ($this->exists($field) && ($this->input($field) === '' || $this->input($field) === '0')) {
                 $merge[$field] = null;
             }
         }
@@ -33,24 +33,30 @@ class StoreIngresoRequest extends FormRequest
                     continue;
                 }
 
-                if (($detalle['observaciones'] ?? '') === '') {
-                    $detalle['observaciones'] = null;
+                foreach (['observaciones', 'color'] as $field) {
+                    if (($detalle[$field] ?? '') === '') {
+                        $detalle[$field] = null;
+                    }
                 }
 
-                if (isset($detalle['animal']) && is_array($detalle['animal'])) {
-                    foreach (['arete', 'nombre', 'fecha_nacimiento', 'color', 'observaciones'] as $field) {
-                        if (($detalle['animal'][$field] ?? '') === '') {
-                            $detalle['animal'][$field] = null;
-                        }
-                    }
-                    foreach (['raza_id', 'estado_productivo_id', 'madre_id', 'padre_id'] as $field) {
-                        if (($detalle['animal'][$field] ?? '') === '' || ($detalle['animal'][$field] ?? null) === '0') {
-                            $detalle['animal'][$field] = null;
-                        }
-                    }
-                    if (! empty($detalle['animal']['arete'])) {
-                        $detalle['animal']['arete'] = strtoupper(trim((string) $detalle['animal']['arete']));
-                    }
+                if (($detalle['raza_id'] ?? '') === '' || ($detalle['raza_id'] ?? null) === '0') {
+                    $detalle['raza_id'] = null;
+                }
+
+                if (! empty($detalle['arete'])) {
+                    $detalle['arete'] = Str::upper(trim((string) $detalle['arete']));
+                }
+
+                if (! empty($detalle['sexo'])) {
+                    $detalle['sexo'] = Str::upper(trim((string) $detalle['sexo']));
+                }
+
+                if (array_key_exists('peso_kg', $detalle) && ! array_key_exists('peso_ingreso', $detalle)) {
+                    $detalle['peso_ingreso'] = $detalle['peso_kg'];
+                }
+
+                if (array_key_exists('precio', $detalle) && ! array_key_exists('precio_compra', $detalle)) {
+                    $detalle['precio_compra'] = $detalle['precio'];
                 }
 
                 $detalles[] = $detalle;
@@ -69,10 +75,15 @@ class StoreIngresoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cuarentena_id' => [
+            'tipo_ingreso_id' => [
                 'required',
                 'integer',
-                Rule::exists('cuarentenas', 'id')->where('estado', 'COMPLETADO'),
+                Rule::exists('tipos_ingresos', 'id')->whereNull('deleted_at')->where('estado', true),
+            ],
+            'proveedor_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('personas', 'id')->whereNull('deleted_at'),
             ],
             'lote_id' => [
                 'required',
@@ -80,7 +91,7 @@ class StoreIngresoRequest extends FormRequest
                 Rule::exists('lotes', 'id')->whereNull('deleted_at')->where('activo', true),
             ],
             'grupo_id' => [
-                'nullable',
+                'required',
                 'integer',
                 Rule::exists('grupos', 'id')->whereNull('deleted_at')->where('activo', true),
             ],
@@ -88,42 +99,24 @@ class StoreIngresoRequest extends FormRequest
             'observaciones' => 'nullable|string|max:2000',
             'descuento' => 'nullable|numeric|min:0',
             'detalles' => 'required|array|min:1',
-            'detalles.*.animal_id' => [
+            'detalles.*.arete' => 'required|string|max:30|distinct',
+            'detalles.*.sexo' => 'required|string|in:M,H',
+            'detalles.*.edad' => 'required|integer|min:0|max:600',
+            'detalles.*.peso_ingreso' => 'required|numeric|min:0.01',
+            'detalles.*.precio_compra' => 'nullable|numeric|min:0',
+            'detalles.*.categoria_id' => [
                 'required',
                 'integer',
-                'distinct',
-                Rule::exists('animales', 'id')->whereNull('deleted_at'),
+                Rule::exists('categorias_animales', 'id')->whereNull('deleted_at')->where('activo', true),
             ],
-            'detalles.*.peso_ingreso' => 'required|numeric|min:0.01',
-            'detalles.*.observaciones' => 'nullable|string|max:2000',
-            'detalles.*.animal' => 'nullable|array',
-            'detalles.*.animal.arete' => 'nullable|string|max:30',
-            'detalles.*.animal.nombre' => 'nullable|string|max:100',
-            'detalles.*.animal.fecha_nacimiento' => 'nullable|date|before_or_equal:today',
-            'detalles.*.animal.raza_id' => [
-                'nullable',
+            'detalles.*.raza_id' => [
+                'required',
                 'integer',
                 Rule::exists('razas', 'id')->whereNull('deleted_at')->where('estado', true),
             ],
-            'detalles.*.animal.estado_productivo_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('estados_productivos', 'id')->whereNull('deleted_at')->where('activo', true),
-            ],
-            'detalles.*.animal.madre_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('animales', 'id')->whereNull('deleted_at')->where('estado', Animal::ESTADO_ACTIVO),
-            ],
-            'detalles.*.animal.padre_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('animales', 'id')->whereNull('deleted_at')->where('estado', Animal::ESTADO_ACTIVO),
-            ],
-            'detalles.*.animal.color' => 'nullable|string|max:60',
-            'detalles.*.animal.observaciones' => 'nullable|string|max:2000',
-            'detalles.*.animal.edad_inicial' => 'nullable|integer|min:0|max:600',
-            'detalles.*.animal.edad_actual' => 'nullable|integer|min:0|max:600',
+            'detalles.*.color' => 'nullable|string|max:60',
+            'detalles.*.observaciones' => 'nullable|string|max:2000',
+            'detalles.*.castrado' => 'nullable|boolean',
         ];
     }
 
@@ -133,11 +126,13 @@ class StoreIngresoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'cuarentena_id.exists' => 'La cuarentena debe existir y estar completada.',
+            'tipo_ingreso_id.exists' => 'El tipo de ingreso no existe o no está activo.',
             'lote_id.exists' => 'El lote seleccionado no existe o no está activo.',
-            'detalles.required' => 'Debe seleccionar al menos un animal para el ingreso.',
-            'detalles.*.animal_id.distinct' => 'No se puede ingresar el mismo animal más de una vez.',
-            'detalles.*.peso_ingreso.min' => 'El peso de ingreso debe ser mayor a cero.',
+            'grupo_id.required' => 'Debe seleccionar un grupo del lote.',
+            'detalles.required' => 'Debe registrar al menos un animal para el ingreso.',
+            'detalles.*.arete.distinct' => 'No se puede repetir el mismo arete en el ingreso.',
+            'detalles.*.peso_ingreso.min' => 'El peso debe ser mayor a cero.',
+            'detalles.*.raza_id.required' => 'La raza es obligatoria.',
         ];
     }
 }

@@ -334,7 +334,14 @@ class AnimalService
             }
 
             $this->aplicarGrupo($data);
-            CategoriaAnimalReglas::assertCompatibilidad($data);
+
+            $referencia = null;
+            if (! empty($data['referencia_edad'])) {
+                $referencia = Carbon::parse((string) $data['referencia_edad']);
+            }
+            unset($data['referencia_edad']);
+
+            CategoriaAnimalReglas::assertCompatibilidad($data, null, $referencia);
 
             unset($data['user_id']);
             $data['user_id'] = Auth::id() ?? User::query()->orderBy('id')->value('id');
@@ -348,6 +355,75 @@ class AnimalService
 
             return $animal->load(self::RELATIONS);
         });
+    }
+
+    /**
+     * Alta individual reutilizando create() para un ingreso físico.
+     *
+     * fecha_nacimiento se estima como fecha de ingreso menos la edad declarada en meses.
+     * edad_inicial guarda la edad al ingreso (equivalente funcional de edad_ingreso en v8).
+     *
+     * @param  array<string, mixed>  $fila
+     */
+    public function crearDesdeIngresoFisico(array $fila, int $loteId, ?int $grupoId, string $fechaIngreso, int $index = 0): Animal
+    {
+        $edad = (int) $fila['edad'];
+        $arete = Str::upper(trim((string) ($fila['arete'] ?? '')));
+        $peso = round((float) ($fila['peso_ingreso'] ?? $fila['peso_kg'] ?? 0), 2);
+        $precio = round((float) ($fila['precio_compra'] ?? $fila['precio'] ?? 0), 2);
+
+        if ($arete === '') {
+            throw ValidationException::withMessages([
+                "detalles.$index.arete" => 'El arete es obligatorio.',
+            ]);
+        }
+
+        if (Animal::query()->where('arete', $arete)->exists()) {
+            throw ValidationException::withMessages([
+                "detalles.$index.arete" => "El arete {$arete} ya está asignado a otro animal.",
+            ]);
+        }
+
+        try {
+            return $this->create([
+                'arete' => $arete,
+                'sexo' => strtoupper((string) $fila['sexo']),
+                'castrado' => (bool) ($fila['castrado'] ?? false),
+                'fecha_nacimiento' => Carbon::parse($fechaIngreso)->subMonths($edad)->toDateString(),
+                'color' => $this->nullableString($fila['color'] ?? null),
+                'raza_id' => $this->nullableId($fila['raza_id'] ?? null),
+                'categoria_id' => (int) $fila['categoria_id'],
+                'estado_productivo_id' => null,
+                'lote_id' => $loteId,
+                'grupo_id' => $grupoId,
+                'madre_id' => null,
+                'padre_id' => null,
+                'edad_inicial' => $edad,
+                'edad_actual' => $edad,
+                'precio_kilo' => $peso > 0 && $precio > 0 ? round($precio / $peso, 2) : null,
+                'estado' => Animal::ESTADO_ACTIVO,
+                'observaciones' => $this->nullableString($fila['observaciones'] ?? null),
+                'referencia_edad' => $fechaIngreso,
+            ]);
+        } catch (ValidationException $exception) {
+            throw ValidationException::withMessages(
+                $this->prefijarErroresDetalle($exception->errors(), $index)
+            );
+        }
+    }
+
+    /**
+     * @param  array<string, list<string>>  $errors
+     * @return array<string, list<string>>
+     */
+    private function prefijarErroresDetalle(array $errors, int $index): array
+    {
+        $prefijados = [];
+        foreach ($errors as $campo => $mensajes) {
+            $prefijados["detalles.$index.$campo"] = $mensajes;
+        }
+
+        return $prefijados;
     }
 
     /**

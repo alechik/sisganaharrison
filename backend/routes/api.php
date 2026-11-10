@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\TiposEventosSanitarios\TipoEventoSanitarioControlle
 use App\Http\Controllers\Api\TiposMovimientos\TipoMovimientoController;
 use App\Http\Controllers\Api\TiposAlertas\TipoAlertaController;
 use App\Http\Controllers\Api\TiposSalidas\TipoSalidaController;
+use App\Http\Controllers\Api\TiposIngresos\TipoIngresoController;
 use App\Http\Controllers\Api\Establecimientos\EstablecimientoController;
 use App\Http\Controllers\Api\Potreros\PotreroController;
 use App\Http\Controllers\Api\Lotes\LoteController;
@@ -532,6 +533,41 @@ Route::middleware('auth:sanctum')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| TIPOS DE INGRESOS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('tipos-ingresos/eliminados', [TipoIngresoController::class, 'deleted'])
+        ->middleware('permission:tipos_ingresos.view');
+
+    Route::post('tipos-ingresos/{id}/restaurar', [TipoIngresoController::class, 'restore'])
+        ->middleware('permission:tipos_ingresos.restore');
+
+    Route::get('tipos-ingresos', [TipoIngresoController::class, 'index'])
+        ->middleware('permission:tipos_ingresos.view');
+
+    Route::post('tipos-ingresos', [TipoIngresoController::class, 'store'])
+        ->middleware('permission:tipos_ingresos.create');
+
+    Route::get('tipos-ingresos/{tipo_ingreso}', [TipoIngresoController::class, 'show'])
+        ->middleware('permission:tipos_ingresos.view');
+
+    Route::put('tipos-ingresos/{tipo_ingreso}', [TipoIngresoController::class, 'update'])
+        ->middleware('permission:tipos_ingresos.update');
+
+    Route::patch('tipos-ingresos/{tipo_ingreso}', [TipoIngresoController::class, 'update'])
+        ->middleware('permission:tipos_ingresos.update');
+
+    Route::delete('tipos-ingresos/{tipo_ingreso}', [TipoIngresoController::class, 'destroy'])
+        ->middleware('permission:tipos_ingresos.delete');
+
+    Route::patch('tipos-ingresos/{tipo_ingreso}/estado', [TipoIngresoController::class, 'changeStatus'])
+        ->middleware('permission:tipos_ingresos.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
 | ESTABLECIMIENTOS
 |--------------------------------------------------------------------------
 */
@@ -983,6 +1019,12 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('permission:compras.create');
 
     Route::get('compras/ingresos/cuarentenas-disponibles', [IngresoController::class, 'cuarentenasDisponibles'])
+        ->middleware('permission:compras.create');
+
+    Route::get('compras/ingresos/plantilla-excel', [IngresoController::class, 'plantillaExcel'])
+        ->middleware('permission:compras.create');
+
+    Route::post('compras/ingresos/vista-previa-excel', [IngresoController::class, 'previewExcel'])
         ->middleware('permission:compras.create');
 
     Route::get('compras/ingresos/{ingreso}/pdf', [IngresoController::class, 'pdf'])

@@ -162,6 +162,14 @@ class PermissionSeeder extends Seeder
         'tipos_salidas.delete',
         'tipos_salidas.restore',
 
+        // Tipos de ingresos
+        'tipos_ingresos.view',
+        'tipos_ingresos.create',
+        'tipos_ingresos.update',
+        'tipos_ingresos.delete',
+        'tipos_ingresos.restore',
+        'tipos_ingresos.activate',
+
         // Establecimientos
         'establecimientos.view',
         'establecimientos.create',

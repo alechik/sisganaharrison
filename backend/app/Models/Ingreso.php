@@ -9,14 +9,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Ingreso de animales al inventario desde una cuarentena completada.
+ * Ingreso físico de animales al inventario.
  *
  * @property int $id
  * @property string $codigo
- * @property int $proveedor_id
+ * @property int|null $proveedor_id
  * @property int $user_id
- * @property int $cuarentena_id
+ * @property int|null $cuarentena_id
+ * @property int $tipo_ingreso_id
  * @property int $lote_id
+ * @property int|null $grupo_id
  * @property \Illuminate\Support\Carbon $fecha_ingreso
  * @property string $estado
  * @property string|null $observaciones
@@ -38,6 +40,7 @@ class Ingreso extends Model
         'proveedor_id',
         'user_id',
         'cuarentena_id',
+        'tipo_ingreso_id',
         'lote_id',
         'grupo_id',
         'fecha_ingreso',
@@ -80,6 +83,14 @@ class Ingreso extends Model
     public function cuarentena(): BelongsTo
     {
         return $this->belongsTo(Cuarentena::class, 'cuarentena_id');
+    }
+
+    /**
+     * @return BelongsTo<TipoIngreso, $this>
+     */
+    public function tipoIngreso(): BelongsTo
+    {
+        return $this->belongsTo(TipoIngreso::class, 'tipo_ingreso_id');
     }
 
     /**
