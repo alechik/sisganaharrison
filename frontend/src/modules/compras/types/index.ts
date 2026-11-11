@@ -28,9 +28,8 @@ export type {
   IngresoDetalle,
   IngresoDetalleRequest,
   IngresoListParams,
-  IngresoPendienteLinea,
-  IngresoPendientes,
-  AnimalIngresoPayload,
+  IngresoExcelFila,
+  IngresoExcelPreview,
 } from "./ingreso";
 export type {
   IngresoFilters,

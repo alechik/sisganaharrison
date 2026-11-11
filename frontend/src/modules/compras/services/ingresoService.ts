@@ -1,11 +1,10 @@
 import api from "@/api/axios";
 import { PaginatedResponse } from "@/types/api";
 import {
-  Cuarentena,
   Ingreso,
   IngresoCreateRequest,
+  IngresoExcelPreview,
   IngresoListParams,
-  IngresoPendientes,
 } from "../types";
 
 interface LaravelPaginatedResponse<T> {
@@ -31,7 +30,7 @@ export const getIngresos = async (
       per_page: params.per_page ?? 10,
       codigo: params.codigo || undefined,
       proveedor_id: params.proveedor_id,
-      cuarentena_id: params.cuarentena_id,
+      tipo_ingreso_id: params.tipo_ingreso_id,
       lote_id: params.lote_id,
       fecha: params.fecha || undefined,
       sort_by: params.sort_by,
@@ -44,20 +43,6 @@ export const getIngresos = async (
 
 export const getIngreso = async (id: number): Promise<Ingreso> => {
   const response = await api.get<{ data: Ingreso }>(`/compras/ingresos/${id}`);
-  return response.data.data;
-};
-
-export const getCuarentenasDisponiblesIngreso = async (): Promise<Cuarentena[]> => {
-  const response = await api.get<{ data: Cuarentena[] }>(
-    "/compras/ingresos/cuarentenas-disponibles"
-  );
-  return response.data.data;
-};
-
-export const getPendientesIngreso = async (cuarentenaId: number): Promise<IngresoPendientes> => {
-  const response = await api.get<{ data: IngresoPendientes }>(
-    `/compras/cuarentenas/${cuarentenaId}/pendientes-ingreso`
-  );
   return response.data.data;
 };
 
@@ -76,4 +61,35 @@ export const downloadIngresoPdf = async (id: number, codigo: string) => {
   link.download = `${codigo}.pdf`;
   link.click();
   window.URL.revokeObjectURL(url);
+};
+
+export const downloadIngresoPlantilla = async () => {
+  const response = await api.get("/compras/ingresos/plantilla-excel", {
+    responseType: "blob",
+  });
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    })
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "plantilla_ingreso_animales.xlsx";
+  link.click();
+  window.URL.revokeObjectURL(url);
+};
+
+export const previewIngresoExcel = async (file: File): Promise<IngresoExcelPreview> => {
+  const formData = new FormData();
+  formData.append("archivo", file);
+  const response = await api.post<{ data: IngresoExcelPreview }>(
+    "/compras/ingresos/vista-previa-excel",
+    formData,
+    {
+      headers: {
+        "Content-Type": undefined,
+      },
+    }
+  );
+  return response.data.data;
 };

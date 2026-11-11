@@ -143,15 +143,7 @@ const navItems: NavItem[] = [
     name: "Compras",
     subItems: [
       {
-        name: "Órdenes (solicitud)",
-        path: "/compras/ordenes-compra",
-      },
-      {
-        name: "Cuarentenas / compras",
-        path: "/compras/cuarentenas",
-      },
-      {
-        name: "Ingresos",
+        name: "Ingresos de animales",
         path: "/compras/ingresos",
       },
       {
@@ -241,6 +233,10 @@ const navItems: NavItem[] = [
       {
         name: "Tipos de Salida",
         path: "/tipos-salidas",
+      },
+      {
+        name: "Tipos de Ingreso",
+        path: "/tipos-ingresos",
       },
     ],
   },

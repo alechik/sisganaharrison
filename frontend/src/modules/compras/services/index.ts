@@ -20,9 +20,9 @@ export {
 export {
   getIngresos,
   getIngreso,
-  getCuarentenasDisponiblesIngreso,
-  getPendientesIngreso,
   createIngreso,
   downloadIngresoPdf,
+  downloadIngresoPlantilla,
+  previewIngresoExcel,
 } from "./ingresoService";
 

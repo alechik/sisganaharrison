@@ -189,6 +189,35 @@ export const breadcrumbs = {
     { title: "Eliminadas" },
   ],
 
+  tiposIngresos: [
+    { title: "Catálogos" },
+    { title: "Tipos de ingreso" },
+  ],
+
+  tipoIngresoCrear: [
+    { title: "Catálogos" },
+    { title: "Tipos de ingreso", path: "/tipos-ingresos" },
+    { title: "Nuevo tipo" },
+  ],
+
+  tipoIngresoEditar: [
+    { title: "Catálogos" },
+    { title: "Tipos de ingreso", path: "/tipos-ingresos" },
+    { title: "Editar tipo" },
+  ],
+
+  tipoIngresoDetalle: [
+    { title: "Catálogos" },
+    { title: "Tipos de ingreso", path: "/tipos-ingresos" },
+    { title: "Detalle" },
+  ],
+
+  tiposIngresosEliminados: [
+    { title: "Catálogos" },
+    { title: "Tipos de ingreso", path: "/tipos-ingresos" },
+    { title: "Eliminados" },
+  ],
+
   categoriasAnimales: [
     { title: "Ganadería" },
     { title: "Categorías de Animales" },

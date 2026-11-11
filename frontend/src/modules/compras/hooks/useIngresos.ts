@@ -61,7 +61,7 @@ export const useIngresos = () => {
     filters.per_page,
     filters.codigo,
     filters.proveedor_id,
-    filters.cuarentena_id,
+    filters.tipo_ingreso_id,
     filters.lote_id,
     filters.fecha,
     filters.sort_by,

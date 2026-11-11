@@ -102,7 +102,7 @@ export const defaultCuarentenaFilters = (): CuarentenaFilters => ({
 export const defaultIngresoFilters = (): IngresoFilters => ({
   codigo: "",
   proveedor_id: undefined,
-  cuarentena_id: undefined,
+  tipo_ingreso_id: undefined,
   lote_id: undefined,
   fecha: "",
   sort_by: "created_at" as IngresoSortField,

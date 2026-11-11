@@ -5,6 +5,7 @@ import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import { getSocios } from "@/modules/socios-de-negocio/services";
+import { getTiposIngresos } from "@/modules/tipos-ingresos/services";
 import { INGRESO_SORT_OPTIONS } from "../constants";
 import { IngresoFilters, IngresoSortDirection } from "../types";
 
@@ -15,6 +16,7 @@ interface Props {
 
 export default function IngresoFiltersBar({ filters, onChange }: Props) {
   const [proveedores, setProveedores] = useState<{ value: string; label: string }[]>([]);
+  const [tipos, setTipos] = useState<{ value: string; label: string }[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -30,6 +32,13 @@ export default function IngresoFiltersBar({ filters, onChange }: Props) {
             label: socio.razon_social,
           }))
         );
+        const tiposRes = await getTiposIngresos({ per_page: 100, sort_by: "nombre", sort_dir: "asc" });
+        setTipos(
+          tiposRes.data.map((tipo) => ({
+            value: String(tipo.id),
+            label: tipo.nombre,
+          }))
+        );
       } catch (err) {
         console.error(err);
       }
@@ -43,9 +52,20 @@ export default function IngresoFiltersBar({ filters, onChange }: Props) {
       <div>
         <Label>Código</Label>
         <DebouncedSearchField
-          placeholder="ING-2026-0001"
+          placeholder="INCO000001"
           value={filters.codigo ?? ""}
           onValueChange={(codigo) => onChange({ codigo })}
+        />
+      </div>
+      <div>
+        <Label>Tipo de ingreso</Label>
+        <Select
+          value={filters.tipo_ingreso_id ? String(filters.tipo_ingreso_id) : "all"}
+          placeholder="Todos"
+          options={[{ value: "all", label: "Todos" }, ...tipos]}
+          onChange={(value) =>
+            onChange({ tipo_ingreso_id: value === "all" ? undefined : Number(value) })
+          }
         />
       </div>
       <div>

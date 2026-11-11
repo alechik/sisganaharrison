@@ -37,6 +37,7 @@ import { tipoEventoSanitarioRoutes } from "./modules/tipos-eventos-sanitarios/ro
 import { tipoMovimientoRoutes } from "./modules/tipos-movimientos/routes";
 import { tipoAlertaRoutes } from "./modules/tipos-alertas/routes";
 import { tipoSalidaRoutes } from "./modules/tipos-salidas/routes";
+import { tipoIngresoRoutes } from "./modules/tipos-ingresos/routes";
 import { establecimientoRoutes } from "./modules/establecimientos/routes";
 import { potreroRoutes } from "./modules/potreros/routes";
 import { loteRoutes } from "./modules/lotes/routes";
@@ -94,6 +95,7 @@ export default function App() {
             {tipoMovimientoRoutes}
             {tipoAlertaRoutes}
             {tipoSalidaRoutes}
+            {tipoIngresoRoutes}
             {establecimientoRoutes}
             {potreroRoutes}
             {loteRoutes}

@@ -1,22 +1,11 @@
-export interface AnimalIngresoPayload {
-  arete?: string | null;
-  nombre?: string | null;
-  fecha_nacimiento?: string | null;
-  raza_id?: number | null;
-  estado_productivo_id?: number | null;
-  madre_id?: number | null;
-  padre_id?: number | null;
-  color?: string | null;
-  observaciones?: string | null;
-  edad_inicial?: number | null;
-  edad_actual?: number | null;
-}
-
 export interface IngresoDetalle {
   id?: number;
   animal_id: number;
   animal_codigo?: string | null;
+  arete?: string | null;
   sexo?: "M" | "H" | null;
+  color?: string | null;
+  raza_nombre?: string | null;
   categoria_codigo?: string | null;
   categoria_nombre?: string | null;
   edad?: number | null;
@@ -35,12 +24,15 @@ export interface Ingreso {
   descuento: number;
   total_peso: number | null;
   monto_total: number;
-  proveedor_id: number;
+  tipo_ingreso_id: number;
+  tipo_ingreso_nombre?: string | null;
+  tipo_ingreso_codigo?: string | null;
+  proveedor_id: number | null;
   proveedor_razon_social?: string | null;
   proveedor_nit?: string | null;
   user_id: number;
   creador_nombre?: string | null;
-  cuarentena_id: number;
+  cuarentena_id?: number | null;
   cuarentena_codigo?: string | null;
   lote_id: number;
   lote_nombre?: string | null;
@@ -53,59 +45,54 @@ export interface Ingreso {
   updated_at?: string | null;
 }
 
-export interface IngresoPendienteLinea {
-  cuarentena_detalle_id: number;
-  animal_id: number;
-  animal_codigo?: string | null;
-  sexo?: "M" | "H" | null;
-  categoria_id: number;
-  categoria_codigo?: string | null;
-  categoria_nombre?: string | null;
-  edad?: number | null;
-  peso_oc: number;
-  precio_compra: number;
-  animal?: AnimalIngresoPayload & {
-    id: number;
-    codigo: string;
-    sexo: "M" | "H";
-    categoria_id: number;
-    lote_id?: number | null;
-  } | null;
-}
-
-export interface IngresoPendientes {
-  cuarentena_id: number;
-  cod_compra: string;
-  origen: string;
-  estado: string;
-  proveedor_id: number;
-  proveedor_razon_social?: string | null;
-  proveedor_nit?: string | null;
-  orden_compra_id: number | null;
-  orden_compra_codigo?: string | null;
-  fecha_inicio: string | null;
-  fecha_fin: string | null;
-  animales_total: number;
-  animales_ingresados: number;
-  animales_pendientes: number;
-  detalles: IngresoPendienteLinea[];
-}
-
 export interface IngresoDetalleRequest {
-  animal_id: number;
+  arete: string;
+  sexo: "M" | "H";
+  edad: number;
   peso_ingreso: number;
+  precio_compra?: number;
+  categoria_id: number;
+  raza_id: number;
+  color?: string | null;
   observaciones?: string | null;
-  animal?: AnimalIngresoPayload;
+  castrado?: boolean;
 }
 
 export interface IngresoCreateRequest {
-  cuarentena_id: number;
+  tipo_ingreso_id: number;
+  proveedor_id?: number | null;
   lote_id: number;
-  grupo_id?: number | null;
+  grupo_id: number;
   fecha_ingreso: string;
   observaciones?: string | null;
   descuento?: number;
   detalles: IngresoDetalleRequest[];
+}
+
+export interface IngresoExcelFila {
+  linea: number;
+  arete: string;
+  sexo: "M" | "H" | null;
+  edad: number | null;
+  peso_ingreso: number | null;
+  precio_compra: number;
+  categoria: string;
+  categoria_id: number | null;
+  categoria_nombre?: string | null;
+  raza: string;
+  raza_id: number | null;
+  raza_nombre?: string | null;
+  color?: string | null;
+  observaciones?: string | null;
+  castrado: boolean;
+  errores: string[];
+  valida: boolean;
+}
+
+export interface IngresoExcelPreview {
+  filas: IngresoExcelFila[];
+  validas: number;
+  con_errores: number;
 }
 
 export interface IngresoListParams {
@@ -113,6 +100,7 @@ export interface IngresoListParams {
   per_page?: number;
   codigo?: string;
   proveedor_id?: number;
+  tipo_ingreso_id?: number;
   cuarentena_id?: number;
   lote_id?: number;
   fecha?: string;

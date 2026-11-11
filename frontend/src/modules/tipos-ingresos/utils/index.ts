@@ -1,0 +1,1 @@
+export { defaultTipoIngresoFilters } from "./defaultFilters";

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import { IngresoStatusBadge } from "../components";
-import { CUARENTENA_ROUTES, INGRESO_ROUTES } from "../constants";
+import { INGRESO_ROUTES } from "../constants";
 import { downloadIngresoPdf, getIngreso } from "../services";
 import { Ingreso } from "../types";
 import { formatDate, formatEdad, formatMoney, formatPeso, formatSexo } from "../utils";
@@ -103,22 +103,20 @@ export default function IngresoDetailPage() {
             <dd className="font-medium text-gray-800 dark:text-white/90">{formatDate(item.fecha_ingreso)}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500">Proveedor</dt>
+            <dt className="text-sm text-gray-500">Tipo de ingreso</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {item.tipo_ingreso_nombre || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500">Proveedor / persona</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {item.proveedor_razon_social || "—"}
               {item.proveedor_nit ? ` · NIT ${item.proveedor_nit}` : ""}
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500">Cuarentena de origen</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              <Link className="text-brand-500 hover:underline" to={CUARENTENA_ROUTES.detail(item.cuarentena_id)}>
-                {item.cuarentena_codigo || `CQ #${item.cuarentena_id}`}
-              </Link>
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500">Potrero destino</dt>
+            <dt className="text-sm text-gray-500">Lote destino</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {item.lote_codigo ? `${item.lote_codigo} — ` : ""}
               {item.lote_nombre || "—"}
@@ -144,12 +142,13 @@ export default function IngresoDetailPage() {
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
               <TableCell isHeader className="px-4 py-3 font-semibold">Código</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Arete</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Sexo</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Categoría</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Raza</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Edad (meses)</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Peso cuarentena</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Peso ingreso</TableCell>
-              <TableCell isHeader className="px-4 py-3 font-semibold">Precio compra</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Peso (kg)</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Precio (Bs)</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Observaciones</TableCell>
             </TableRow>
           </TableHeader>
@@ -157,12 +156,13 @@ export default function IngresoDetailPage() {
             {(item.detalles ?? []).map((detalle) => (
               <TableRow key={detalle.id}>
                 <TableCell className="px-4 py-3">{detalle.animal_codigo || "—"}</TableCell>
+                <TableCell className="px-4 py-3">{detalle.arete || "—"}</TableCell>
                 <TableCell className="px-4 py-3">{formatSexo(detalle.sexo)}</TableCell>
                 <TableCell className="px-4 py-3">
                   {detalle.categoria_codigo} — {detalle.categoria_nombre}
                 </TableCell>
+                <TableCell className="px-4 py-3">{detalle.raza_nombre || "—"}</TableCell>
                 <TableCell className="px-4 py-3">{formatEdad(detalle.edad)}</TableCell>
-                <TableCell className="px-4 py-3">{formatPeso(detalle.peso_oc)}</TableCell>
                 <TableCell className="px-4 py-3">{formatPeso(detalle.peso_ingreso)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.precio_compra)}</TableCell>
                 <TableCell className="px-4 py-3">{detalle.observaciones || "—"}</TableCell>
