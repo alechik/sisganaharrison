@@ -43,8 +43,9 @@ export const formatSexo = (sexo?: string | null): string => {
   return "—";
 };
 
-export const isTipoVenta = (nombre?: string | null): boolean =>
-  (nombre ?? "").trim().toLowerCase() === "venta";
+export const isTipoVenta = (tipo?: { codigo?: string | null; nombre?: string | null } | null): boolean =>
+  (tipo?.codigo ?? "").trim().toUpperCase() === "VENTA" ||
+  (tipo?.nombre ?? "").trim().toLowerCase() === "venta";
 
 export const lineSubtotal = (precio: number, descuento: number): number =>
   Math.max((precio || 0) - (descuento || 0), 0);

@@ -25,10 +25,15 @@ class SalidaResource extends JsonResource
                 'cliente',
                 fn () => $this->cliente?->razon_social
             ),
+            'observaciones' => $this->observaciones,
             'tipo_salida_id' => $this->tipo_salida_id,
             'tipo_salida_nombre' => $this->whenLoaded(
                 'tipoSalida',
                 fn () => $this->tipoSalida?->nombre
+            ),
+            'tipo_salida_codigo' => $this->whenLoaded(
+                'tipoSalida',
+                fn () => $this->tipoSalida?->codigo
             ),
             'venta_id' => $this->venta_id,
             'cod_venta' => $this->whenLoaded(
@@ -64,6 +69,7 @@ class SalidaResource extends JsonResource
                     'precio' => (float) $detalle->precio,
                     'descuento' => (float) $detalle->descuento,
                     'subtotal' => (float) $detalle->subtotal,
+                    'observaciones' => $detalle->observaciones,
                 ])->values();
             }),
             'created_at' => $this->created_at?->toIso8601String(),

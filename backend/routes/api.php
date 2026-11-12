@@ -1074,7 +1074,10 @@ Route::middleware('auth:sanctum')->group(function () {
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('salidas/ventas-disponibles', [SalidaController::class, 'ventasDisponibles'])
+    Route::get('salidas/plantilla-excel', [SalidaController::class, 'plantillaExcel'])
+        ->middleware('permission:salidas.create');
+
+    Route::post('salidas/vista-previa-excel', [SalidaController::class, 'previewExcel'])
         ->middleware('permission:salidas.create');
 
     Route::get('salidas/animales-disponibles', [SalidaController::class, 'animalesDisponibles'])

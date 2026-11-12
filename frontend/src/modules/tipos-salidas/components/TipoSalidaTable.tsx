@@ -41,6 +41,15 @@ export default function TipoSalidaTable({
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
                 Tipo de salida
               </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+                Código
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+                Iniciales
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+                Cliente
+              </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-center">
                 Opciones
               </TableCell>
@@ -50,7 +59,7 @@ export default function TipoSalidaTable({
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {tipos.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={2}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={5}>
                   No hay tipos de salida para mostrar.
                 </TableCell>
               </TableRow>
@@ -65,8 +74,13 @@ export default function TipoSalidaTable({
                       {tipo.nombre}
                     </span>
                     <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
-                      ID: {tipo.id}
+                      Prefijo S{tipo.iniciales}
                     </span>
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-gray-500">{tipo.codigo}</TableCell>
+                  <TableCell className="px-5 py-4 text-gray-500">{tipo.iniciales}</TableCell>
+                  <TableCell className="px-5 py-4 text-gray-500">
+                    {tipo.requiere_cliente ? "Obligatorio" : "Opcional"}
                   </TableCell>
 
                   <TableCell className="px-5 py-4">

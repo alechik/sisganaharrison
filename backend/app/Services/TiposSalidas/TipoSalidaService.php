@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class TipoSalidaService
 {
-    private const SORTABLE_COLUMNS = ['nombre', 'created_at'];
+    private const SORTABLE_COLUMNS = ['nombre', 'codigo', 'iniciales', 'created_at'];
 
     /**
      * @param  array<string, mixed>  $filters
@@ -41,7 +41,14 @@ class TipoSalidaService
      */
     public function create(array $data): TipoSalida
     {
-        return TipoSalida::query()->create($data);
+        return TipoSalida::query()->create([
+            'nombre' => $data['nombre'],
+            'codigo' => $data['codigo'],
+            'iniciales' => $data['iniciales'],
+            'descripcion' => $data['descripcion'] ?? null,
+            'requiere_cliente' => (bool) ($data['requiere_cliente'] ?? false),
+            'estado' => true,
+        ]);
     }
 
     /**
@@ -49,7 +56,13 @@ class TipoSalidaService
      */
     public function update(TipoSalida $tipoSalida, array $data): TipoSalida
     {
-        $tipoSalida->update($data);
+        $tipoSalida->update([
+            'nombre' => $data['nombre'],
+            'codigo' => $data['codigo'],
+            'iniciales' => $data['iniciales'],
+            'descripcion' => $data['descripcion'] ?? null,
+            'requiere_cliente' => (bool) ($data['requiere_cliente'] ?? false),
+        ]);
 
         return $tipoSalida->fresh();
     }
@@ -80,7 +93,15 @@ class TipoSalidaService
 
         if (! empty($filters['search'])) {
             $search = (string) $filters['search'];
-            $query->where('nombre', 'like', "%{$search}%");
+            $query->where(function (Builder $builder) use ($search) {
+                $builder->where('nombre', 'like', "%{$search}%")
+                    ->orWhere('codigo', 'like', "%{$search}%")
+                    ->orWhere('iniciales', 'like', "%{$search}%");
+            });
+        }
+
+        if (array_key_exists('estado', $filters) && $filters['estado'] !== '' && $filters['estado'] !== null) {
+            $query->where('estado', filter_var($filters['estado'], FILTER_VALIDATE_BOOLEAN));
         }
 
         $sortBy = in_array($filters['sort_by'] ?? '', self::SORTABLE_COLUMNS, true)

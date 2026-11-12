@@ -432,7 +432,9 @@ class ReporteService
         $vivos = $this->contarNacimientos($filtros, Nacimiento::ESTADO_VIVO);
         $muertosNacimiento = $this->contarNacimientos($filtros, Nacimiento::ESTADO_MUERTO);
         $bajas = $this->contarSalidasPorNombre($filtros, 'Muerte');
-        $perdidas = $this->contarSalidasPorNombre($filtros, 'Perdido') + $this->contarSalidasPorNombre($filtros, 'Robo');
+        $perdidas = $this->contarSalidasPorNombre($filtros, 'Perdido')
+            + $this->contarSalidasPorNombre($filtros, 'Pérdida')
+            + $this->contarSalidasPorNombre($filtros, 'Robo');
         $ventas = $this->contarSalidasPorNombre($filtros, 'Venta');
         $hato = Animal::query()->whereNotIn('estado', [Animal::ESTADO_MUERTO, Animal::ESTADO_VENDIDO])->count();
 

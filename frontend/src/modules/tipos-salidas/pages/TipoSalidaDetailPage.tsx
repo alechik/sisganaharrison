@@ -76,6 +76,26 @@ export default function TipoSalidaDetailPage() {
             <dd className="font-medium text-gray-800 dark:text-white/90">{tipo.nombre}</dd>
           </div>
           <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Código</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{tipo.codigo}</dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Iniciales / prefijo</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {tipo.iniciales} · S{tipo.iniciales}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Cliente</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {tipo.requiere_cliente ? "Obligatorio" : "Opcional"}
+            </dd>
+          </div>
+          <div className="md:col-span-2">
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Descripción</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{tipo.descripcion || "—"}</dd>
+          </div>
+          <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha de creación</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {tipo.created_at ? new Date(tipo.created_at).toLocaleString("es-PY") : "—"}

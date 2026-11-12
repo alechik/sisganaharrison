@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Database\Factories\AnimalFactory;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -288,6 +290,32 @@ class Animal extends Model
         $arete = strtolower(trim((string) $this->arete));
 
         return $arete !== '' && ! in_array($arete, self::ARETES_INVALIDOS, true);
+    }
+
+    public function calcularEdadMeses(?DateTimeInterface $referencia = null): int
+    {
+        $ref = $referencia ? Carbon::parse($referencia)->startOfDay() : now()->startOfDay();
+
+        if ($this->fecha_nacimiento) {
+            return max(0, (int) $this->fecha_nacimiento->copy()->startOfDay()->diffInMonths($ref));
+        }
+
+        if ($this->edad_inicial !== null) {
+            $base = ($this->created_at ?? $ref)->copy()->startOfDay();
+
+            return max(0, (int) $this->edad_inicial + (int) $base->diffInMonths($ref));
+        }
+
+        return max(0, (int) ($this->edad_actual ?? 0));
+    }
+
+    public function ultimoPeso(): ?float
+    {
+        $detalle = $this->relationLoaded('detallesPesaje')
+            ? $this->detallesPesaje->sortByDesc('id')->first()
+            : $this->detallesPesaje()->latest('id')->first();
+
+        return $detalle && $detalle->peso !== null ? (float) $detalle->peso : null;
     }
 
     /**

@@ -5,17 +5,19 @@ namespace App\Services\Salidas;
 use App\Models\Animal;
 use App\Models\AnimalEvento;
 use App\Models\DetalleSalida;
+use App\Models\Persona;
 use App\Models\Salida;
 use App\Models\TipoSalida;
-use App\Models\Venta;
 use App\Services\Documentos\PdfGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalidaService
 {
@@ -24,9 +26,9 @@ class SalidaService
     private const RELATIONS = [
         'cliente:id,razon_social,nit',
         'creador:id,nombre,apellido',
-        'tipoSalida:id,nombre',
+        'tipoSalida:id,nombre,codigo,iniciales,requiere_cliente',
         'venta:id,cod_venta,cliente_id,fecha_venta',
-        'detalles.animal:id,codigo,arete,sexo,categoria_id,lote_id,grupo_id,estado',
+        'detalles.animal:id,codigo,arete,sexo,categoria_id,lote_id,grupo_id,estado,fecha_nacimiento,edad_inicial,edad_actual',
         'detalles.animal.grupo:id,nombre',
         'detalles.grupo:id,nombre',
         'detalles.animal.categoria:id,codigo,nombre',
@@ -37,7 +39,8 @@ class SalidaService
     ];
 
     public function __construct(
-        private readonly PdfGenerator $pdfGenerator
+        private readonly PdfGenerator $pdfGenerator,
+        private readonly SalidaExcelService $excelService
     ) {}
 
     /**
@@ -57,19 +60,6 @@ class SalidaService
     }
 
     /**
-     * @return Collection<int, Venta>
-     */
-    public function ventasDisponibles(): Collection
-    {
-        return Venta::query()
-            ->with('cliente:id,razon_social')
-            ->where('estado', Venta::ESTADO_AUTORIZADA)
-            ->whereDoesntHave('salida')
-            ->orderByDesc('fecha_venta')
-            ->get();
-    }
-
-    /**
      * @param  array<string, mixed>  $filters
      * @return Collection<int, Animal>
      */
@@ -85,18 +75,70 @@ class SalidaService
                 'categoria:id,codigo,nombre',
                 'lote:id,nombre,codigo,potrero_id',
                 'lote.potrero:id,nombre',
+                'grupo:id,nombre',
                 'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
             ])
             ->whereNull('deleted_at')
             ->disponiblesParaSalida()
             ->whereNotIn('id', DetalleSalida::query()->select('animal_id'))
             ->where(function (Builder $builder) use ($search) {
-                $builder->where('codigo', 'ilike', "%{$search}%")
-                    ->orWhere('arete', 'ilike', "%{$search}%");
+                $builder->where('arete', 'ilike', "%{$search}%")
+                    ->orWhere('codigo', 'ilike', "%{$search}%");
             })
-            ->orderBy('codigo')
+            ->orderBy('arete')
             ->limit(20)
             ->get();
+    }
+
+    /**
+     * @return array{filename: string, content: string, mime: string}
+     */
+    public function plantillaExcel(): array
+    {
+        return $this->excelService->plantilla();
+    }
+
+    public function descargarPlantilla(): StreamedResponse
+    {
+        $plantilla = $this->plantillaExcel();
+
+        return response()->streamDownload(function () use ($plantilla) {
+            echo $plantilla['content'];
+        }, $plantilla['filename'], [
+            'Content-Type' => $plantilla['mime'],
+        ]);
+    }
+
+    /**
+     * @return array{filas: list<array<string, mixed>>, validas: int, con_errores: int}
+     */
+    public function previewExcel(UploadedFile $file, ?int $tipoSalidaId = null): array
+    {
+        $tipo = $tipoSalidaId
+            ? TipoSalida::query()->whereNull('deleted_at')->find($tipoSalidaId)
+            : null;
+        $exigePrecio = $tipo?->esVenta() ?? false;
+        $crudas = $this->excelService->parse($file);
+        $filas = [];
+        $aretes = [];
+        $validas = 0;
+        $conErrores = 0;
+
+        foreach ($crudas as $cruda) {
+            $normalizada = $this->normalizarFilaExcel($cruda, $aretes, $exigePrecio);
+            if (($normalizada['errores'] ?? []) === []) {
+                $validas++;
+            } else {
+                $conErrores++;
+            }
+            $filas[] = $normalizada;
+        }
+
+        return [
+            'filas' => $filas,
+            'validas' => $validas,
+            'con_errores' => $conErrores,
+        ];
     }
 
     /**
@@ -105,20 +147,26 @@ class SalidaService
     public function create(array $data): Salida
     {
         return DB::transaction(function () use ($data) {
-            $tipo = TipoSalida::query()->lockForUpdate()->findOrFail((int) $data['tipo_salida_id']);
-            $venta = $this->resolverVenta($tipo, $data['venta_id'] ?? null);
-            $detalles = $this->normalizeDetalles($data['detalles'] ?? [], $tipo, $venta);
-            $this->assertAnimalesDisponibles($detalles, $tipo, $venta);
+            $tipo = TipoSalida::query()
+                ->where('estado', true)
+                ->whereNull('deleted_at')
+                ->lockForUpdate()
+                ->findOrFail((int) $data['tipo_salida_id']);
+
+            $this->assertCliente($tipo, $data['cliente_id'] ?? null);
+            $detalles = $this->normalizeDetalles($data['detalles'] ?? [], $tipo);
+            $this->assertAnimalesDisponibles($detalles);
 
             $salida = Salida::query()->create([
-                'cliente_id' => $venta?->cliente_id ?? ($data['cliente_id'] ?? null),
+                'cliente_id' => $this->nullableId($data['cliente_id'] ?? null),
                 'user_id' => Auth::id(),
-                'venta_id' => $venta?->id,
+                'venta_id' => null,
                 'tipo_salida_id' => $tipo->id,
-                'codigo' => $this->nextCodigo(),
+                'codigo' => $this->nextCodigo($tipo),
                 'fecha_salida' => $data['fecha_salida'] ?? now()->toDateString(),
                 'estado' => Salida::ESTADO_REGISTRADO,
-                'descuento' => (float) ($data['descuento'] ?? ($venta?->descuento ?? 0)),
+                'descuento' => (float) ($data['descuento'] ?? 0),
+                'observaciones' => $data['observaciones'] ?? null,
                 'total_peso' => 0,
                 'monto_total' => 0,
             ]);
@@ -190,58 +238,32 @@ class SalidaService
         return $query->orderBy($sortBy, $sortDir);
     }
 
-    private function resolverVenta(TipoSalida $tipo, mixed $ventaId): ?Venta
+    private function assertCliente(TipoSalida $tipo, mixed $clienteId): void
     {
-        if ($tipo->esVenta()) {
-            if (empty($ventaId)) {
-                throw ValidationException::withMessages([
-                    'venta_id' => 'Debe seleccionar una venta autorizada.',
-                ]);
-            }
+        $id = $this->nullableId($clienteId);
 
-            $venta = Venta::query()
-                ->with('detalles')
-                ->lockForUpdate()
-                ->find((int) $ventaId);
-            if (! $venta) {
-                throw ValidationException::withMessages([
-                    'venta_id' => 'La venta seleccionada no existe.',
-                ]);
-            }
-
-            if ($venta->estado !== Venta::ESTADO_AUTORIZADA) {
-                throw ValidationException::withMessages([
-                    'venta_id' => 'Solo una venta autorizada puede generar una salida.',
-                ]);
-            }
-
-            if ($venta->salida()->exists()) {
-                throw ValidationException::withMessages([
-                    'venta_id' => 'Esta venta ya tiene una salida registrada.',
-                ]);
-            }
-
-            return $venta;
-        }
-
-        if (! empty($ventaId)) {
+        if ($tipo->esVenta() && $id === null) {
             throw ValidationException::withMessages([
-                'venta_id' => 'venta_id solo aplica cuando el tipo de salida es Venta.',
+                'cliente_id' => 'Debe seleccionar el cliente o persona relacionada para una venta.',
             ]);
         }
 
-        return null;
+        if ($id !== null && ! Persona::query()->whereKey($id)->whereNull('deleted_at')->exists()) {
+            throw ValidationException::withMessages([
+                'cliente_id' => 'La persona seleccionada no existe.',
+            ]);
+        }
     }
 
     /**
      * @param  array<int, array<string, mixed>>  $detalles
      * @return list<array<string, mixed>>
      */
-    private function normalizeDetalles(array $detalles, TipoSalida $tipo, ?Venta $venta): array
+    private function normalizeDetalles(array $detalles, TipoSalida $tipo): array
     {
         if ($detalles === []) {
             throw ValidationException::withMessages([
-                'detalles' => 'Debe agregar al menos un animal a la salida.',
+                'detalles' => 'Debe registrar al menos un animal.',
             ]);
         }
 
@@ -272,6 +294,17 @@ class SalidaService
                 ]);
             }
 
+            if ($tipo->esVenta() && $precio < 0.01) {
+                throw ValidationException::withMessages([
+                    "detalles.$index.precio" => 'El precio de salida es obligatorio para una venta.',
+                ]);
+            }
+
+            if (! $tipo->esVenta()) {
+                $precio = 0;
+                $descuento = 0;
+            }
+
             $subtotal = round(max($precio - $descuento, 0), 2);
             $vistos[] = $animalId;
             $normalizados[] = [
@@ -281,17 +314,8 @@ class SalidaService
                 'precio' => $precio,
                 'descuento' => $descuento,
                 'subtotal' => $subtotal,
+                'observaciones' => isset($linea['observaciones']) ? (string) $linea['observaciones'] : null,
             ];
-        }
-
-        if ($tipo->esVenta() && $venta) {
-            $idsVenta = $venta->detalles->pluck('animal_id')->map(fn ($id) => (int) $id)->sort()->values()->all();
-            $idsEnviados = collect($vistos)->sort()->values()->all();
-            if ($idsVenta !== $idsEnviados) {
-                throw ValidationException::withMessages([
-                    'detalles' => 'La salida de venta debe incluir exactamente los animales de la venta seleccionada.',
-                ]);
-            }
         }
 
         return $normalizados;
@@ -300,7 +324,7 @@ class SalidaService
     /**
      * @param  list<array<string, mixed>>  $detalles
      */
-    private function assertAnimalesDisponibles(array $detalles, TipoSalida $tipo, ?Venta $venta): void
+    private function assertAnimalesDisponibles(array $detalles): void
     {
         $animalIds = array_map(fn (array $linea) => (int) $linea['animal_id'], $detalles);
         $animales = Animal::query()
@@ -325,19 +349,13 @@ class SalidaService
 
             if (in_array($animalId, $yaSalieron, true)) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.animal_id" => 'El animal ya fue utilizado en otra salida.',
+                    "detalles.$index.animal_id" => 'El animal ya tiene una salida registrada.',
                 ]);
             }
 
-            if ($tipo->esVenta()) {
-                if ($animal->estado !== Animal::ESTADO_RESERVADO) {
-                    throw ValidationException::withMessages([
-                        "detalles.$index.animal_id" => 'El animal de la venta no está reservado.',
-                    ]);
-                }
-            } elseif (! $animal->estaDisponibleParaSalida()) {
+            if (! $animal->estaDisponibleParaSalida()) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.animal_id" => 'El animal no está disponible para una salida.',
+                    "detalles.$index.animal_id" => 'Solo se pueden seleccionar animales activos.',
                 ]);
             }
         }
@@ -362,6 +380,7 @@ class SalidaService
                 'precio' => $linea['precio'],
                 'descuento' => $linea['descuento'],
                 'subtotal' => $linea['subtotal'],
+                'observaciones' => $linea['observaciones'] ?: null,
             ]);
         }
     }
@@ -384,7 +403,7 @@ class SalidaService
                     'codigo' => $salida->codigo,
                     'tipo_salida_id' => $tipo->id,
                     'tipo_salida' => $tipo->nombre,
-                    'venta_id' => $salida->venta_id,
+                    'tipo_salida_codigo' => $tipo->codigo,
                     'estado' => $estado,
                 ],
             ]);
@@ -399,10 +418,10 @@ class SalidaService
         $salida->save();
     }
 
-    private function nextCodigo(): string
+    private function nextCodigo(TipoSalida $tipo): string
     {
-        $year = now()->year;
-        $prefix = "SAL-{$year}-";
+        TipoSalida::query()->whereKey($tipo->id)->lockForUpdate()->first();
+        $prefix = $tipo->prefijoCodigo();
 
         $ultimo = Salida::query()
             ->where('codigo', 'like', $prefix.'%')
@@ -411,10 +430,103 @@ class SalidaService
             ->value('codigo');
 
         $secuencia = 1;
-        if ($ultimo && preg_match('/SAL-\d{4}-(\d+)/', $ultimo, $matches)) {
+        if ($ultimo && preg_match('/^'.preg_quote($prefix, '/').'(\d+)$/', $ultimo, $matches)) {
             $secuencia = ((int) $matches[1]) + 1;
         }
 
-        return $prefix.str_pad((string) $secuencia, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad((string) $secuencia, 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * @param  array<string, mixed>  $cruda
+     * @param  array<string, int>  $aretes
+     * @return array<string, mixed>
+     */
+    private function normalizarFilaExcel(array $cruda, array &$aretes, bool $exigePrecio): array
+    {
+        $linea = (int) ($cruda['linea'] ?? 0);
+        $arete = strtoupper(trim((string) ($cruda['codigo_arete'] ?? $cruda['arete'] ?? '')));
+        $precioRaw = trim((string) ($cruda['precio'] ?? ''));
+        $precio = $precioRaw === '' ? 0.0 : round((float) str_replace(',', '.', $precioRaw), 2);
+        $errores = [];
+
+        if ($arete === '') {
+            $errores[] = 'El código de arete es obligatorio.';
+        } elseif (isset($aretes[$arete])) {
+            $errores[] = 'El arete está duplicado en el archivo (línea '.$aretes[$arete].').';
+        } else {
+            $aretes[$arete] = $linea;
+        }
+
+        if ($exigePrecio && $precio < 0.01) {
+            $errores[] = 'El precio es obligatorio para una venta.';
+        }
+
+        if (! $exigePrecio) {
+            $precio = 0.0;
+        }
+
+        $animal = $arete !== ''
+            ? Animal::query()
+                ->with([
+                    'categoria:id,codigo,nombre',
+                    'lote:id,nombre,codigo,potrero_id',
+                    'lote.potrero:id,nombre',
+                    'grupo:id,nombre',
+                    'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
+                ])
+                ->whereNull('deleted_at')
+                ->whereRaw('UPPER(BTRIM(arete)) = ?', [$arete])
+                ->first()
+            : null;
+
+        if ($arete !== '' && ! $animal) {
+            $errores[] = 'No existe un animal con ese arete.';
+        }
+
+        if ($animal && ! $animal->estaDisponibleParaSalida()) {
+            $errores[] = 'El animal no está activo.';
+        }
+
+        if ($animal && DetalleSalida::query()->where('animal_id', $animal->id)->exists()) {
+            $errores[] = 'El animal ya tiene una salida registrada.';
+        }
+
+        $peso = $animal?->ultimoPeso();
+        if ($animal && ($peso === null || $peso < 0.01)) {
+            $errores[] = 'El animal no tiene un pesaje registrado.';
+        }
+
+        return [
+            'linea' => $linea,
+            'codigo_arete' => $arete,
+            'precio' => $precio,
+            'animal_id' => $animal?->id,
+            'animal_codigo' => $animal?->codigo,
+            'sexo' => $animal?->sexo,
+            'edad_meses' => $animal?->calcularEdadMeses(),
+            'peso' => $peso,
+            'categoria_id' => $animal?->categoria_id,
+            'categoria_codigo' => $animal?->categoria?->codigo,
+            'categoria_nombre' => $animal?->categoria?->nombre,
+            'lote_id' => $animal?->lote_id,
+            'lote_nombre' => $animal?->lote?->nombre,
+            'grupo_id' => $animal?->grupo_id,
+            'grupo_nombre' => $animal?->grupo?->nombre,
+            'potrero_nombre' => $animal?->lote?->potrero?->nombre,
+            'errores' => $errores,
+            'valida' => $errores === [],
+        ];
+    }
+
+    private function nullableId(mixed $value): ?int
+    {
+        if ($value === '' || $value === null) {
+            return null;
+        }
+
+        $id = (int) $value;
+
+        return $id > 0 ? $id : null;
     }
 }

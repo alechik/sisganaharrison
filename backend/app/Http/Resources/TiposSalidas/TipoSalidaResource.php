@@ -15,6 +15,11 @@ class TipoSalidaResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
+            'codigo' => $this->codigo,
+            'iniciales' => $this->iniciales,
+            'descripcion' => $this->descripcion,
+            'requiere_cliente' => (bool) $this->requiere_cliente,
+            'estado' => (bool) $this->estado,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
             'deleted_at' => $this->deleted_at?->toIso8601String(),

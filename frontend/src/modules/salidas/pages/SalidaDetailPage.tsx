@@ -99,9 +99,15 @@ export default function SalidaDetailPage() {
             <dt className="text-sm text-gray-500">Cliente</dt>
             <dd className="font-medium">{salida.cliente_razon_social || "—"}</dd>
           </div>
+          {salida.cod_venta && (
+            <div>
+              <dt className="text-sm text-gray-500">Venta histórica</dt>
+              <dd className="font-medium">{salida.cod_venta}</dd>
+            </div>
+          )}
           <div>
-            <dt className="text-sm text-gray-500">Venta</dt>
-            <dd className="font-medium">{salida.cod_venta || "—"}</dd>
+            <dt className="text-sm text-gray-500">Observaciones</dt>
+            <dd className="font-medium">{salida.observaciones || "—"}</dd>
           </div>
           <div>
             <dt className="text-sm text-gray-500">Estado</dt>

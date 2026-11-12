@@ -32,6 +32,7 @@ class DetalleSalida extends Model
         'precio',
         'descuento',
         'subtotal',
+        'observaciones',
     ];
 
     protected function casts(): array

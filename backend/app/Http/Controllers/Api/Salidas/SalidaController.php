@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api\Salidas;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Salidas\PreviewSalidaExcelRequest;
 use App\Http\Requests\Salidas\StoreSalidaRequest;
+use App\Http\Resources\Salidas\AnimalDisponibleSalidaResource;
 use App\Http\Resources\Salidas\SalidaResource;
-use App\Http\Resources\Ventas\AnimalDisponibleVentaResource;
 use App\Models\Salida;
 use App\Services\Salidas\SalidaService;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalidaController extends Controller
 {
@@ -29,50 +31,48 @@ class SalidaController extends Controller
         return SalidaResource::collection($salidas);
     }
 
-    public function ventasDisponibles(): JsonResponse
-    {
-        $this->authorize('create', Salida::class);
-
-        $ventas = $this->salidaService->ventasDisponibles();
-
-        return response()->json([
-            'data' => $ventas->map(fn ($venta) => [
-                'id' => $venta->id,
-                'cod_venta' => $venta->cod_venta,
-                'fecha_venta' => $venta->fecha_venta?->format('Y-m-d'),
-                'cliente_id' => $venta->cliente_id,
-                'cliente_razon_social' => $venta->cliente?->razon_social,
-            ])->values(),
-        ]);
-    }
-
     public function animalesDisponibles(Request $request): AnonymousResourceCollection
     {
         $this->authorize('create', Salida::class);
 
         $animales = $this->salidaService->animalesDisponibles($request->all());
 
-        return AnimalDisponibleVentaResource::collection($animales);
+        return AnimalDisponibleSalidaResource::collection($animales);
+    }
+
+    public function plantillaExcel(): StreamedResponse
+    {
+        $this->authorize('create', Salida::class);
+
+        return $this->salidaService->descargarPlantilla();
+    }
+
+    public function previewExcel(PreviewSalidaExcelRequest $request): JsonResponse
+    {
+        $this->authorize('create', Salida::class);
+
+        try {
+            $preview = $this->salidaService->previewExcel(
+                $request->file('archivo'),
+                $request->filled('tipo_salida_id') ? (int) $request->integer('tipo_salida_id') : null
+            );
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        return response()->json([
+            'data' => $preview,
+        ]);
     }
 
     public function show(Salida $salida): SalidaResource
     {
         $this->authorize('view', $salida);
 
-        $salida->load([
-            'cliente:id,razon_social,nit',
-            'creador:id,nombre,apellido',
-            'tipoSalida:id,nombre',
-            'venta:id,cod_venta,cliente_id,fecha_venta',
-            'detalles.animal:id,codigo,arete,sexo,categoria_id,lote_id,estado',
-            'detalles.animal.categoria:id,codigo,nombre',
-            'detalles.animal.lote:id,nombre,codigo,potrero_id',
-            'detalles.animal.lote.potrero:id,nombre',
-            'detalles.lote:id,nombre,codigo,potrero_id',
-            'detalles.lote.potrero:id,nombre',
-        ]);
-
-        return new SalidaResource($salida);
+        return new SalidaResource($this->salidaService->find($salida->id));
     }
 
     public function store(StoreSalidaRequest $request): JsonResponse

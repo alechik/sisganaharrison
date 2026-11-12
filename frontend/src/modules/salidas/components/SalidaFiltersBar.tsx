@@ -29,7 +29,7 @@ export default function SalidaFiltersBar({ filters, onChange }: Props) {
       <div>
         <Label>Código</Label>
         <DebouncedSearchField
-          placeholder="SAL-2026-0001"
+          placeholder="SV000001"
           value={filters.codigo ?? ""}
           onValueChange={(codigo) => onChange({ codigo })}
         />

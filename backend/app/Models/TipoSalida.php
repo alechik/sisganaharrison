@@ -15,6 +15,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property int $id
  * @property string $nombre
+ * @property string $codigo
+ * @property string $iniciales
+ * @property string|null $descripcion
+ * @property bool $requiere_cliente
+ * @property bool $estado
  */
 class TipoSalida extends Model
 {
@@ -23,17 +28,38 @@ class TipoSalida extends Model
 
     public const NOMBRE_VENTA = 'Venta';
 
-    public const NOMBRE_PERDIDO = 'Perdido';
+    public const NOMBRE_PERDIDO = 'Pérdida';
 
     public const NOMBRE_ROBO = 'Robo';
 
     public const NOMBRE_MUERTE = 'Muerte';
 
+    public const CODIGO_VENTA = 'VENTA';
+
+    public const CODIGO_PERDIDA = 'PERDIDA';
+
+    public const CODIGO_ROBO = 'ROBO';
+
+    public const CODIGO_MUERTE = 'MUERTE';
+
     protected $table = 'tipos_salidas';
 
     protected $fillable = [
         'nombre',
+        'codigo',
+        'iniciales',
+        'descripcion',
+        'requiere_cliente',
+        'estado',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'requiere_cliente' => 'boolean',
+            'estado' => 'boolean',
+        ];
+    }
 
     /**
      * @param  Builder<TipoSalida>  $query
@@ -54,15 +80,30 @@ class TipoSalida extends Model
 
     public function esVenta(): bool
     {
-        return mb_strtolower($this->nombre) === mb_strtolower(self::NOMBRE_VENTA);
+        return strtoupper((string) $this->codigo) === self::CODIGO_VENTA
+            || mb_strtolower((string) $this->nombre) === mb_strtolower(self::NOMBRE_VENTA);
+    }
+
+    public function prefijoCodigo(): string
+    {
+        $iniciales = strtoupper((string) preg_replace('/[^A-Za-z0-9]/', '', $this->iniciales));
+
+        return 'S'.$iniciales;
     }
 
     public function estadoAnimalResultante(): string
     {
-        return match (mb_strtolower($this->nombre)) {
-            mb_strtolower(self::NOMBRE_VENTA) => Animal::ESTADO_VENDIDO,
-            mb_strtolower(self::NOMBRE_MUERTE) => Animal::ESTADO_MUERTO,
-            mb_strtolower(self::NOMBRE_ROBO), mb_strtolower(self::NOMBRE_PERDIDO) => Animal::ESTADO_OTRO,
+        $codigo = strtoupper((string) $this->codigo);
+        $nombre = mb_strtolower((string) $this->nombre);
+
+        return match (true) {
+            $codigo === self::CODIGO_VENTA, $nombre === mb_strtolower(self::NOMBRE_VENTA) => Animal::ESTADO_VENDIDO,
+            $codigo === self::CODIGO_MUERTE, $nombre === mb_strtolower(self::NOMBRE_MUERTE) => Animal::ESTADO_MUERTO,
+            $codigo === self::CODIGO_ROBO,
+            $codigo === self::CODIGO_PERDIDA,
+            $nombre === mb_strtolower(self::NOMBRE_ROBO),
+            $nombre === mb_strtolower(self::NOMBRE_PERDIDO),
+            $nombre === 'perdido' => Animal::ESTADO_OTRO,
             default => Animal::ESTADO_OTRO,
         };
     }

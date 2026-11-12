@@ -1,6 +1,6 @@
 import { TipoSalidaListParams } from "./tipoSalida";
 
-export type TipoSalidaSortField = "nombre" | "created_at";
+export type TipoSalidaSortField = "nombre" | "codigo" | "iniciales" | "created_at";
 export type TipoSalidaSortDirection = "asc" | "desc";
 
 export interface TipoSalidaFilters extends TipoSalidaListParams {

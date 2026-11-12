@@ -172,12 +172,12 @@ const navItems: NavItem[] = [
     name: "Ventas y Salidas",
     subItems: [
       {
-        name: "Ventas",
-        path: "/ventas",
-      },
-      {
         name: "Salidas",
         path: "/salidas",
+      },
+      {
+        name: "Ventas (histórico)",
+        path: "/ventas",
       },
       {
         name: "Traspasos",

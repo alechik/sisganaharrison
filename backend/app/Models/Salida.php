@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $descuento
  * @property string|null $total_peso
  * @property string|null $monto_total
+ * @property string|null $observaciones
  */
 class Salida extends Model
 {
@@ -43,6 +44,7 @@ class Salida extends Model
         'descuento',
         'total_peso',
         'monto_total',
+        'observaciones',
     ];
 
     protected function casts(): array

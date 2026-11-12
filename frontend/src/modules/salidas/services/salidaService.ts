@@ -1,11 +1,11 @@
 import api from "@/api/axios";
-import { AnimalDisponibleVenta } from "@/modules/ventas/types";
 import { PaginatedResponse } from "@/types/api";
 import {
+  AnimalDisponibleSalida,
   Salida,
   SalidaCreateRequest,
+  SalidaExcelPreview,
   SalidaListParams,
-  VentaDisponibleSalida,
 } from "../types";
 
 interface LaravelPaginatedResponse<T> {
@@ -48,17 +48,10 @@ export const getSalida = async (id: number): Promise<Salida> => {
   return response.data.data;
 };
 
-export const getVentasDisponiblesSalida = async (): Promise<VentaDisponibleSalida[]> => {
-  const response = await api.get<{ data: VentaDisponibleSalida[] }>(
-    "/salidas/ventas-disponibles"
-  );
-  return response.data.data;
-};
-
 export const buscarAnimalesSalida = async (
   search: string
-): Promise<AnimalDisponibleVenta[]> => {
-  const response = await api.get<{ data: AnimalDisponibleVenta[] }>(
+): Promise<AnimalDisponibleSalida[]> => {
+  const response = await api.get<{ data: AnimalDisponibleSalida[] }>(
     "/salidas/animales-disponibles",
     { params: { search } }
   );
@@ -68,6 +61,43 @@ export const buscarAnimalesSalida = async (
 export const createSalida = async (data: SalidaCreateRequest) => {
   const response = await api.post<{ message: string; data: Salida }>("/salidas", data);
   return response.data;
+};
+
+export const downloadSalidaPlantilla = async () => {
+  const response = await api.get("/salidas/plantilla-excel", {
+    responseType: "blob",
+  });
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    })
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "plantilla_salida_animales.xlsx";
+  link.click();
+  window.URL.revokeObjectURL(url);
+};
+
+export const previewSalidaExcel = async (
+  file: File,
+  tipoSalidaId?: number
+): Promise<SalidaExcelPreview> => {
+  const formData = new FormData();
+  formData.append("archivo", file);
+  if (tipoSalidaId) {
+    formData.append("tipo_salida_id", String(tipoSalidaId));
+  }
+  const response = await api.post<{ data: SalidaExcelPreview }>(
+    "/salidas/vista-previa-excel",
+    formData,
+    {
+      headers: {
+        "Content-Type": undefined,
+      },
+    }
+  );
+  return response.data.data;
 };
 
 const openPdfBlob = (data: Blob, codigo: string, download: boolean) => {

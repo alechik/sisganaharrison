@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
 import InputField from "@/components/form/input/InputField";
-import { AnimalDisponibleVenta } from "@/modules/ventas/types";
 import { buscarAnimalesSalida } from "../services";
+import { AnimalDisponibleSalida } from "../types";
 
 interface Props {
   excludedIds: number[];
-  onSelect: (animal: AnimalDisponibleVenta) => void;
+  onSelect: (animal: AnimalDisponibleSalida) => void;
   disabled?: boolean;
 }
 
 export default function AnimalSearchField({ excludedIds, onSelect, disabled }: Props) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<AnimalDisponibleVenta[]>([]);
+  const [results, setResults] = useState<AnimalDisponibleSalida[]>([]);
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +50,7 @@ export default function AnimalSearchField({ excludedIds, onSelect, disabled }: P
     <div className="relative" ref={wrapperRef}>
       <InputField
         type="text"
-        placeholder="Código / arete"
+        placeholder="Buscar por arete"
         value={query}
         disabled={disabled}
         onChange={(e) => setQuery(e.target.value)}
@@ -69,15 +69,21 @@ export default function AnimalSearchField({ excludedIds, onSelect, disabled }: P
                   setOpen(false);
                 }}
               >
-                <span className="font-medium">{animal.codigo}</span>
-                {animal.arete ? ` · ${animal.arete}` : ""}
+                <span className="font-medium">{animal.arete || animal.codigo}</span>
+                {animal.arete && animal.codigo ? ` · ${animal.codigo}` : ""}
                 <span className="block text-xs text-gray-500">
-                  {animal.potrero_nombre || "Sin parcela"} / {animal.lote_nombre || "Sin potrero"}
+                  {animal.categoria_nombre || "Sin categoría"} · {animal.lote_nombre || "Sin lote"}
+                  {animal.peso != null ? ` · ${animal.peso} kg` : ""}
                 </span>
               </button>
             </li>
           ))}
         </ul>
+      )}
+      {open && query.trim().length >= 2 && results.length === 0 && (
+        <div className="absolute z-20 mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 shadow-lg dark:border-white/[0.08] dark:bg-gray-900">
+          No hay animales activos con ese arete.
+        </div>
       )}
     </div>
   );

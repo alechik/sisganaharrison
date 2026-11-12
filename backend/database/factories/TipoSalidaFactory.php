@@ -15,8 +15,16 @@ class TipoSalidaFactory extends Factory
 
     public function definition(): array
     {
+        $nombre = Str::title(fake()->unique()->words(2, true));
+        $codigo = strtoupper(Str::slug($nombre, '_')).'_'.strtoupper(Str::random(4));
+
         return [
-            'nombre' => Str::title(fake()->unique()->words(2, true)),
+            'nombre' => $nombre,
+            'codigo' => $codigo,
+            'iniciales' => strtoupper(Str::random(2)),
+            'descripcion' => null,
+            'requiere_cliente' => false,
+            'estado' => true,
         ];
     }
 }

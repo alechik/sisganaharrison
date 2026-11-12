@@ -31,6 +31,7 @@ export const getTiposSalidas = async (
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
         search: params.search || undefined,
+        estado: params.estado,
         sort_by: params.sort_by,
         sort_dir: params.sort_dir,
       },
