@@ -16,6 +16,13 @@ class ApiConfig {
     }
 
     if (kIsWeb) {
+      // La version web dockerizada se sirve detras de un Nginx que expone
+      // /api en el mismo origen. Asi funciona igual en localhost que en LAN.
+      final origin = Uri.base.origin;
+      if (origin.isNotEmpty && origin != 'null') {
+        return '$origin/api';
+      }
+
       final host = Uri.base.host;
       final apiHost = (host.isEmpty || host == 'localhost') ? '127.0.0.1' : host;
       return 'http://$apiHost:8000/api';

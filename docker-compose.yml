@@ -219,6 +219,37 @@ services:
       retries: 3
       start_period: 10s
 
+  # ============================================================
+  # APP MOVIL (FLUTTER WEB) - CONTENEDOR INDEPENDIENTE
+  # ============================================================
+  # No reemplaza ni modifica el frontend React. Se publica en un
+  # puerto distinto (8081 por defecto) y reenvia /api al nginx
+  # principal para mantener el mismo origen y evitar CORS.
+  appmovil:
+    build:
+      context: ./appmovil
+      dockerfile: Dockerfile
+    image: sisganaderia/appmovil:latest
+    container_name: sisganaderia-appmovil
+    restart: unless-stopped
+
+    ports:
+      - "${MOVIL_PORT:-8081}:80"
+
+    networks:
+      - sisganaderia_net
+
+    depends_on:
+      nginx:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
 
 # ============================================================
 # REDES DEL PROYECTO

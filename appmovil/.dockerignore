@@ -1,0 +1,26 @@
+# Artefactos de compilacion y cache local
+build/
+.dart_tool/
+.pub-cache/
+.pub/
+coverage/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Control de versiones y entornos de editor
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+
+# Plataformas nativas (solo se compila web en este contenedor)
+android/
+ios/
+linux/
+macos/
+windows/
+test/
+
+# Documentacion
+README.md
