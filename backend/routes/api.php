@@ -756,6 +756,12 @@ Route::middleware('auth:sanctum')->group(function () {
 */
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('pesajes/plantilla-excel', [PesajeController::class, 'plantillaExcel'])
+        ->middleware('permission:pesajes.create');
+
+    Route::post('pesajes/vista-previa-excel', [PesajeController::class, 'previewExcel'])
+        ->middleware('permission:pesajes.create');
+
     Route::get('pesajes/animales-disponibles', [PesajeController::class, 'animalesDisponibles'])
         ->middleware('permission:pesajes.create');
 
@@ -766,7 +772,8 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('permission:pesajes.create');
 
     Route::get('pesajes/{pesaje}', [PesajeController::class, 'show'])
-        ->middleware('permission:pesajes.view');
+        ->middleware('permission:pesajes.view')
+        ->whereNumber('pesaje');
 });
 
 /*

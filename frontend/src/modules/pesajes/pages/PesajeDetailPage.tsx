@@ -86,6 +86,10 @@ export default function PesajeDetailPage() {
             </dd>
           </div>
           <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Total de animales pesados</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{pesaje.cantidad_animales ?? pesaje.detalles?.length ?? 0}</dd>
+          </div>
+          <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Total peso</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">{formatPeso(pesaje.total_peso)}</dd>
           </div>

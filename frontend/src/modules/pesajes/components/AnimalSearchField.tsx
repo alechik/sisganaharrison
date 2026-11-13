@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
 import InputField from "@/components/form/input/InputField";
-import { AnimalDisponibleVenta } from "@/modules/ventas/types";
 import { buscarAnimalesPesaje } from "../services";
+import { AnimalDisponiblePesaje } from "../types";
 
 interface Props {
   excludedIds: number[];
-  onSelect: (animal: AnimalDisponibleVenta) => void;
+  onSelect: (animal: AnimalDisponiblePesaje) => void;
   disabled?: boolean;
 }
 
 export default function AnimalSearchField({ excludedIds, onSelect, disabled }: Props) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<AnimalDisponibleVenta[]>([]);
+  const [results, setResults] = useState<AnimalDisponiblePesaje[]>([]);
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 

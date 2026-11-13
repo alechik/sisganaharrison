@@ -7,14 +7,20 @@ use App\Models\Ingreso;
 use App\Models\Pesaje;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PesajeService
 {
     private const SORTABLE_COLUMNS = ['codigo_pesaje', 'fecha_pesaje', 'total_peso', 'created_at'];
+
+    public function __construct(
+        private readonly PesajeExcelService $excelService
+    ) {}
 
     private const RELATIONS = [
         'usuario:id,nombre,apellido',
@@ -48,7 +54,7 @@ class PesajeService
     public function animalesDisponibles(array $filters = []): Collection
     {
         $search = trim((string) ($filters['search'] ?? ''));
-        if ($search === '') {
+        if (mb_strlen($search) < 1) {
             return collect();
         }
 
@@ -61,10 +67,60 @@ class PesajeService
             ])
             ->whereNull('deleted_at')
             ->where('estado', Animal::ESTADO_ACTIVO)
-            ->where('codigo', 'ilike', '%'.$search.'%')
-            ->orderBy('codigo')
+            ->where(function (Builder $builder) use ($search) {
+                $builder->where('arete', 'ilike', "%{$search}%")
+                    ->orWhere('codigo', 'ilike', "%{$search}%");
+            })
+            ->orderBy('arete')
             ->limit(20)
             ->get();
+    }
+
+    /**
+     * @return array{filename: string, content: string, mime: string}
+     */
+    public function plantillaExcel(): array
+    {
+        return $this->excelService->plantilla();
+    }
+
+    public function descargarPlantilla(): StreamedResponse
+    {
+        $plantilla = $this->plantillaExcel();
+
+        return response()->streamDownload(function () use ($plantilla) {
+            echo $plantilla['content'];
+        }, $plantilla['filename'], [
+            'Content-Type' => $plantilla['mime'],
+        ]);
+    }
+
+    /**
+     * @return array{filas: list<array<string, mixed>>, validas: int, con_errores: int}
+     */
+    public function previewExcel(UploadedFile $file): array
+    {
+        $crudas = $this->excelService->parse($file);
+        $filas = [];
+        $aretes = [];
+        $validas = 0;
+        $conErrores = 0;
+
+        foreach ($crudas as $cruda) {
+            $normalizada = $this->normalizarFilaExcel($cruda, $aretes);
+            if (($normalizada['errores'] ?? []) === []) {
+                $validas++;
+            } else {
+                $conErrores++;
+            }
+            $filas[] = $normalizada;
+        }
+
+        return [
+            'filas' => $filas,
+            'validas' => $validas,
+            'con_errores' => $conErrores,
+        ];
     }
 
     /**
@@ -316,31 +372,33 @@ class PesajeService
         array $detalles,
         ?int $userId
     ): Pesaje {
-        if ($userId === null) {
-            throw ValidationException::withMessages([
-                'user_id' => 'No se pudo determinar el usuario del pesaje.',
+        return DB::transaction(function () use ($fecha, $observacion, $detalles, $userId) {
+            if ($userId === null) {
+                throw ValidationException::withMessages([
+                    'user_id' => 'No se pudo determinar el usuario del pesaje.',
+                ]);
+            }
+
+            $total = round(array_sum(array_map(fn (array $linea) => $linea['peso'], $detalles)), 2);
+
+            $pesaje = Pesaje::query()->create([
+                'codigo_pesaje' => $this->nextCodigo(),
+                'fecha_pesaje' => $fecha,
+                'total_peso' => $total,
+                'observacion' => $observacion,
+                'user_id' => $userId,
             ]);
-        }
 
-        $total = round(array_sum(array_map(fn (array $linea) => $linea['peso'], $detalles)), 2);
+            foreach ($detalles as $linea) {
+                $pesaje->detalles()->create([
+                    'animal_id' => $linea['animal_id'],
+                    'lote_id' => $linea['lote_id'],
+                    'peso' => $linea['peso'],
+                ]);
+            }
 
-        $pesaje = Pesaje::query()->create([
-            'codigo_pesaje' => $this->nextCodigo(),
-            'fecha_pesaje' => $fecha,
-            'total_peso' => $total,
-            'observacion' => $observacion,
-            'user_id' => $userId,
-        ]);
-
-        foreach ($detalles as $linea) {
-            $pesaje->detalles()->create([
-                'animal_id' => $linea['animal_id'],
-                'lote_id' => $linea['lote_id'],
-                'peso' => $linea['peso'],
-            ]);
-        }
-
-        return $pesaje->fresh(self::RELATIONS);
+            return $pesaje->fresh(self::RELATIONS);
+        });
     }
 
     private function nextCodigo(): string
@@ -360,5 +418,72 @@ class PesajeService
         }
 
         return $prefix.str_pad((string) $secuencia, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * @param  array<string, mixed>  $cruda
+     * @param  array<string, int>  $aretes
+     * @return array<string, mixed>
+     */
+    private function normalizarFilaExcel(array $cruda, array &$aretes): array
+    {
+        $linea = (int) ($cruda['linea'] ?? 0);
+        $arete = strtoupper(trim((string) ($cruda['codigo_arete'] ?? $cruda['arete'] ?? '')));
+        $pesoRaw = trim((string) ($cruda['peso_kg'] ?? $cruda['peso'] ?? ''));
+        $errores = [];
+        $peso = null;
+
+        if ($arete === '') {
+            $errores[] = 'El código de arete es obligatorio.';
+        } elseif (isset($aretes[$arete])) {
+            $errores[] = 'El arete está duplicado en el archivo (línea '.$aretes[$arete].').';
+        } else {
+            $aretes[$arete] = $linea;
+        }
+
+        if ($pesoRaw === '' || ! is_numeric(str_replace(',', '.', $pesoRaw))) {
+            $errores[] = 'El peso debe ser numérico y positivo.';
+        } else {
+            $peso = round((float) str_replace(',', '.', $pesoRaw), 2);
+            if ($peso < 0.01) {
+                $errores[] = 'El peso debe ser mayor a cero.';
+            }
+        }
+
+        $animal = $arete !== ''
+            ? Animal::query()
+                ->with([
+                    'lote:id,nombre,codigo,potrero_id',
+                    'lote.potrero:id,nombre',
+                ])
+                ->whereNull('deleted_at')
+                ->whereRaw('UPPER(BTRIM(arete)) = ?', [$arete])
+                ->first()
+            : null;
+
+        if ($arete !== '' && ! $animal) {
+            $errores[] = 'No existe un animal con ese arete.';
+        }
+
+        if ($animal && $animal->estado !== Animal::ESTADO_ACTIVO) {
+            $errores[] = 'El animal no está activo.';
+        }
+
+        if ($animal && ! $animal->lote_id) {
+            $errores[] = 'El animal no tiene un lote asignado.';
+        }
+
+        return [
+            'linea' => $linea,
+            'codigo_arete' => $arete,
+            'peso_kg' => $peso,
+            'animal_id' => $animal?->id,
+            'animal_codigo' => $animal?->codigo,
+            'lote_id' => $animal?->lote_id,
+            'lote_nombre' => $animal?->lote?->nombre,
+            'potrero_nombre' => $animal?->lote?->potrero?->nombre,
+            'errores' => $errores,
+            'valida' => $errores === [],
+        ];
     }
 }

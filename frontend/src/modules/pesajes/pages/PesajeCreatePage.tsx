@@ -7,7 +7,10 @@ export default function PesajeCreatePage() {
   return (
     <div className="space-y-6">
       <PageBreadCrumb pageTitle="Nuevo Pesaje" items={breadcrumbs.pesajeCrear} />
-      <ComponentCard title="Formulario de Pesaje">
+      <ComponentCard
+        title="Registrar pesaje de animales"
+        desc="Complete la cabecera y el detalle. El código se genera al confirmar. Puede cargar varios animales de forma manual o con Excel."
+      >
         <PesajeForm />
       </ComponentCard>
     </div>

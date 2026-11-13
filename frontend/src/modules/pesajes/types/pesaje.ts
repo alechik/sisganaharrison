@@ -36,6 +36,38 @@ export interface PesajeCreateRequest {
   detalles: PesajeDetalleRequest[];
 }
 
+export interface AnimalDisponiblePesaje {
+  id: number;
+  codigo: string;
+  arete: string | null;
+  sexo?: "M" | "H" | null;
+  estado?: string;
+  lote_id?: number | null;
+  lote_nombre?: string | null;
+  potrero_id?: number | null;
+  potrero_nombre?: string | null;
+  peso?: number | null;
+}
+
+export interface PesajeExcelFila {
+  linea: number;
+  codigo_arete: string;
+  peso_kg: number | null;
+  animal_id: number | null;
+  animal_codigo?: string | null;
+  lote_id?: number | null;
+  lote_nombre?: string | null;
+  potrero_nombre?: string | null;
+  errores: string[];
+  valida: boolean;
+}
+
+export interface PesajeExcelPreview {
+  filas: PesajeExcelFila[];
+  validas: number;
+  con_errores: number;
+}
+
 export interface PesajeListParams {
   page?: number;
   per_page?: number;

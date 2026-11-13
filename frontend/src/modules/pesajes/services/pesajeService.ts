@@ -1,7 +1,12 @@
 import api from "@/api/axios";
-import { AnimalDisponibleVenta } from "@/modules/ventas/types";
 import { PaginatedResponse } from "@/types/api";
-import { Pesaje, PesajeCreateRequest, PesajeListParams } from "../types";
+import {
+  AnimalDisponiblePesaje,
+  Pesaje,
+  PesajeCreateRequest,
+  PesajeExcelPreview,
+  PesajeListParams,
+} from "../types";
 
 interface LaravelPaginatedResponse<T> {
   data: T[];
@@ -47,9 +52,40 @@ export const createPesaje = async (data: PesajeCreateRequest) => {
 };
 
 export const buscarAnimalesPesaje = async (search: string) => {
-  const response = await api.get<{ data: AnimalDisponibleVenta[] }>(
+  const response = await api.get<{ data: AnimalDisponiblePesaje[] }>(
     "/pesajes/animales-disponibles",
     { params: { search } }
+  );
+  return response.data.data;
+};
+
+export const downloadPesajePlantilla = async () => {
+  const response = await api.get("/pesajes/plantilla-excel", {
+    responseType: "blob",
+  });
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    })
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "plantilla_pesaje_animales.xlsx";
+  link.click();
+  window.URL.revokeObjectURL(url);
+};
+
+export const previewPesajeExcel = async (file: File): Promise<PesajeExcelPreview> => {
+  const formData = new FormData();
+  formData.append("archivo", file);
+  const response = await api.post<{ data: PesajeExcelPreview }>(
+    "/pesajes/vista-previa-excel",
+    formData,
+    {
+      headers: {
+        "Content-Type": undefined,
+      },
+    }
   );
   return response.data.data;
 };
