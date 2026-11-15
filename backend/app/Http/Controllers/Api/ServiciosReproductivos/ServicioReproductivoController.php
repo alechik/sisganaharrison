@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api\ServiciosReproductivos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServiciosReproductivos\ConfirmarGestacionServicioRequest;
+use App\Http\Requests\ServiciosReproductivos\PreviewServicioExcelRequest;
 use App\Http\Requests\ServiciosReproductivos\RegistrarPartoNacimientoServicioRequest;
+use App\Http\Requests\ServiciosReproductivos\StoreLoteInseminacionRequest;
 use App\Http\Requests\ServiciosReproductivos\StoreServicioReproductivoRequest;
 use App\Http\Requests\ServiciosReproductivos\UpdateServicioReproductivoRequest;
 use App\Http\Resources\ServiciosReproductivos\ServicioReproductivoResource;
+use App\Http\Resources\Ventas\AnimalDisponibleVentaResource;
 use App\Models\Parto;
 use App\Models\ServicioReproductivo;
 use App\Services\ServiciosReproductivos\ServicioReproductivoService;
@@ -16,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ServicioReproductivoController extends Controller
 {
@@ -30,6 +34,73 @@ class ServicioReproductivoController extends Controller
         $servicios = $this->servicioReproductivoService->paginate($request->all());
 
         return ServicioReproductivoResource::collection($servicios);
+    }
+
+    public function animalesDisponibles(Request $request): AnonymousResourceCollection
+    {
+        $this->authorize('create', ServicioReproductivo::class);
+
+        $animales = $this->servicioReproductivoService->animalesDisponibles($request->all());
+
+        return AnimalDisponibleVentaResource::collection($animales);
+    }
+
+    public function semenDisponible(Request $request): JsonResponse
+    {
+        $this->authorize('create', ServicioReproductivo::class);
+
+        return response()->json([
+            'data' => $this->servicioReproductivoService->semenDisponible($request->all()),
+        ]);
+    }
+
+    public function plantillaExcel(): StreamedResponse
+    {
+        $this->authorize('create', ServicioReproductivo::class);
+
+        return $this->servicioReproductivoService->descargarPlantilla();
+    }
+
+    public function previewExcel(PreviewServicioExcelRequest $request): JsonResponse
+    {
+        $this->authorize('create', ServicioReproductivo::class);
+
+        try {
+            $preview = $this->servicioReproductivoService->previewExcel($request->file('archivo'));
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        return response()->json([
+            'data' => $preview,
+        ]);
+    }
+
+    public function storeLoteInseminacion(StoreLoteInseminacionRequest $request): JsonResponse
+    {
+        $this->authorize('create', ServicioReproductivo::class);
+
+        try {
+            $servicios = $this->servicioReproductivoService->createLoteInseminacion($request->validated());
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => count($servicios) === 1
+                ? 'Inseminación registrada correctamente'
+                : count($servicios).' inseminaciones registradas correctamente',
+            'data' => array_map(
+                fn (ServicioReproductivo $servicio) => (new ServicioReproductivoResource($servicio))->resolve(),
+                $servicios
+            ),
+        ], 201);
     }
 
     public function show(ServicioReproductivo $servicioReproductivo): ServicioReproductivoResource

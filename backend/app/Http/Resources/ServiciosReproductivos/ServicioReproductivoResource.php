@@ -26,6 +26,13 @@ class ServicioReproductivoResource extends JsonResource
             'macho_id' => $this->macho_id,
             'macho_codigo' => $this->whenLoaded('macho', fn () => $this->macho?->codigo),
             'macho_arete' => $this->whenLoaded('macho', fn () => $this->macho?->arete),
+            'semen_nombre' => $this->whenLoaded('insumos', function () {
+                $insumo = $this->insumos->first();
+
+                return $insumo?->medicamento
+                    ? trim(($insumo->medicamento->codigo ? $insumo->medicamento->codigo.' — ' : '').($insumo->medicamento->nombre ?? ''))
+                    : null;
+            }),
             'fecha_servicio' => $this->fecha_servicio?->format('Y-m-d'),
             'tipo_servicio' => $this->tipo_servicio,
             'resultado' => $this->resultado,

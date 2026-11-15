@@ -83,3 +83,24 @@ export const getResultadoLabel = (value?: string | null): string => {
   };
   return labels[value] ?? value;
 };
+
+export const formatFecha = (iso?: string | null): string => {
+  if (!iso) {
+    return "—";
+  }
+  const [year, month, day] = iso.split("-");
+  if (!year || !month || !day) {
+    return iso;
+  }
+  return `${day}/${month}/${year}`;
+};
+
+export const nacimientoLabel = (estado?: string | null): string => {
+  if (estado === "MUERTO") {
+    return "Animal muerto";
+  }
+  if (estado === "VIVO") {
+    return "Animal vivo";
+  }
+  return "Parto registrado";
+};

@@ -75,14 +75,13 @@ export default function ServicioReproductivoListPage({ tipoServicio }: Props) {
       <ServicioReproductivoFiltersBar
         filters={filters}
         onChange={(partial) => updateFilters({ ...partial, tipo_servicio: tipoServicio })}
-        ocultarTipo
       />
 
       <ServicioReproductivoTable
         servicios={servicios}
         meta={meta}
         onPageChange={setPage}
-        mostrarTipo={false}
+        tipoServicio={tipoServicio}
         onConfirmarGestacion={setServicioGestacion}
         onRegistrarParto={setServicioParto}
       />

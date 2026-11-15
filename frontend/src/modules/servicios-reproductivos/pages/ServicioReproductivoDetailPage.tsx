@@ -6,7 +6,7 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
 import Button from "@/components/ui/button/Button";
-import { SERVICIO_REPRODUCTIVO_ROUTES } from "../constants";
+import { SERVICIO_REPRODUCTIVO_ROUTES, TIPO_INSEMINACION_ARTIFICIAL } from "../constants";
 import { SERVICIOS_REPRODUCTIVOS_PERMISSIONS } from "../permissions";
 import { downloadServicioReproductivoPdf, getServicioReproductivo } from "../services";
 import { ServicioReproductivo } from "../types";
@@ -105,11 +105,15 @@ export default function ServicioReproductivoDetailPage() {
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Macho</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">
+              {servicio.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL ? "Semen" : "Macho"}
+            </dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {servicio.macho_id
-                ? formatAnimalLabel(servicio.macho_codigo, servicio.macho_arete)
-                : "Sin macho registrado"}
+              {servicio.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL
+                ? servicio.semen_nombre || "—"
+                : servicio.macho_id
+                  ? formatAnimalLabel(servicio.macho_codigo, servicio.macho_arete)
+                  : "Sin macho registrado"}
             </dd>
           </div>
           <div>
@@ -196,9 +200,10 @@ export default function ServicioReproductivoDetailPage() {
         )}
       </ComponentCard>
 
-      <ComponentCard title="Insumos asociados">
+      {servicio.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL ? (
+      <ComponentCard title="Semen utilizado">
         {(servicio.insumos ?? []).length === 0 ? (
-          <p className="text-sm text-gray-500">Sin insumos registrados.</p>
+          <p className="text-sm text-gray-500">Sin semen asociado.</p>
         ) : (
           <table className="min-w-full text-sm">
             <thead>
@@ -220,6 +225,7 @@ export default function ServicioReproductivoDetailPage() {
           </table>
         )}
       </ComponentCard>
+      ) : null}
     </div>
   );
 }

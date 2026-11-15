@@ -10,14 +10,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PaginationMeta } from "@/types/api";
-import { EyeIcon, PencilIcon } from "@/icons";
-import { SERVICIO_REPRODUCTIVO_ROUTES } from "../constants";
+import { DownloadIcon, EyeIcon } from "@/icons";
+import { SERVICIO_REPRODUCTIVO_ROUTES, TIPO_INSEMINACION_ARTIFICIAL } from "../constants";
 import { SERVICIOS_REPRODUCTIVOS_PERMISSIONS } from "../permissions";
+import { downloadServicioReproductivoPdf } from "../services";
 import { ServicioReproductivo } from "../types";
 import {
   formatAnimalLabel,
+  formatFecha,
   getResultadoLabel,
-  getTipoServicioLabel,
+  nacimientoLabel,
   puedeConfirmarGestacion,
   puedeRegistrarParto,
 } from "../utils";
@@ -26,33 +28,20 @@ interface Props {
   servicios: ServicioReproductivo[];
   meta?: PaginationMeta;
   onPageChange?: (page: number) => void;
-  mostrarTipo?: boolean;
+  tipoServicio: string;
   onConfirmarGestacion?: (servicio: ServicioReproductivo) => void;
   onRegistrarParto?: (servicio: ServicioReproductivo) => void;
 }
-
-const gestacionLabel = (servicio: ServicioReproductivo): string => {
-  if (servicio.gestacion?.parto) {
-    return "Parto registrado";
-  }
-  if (servicio.gestacion?.estado === "ACTIVA") {
-    return "Gestación activa";
-  }
-  if (servicio.gestacion) {
-    return servicio.gestacion.estado;
-  }
-  return "Pendiente";
-};
 
 export default function ServicioReproductivoTable({
   servicios,
   meta,
   onPageChange,
-  mostrarTipo = true,
+  tipoServicio,
   onConfirmarGestacion,
   onRegistrarParto,
 }: Props) {
-  const colSpan = mostrarTipo ? 7 : 6;
+  const esIa = tipoServicio === TIPO_INSEMINACION_ARTIFICIAL;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -64,21 +53,19 @@ export default function ServicioReproductivoTable({
                 Hembra
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                Macho
+                {esIa ? "Semen" : "Macho"}
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Fecha
               </TableCell>
-              {mostrarTipo && (
-                <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
-                  Tipo
-                </TableCell>
-              )}
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Resultado
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
                 Gestación
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">
+                Parto
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-center text-gray-800 dark:text-white">
                 Acciones
@@ -89,7 +76,7 @@ export default function ServicioReproductivoTable({
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {servicios.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={colSpan}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={7}>
                   No hay servicios reproductivos para mostrar.
                 </TableCell>
               </TableRow>
@@ -106,29 +93,71 @@ export default function ServicioReproductivoTable({
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {servicio.macho_id
-                      ? formatAnimalLabel(servicio.macho_codigo, servicio.macho_arete)
-                      : "—"}
+                    {esIa
+                      ? servicio.semen_nombre || "—"
+                      : servicio.macho_id
+                        ? formatAnimalLabel(servicio.macho_codigo, servicio.macho_arete)
+                        : "—"}
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {servicio.fecha_servicio
-                      ? new Date(`${servicio.fecha_servicio}T00:00:00`).toLocaleDateString("es-PY")
-                      : "—"}
+                    {formatFecha(servicio.fecha_servicio)}
                   </TableCell>
-
-                  {mostrarTipo && (
-                    <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                      {getTipoServicioLabel(servicio.tipo_servicio)}
-                    </TableCell>
-                  )}
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
                     {getResultadoLabel(servicio.resultado)}
                   </TableCell>
 
-                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {gestacionLabel(servicio)}
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-700 dark:text-gray-300">
+                    {!servicio.gestacion ? (
+                      puedeConfirmarGestacion(servicio) && onConfirmarGestacion ? (
+                        <PermissionGate permission={SERVICIOS_REPRODUCTIVOS_PERMISSIONS.create}>
+                          <button
+                            type="button"
+                            onClick={() => onConfirmarGestacion(servicio)}
+                            className="font-medium text-brand-600 hover:underline dark:text-brand-400"
+                          >
+                            Registrar Gestación
+                          </button>
+                        </PermissionGate>
+                      ) : (
+                        "—"
+                      )
+                    ) : (
+                      <div>
+                        <p className="font-medium text-gray-800 dark:text-white/90">Gestación registrada</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Fecha de Parto: {formatFecha(servicio.gestacion.fecha_probable_parto)}
+                        </p>
+                      </div>
+                    )}
+                  </TableCell>
+
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-700 dark:text-gray-300">
+                    {!servicio.gestacion ? (
+                      <span className="text-gray-500 dark:text-gray-400">Antes registrar gestación</span>
+                    ) : !servicio.gestacion.parto ? (
+                      puedeRegistrarParto(servicio) && onRegistrarParto ? (
+                        <PermissionGate permission={SERVICIOS_REPRODUCTIVOS_PERMISSIONS.create}>
+                          <button
+                            type="button"
+                            onClick={() => onRegistrarParto(servicio)}
+                            className="font-medium text-brand-600 hover:underline dark:text-brand-400"
+                          >
+                            Registrar Parto
+                          </button>
+                        </PermissionGate>
+                      ) : (
+                        "—"
+                      )
+                    ) : (
+                      <div>
+                        <p className="font-medium text-gray-800 dark:text-white/90">Parto exitoso</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {nacimientoLabel(servicio.gestacion.parto.nacimiento?.estado_nacimiento)}
+                        </p>
+                      </div>
+                    )}
                   </TableCell>
 
                   <TableCell className="px-5 py-4">
@@ -142,40 +171,21 @@ export default function ServicioReproductivoTable({
                           <EyeIcon className="size-4" />
                         </Link>
                       </PermissionGate>
-
-                      <PermissionGate permission={SERVICIOS_REPRODUCTIVOS_PERMISSIONS.update}>
-                        <Link
-                          to={SERVICIO_REPRODUCTIVO_ROUTES.edit(servicio.id)}
+                      <PermissionGate permission={SERVICIOS_REPRODUCTIVOS_PERMISSIONS.view}>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            downloadServicioReproductivoPdf(
+                              servicio.id,
+                              servicio.codigo_servicio || `SRV-${servicio.id}`
+                            )
+                          }
                           className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition hover:border-blue-200 hover:bg-blue-50 dark:border-white/[0.05] dark:hover:bg-white/[0.05]"
-                          title="Editar servicio"
+                          title="Imprimir PDF"
                         >
-                          <PencilIcon className="size-4" />
-                        </Link>
+                          <DownloadIcon className="size-4" />
+                        </button>
                       </PermissionGate>
-
-                      {puedeConfirmarGestacion(servicio) && onConfirmarGestacion && (
-                        <PermissionGate permission={SERVICIOS_REPRODUCTIVOS_PERMISSIONS.create}>
-                          <button
-                            type="button"
-                            onClick={() => onConfirmarGestacion(servicio)}
-                            className="rounded-lg border border-gray-200 px-2 py-1 text-xs font-medium text-gray-700 transition hover:border-blue-200 hover:bg-blue-50 dark:border-white/[0.05] dark:text-gray-300 dark:hover:bg-white/[0.05]"
-                          >
-                            Confirmar gestación
-                          </button>
-                        </PermissionGate>
-                      )}
-
-                      {puedeRegistrarParto(servicio) && onRegistrarParto && (
-                        <PermissionGate permission={SERVICIOS_REPRODUCTIVOS_PERMISSIONS.create}>
-                          <button
-                            type="button"
-                            onClick={() => onRegistrarParto(servicio)}
-                            className="rounded-lg border border-gray-200 px-2 py-1 text-xs font-medium text-gray-700 transition hover:border-blue-200 hover:bg-blue-50 dark:border-white/[0.05] dark:text-gray-300 dark:hover:bg-white/[0.05]"
-                          >
-                            Registrar parto
-                          </button>
-                        </PermissionGate>
-                      )}
                     </div>
                   </TableCell>
                 </TableRow>

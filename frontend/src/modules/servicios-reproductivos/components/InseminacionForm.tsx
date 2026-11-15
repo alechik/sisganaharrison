@@ -1,0 +1,408 @@
+import { useMemo, useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+
+import InputField from "@/components/form/input/InputField";
+import Label from "@/components/form/Label";
+import TextArea from "@/components/form/input/TextArea";
+import Button from "@/components/ui/button/Button";
+import { hoyISO, validarFechaServicio } from "@/utils/reglasReproductivas";
+import { SERVICIO_REPRODUCTIVO_ROUTES } from "../constants";
+import { useCreateLoteInseminacion } from "../hooks/useCreateLoteInseminacion";
+import { downloadIaPlantilla, previewIaExcel } from "../services";
+import { AnimalDisponibleRepro, InseminacionExcelFila } from "../types";
+import { formatPeso } from "@/modules/pesajes/utils";
+import ReproAnimalSelect, { ReproAnimalOption, animalToOption } from "./ReproAnimalSelect";
+import SemenSelect, { SemenSelectOption } from "./SemenSelect";
+
+interface LineState {
+  animal_id: number | null;
+  animal_codigo: string;
+  animal_arete: string;
+  categoria_nombre: string;
+  lote_nombre: string;
+  peso: number | null;
+  option: ReproAnimalOption | null;
+}
+
+const emptyLine = (): LineState => ({
+  animal_id: null,
+  animal_codigo: "",
+  animal_arete: "",
+  categoria_nombre: "",
+  lote_nombre: "",
+  peso: null,
+  option: null,
+});
+
+const sectionClass =
+  "rounded-xl border border-gray-200 bg-gray-50/60 p-4 dark:border-white/[0.06] dark:bg-white/[0.02] sm:p-5";
+
+const fromAnimal = (animal: AnimalDisponibleRepro): LineState => ({
+  animal_id: animal.id,
+  animal_codigo: animal.codigo,
+  animal_arete: animal.arete ?? "",
+  categoria_nombre: animal.categoria_nombre ?? "",
+  lote_nombre: animal.lote_nombre ?? "",
+  peso: animal.peso ?? null,
+  option: animalToOption(animal),
+});
+
+const fromExcel = (fila: InseminacionExcelFila): LineState => {
+  if (!fila.animal_id) {
+    return {
+      ...emptyLine(),
+      animal_arete: fila.codigo_arete,
+    };
+  }
+
+  return fromAnimal({
+    id: fila.animal_id,
+    codigo: fila.animal_codigo ?? "",
+    arete: fila.codigo_arete,
+    categoria_nombre: fila.categoria_nombre,
+    lote_id: fila.lote_id,
+    lote_nombre: fila.lote_nombre,
+    peso: fila.peso,
+  });
+};
+
+export default function InseminacionForm() {
+  const navigate = useNavigate();
+  const { create, loading: saving, error, setError } = useCreateLoteInseminacion();
+
+  const [fechaServicio, setFechaServicio] = useState(hoyISO());
+  const [observaciones, setObservaciones] = useState("");
+  const [semen, setSemen] = useState<SemenSelectOption | null>(null);
+  const [lines, setLines] = useState<LineState[]>([emptyLine()]);
+  const [modo, setModo] = useState<"manual" | "excel">("manual");
+  const [excelError, setExcelError] = useState<string | null>(null);
+  const [excelLoading, setExcelLoading] = useState(false);
+  const [excelFilas, setExcelFilas] = useState<InseminacionExcelFila[]>([]);
+
+  const validLines = useMemo(
+    () => lines.filter((linea) => Boolean(linea.animal_id)),
+    [lines]
+  );
+  const selectedIds = lines.map((linea) => linea.animal_id).filter((id): id is number => Boolean(id));
+
+  const updateLine = (index: number, partial: Partial<LineState>) => {
+    setLines((current) =>
+      current.map((linea, currentIndex) => (currentIndex === index ? { ...linea, ...partial } : linea))
+    );
+  };
+
+  const handleSelect = (index: number, option: ReproAnimalOption | null) => {
+    if (!option) {
+      updateLine(index, emptyLine());
+      return;
+    }
+    updateLine(index, fromAnimal(option.animal));
+  };
+
+  const handlePlantilla = async () => {
+    try {
+      setExcelError(null);
+      await downloadIaPlantilla();
+    } catch (err) {
+      console.error(err);
+      setExcelError("No se pudo descargar la plantilla.");
+    }
+  };
+
+  const handleExcel = async (file: File | null) => {
+    if (!file) {
+      return;
+    }
+    setExcelLoading(true);
+    setExcelError(null);
+    try {
+      const preview = await previewIaExcel(file);
+      setExcelFilas(preview.filas);
+      const validas = preview.filas.filter((fila) => fila.valida && fila.animal_id);
+      setLines(validas.length ? validas.map(fromExcel) : [emptyLine()]);
+      setModo("excel");
+    } catch (err: unknown) {
+      const data = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
+        ?.response?.data;
+      setExcelError(data?.errors?.archivo?.[0] ?? data?.message ?? "No se pudo leer el archivo.");
+    } finally {
+      setExcelLoading(false);
+    }
+  };
+
+  const removeExcelFila = (linea: number) => {
+    const restantes = excelFilas.filter((fila) => fila.linea !== linea);
+    setExcelFilas(restantes);
+    const validas = restantes.filter((fila) => fila.valida && fila.animal_id);
+    setLines(validas.length ? validas.map(fromExcel) : [emptyLine()]);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const fechaError = validarFechaServicio(fechaServicio);
+    if (fechaError) {
+      setError(fechaError);
+      return;
+    }
+    if (!semen) {
+      setError("Debe seleccionar el semen.");
+      return;
+    }
+    if (validLines.length === 0) {
+      setError(
+        modo === "excel" && excelFilas.length > 0
+          ? "Ninguna fila del Excel es válida. Corrija el archivo o páselas al registro manual."
+          : "Debe seleccionar al menos una vaca."
+      );
+      return;
+    }
+
+    try {
+      const response = await create({
+        fecha_servicio: fechaServicio,
+        observaciones: observaciones || null,
+        medicamento_id: semen.value,
+        hembras: validLines.map((linea) => linea.animal_id as number),
+      });
+      if (response.data.length === 1) {
+        navigate(SERVICIO_REPRODUCTIVO_ROUTES.detail(response.data[0].id));
+        return;
+      }
+      navigate(SERVICIO_REPRODUCTIVO_ROUTES.inseminacionArtificial);
+    } catch {
+      // handled
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+          {error}
+        </div>
+      )}
+
+      <section className={`${sectionClass} space-y-4`}>
+        <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90">Cabecera</h3>
+        <div className="flex flex-wrap items-end gap-x-3 gap-y-3">
+          <div className="w-full shrink-0 sm:w-[10.5rem]">
+            <Label>Fecha del servicio</Label>
+            <InputField
+              type="date"
+              value={fechaServicio}
+              max={hoyISO()}
+              onChange={(e) => setFechaServicio(e.target.value)}
+            />
+          </div>
+          <div className="min-w-0 w-full sm:min-w-[16rem] sm:flex-[1.2_1_16rem]">
+            <Label>Semen</Label>
+            <SemenSelect value={semen} onChange={setSemen} />
+          </div>
+          <div className="min-w-0 w-full sm:min-w-[16rem] sm:flex-[1_1_16rem]">
+            <Label>Observaciones</Label>
+            <TextArea rows={1} value={observaciones} onChange={setObservaciones} />
+          </div>
+        </div>
+      </section>
+
+      <section className={`${sectionClass} space-y-4`}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90">Detalle de vacas</h3>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+              Categoría, peso y lote se completan automáticamente.
+            </p>
+          </div>
+          <div className="inline-flex shrink-0 rounded-lg border border-gray-200 p-1 dark:border-white/[0.08]">
+            <button
+              type="button"
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                modo === "manual"
+                  ? "bg-brand-500 text-white"
+                  : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.04]"
+              }`}
+              onClick={() => setModo("manual")}
+            >
+              Registro manual
+            </button>
+            <button
+              type="button"
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                modo === "excel"
+                  ? "bg-brand-500 text-white"
+                  : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.04]"
+              }`}
+              onClick={() => setModo("excel")}
+            >
+              Carga masiva Excel
+            </button>
+          </div>
+        </div>
+
+        {modo === "excel" && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-end gap-x-3 gap-y-3">
+              <div className="min-w-0 w-full sm:min-w-[18rem] sm:flex-1">
+                <Label>Archivo Excel o CSV</Label>
+                <input
+                  type="file"
+                  accept=".xlsx,.csv"
+                  className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs file:mr-5 file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400"
+                  onChange={(e) => handleExcel(e.target.files?.[0] ?? null)}
+                />
+                {excelLoading && (
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Validando archivo...</p>
+                )}
+              </div>
+              <div className="shrink-0">
+                <Button type="button" size="sm" variant="outline" onClick={handlePlantilla}>
+                  Descargar plantilla
+                </Button>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              La plantilla solo tiene la columna <code>codigo_arete</code>.
+            </p>
+            {excelError && <p className="text-sm text-red-600 dark:text-red-300">{excelError}</p>}
+            {excelFilas.length > 0 && (
+              <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-white/[0.06]">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-gray-50 text-left text-gray-500 dark:bg-white/[0.03] dark:text-gray-400">
+                    <tr>
+                      <th className="w-12 px-2 py-2 font-medium">Línea</th>
+                      <th className="w-24 px-2 py-2 font-medium">Arete</th>
+                      <th className="px-2 py-2 font-medium">Categoría</th>
+                      <th className="w-16 px-2 py-2 font-medium">Peso</th>
+                      <th className="px-2 py-2 font-medium">Lote</th>
+                      <th className="px-2 py-2 font-medium">Estado</th>
+                      <th className="w-16 px-2 py-2 font-medium"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {excelFilas.map((fila) => (
+                      <tr
+                        key={fila.linea}
+                        className={
+                          fila.valida
+                            ? "border-t border-gray-100 dark:border-white/[0.04]"
+                            : "border-t border-red-100 bg-red-50 dark:border-red-500/20 dark:bg-red-500/10"
+                        }
+                      >
+                        <td className="whitespace-nowrap px-2 py-2">{fila.linea}</td>
+                        <td className="whitespace-nowrap px-2 py-2">{fila.codigo_arete || "—"}</td>
+                        <td className="px-2 py-2">{fila.categoria_nombre || "—"}</td>
+                        <td className="whitespace-nowrap px-2 py-2">
+                          {fila.peso != null ? formatPeso(fila.peso) : "—"}
+                        </td>
+                        <td className="px-2 py-2">{fila.lote_nombre || "—"}</td>
+                        <td className="px-2 py-2">{fila.valida ? "Lista" : fila.errores.join(" ")}</td>
+                        <td className="px-2 py-2">
+                          <button
+                            type="button"
+                            className="text-sm text-red-600 hover:underline dark:text-red-300"
+                            onClick={() => removeExcelFila(fila.linea)}
+                          >
+                            Quitar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="flex flex-wrap items-center gap-3 border-t border-gray-100 px-3 py-3 dark:border-white/[0.04]">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setLines(excelFilas.map(fromExcel));
+                      setModo("manual");
+                    }}
+                  >
+                    Corregir filas en el formulario
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {modo === "manual" && (
+          <div className="space-y-2">
+            {lines.map((linea, index) => (
+              <div key={index} className="flex flex-wrap items-end gap-x-3 gap-y-2">
+                <div className="relative z-10 min-w-0 w-full overflow-visible sm:min-w-[16rem] sm:flex-[1.4_1_16rem]">
+                  {index === 0 ? <Label>Vaca</Label> : null}
+                  <ReproAnimalSelect
+                    sexo="H"
+                    value={linea.option}
+                    excludedIds={selectedIds.filter((id) => id !== linea.animal_id)}
+                    onChange={(option) => handleSelect(index, option)}
+                    placeholder="Buscar vaca por arete"
+                  />
+                </div>
+                <div className="w-full shrink-0 sm:w-[9.5rem]">
+                  {index === 0 ? <Label>Categoría</Label> : null}
+                  <InputField type="text" value={linea.categoria_nombre} disabled />
+                </div>
+                <div className="w-full shrink-0 sm:w-[7rem]">
+                  {index === 0 ? <Label>Peso</Label> : null}
+                  <InputField
+                    type="text"
+                    value={linea.peso != null ? String(linea.peso) : ""}
+                    disabled
+                  />
+                </div>
+                <div className="w-full shrink-0 sm:w-[9.5rem]">
+                  {index === 0 ? <Label>Lote</Label> : null}
+                  <InputField type="text" value={linea.lote_nombre} disabled />
+                </div>
+                <div className={`shrink-0 pb-2 ${index === 0 ? "sm:pb-0 sm:pt-6" : ""}`}>
+                  {lines.length > 1 ? (
+                    <button
+                      type="button"
+                      className="text-sm text-red-600 hover:underline dark:text-red-300"
+                      onClick={() =>
+                        setLines((current) =>
+                          current.length === 1 ? [emptyLine()] : current.filter((_, i) => i !== index)
+                        )
+                      }
+                    >
+                      Quitar
+                    </button>
+                  ) : (
+                    <span className="inline-block w-12" />
+                  )}
+                </div>
+              </div>
+            ))}
+            <Button type="button" size="sm" variant="outline" onClick={() => setLines((current) => [...current, emptyLine()])}>
+              + Agregar vaca
+            </Button>
+          </div>
+        )}
+      </section>
+
+      <div className="flex flex-col gap-4 border-t border-gray-100 pt-4 dark:border-white/[0.06] sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Vacas a inseminar: <span className="font-medium text-gray-800 dark:text-white/90">{validLines.length}</span>
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            onClick={() => navigate(SERVICIO_REPRODUCTIVO_ROUTES.inseminacionArtificial)}
+          >
+            Cancelar
+          </Button>
+          <Button size="sm" type="submit" disabled={saving}>
+            {saving ? "Guardando..." : "Registrar inseminación"}
+          </Button>
+        </div>
+      </div>
+    </form>
+  );
+}

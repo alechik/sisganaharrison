@@ -806,6 +806,21 @@ Route::middleware('auth:sanctum')->group(function () {
 */
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('servicios-reproductivos/animales-disponibles', [ServicioReproductivoController::class, 'animalesDisponibles'])
+        ->middleware('permission:reproduccion.create');
+
+    Route::get('servicios-reproductivos/semen-disponible', [ServicioReproductivoController::class, 'semenDisponible'])
+        ->middleware('permission:reproduccion.create');
+
+    Route::get('servicios-reproductivos/plantilla-excel', [ServicioReproductivoController::class, 'plantillaExcel'])
+        ->middleware('permission:reproduccion.create');
+
+    Route::post('servicios-reproductivos/vista-previa-excel', [ServicioReproductivoController::class, 'previewExcel'])
+        ->middleware('permission:reproduccion.create');
+
+    Route::post('servicios-reproductivos/lote-ia', [ServicioReproductivoController::class, 'storeLoteInseminacion'])
+        ->middleware('permission:reproduccion.create');
+
     Route::get('servicios-reproductivos', [ServicioReproductivoController::class, 'index'])
         ->middleware('permission:reproduccion.view');
 
@@ -813,22 +828,28 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('permission:reproduccion.create');
 
     Route::get('servicios-reproductivos/{servicio_reproductivo}', [ServicioReproductivoController::class, 'show'])
-        ->middleware('permission:reproduccion.view');
+        ->middleware('permission:reproduccion.view')
+        ->whereNumber('servicio_reproductivo');
 
     Route::put('servicios-reproductivos/{servicio_reproductivo}', [ServicioReproductivoController::class, 'update'])
-        ->middleware('permission:reproduccion.update');
+        ->middleware('permission:reproduccion.update')
+        ->whereNumber('servicio_reproductivo');
 
     Route::patch('servicios-reproductivos/{servicio_reproductivo}', [ServicioReproductivoController::class, 'update'])
-        ->middleware('permission:reproduccion.update');
+        ->middleware('permission:reproduccion.update')
+        ->whereNumber('servicio_reproductivo');
 
     Route::get('servicios-reproductivos/{servicio_reproductivo}/pdf', [ServicioReproductivoController::class, 'pdf'])
-        ->middleware('permission:reproduccion.view');
+        ->middleware('permission:reproduccion.view')
+        ->whereNumber('servicio_reproductivo');
 
     Route::post('servicios-reproductivos/{servicio_reproductivo}/confirmar-gestacion', [ServicioReproductivoController::class, 'confirmarGestacion'])
-        ->middleware('permission:reproduccion.create');
+        ->middleware('permission:reproduccion.create')
+        ->whereNumber('servicio_reproductivo');
 
     Route::post('servicios-reproductivos/{servicio_reproductivo}/registrar-parto', [ServicioReproductivoController::class, 'registrarParto'])
-        ->middleware('permission:reproduccion.create');
+        ->middleware('permission:reproduccion.create')
+        ->whereNumber('servicio_reproductivo');
 });
 
 /*

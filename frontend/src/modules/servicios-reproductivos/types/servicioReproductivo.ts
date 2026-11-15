@@ -45,6 +45,7 @@ export interface ServicioReproductivo {
   macho_id: number | null;
   macho_codigo?: string | null;
   macho_arete?: string | null;
+  semen_nombre?: string | null;
   fecha_servicio: string;
   tipo_servicio: string;
   resultado: string | null;
@@ -100,6 +101,50 @@ export interface RegistrarPartoNacimientoRequest {
       observaciones?: string | null;
     } | null;
   };
+}
+
+export interface AnimalDisponibleRepro {
+  id: number;
+  codigo: string;
+  arete: string | null;
+  sexo?: "M" | "H" | null;
+  categoria_id?: number | null;
+  categoria_nombre?: string | null;
+  lote_id?: number | null;
+  lote_nombre?: string | null;
+  peso?: number | null;
+}
+
+export interface SemenOption {
+  id: number;
+  codigo: string;
+  nombre: string;
+}
+
+export interface InseminacionExcelFila {
+  linea: number;
+  codigo_arete: string;
+  animal_id: number | null;
+  animal_codigo?: string | null;
+  categoria_nombre?: string | null;
+  lote_id?: number | null;
+  lote_nombre?: string | null;
+  peso?: number | null;
+  errores: string[];
+  valida: boolean;
+}
+
+export interface InseminacionExcelPreview {
+  filas: InseminacionExcelFila[];
+  validas: number;
+  con_errores: number;
+}
+
+export interface InseminacionLoteRequest {
+  fecha_servicio: string;
+  observaciones?: string | null;
+  medicamento_id: number;
+  hembras: number[];
 }
 
 export interface ServicioReproductivoListParams {

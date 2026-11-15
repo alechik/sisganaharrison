@@ -220,10 +220,10 @@ export default function PesajeForm() {
           <div className="min-w-0 w-full sm:min-w-[16rem] sm:flex-[1_1_16rem]">
             <Label>Observaciones</Label>
             <TextArea
-              rows={2}
+              rows={1}
               value={observacion}
               onChange={setObservacion}
-              placeholder="Notas de la sesión de pesaje, si corresponde"
+              placeholder="Notas de la sesión, si corresponde"
             />
           </div>
         </div>
@@ -353,20 +353,40 @@ export default function PesajeForm() {
         )}
 
         {modo === "manual" && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {lines.map((linea, index) => (
-              <div
-                key={index}
-                className="rounded-lg border border-gray-200 bg-white p-3 dark:border-white/[0.06] dark:bg-white/[0.02] sm:p-4"
-              >
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
-                    Animal {index + 1}
-                  </h4>
-                  {lines.length > 1 && (
+              <div key={index} className="flex flex-wrap items-end gap-x-3 gap-y-2">
+                <div className="relative z-10 min-w-0 w-full overflow-visible sm:min-w-[16rem] sm:flex-[1.4_1_16rem]">
+                  {index === 0 ? <Label>Código de arete</Label> : null}
+                  <AnimalAreteSelect
+                    value={linea.option}
+                    excludedIds={selectedIds.filter((id) => id !== linea.animal_id)}
+                    onChange={(option) => handleSelect(index, option)}
+                  />
+                </div>
+                <div className="w-full shrink-0 sm:w-[9.5rem]">
+                  {index === 0 ? <Label>Potrero</Label> : null}
+                  <InputField type="text" value={linea.lote_nombre} disabled />
+                </div>
+                <div className="w-full shrink-0 sm:w-[9.5rem]">
+                  {index === 0 ? <Label>Parcela</Label> : null}
+                  <InputField type="text" value={linea.potrero_nombre} disabled />
+                </div>
+                <div className="w-full shrink-0 sm:w-[7rem]">
+                  {index === 0 ? <Label>Peso (kg)</Label> : null}
+                  <InputField
+                    type="number"
+                    min="0.01"
+                    step={0.01}
+                    value={linea.peso ? String(linea.peso) : ""}
+                    onChange={(e) => updateLine(index, { peso: Number(e.target.value) || 0 })}
+                  />
+                </div>
+                <div className={`shrink-0 pb-2 ${index === 0 ? "sm:pb-0 sm:pt-6" : ""}`}>
+                  {lines.length > 1 ? (
                     <button
                       type="button"
-                      className="shrink-0 text-sm text-red-600 hover:underline dark:text-red-300"
+                      className="text-sm text-red-600 hover:underline dark:text-red-300"
                       onClick={() =>
                         setLines((current) =>
                           current.length === 1 ? [emptyLine()] : current.filter((_, i) => i !== index)
@@ -375,35 +395,9 @@ export default function PesajeForm() {
                     >
                       Quitar
                     </button>
+                  ) : (
+                    <span className="inline-block w-12" />
                   )}
-                </div>
-                <div className="flex flex-wrap items-end gap-x-3 gap-y-3">
-                  <div className="relative z-10 min-w-0 w-full overflow-visible sm:min-w-[16rem] sm:flex-[1.4_1_16rem]">
-                    <Label>Código de arete</Label>
-                    <AnimalAreteSelect
-                      value={linea.option}
-                      excludedIds={selectedIds.filter((id) => id !== linea.animal_id)}
-                      onChange={(option) => handleSelect(index, option)}
-                    />
-                  </div>
-                  <div className="w-full shrink-0 sm:w-[10rem]">
-                    <Label>Potrero</Label>
-                    <InputField type="text" value={linea.lote_nombre} disabled />
-                  </div>
-                  <div className="w-full shrink-0 sm:w-[10rem]">
-                    <Label>Parcela</Label>
-                    <InputField type="text" value={linea.potrero_nombre} disabled />
-                  </div>
-                  <div className="w-full shrink-0 sm:w-[7.5rem]">
-                    <Label>Peso (kg)</Label>
-                    <InputField
-                      type="number"
-                      min="0.01"
-                      step={0.01}
-                      value={linea.peso ? String(linea.peso) : ""}
-                      onChange={(e) => updateLine(index, { peso: Number(e.target.value) || 0 })}
-                    />
-                  </div>
                 </div>
               </div>
             ))}

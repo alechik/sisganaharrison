@@ -1,7 +1,7 @@
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { breadcrumbs } from "@/config/breadcrumbs";
-import { ServicioReproductivoForm } from "../components";
+import { InseminacionForm, ServicioReproductivoForm } from "../components";
 import { TIPO_INSEMINACION_ARTIFICIAL, TIPO_MONTA_NATURAL } from "../constants";
 
 interface Props {
@@ -20,7 +20,11 @@ export default function ServicioReproductivoCreatePage({ tipoServicio }: Props) 
     <div className="space-y-6">
       <PageBreadCrumb pageTitle={title} items={crumb} />
       <ComponentCard title={cardTitle}>
-        <ServicioReproductivoForm tipoServicioFijo={tipoServicio} />
+        {esIa ? (
+          <InseminacionForm />
+        ) : (
+          <ServicioReproductivoForm tipoServicioFijo={tipoServicio} />
+        )}
       </ComponentCard>
     </div>
   );

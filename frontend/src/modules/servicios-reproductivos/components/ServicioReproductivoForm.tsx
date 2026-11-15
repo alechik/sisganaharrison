@@ -4,98 +4,58 @@ import { useNavigate } from "react-router-dom";
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import RegistradoPorField from "@/components/form/RegistradoPorField";
-import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
-import { getAlmacenes } from "@/modules/almacenes/services";
-import { getMedicamentos } from "@/modules/medicamentos/services";
+import { hoyISO, validarFechaServicio } from "@/utils/reglasReproductivas";
 import {
-  useCreateServicioReproductivo,
-  useReproduccionAnimalOptions,
-  useUpdateServicioReproductivo,
-} from "../hooks";
-import {
-  RESULTADOS_SERVICIO,
   SERVICIO_REPRODUCTIVO_ROUTES,
   TIPO_INSEMINACION_ARTIFICIAL,
   TIPO_MONTA_NATURAL,
-  TIPOS_SERVICIO,
 } from "../constants";
+import { useCreateServicioReproductivo, useUpdateServicioReproductivo } from "../hooks";
 import { getServicioReproductivo } from "../services";
 import { ServicioReproductivoCreateRequest } from "../types";
-import { getTipoServicioLabel } from "../utils";
-import { hoyISO, validarFechaServicio } from "@/utils/reglasReproductivas";
-
-interface InsumoLine {
-  medicamento_id: number;
-  almacen_id: number;
-  cantidad: number;
-}
+import { formatAnimalLabel } from "../utils";
+import ReproAnimalSelect, { ReproAnimalOption, animalToOption } from "./ReproAnimalSelect";
 
 interface Props {
   servicioId?: number;
   tipoServicioFijo?: string;
 }
 
-const emptyForm = (tipoServicio = ""): ServicioReproductivoCreateRequest => ({
+const sectionClass =
+  "rounded-xl border border-gray-200 bg-gray-50/60 p-4 dark:border-white/[0.06] dark:bg-white/[0.02] sm:p-5";
+
+const emptyForm = (tipoServicio = TIPO_MONTA_NATURAL): ServicioReproductivoCreateRequest => ({
   hembra_id: 0,
   macho_id: null,
-  fecha_servicio: "",
+  fecha_servicio: hoyISO(),
   tipo_servicio: tipoServicio,
-  resultado: null,
   observaciones: "",
 });
 
 export default function ServicioReproductivoForm({ servicioId, tipoServicioFijo }: Props) {
   const navigate = useNavigate();
   const isEdit = Boolean(servicioId);
-  const esIa = (tipoServicioFijo ?? "") === TIPO_INSEMINACION_ARTIFICIAL;
-  const esMonta = (tipoServicioFijo ?? "") === TIPO_MONTA_NATURAL;
+  const tipoFijo = tipoServicioFijo ?? TIPO_MONTA_NATURAL;
+  const esIa = tipoFijo === TIPO_INSEMINACION_ARTIFICIAL;
 
   const { create, loading: creating, error: createError, setError: setCreateError } =
     useCreateServicioReproductivo();
   const { update, loading: updating, error: updateError, setError: setUpdateError } =
     useUpdateServicioReproductivo();
 
-  const [form, setForm] = useState<ServicioReproductivoCreateRequest>(
-    emptyForm(tipoServicioFijo ?? "")
-  );
-  const [insumos, setInsumos] = useState<InsumoLine[]>(
-    !isEdit && esIa ? [{ medicamento_id: 0, almacen_id: 0, cantidad: 1 }] : []
-  );
-  const [inventarioAplicado, setInventarioAplicado] = useState(false);
+  const [form, setForm] = useState<ServicioReproductivoCreateRequest>(emptyForm(tipoFijo));
+  const [hembraOption, setHembraOption] = useState<ReproAnimalOption | null>(null);
+  const [machoOption, setMachoOption] = useState<ReproAnimalOption | null>(null);
   const [loading, setLoading] = useState(isEdit);
   const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [productoOptions, setProductoOptions] = useState<{ value: string; label: string }[]>([]);
-  const [almacenOptions, setAlmacenOptions] = useState<{ value: string; label: string }[]>([]);
-
-  const {
-    hembraOptions,
-    machoOptions,
-    loading: loadingOptions,
-    error: optionsError,
-  } = useReproduccionAnimalOptions({
-    soloConArete: true,
-    incluirHembraId: isEdit ? form.hembra_id : undefined,
-    incluirMachoId: isEdit ? form.macho_id ?? undefined : undefined,
-  });
+  const [semenNombre, setSemenNombre] = useState<string | null>(null);
 
   const saving = creating || updating;
   const error = createError || updateError;
-  const tipoActual = form.tipo_servicio || tipoServicioFijo || "";
-  const listPath = SERVICIO_REPRODUCTIVO_ROUTES.listByTipo(tipoActual);
-
-  useEffect(() => {
-    getMedicamentos({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" })
-      .then((res) =>
-        setProductoOptions(res.data.map((item) => ({ value: String(item.id), label: `${item.codigo} — ${item.nombre}` })))
-      )
-      .catch(console.error);
-    getAlmacenes({ per_page: 50, activo: true })
-      .then((res) => setAlmacenOptions(res.data.map((item) => ({ value: String(item.id), label: item.nombre }))))
-      .catch(console.error);
-  }, []);
+  const listPath = SERVICIO_REPRODUCTIVO_ROUTES.listByTipo(form.tipo_servicio || tipoFijo);
 
   useEffect(() => {
     if (!servicioId) {
@@ -110,18 +70,28 @@ export default function ServicioReproductivoForm({ servicioId, tipoServicioFijo 
           macho_id: servicio.macho_id,
           fecha_servicio: servicio.fecha_servicio,
           tipo_servicio: servicio.tipo_servicio,
-          resultado: servicio.resultado,
           observaciones: servicio.observaciones ?? "",
         });
         setRegistradoPorNombre(servicio.usuario_nombre ?? null);
-        setInventarioAplicado(Boolean(servicio.inventario_aplicado_at));
-        setInsumos(
-          (servicio.insumos ?? []).map((item) => ({
-            medicamento_id: item.medicamento_id,
-            almacen_id: item.almacen_id,
-            cantidad: item.cantidad,
-          }))
-        );
+        setSemenNombre(servicio.semen_nombre ?? null);
+        if (servicio.hembra_id) {
+          setHembraOption(
+            animalToOption({
+              id: servicio.hembra_id,
+              codigo: servicio.hembra_codigo ?? "",
+              arete: servicio.hembra_arete ?? null,
+            })
+          );
+        }
+        if (servicio.macho_id) {
+          setMachoOption(
+            animalToOption({
+              id: servicio.macho_id,
+              codigo: servicio.macho_codigo ?? "",
+              arete: servicio.macho_arete ?? null,
+            })
+          );
+        }
       } catch (err) {
         console.error(err);
         setUpdateError("No se pudo cargar el servicio reproductivo.");
@@ -132,14 +102,6 @@ export default function ServicioReproductivoForm({ servicioId, tipoServicioFijo 
 
     loadServicio();
   }, [servicioId, setUpdateError]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((current) => ({
-      ...current,
-      [name]: value,
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,31 +114,8 @@ export default function ServicioReproductivoForm({ servicioId, tipoServicioFijo 
       return;
     }
 
-    if (!hembraOptions.some((option) => option.value === String(form.hembra_id))) {
-      setValidationError("Debe seleccionar una hembra activa con arete válido.");
-      return;
-    }
-
-    if (
-      form.macho_id &&
-      !machoOptions.some((option) => option.value === String(form.macho_id))
-    ) {
-      setValidationError("Debe seleccionar un macho activo con arete válido.");
-      return;
-    }
-
-    const fechaError = validarFechaServicio(form.fecha_servicio);
-    if (fechaError) {
-      setValidationError(fechaError);
-      return;
-    }
-
-    if (!form.tipo_servicio) {
-      setValidationError("Debe seleccionar un tipo de servicio.");
-      return;
-    }
-
-    if (form.tipo_servicio === TIPO_MONTA_NATURAL && !form.macho_id) {
+    const tipo = form.tipo_servicio || tipoFijo;
+    if (tipo === TIPO_MONTA_NATURAL && !form.macho_id) {
       setValidationError("La monta natural requiere un macho.");
       return;
     }
@@ -186,27 +125,18 @@ export default function ServicioReproductivoForm({ servicioId, tipoServicioFijo 
       return;
     }
 
-    if (form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL && !inventarioAplicado) {
-      if (insumos.length === 0) {
-        setValidationError("La inseminación artificial requiere el semen comprado (producto en frasco) y el almacén.");
-        return;
-      }
-    }
-
-    if (insumos.some((item) => !item.medicamento_id || !item.almacen_id || item.cantidad < 1)) {
-      setValidationError(
-        form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL
-          ? "Debe seleccionar el semen (producto), el almacén y la cantidad."
-          : "Cada insumo debe tener producto, almacén y cantidad."
-      );
+    const fechaError = validarFechaServicio(form.fecha_servicio);
+    if (fechaError) {
+      setValidationError(fechaError);
       return;
     }
 
     const payload: ServicioReproductivoCreateRequest = {
-      ...form,
+      hembra_id: form.hembra_id,
       macho_id: form.macho_id || null,
-      resultado: form.resultado || null,
-      ...(inventarioAplicado ? {} : { insumos }),
+      fecha_servicio: form.fecha_servicio,
+      tipo_servicio: tipo,
+      observaciones: form.observaciones || null,
     };
 
     try {
@@ -218,230 +148,97 @@ export default function ServicioReproductivoForm({ servicioId, tipoServicioFijo 
         navigate(SERVICIO_REPRODUCTIVO_ROUTES.detail(response.data.id));
       }
     } catch {
-      // Errors handled in hooks
+      // handled
     }
   };
 
-  if (loading || loadingOptions) {
+  if (loading) {
     return <div>Cargando formulario...</div>;
   }
 
-  const displayError = validationError || error || optionsError;
-  const tipoBloqueado = Boolean(tipoServicioFijo) || isEdit;
+  const displayError = validationError || error;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="space-y-5">
       {displayError && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
           {displayError}
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {isEdit ? <RegistradoPorField nombre={registradoPorNombre} /> : null}
-        <div>
-          <Label>Hembra</Label>
-          <Select
-            value={form.hembra_id ? String(form.hembra_id) : ""}
-            placeholder="Seleccione una hembra con arete"
-            options={hembraOptions}
-            onChange={(value) =>
-              setForm((current) => ({
-                ...current,
-                hembra_id: Number(value),
-              }))
-            }
-          />
-        </div>
-
-        <div>
-          <Label>{esMonta || form.tipo_servicio === TIPO_MONTA_NATURAL ? "Macho" : "Macho (opcional)"}</Label>
-          <Select
-            value={form.macho_id ? String(form.macho_id) : ""}
-            placeholder={
-              esMonta || form.tipo_servicio === TIPO_MONTA_NATURAL
-                ? "Seleccione un macho con arete"
-                : "Sin macho / seleccione un macho con arete"
-            }
-            options={[
-              ...(esMonta || form.tipo_servicio === TIPO_MONTA_NATURAL
-                ? []
-                : [{ value: "", label: "Sin macho" }]),
-              ...machoOptions.filter((option) => Number(option.value) !== form.hembra_id),
-            ]}
-            onChange={(value) =>
-              setForm((current) => ({
-                ...current,
-                macho_id: value ? Number(value) : null,
-              }))
-            }
-          />
-        </div>
-
-        <div>
-          <Label>Fecha de servicio</Label>
-          <InputField
-            type="date"
-            name="fecha_servicio"
-            value={form.fecha_servicio}
-            max={hoyISO()}
-            onChange={handleChange}
-          />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            El servicio es un evento ocurrido: no se admite fecha futura.
-          </p>
-        </div>
-
-        <div>
-          <Label>Tipo de servicio</Label>
-          {tipoBloqueado ? (
-            <>
-              <InputField type="text" value={getTipoServicioLabel(form.tipo_servicio)} disabled />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                El tipo queda fijado según el listado de origen.
-              </p>
-            </>
-          ) : (
-            <Select
-              value={form.tipo_servicio}
-              placeholder="Seleccione el tipo"
-              options={TIPOS_SERVICIO.map((item) => ({
-                value: item.value,
-                label: item.label,
-              }))}
-              onChange={(value) =>
-                setForm((current) => ({
-                  ...current,
-                  tipo_servicio: value,
-                }))
-              }
+      <section className={`${sectionClass} space-y-4`}>
+        <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90">
+          {esIa ? "Inseminación artificial" : "Monta natural"}
+        </h3>
+        <div className="flex flex-wrap items-end gap-x-3 gap-y-3">
+          {isEdit ? (
+            <div className="w-full sm:w-[14rem]">
+              <RegistradoPorField nombre={registradoPorNombre} />
+            </div>
+          ) : null}
+          <div className="min-w-0 w-full sm:min-w-[16rem] sm:flex-[1.2_1_16rem]">
+            <Label>Hembra</Label>
+            <ReproAnimalSelect
+              sexo="H"
+              value={hembraOption}
+              excludedIds={form.macho_id ? [form.macho_id] : []}
+              onChange={(option) => {
+                setHembraOption(option);
+                setForm((current) => ({ ...current, hembra_id: option?.value ?? 0 }));
+              }}
             />
-          )}
-        </div>
-
-        <div>
-          <Label>Resultado</Label>
-          <Select
-            value={form.resultado ?? ""}
-            placeholder="Sin resultado"
-            options={[
-              { value: "", label: "Sin resultado" },
-              ...RESULTADOS_SERVICIO.map((item) => ({
-                value: item.value,
-                label: item.label,
-              })),
-            ]}
-            onChange={(value) =>
-              setForm((current) => ({
-                ...current,
-                resultado: value || null,
-              }))
-            }
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <Label>Observaciones</Label>
-          <TextArea
-            rows={4}
-            value={form.observaciones ?? ""}
-            onChange={(value) => setForm((current) => ({ ...current, observaciones: value }))}
-          />
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-800 dark:text-white">
-            {esIa || form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL
-              ? "Semen utilizado (producto comprado en frasco)"
-              : "Insumos utilizados"}
-          </h3>
-          {!inventarioAplicado && (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => setInsumos((current) => [...current, { medicamento_id: 0, almacen_id: 0, cantidad: 1 }])}
-            >
-              {esIa || form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL ? "+ Semen" : "+ Insumo"}
-            </Button>
-          )}
-        </div>
-        {(esIa || form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL) && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Seleccione el semen del catálogo de productos y el almacén. El stock se descuenta cuando el
-            resultado deja de estar pendiente (al confirmar la gestación o al registrar preñez).
-          </p>
-        )}
-        {inventarioAplicado && (
-          <p className="text-sm text-gray-500">Los insumos ya consumieron inventario y no pueden modificarse.</p>
-        )}
-        {insumos.map((linea, index) => (
-          <div key={index} className="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 p-4 dark:border-white/[0.05] md:grid-cols-4">
-            <div>
-              <Label>
-                {esIa || form.tipo_servicio === TIPO_INSEMINACION_ARTIFICIAL ? "Semen / producto" : "Producto"}
-              </Label>
-              <Select
-                value={linea.medicamento_id ? String(linea.medicamento_id) : ""}
-                placeholder="Seleccione producto"
-                options={productoOptions}
-                onChange={(value) =>
-                  setInsumos((current) => current.map((item, i) => (i === index ? { ...item, medicamento_id: Number(value) } : item)))
-                }
-              />
-            </div>
-            <div>
-              <Label>Almacén</Label>
-              <Select
-                value={linea.almacen_id ? String(linea.almacen_id) : ""}
-                placeholder="Seleccione almacén"
-                options={almacenOptions}
-                onChange={(value) =>
-                  setInsumos((current) => current.map((item, i) => (i === index ? { ...item, almacen_id: Number(value) } : item)))
-                }
-              />
-            </div>
-            <div>
-              <Label>Cantidad</Label>
-              <InputField
-                type="number"
-                min="1"
-                value={String(linea.cantidad)}
-                onChange={(e) =>
-                  setInsumos((current) =>
-                    current.map((item, i) => (i === index ? { ...item, cantidad: Number(e.target.value) } : item))
-                  )
-                }
-              />
-            </div>
-            {!inventarioAplicado && (
-              <div className="flex items-end">
-                <button type="button" className="text-sm text-red-600" onClick={() => setInsumos((current) => current.filter((_, i) => i !== index))}>
-                  Quitar
-                </button>
-              </div>
-            )}
           </div>
-        ))}
-      </div>
+          {!esIa && (
+            <div className="min-w-0 w-full sm:min-w-[16rem] sm:flex-[1.2_1_16rem]">
+              <Label>Macho</Label>
+              <ReproAnimalSelect
+                sexo="M"
+                value={machoOption}
+                excludedIds={form.hembra_id ? [form.hembra_id] : []}
+                onChange={(option) => {
+                  setMachoOption(option);
+                  setForm((current) => ({ ...current, macho_id: option?.value ?? null }));
+                }}
+              />
+            </div>
+          )}
+          {esIa && (
+            <div className="min-w-0 w-full sm:min-w-[14rem] sm:flex-1">
+              <Label>Semen</Label>
+              <InputField type="text" value={semenNombre || "—"} disabled />
+            </div>
+          )}
+          <div className="w-full shrink-0 sm:w-[10.5rem]">
+            <Label>Fecha del servicio</Label>
+            <InputField
+              type="date"
+              name="fecha_servicio"
+              value={form.fecha_servicio}
+              max={hoyISO()}
+              onChange={(e) => setForm((current) => ({ ...current, fecha_servicio: e.target.value }))}
+            />
+          </div>
+          <div className="min-w-0 w-full sm:min-w-[16rem] sm:flex-[1_1_16rem]">
+            <Label>Observaciones</Label>
+            <TextArea
+              rows={1}
+              value={form.observaciones ?? ""}
+              onChange={(value) => setForm((current) => ({ ...current, observaciones: value }))}
+            />
+          </div>
+        </div>
+        {hembraOption ? (
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Hembra: {formatAnimalLabel(hembraOption.animal.codigo, hembraOption.animal.arete)}
+          </p>
+        ) : null}
+      </section>
 
-      <div className="mt-6 flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Button size="sm" type="submit" disabled={saving}>
-          {saving
-            ? "Guardando..."
-            : isEdit
-              ? "Actualizar Servicio"
-              : "Registrar Servicio"}
+          {saving ? "Guardando..." : isEdit ? "Actualizar servicio" : "Registrar monta"}
         </Button>
-
-        <Button
-          size="sm"
-          variant="outline"
-          type="button"
-          onClick={() => navigate(listPath)}
-        >
+        <Button size="sm" variant="outline" type="button" onClick={() => navigate(listPath)}>
           Cancelar
         </Button>
       </div>

@@ -1,8 +1,12 @@
 import api from "@/api/axios";
 import { PaginatedResponse } from "@/types/api";
 import {
+  AnimalDisponibleRepro,
   ConfirmarGestacionRequest,
+  InseminacionExcelPreview,
+  InseminacionLoteRequest,
   RegistrarPartoNacimientoRequest,
+  SemenOption,
   ServicioReproductivo,
   ServicioReproductivoCreateRequest,
   ServicioReproductivoListParams,
@@ -63,6 +67,61 @@ export const createServicioReproductivo = async (data: ServicioReproductivoCreat
     data
   );
   return response.data;
+};
+
+export const createLoteInseminacion = async (data: InseminacionLoteRequest) => {
+  const response = await api.post<{ message: string; data: ServicioReproductivo[] }>(
+    "/servicios-reproductivos/lote-ia",
+    data
+  );
+  return response.data;
+};
+
+export const buscarAnimalesRepro = async (search: string, sexo?: "H" | "M") => {
+  const response = await api.get<{ data: AnimalDisponibleRepro[] }>(
+    "/servicios-reproductivos/animales-disponibles",
+    { params: { search, sexo } }
+  );
+  return response.data.data;
+};
+
+export const buscarSemen = async (search: string) => {
+  const response = await api.get<{ data: SemenOption[] }>(
+    "/servicios-reproductivos/semen-disponible",
+    { params: { search } }
+  );
+  return response.data.data;
+};
+
+export const downloadIaPlantilla = async () => {
+  const response = await api.get("/servicios-reproductivos/plantilla-excel", {
+    responseType: "blob",
+  });
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    })
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "plantilla_ia_vacas.xlsx";
+  link.click();
+  window.URL.revokeObjectURL(url);
+};
+
+export const previewIaExcel = async (file: File): Promise<InseminacionExcelPreview> => {
+  const formData = new FormData();
+  formData.append("archivo", file);
+  const response = await api.post<{ data: InseminacionExcelPreview }>(
+    "/servicios-reproductivos/vista-previa-excel",
+    formData,
+    {
+      headers: {
+        "Content-Type": undefined,
+      },
+    }
+  );
+  return response.data.data;
 };
 
 export const downloadServicioReproductivoPdf = async (id: number, codigo: string) => {

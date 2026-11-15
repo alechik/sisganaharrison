@@ -3,6 +3,7 @@
 namespace App\Services\ServiciosReproductivos;
 
 use App\Models\Almacen;
+use App\Models\AlmacenProducto;
 use App\Models\Animal;
 use App\Models\Gestacion;
 use App\Models\Medicamento;
@@ -17,9 +18,12 @@ use App\Support\ReglasReproductivas;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ServicioReproductivoService
 {
@@ -41,7 +45,8 @@ class ServicioReproductivoService
         private readonly PdfGenerator $pdfGenerator,
         private readonly GestacionService $gestacionService,
         private readonly PartoService $partoService,
-        private readonly NacimientoService $nacimientoService
+        private readonly NacimientoService $nacimientoService,
+        private readonly ServicioReproductivoExcelService $excelService
     ) {}
 
     /**
@@ -63,12 +68,150 @@ class ServicioReproductivoService
     /**
      * @param  array<string, mixed>  $data
      */
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return Collection<int, Animal>
+     */
+    public function animalesDisponibles(array $filters = []): Collection
+    {
+        $search = trim((string) ($filters['search'] ?? ''));
+        if (mb_strlen($search) < 1) {
+            return collect();
+        }
+
+        $sexo = strtoupper(trim((string) ($filters['sexo'] ?? '')));
+
+        return Animal::query()
+            ->with([
+                'categoria:id,codigo,nombre',
+                'lote:id,nombre,codigo,potrero_id',
+                'lote.potrero:id,nombre',
+                'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
+            ])
+            ->whereNull('deleted_at')
+            ->where('estado', Animal::ESTADO_ACTIVO)
+            ->when(in_array($sexo, ['H', 'M'], true), fn (Builder $builder) => $builder->where('sexo', $sexo))
+            ->tap(fn (Builder $builder) => Animal::aplicarFiltroAreteValido($builder))
+            ->where(function (Builder $builder) use ($search) {
+                $builder->where('arete', 'ilike', "%{$search}%")
+                    ->orWhere('codigo', 'ilike', "%{$search}%");
+            })
+            ->orderBy('arete')
+            ->limit(20)
+            ->get();
+    }
+
+    /**
+     * @return Collection<int, Medicamento>
+     */
+    public function semenDisponible(array $filters = []): Collection
+    {
+        $search = trim((string) ($filters['search'] ?? ''));
+
+        return Medicamento::query()
+            ->where('activo', true)
+            ->whereNull('deleted_at')
+            ->when($search !== '', function (Builder $builder) use ($search) {
+                $builder->where(function (Builder $inner) use ($search) {
+                    $inner->where('nombre', 'ilike', "%{$search}%")
+                        ->orWhere('codigo', 'ilike', "%{$search}%");
+                });
+            })
+            ->orderBy('nombre')
+            ->limit(30)
+            ->get(['id', 'codigo', 'nombre', 'precio']);
+    }
+
+    public function descargarPlantilla(): StreamedResponse
+    {
+        $plantilla = $this->excelService->plantilla();
+
+        return response()->streamDownload(function () use ($plantilla) {
+            echo $plantilla['content'];
+        }, $plantilla['filename'], [
+            'Content-Type' => $plantilla['mime'],
+        ]);
+    }
+
+    /**
+     * @return array{filas: list<array<string, mixed>>, validas: int, con_errores: int}
+     */
+    public function previewExcel(UploadedFile $file): array
+    {
+        $crudas = $this->excelService->parse($file);
+        $filas = [];
+        $aretes = [];
+        $validas = 0;
+        $conErrores = 0;
+
+        foreach ($crudas as $cruda) {
+            $normalizada = $this->normalizarFilaExcel($cruda, $aretes);
+            if (($normalizada['errores'] ?? []) === []) {
+                $validas++;
+            } else {
+                $conErrores++;
+            }
+            $filas[] = $normalizada;
+        }
+
+        return [
+            'filas' => $filas,
+            'validas' => $validas,
+            'con_errores' => $conErrores,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return list<ServicioReproductivo>
+     */
+    public function createLoteInseminacion(array $data): array
+    {
+        $hembras = collect($data['hembras'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($hembras->isEmpty()) {
+            throw ValidationException::withMessages([
+                'hembras' => 'Debe seleccionar al menos una vaca.',
+            ]);
+        }
+
+        $this->assertFechaServicio($data);
+        $insumo = $this->insumoSemen((int) ($data['medicamento_id'] ?? 0));
+
+        return DB::transaction(function () use ($data, $hembras, $insumo) {
+            $servicios = [];
+            foreach ($hembras as $hembraId) {
+                $servicios[] = $this->create([
+                    'hembra_id' => $hembraId,
+                    'macho_id' => null,
+                    'fecha_servicio' => $data['fecha_servicio'],
+                    'tipo_servicio' => ServicioReproductivo::TIPO_INSEMINACION_ARTIFICIAL,
+                    'resultado' => ServicioReproductivo::RESULTADO_PENDIENTE,
+                    'observaciones' => $data['observaciones'] ?? null,
+                    'insumos' => [$insumo],
+                ]);
+            }
+
+            return $servicios;
+        });
+    }
+
     public function create(array $data): ServicioReproductivo
     {
         $this->assertAnimalesValidos($data);
         $this->assertFechaServicio($data);
         $this->assertReglasPorTipo($data);
+        if (($data['tipo_servicio'] ?? '') !== ServicioReproductivo::TIPO_INSEMINACION_ARTIFICIAL) {
+            $data['insumos'] = [];
+        }
         $insumos = $this->normalizeInsumos($data['insumos'] ?? []);
+        if (! isset($data['resultado']) || $data['resultado'] === '' || $data['resultado'] === null) {
+            $data['resultado'] = ServicioReproductivo::RESULTADO_PENDIENTE;
+        }
 
         return DB::transaction(function () use ($data, $insumos) {
             unset($data['insumos']);
@@ -478,6 +621,121 @@ class ServicioReproductivoService
 
         $servicio->inventario_aplicado_at = now();
         $servicio->save();
+    }
+
+    /**
+     * @return array{medicamento_id: int, almacen_id: int, cantidad: int}
+     */
+    private function insumoSemen(int $medicamentoId): array
+    {
+        if ($medicamentoId < 1) {
+            throw ValidationException::withMessages([
+                'medicamento_id' => 'Debe seleccionar el semen.',
+            ]);
+        }
+
+        $producto = Medicamento::query()
+            ->whereKey($medicamentoId)
+            ->where('activo', true)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (! $producto) {
+            throw ValidationException::withMessages([
+                'medicamento_id' => 'El semen seleccionado no está activo.',
+            ]);
+        }
+
+        $almacenId = AlmacenProducto::query()
+            ->where('medicamento_id', $producto->id)
+            ->where('stock', '>', 0)
+            ->orderByDesc('stock')
+            ->value('almacen_id');
+
+        if (! $almacenId) {
+            $almacenId = Almacen::query()
+                ->where('activo', true)
+                ->whereNull('deleted_at')
+                ->orderBy('id')
+                ->value('id');
+        }
+
+        if (! $almacenId) {
+            throw ValidationException::withMessages([
+                'medicamento_id' => 'No hay un almacén activo para asociar el semen.',
+            ]);
+        }
+
+        return [
+            'medicamento_id' => $producto->id,
+            'almacen_id' => (int) $almacenId,
+            'cantidad' => 1,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $cruda
+     * @param  array<string, int>  $aretes
+     * @return array<string, mixed>
+     */
+    private function normalizarFilaExcel(array $cruda, array &$aretes): array
+    {
+        $linea = (int) ($cruda['linea'] ?? 0);
+        $arete = strtoupper(trim((string) ($cruda['codigo_arete'] ?? $cruda['arete'] ?? '')));
+        $errores = [];
+
+        if ($arete === '') {
+            $errores[] = 'El código de arete es obligatorio.';
+        } elseif (isset($aretes[$arete])) {
+            $errores[] = 'El arete está duplicado en el archivo (línea '.$aretes[$arete].').';
+        } else {
+            $aretes[$arete] = $linea;
+        }
+
+        $animal = $arete !== ''
+            ? Animal::query()
+                ->with([
+                    'categoria:id,codigo,nombre',
+                    'lote:id,nombre,codigo,potrero_id',
+                    'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
+                ])
+                ->whereNull('deleted_at')
+                ->whereRaw('UPPER(BTRIM(arete)) = ?', [$arete])
+                ->first()
+            : null;
+
+        if ($arete !== '' && ! $animal) {
+            $errores[] = 'No existe un animal con ese arete.';
+        }
+
+        if ($animal && $animal->sexo !== 'H') {
+            $errores[] = 'El animal no es una hembra.';
+        }
+
+        if ($animal && $animal->estado !== Animal::ESTADO_ACTIVO) {
+            $errores[] = 'El animal no está activo.';
+        }
+
+        if ($animal && ! $animal->tieneAreteValido()) {
+            $errores[] = 'El arete del animal no es válido.';
+        }
+
+        $ultimoPeso = $animal?->relationLoaded('detallesPesaje')
+            ? $animal->detallesPesaje->first()?->peso
+            : null;
+
+        return [
+            'linea' => $linea,
+            'codigo_arete' => $arete,
+            'animal_id' => $animal?->id,
+            'animal_codigo' => $animal?->codigo,
+            'categoria_nombre' => $animal?->categoria?->nombre,
+            'lote_id' => $animal?->lote_id,
+            'lote_nombre' => $animal?->lote?->nombre,
+            'peso' => $ultimoPeso !== null ? (float) $ultimoPeso : null,
+            'errores' => $errores,
+            'valida' => $errores === [],
+        ];
     }
 
     private function nextCodigo(): string

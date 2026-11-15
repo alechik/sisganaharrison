@@ -1,10 +1,7 @@
 import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
-import Select from "@/components/form/Select";
-import { PESAJE_SORT_OPTIONS } from "../constants";
-import { useActiveAnimalOptions } from "../hooks";
-import { PesajeFilters, PesajeSortDirection } from "../types";
+import { PesajeFilters } from "../types";
 
 interface Props {
   filters: PesajeFilters;
@@ -12,11 +9,9 @@ interface Props {
 }
 
 export default function PesajeFiltersBar({ filters, onChange }: Props) {
-  const { animalOptions } = useActiveAnimalOptions();
-
   return (
-    <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-      <div>
+    <div className="flex flex-wrap items-end gap-x-3 gap-y-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+      <div className="min-w-0 w-full sm:min-w-[16rem] sm:flex-[1.4_1_16rem]">
         <Label>Búsqueda</Label>
         <DebouncedSearchField
           placeholder="Código, arete u observaciones"
@@ -24,25 +19,7 @@ export default function PesajeFiltersBar({ filters, onChange }: Props) {
           onValueChange={(search) => onChange({ search })}
         />
       </div>
-
-      <div>
-        <Label>Animal</Label>
-        <Select
-          value={filters.animal_id ? String(filters.animal_id) : "all"}
-          placeholder="Todos"
-          options={[
-            { value: "all", label: "Todos" },
-            ...animalOptions,
-          ]}
-          onChange={(value) =>
-            onChange({
-              animal_id: value === "all" ? undefined : Number(value),
-            })
-          }
-        />
-      </div>
-
-      <div>
+      <div className="w-full shrink-0 sm:w-[10.5rem]">
         <Label>Fecha desde</Label>
         <InputField
           type="date"
@@ -50,37 +27,12 @@ export default function PesajeFiltersBar({ filters, onChange }: Props) {
           onChange={(e) => onChange({ fecha_desde: e.target.value })}
         />
       </div>
-
-      <div>
+      <div className="w-full shrink-0 sm:w-[10.5rem]">
         <Label>Fecha hasta</Label>
         <InputField
           type="date"
           value={filters.fecha_hasta ?? ""}
           onChange={(e) => onChange({ fecha_hasta: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <Label>Ordenar por</Label>
-        <Select
-          value={filters.sort_by}
-          options={PESAJE_SORT_OPTIONS.map((option) => ({
-            value: option.value,
-            label: option.label,
-          }))}
-          onChange={(value) => onChange({ sort_by: value as PesajeFilters["sort_by"] })}
-        />
-      </div>
-
-      <div>
-        <Label>Dirección</Label>
-        <Select
-          value={filters.sort_dir}
-          options={[
-            { value: "asc", label: "Ascendente" },
-            { value: "desc", label: "Descendente" },
-          ]}
-          onChange={(value) => onChange({ sort_dir: value as PesajeSortDirection })}
         />
       </div>
     </div>

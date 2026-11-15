@@ -164,7 +164,13 @@ class AppServiceProvider extends ServiceProvider
             return Pesaje::query()->findOrFail($value);
         });
         Route::bind('evento_sanitario', fn (string $value) => EventoSanitario::query()->findOrFail($value));
-        Route::bind('servicio_reproductivo', fn (string $value) => ServicioReproductivo::query()->findOrFail($value));
+        Route::bind('servicio_reproductivo', function (string $value) {
+            if (! ctype_digit($value)) {
+                abort(404);
+            }
+
+            return ServicioReproductivo::query()->findOrFail($value);
+        });
         Route::bind('gestacion', fn (string $value) => Gestacion::query()->findOrFail($value));
         Route::bind('parto', fn (string $value) => Parto::query()->findOrFail($value));
         Route::bind('nacimiento', fn (string $value) => Nacimiento::query()->findOrFail($value));
