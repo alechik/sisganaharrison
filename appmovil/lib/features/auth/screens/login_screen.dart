@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Acceda con su cuenta de Agropecuaria Harrison.',
+                      'Sistema de Trazabilidad Bobina (SITBO).',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: scheme.onSurfaceVariant,
                           ),

@@ -14,6 +14,11 @@ class HarrisonLogo extends StatelessWidget {
         ? 'assets/images/logo-icon.svg'
         : (dark ? 'assets/images/logo-dark.svg' : 'assets/images/logo.svg');
 
-    return SvgPicture.asset(asset, height: height, fit: BoxFit.contain);
+    return SvgPicture.asset(
+      asset,
+      height: height,
+      fit: BoxFit.contain,
+      semanticsLabel: 'SITBO',
+    );
   }
 }

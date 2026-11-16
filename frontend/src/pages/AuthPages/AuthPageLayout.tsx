@@ -22,11 +22,11 @@ export default function AuthLayout({
                   width={231}
                   height={48}
                   src="/images/logo/auth-logo.svg"
-                  alt="Agropecuaria Harrison"
+                  alt="SITBO"
                 />
               </Link>
               <p className="text-center text-gray-400 dark:text-white/60">
-                Sistema de gestión ganadera
+                Sistema de Trazabilidad Bobina (SITBO)
               </p>
             </div>
           </div>

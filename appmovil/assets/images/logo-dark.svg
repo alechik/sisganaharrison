@@ -6,6 +6,5 @@
   <ellipse cx="24.9" cy="16.4" rx="1.2" ry="1.45" fill="#134E4A"/>
   <ellipse cx="17.7" cy="32.2" rx=".85" ry="1.05" fill="#134E4A"/>
   <ellipse cx="22.3" cy="32.2" rx=".85" ry="1.05" fill="#134E4A"/>
-  <text x="46" y="18" fill="#FFFFFF" font-family="Segoe UI, system-ui, sans-serif" font-size="16.5" font-weight="700">HARRISON</text>
-  <text x="46" y="32" fill="#5EEAD4" font-family="Segoe UI, system-ui, sans-serif" font-size="8" font-weight="600" letter-spacing="1.55">AGROPECUARIA</text>
+  <text x="46" y="26" fill="#FFFFFF" font-family="Segoe UI, system-ui, sans-serif" font-size="20" font-weight="700">SITBO</text>
 </svg>

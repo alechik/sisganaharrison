@@ -59,7 +59,7 @@ class _HarrisonAppState extends State<HarrisonApp> {
         ChangeNotifierProvider(create: (_) => NotificationController(_informeService)),
       ],
       child: MaterialApp(
-        title: 'Agropecuaria Harrison',
+        title: 'SITBO',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),

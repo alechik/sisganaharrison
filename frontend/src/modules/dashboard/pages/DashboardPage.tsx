@@ -69,7 +69,7 @@ export default function DashboardPage() {
   return (
     <>
       <PageMeta
-        title="Dashboard | Agropecuaria Harrison"
+        title="Dashboard | SITBO"
         description="Resumen operativo del hato, sanidad, reproducción y movimientos"
       />
       <PageBreadCrumb pageTitle="Dashboard" />

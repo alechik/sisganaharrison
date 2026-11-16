@@ -34,11 +34,11 @@
             <table class="header-brand">
                 <tr>
                     <td class="logo-cell">
-                        <img src="{{ public_path('images/logo-pdf.svg') }}" width="42" height="40" alt="Agropecuaria Harrison">
+                        <img src="{{ public_path('images/logo-pdf.svg') }}" width="42" height="40" alt="SITBO">
                     </td>
                     <td>
-                        <div class="brand">Agropecuaria Harrison</div>
-                        <div class="subtitle">Sistema ganadero</div>
+                        <div class="brand">SITBO</div>
+                        <div class="subtitle">Sistema de Trazabilidad Bobina</div>
                     </td>
                 </tr>
             </table>
@@ -50,7 +50,7 @@
     </div>
     @yield('content')
     <div class="footer">
-        Documento generado por SisGanadería · {{ now()->format('d/m/Y H:i') }}
+        Documento generado por SITBO · {{ now()->format('d/m/Y H:i') }}
     </div>
 </body>
 </html>
