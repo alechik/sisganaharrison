@@ -4,9 +4,8 @@ import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
-import { getAlmacenes } from "@/modules/almacenes/services";
-import { getSocios } from "@/modules/socios-de-negocio/services";
 import { INGRESO_PRODUCTO_SORT_OPTIONS } from "../constants";
+import { buscarProveedoresIngreso, getAlmacenesIngreso } from "../services";
 import { IngresoProductoFilters, IngresoProductoSortDirection } from "../types";
 
 interface Props {
@@ -22,11 +21,16 @@ export default function IngresoProductoFiltersBar({ filters, onChange }: Props) 
     const load = async () => {
       try {
         const [socios, warehouses] = await Promise.all([
-          getSocios({ tiene_tipo: "PROVEEDOR", per_page: 100, page: 1 }),
-          getAlmacenes({ per_page: 100, activo: true }),
+          buscarProveedoresIngreso(),
+          getAlmacenesIngreso(),
         ]);
-        setProveedores(socios.data.map((socio) => ({ value: String(socio.id), label: socio.razon_social })));
-        setAlmacenes(warehouses.data.map((item) => ({ value: String(item.id), label: item.nombre })));
+        setProveedores(
+          socios.map((socio) => ({
+            value: String(socio.id),
+            label: socio.nit ? `${socio.nit} · ${socio.razon_social}` : socio.razon_social,
+          }))
+        );
+        setAlmacenes(warehouses.map((item) => ({ value: String(item.id), label: item.nombre })));
       } catch (err) {
         console.error(err);
       }
@@ -40,7 +44,7 @@ export default function IngresoProductoFiltersBar({ filters, onChange }: Props) 
       <div>
         <Label>Código</Label>
         <DebouncedSearchField
-          placeholder="IP-000001"
+          placeholder="INCO000001"
           value={filters.cod_ingreso ?? ""}
           onValueChange={(cod_ingreso) => onChange({ cod_ingreso })}
         />

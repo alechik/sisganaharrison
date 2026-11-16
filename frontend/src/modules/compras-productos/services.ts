@@ -1,12 +1,16 @@
 import api from "@/api/axios";
 import { PaginatedResponse } from "@/types/api";
 import {
+  AlmacenDisponibleIngreso,
   IngresoProducto,
   IngresoProductoCreateRequest,
+  IngresoProductoExcelPreview,
   IngresoProductoListParams,
   OrdenCompraProducto,
   OrdenCompraProductoCreateRequest,
   OrdenCompraProductoListParams,
+  ProductoDisponibleIngreso,
+  ProveedorDisponibleIngreso,
 } from "./types";
 
 interface LaravelPaginatedResponse<T> {
@@ -107,3 +111,60 @@ export const createIngresoProducto = async (data: IngresoProductoCreateRequest) 
 
 export const downloadIngresoProductoPdf = (id: number, codigo: string) =>
   downloadPdf(`/compras-productos/ingresos/${id}/pdf`, `${codigo}.pdf`);
+
+export const buscarProductosIngreso = async (search: string): Promise<ProductoDisponibleIngreso[]> => {
+  if (!search.trim()) {
+    return [];
+  }
+  const response = await api.get<{ data: ProductoDisponibleIngreso[] }>(
+    "/compras-productos/ingresos/productos-disponibles",
+    { params: { search } }
+  );
+  return response.data.data;
+};
+
+export const buscarProveedoresIngreso = async (search = ""): Promise<ProveedorDisponibleIngreso[]> => {
+  const response = await api.get<{ data: ProveedorDisponibleIngreso[] }>(
+    "/compras-productos/ingresos/proveedores-disponibles",
+    { params: { search: search || undefined } }
+  );
+  return response.data.data;
+};
+
+export const getAlmacenesIngreso = async (): Promise<AlmacenDisponibleIngreso[]> => {
+  const response = await api.get<{ data: AlmacenDisponibleIngreso[] }>(
+    "/compras-productos/ingresos/almacenes-disponibles"
+  );
+  return response.data.data;
+};
+
+export const downloadIngresoProductoPlantilla = async () => {
+  const response = await api.get("/compras-productos/ingresos/plantilla-excel", {
+    responseType: "blob",
+  });
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    })
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "plantilla_ingreso_productos.xlsx";
+  link.click();
+  window.URL.revokeObjectURL(url);
+};
+
+export const previewIngresoProductoExcel = async (file: File): Promise<IngresoProductoExcelPreview> => {
+  const formData = new FormData();
+  formData.append("archivo", file);
+  const response = await api.post<{ data: IngresoProductoExcelPreview }>(
+    "/compras-productos/ingresos/vista-previa-excel",
+    formData,
+    {
+      headers: {
+        "Content-Type": undefined,
+      },
+    }
+  );
+  return response.data.data;
+};

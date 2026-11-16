@@ -28,6 +28,7 @@
             <tr>
                 <th>Código</th>
                 <th>Producto</th>
+                <th>Unidad</th>
                 <th class="text-right">Cantidad</th>
                 <th class="text-right">Precio</th>
                 <th class="text-right">Descuento</th>
@@ -39,6 +40,7 @@
                 <tr>
                     <td>{{ $detalle->medicamento?->codigo ?: '—' }}</td>
                     <td>{{ $detalle->medicamento?->nombre }}</td>
+                    <td>{{ $detalle->medicamento?->presentacion?->descripcion ?: '—' }}</td>
                     <td class="text-right">{{ $detalle->cantidad }}</td>
                     <td class="text-right">{{ \App\Support\Money::format($detalle->precio) }}</td>
                     <td class="text-right">{{ \App\Support\Money::format($detalle->descuento) }}</td>

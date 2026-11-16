@@ -32,7 +32,7 @@ export default function IngresoProductoListPage() {
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Ingresos de productos</h1>
           <PageBreadCrumb pageTitle="Ingresos de productos" items={breadcrumbs.ingresosProductos} />
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Cada ingreso debe proceder de una orden de compra de productos autorizada. Puede ser parcial.
+            Registro directo de ingresos al almacén. El código se genera como INCO + correlativo.
           </p>
         </div>
         <IngresoProductoToolbar />

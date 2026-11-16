@@ -53,8 +53,8 @@ export default function OrdenProductoListPage() {
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Órdenes de compra de productos</h1>
           <PageBreadCrumb pageTitle="Órdenes de productos" items={breadcrumbs.ordenesProductos} />
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Solicitud de insumos. El ingreso de productos exige una orden autorizada; la cantidad
-            es de unidades de producto, no de animales.
+            Histórico de órdenes de insumos. El ingreso operativo ya no exige una orden; las
+            existentes se conservan.
           </p>
         </div>
         <OrdenProductoToolbar />

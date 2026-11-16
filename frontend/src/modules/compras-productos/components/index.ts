@@ -8,3 +8,6 @@ export { default as IngresoProductoTable } from "./IngresoProductoTable";
 export { default as IngresoProductoForm } from "./IngresoProductoForm";
 export { default as IngresoProductoFiltersBar } from "./IngresoProductoFiltersBar";
 export { default as IngresoProductoToolbar } from "./IngresoProductoToolbar";
+export { default as ProveedorSelect } from "./ProveedorSelect";
+export { default as ProductoSelect } from "./ProductoSelect";
+export { default as AlmacenSelect } from "./AlmacenSelect";

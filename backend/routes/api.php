@@ -352,11 +352,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('compras-productos/ordenes/{orden_compra_producto}/cancelar', [OrdenCompraProductoController::class, 'cancelar'])->middleware('permission:compras_productos.authorize');
     Route::get('compras-productos/ordenes/{orden_compra_producto}/pdf', [OrdenCompraProductoController::class, 'pdf'])->middleware('permission:compras_productos.view');
 
+    Route::get('compras-productos/ingresos/productos-disponibles', [IngresoProductoController::class, 'productosDisponibles'])->middleware('permission:compras_productos.create');
+    Route::get('compras-productos/ingresos/proveedores-disponibles', [IngresoProductoController::class, 'proveedoresDisponibles'])->middleware('permission:compras_productos.view');
+    Route::get('compras-productos/ingresos/almacenes-disponibles', [IngresoProductoController::class, 'almacenesDisponibles'])->middleware('permission:compras_productos.view');
+    Route::get('compras-productos/ingresos/plantilla-excel', [IngresoProductoController::class, 'plantillaExcel'])->middleware('permission:compras_productos.create');
+    Route::post('compras-productos/ingresos/vista-previa-excel', [IngresoProductoController::class, 'previewExcel'])->middleware('permission:compras_productos.create');
     Route::get('compras-productos/ingresos/traer', [IngresoProductoController::class, 'traer'])->middleware('permission:compras_productos.create');
     Route::get('compras-productos/ingresos', [IngresoProductoController::class, 'index'])->middleware('permission:compras_productos.view');
     Route::post('compras-productos/ingresos', [IngresoProductoController::class, 'store'])->middleware('permission:compras_productos.create');
-    Route::get('compras-productos/ingresos/{ingreso_producto}', [IngresoProductoController::class, 'show'])->middleware('permission:compras_productos.view');
-    Route::get('compras-productos/ingresos/{ingreso_producto}/pdf', [IngresoProductoController::class, 'pdf'])->middleware('permission:compras_productos.view');
+    Route::get('compras-productos/ingresos/{ingreso_producto}', [IngresoProductoController::class, 'show'])->middleware('permission:compras_productos.view')->whereNumber('ingreso_producto');
+    Route::get('compras-productos/ingresos/{ingreso_producto}/pdf', [IngresoProductoController::class, 'pdf'])->middleware('permission:compras_productos.view')->whereNumber('ingreso_producto');
 });
 
 /*

@@ -104,14 +104,16 @@ export default function IngresoProductoDetailPage() {
               {item.proveedor_nit ? ` · NIT ${item.proveedor_nit}` : ""}
             </dd>
           </div>
-          <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Orden de origen</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              <Link className="text-brand-500 hover:underline" to={ORDEN_PRODUCTO_ROUTES.detail(item.orden_compra_id)}>
-                {item.orden_cod_compra || `OC #${item.orden_compra_id}`}
-              </Link>
-            </dd>
-          </div>
+          {item.orden_compra_id ? (
+            <div>
+              <dt className="text-sm text-gray-500 dark:text-gray-400">Orden de origen</dt>
+              <dd className="font-medium text-gray-800 dark:text-white/90">
+                <Link className="text-brand-500 hover:underline" to={ORDEN_PRODUCTO_ROUTES.detail(item.orden_compra_id)}>
+                  {item.orden_cod_compra || `OC #${item.orden_compra_id}`}
+                </Link>
+              </dd>
+            </div>
+          ) : null}
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Almacén</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">{item.almacen_nombre || "—"}</dd>
@@ -133,6 +135,7 @@ export default function IngresoProductoDetailPage() {
             <TableRow>
               <TableCell isHeader className="px-4 py-3 font-semibold">Código</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Producto</TableCell>
+              <TableCell isHeader className="px-4 py-3 font-semibold">Unidad</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Cantidad</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Precio</TableCell>
               <TableCell isHeader className="px-4 py-3 font-semibold">Descuento</TableCell>
@@ -144,6 +147,7 @@ export default function IngresoProductoDetailPage() {
               <TableRow key={detalle.id ?? detalle.medicamento_id}>
                 <TableCell className="px-4 py-3">{detalle.producto_codigo || "—"}</TableCell>
                 <TableCell className="px-4 py-3">{detalle.producto_nombre || "—"}</TableCell>
+                <TableCell className="px-4 py-3">{detalle.unidad || "—"}</TableCell>
                 <TableCell className="px-4 py-3">{detalle.cantidad}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.precio)}</TableCell>
                 <TableCell className="px-4 py-3">{formatMoney(detalle.descuento)}</TableCell>
@@ -152,7 +156,7 @@ export default function IngresoProductoDetailPage() {
             ))}
           </TableBody>
         </Table>
-        <div className="mt-4 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+        <div className="mt-4 space-y-1 text-right text-sm text-gray-700 dark:text-gray-300">
           <p>Unidades: {item.cantidad_total ?? 0}</p>
           <p>Suma de subtotales: {formatMoney(sumaLineas)}</p>
           <p>Descuento general: {formatMoney(item.descuento)}</p>

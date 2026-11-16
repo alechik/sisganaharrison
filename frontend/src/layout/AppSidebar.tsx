@@ -147,12 +147,12 @@ const navItems: NavItem[] = [
         path: "/compras/ingresos",
       },
       {
-        name: "Órdenes de productos",
-        path: "/compras-productos/ordenes",
-      },
-      {
         name: "Ingresos de productos",
         path: "/compras-productos/ingresos",
+      },
+      {
+        name: "Órdenes de productos (histórico)",
+        path: "/compras-productos/ordenes",
       },
     ],
   },

@@ -31,6 +31,7 @@ class IngresoProductoResource extends JsonResource
                     'medicamento_id' => $detalle->medicamento_id,
                     'producto_codigo' => $detalle->medicamento?->codigo,
                     'producto_nombre' => $detalle->medicamento?->nombre,
+                    'unidad' => $detalle->medicamento?->presentacion?->descripcion,
                     'cantidad' => $detalle->cantidad,
                     'precio' => (float) $detalle->precio,
                     'descuento' => (float) $detalle->descuento,

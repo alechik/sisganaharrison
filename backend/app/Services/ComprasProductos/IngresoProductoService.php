@@ -5,19 +5,27 @@ namespace App\Services\ComprasProductos;
 use App\Models\Almacen;
 use App\Models\DetalleIngresoProducto;
 use App\Models\IngresoProducto;
+use App\Models\Medicamento;
 use App\Models\MovimientoInventario;
 use App\Models\OrdenCompraProducto;
+use App\Models\Persona;
+use App\Models\TipoPersona;
 use App\Services\Documentos\PdfGenerator;
 use App\Services\Inventario\InventarioService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class IngresoProductoService
 {
+    public const PREFIJO_COMPRA = 'INCO';
+
     private const SORTABLE_COLUMNS = ['cod_ingreso', 'fecha', 'monto_total', 'created_at'];
 
     private const RELATIONS = [
@@ -25,12 +33,14 @@ class IngresoProductoService
         'proveedor:id,razon_social,nit',
         'almacen:id,nombre,establecimiento_id',
         'creador:id,nombre,apellido',
-        'detalles.medicamento:id,codigo,nombre,precio',
+        'detalles.medicamento:id,codigo,nombre,precio,presentacion_id',
+        'detalles.medicamento.presentacion:id,descripcion',
     ];
 
     public function __construct(
         private readonly PdfGenerator $pdfGenerator,
-        private readonly InventarioService $inventarioService
+        private readonly InventarioService $inventarioService,
+        private readonly IngresoProductoExcelService $excelService
     ) {}
 
     /**
@@ -46,10 +56,76 @@ class IngresoProductoService
         return IngresoProducto::query()->with(self::RELATIONS)->findOrFail($id);
     }
 
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return Collection<int, Medicamento>
+     */
+    public function productosDisponibles(array $filters = []): Collection
+    {
+        $search = trim((string) ($filters['search'] ?? ''));
+        if (mb_strlen($search) < 1) {
+            return collect();
+        }
+
+        return Medicamento::query()
+            ->with('presentacion:id,descripcion')
+            ->where('activo', true)
+            ->whereNull('deleted_at')
+            ->where(function (Builder $builder) use ($search) {
+                $builder->where('codigo', 'ilike', '%'.$search.'%')
+                    ->orWhere('nombre', 'ilike', '%'.$search.'%');
+            })
+            ->orderBy('codigo')
+            ->limit(20)
+            ->get();
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return Collection<int, Persona>
+     */
+    public function proveedoresDisponibles(array $filters = []): Collection
+    {
+        $search = trim((string) ($filters['search'] ?? ''));
+
+        $query = Persona::query()
+            ->where('estado', Persona::ESTADO_ACTIVO)
+            ->whereNull('deleted_at')
+            ->whereHas('tipos', fn (Builder $builder) => $builder->where('tipo.nombre', TipoPersona::PROVEEDOR));
+
+        if ($search !== '') {
+            $query->where(function (Builder $builder) use ($search) {
+                $builder->where('razon_social', 'ilike', '%'.$search.'%')
+                    ->orWhere('nit', 'ilike', '%'.$search.'%')
+                    ->orWhere('responsable', 'ilike', '%'.$search.'%');
+
+                if (is_numeric($search)) {
+                    $builder->orWhere('id', (int) $search)
+                        ->orWhere('ci', (int) $search);
+                }
+            });
+        }
+
+        return $query->orderBy('razon_social')->limit(20)->get();
+    }
+
+    /**
+     * @return Collection<int, Almacen>
+     */
+    public function almacenesDisponibles(): Collection
+    {
+        return Almacen::query()
+            ->with('establecimiento:id,codigo,nombre')
+            ->activos()
+            ->whereNull('deleted_at')
+            ->orderBy('nombre')
+            ->get();
+    }
+
     public function previewOrden(int $ordenId): OrdenCompraProducto
     {
         $orden = OrdenCompraProducto::query()
-            ->with(['proveedor:id,razon_social,nit', 'detalles.medicamento:id,codigo,nombre,precio'])
+            ->with(['proveedor:id,razon_social,nit', 'detalles.medicamento:id,codigo,nombre,precio,presentacion_id', 'detalles.medicamento.presentacion:id,descripcion'])
             ->findOrFail($ordenId);
 
         if (! $orden->estaAutorizada()) {
@@ -69,52 +145,85 @@ class IngresoProductoService
         return $orden;
     }
 
+    public function descargarPlantilla(): StreamedResponse
+    {
+        $plantilla = $this->excelService->plantilla();
+
+        return response()->streamDownload(function () use ($plantilla) {
+            echo $plantilla['content'];
+        }, $plantilla['filename'], [
+            'Content-Type' => $plantilla['mime'],
+        ]);
+    }
+
+    /**
+     * @return array{filas: list<array<string, mixed>>, validas: int, con_errores: int}
+     */
+    public function previewExcel(UploadedFile $file): array
+    {
+        $crudas = $this->excelService->parse($file);
+        $filas = [];
+        $codigos = [];
+        $validas = 0;
+        $conErrores = 0;
+
+        foreach ($crudas as $cruda) {
+            $normalizada = $this->normalizarFilaExcel($cruda, $codigos);
+            if (($normalizada['errores'] ?? []) === []) {
+                $validas++;
+            } else {
+                $conErrores++;
+            }
+            $filas[] = $normalizada;
+        }
+
+        return [
+            'filas' => $filas,
+            'validas' => $validas,
+            'con_errores' => $conErrores,
+        ];
+    }
+
     /**
      * @param  array<string, mixed>  $data
      */
     public function create(array $data): IngresoProducto
     {
         return DB::transaction(function () use ($data) {
-            $orden = OrdenCompraProducto::query()
-                ->with('detalles')
-                ->lockForUpdate()
-                ->findOrFail((int) $data['orden_compra_id']);
+            $orden = $this->resolverOrden($data['orden_compra_id'] ?? null);
+            $almacen = $this->assertAlmacen((int) $data['almacen_id']);
+            $proveedorId = (int) ($data['proveedor_id'] ?? $orden?->proveedor_id ?? 0);
+            $this->assertProveedor($proveedorId, $orden);
 
-            if (! $orden->estaAutorizada()) {
+            $detalles = $this->normalizeDetalles($data['detalles'] ?? [], $orden);
+            $descuento = round((float) ($data['descuento'] ?? 0), 2);
+            if ($descuento < 0) {
                 throw ValidationException::withMessages([
-                    'orden_compra_id' => 'Solo se pueden ingresar productos de una orden autorizada.',
+                    'descuento' => 'El descuento no puede ser negativo.',
                 ]);
             }
 
-            $almacen = Almacen::query()
-                ->whereKey((int) $data['almacen_id'])
-                ->where('activo', true)
-                ->whereNull('deleted_at')
-                ->first();
-            if (! $almacen) {
+            $suma = round(array_sum(array_column($detalles, 'subtotal')), 2);
+            if ($descuento > $suma) {
                 throw ValidationException::withMessages([
-                    'almacen_id' => 'El almacén seleccionado no existe o no está activo.',
+                    'descuento' => 'El descuento no puede superar el subtotal del ingreso.',
                 ]);
             }
-
-            $detalles = $this->normalizeDetalles($orden, $data['detalles'] ?? []);
 
             $ingreso = IngresoProducto::query()->create([
-                'orden_compra_id' => $orden->id,
-                'proveedor_id' => $orden->proveedor_id,
+                'orden_compra_id' => $orden?->id,
+                'proveedor_id' => $proveedorId,
                 'almacen_id' => $almacen->id,
                 'user_id' => Auth::id(),
                 'cod_ingreso' => $this->nextCodigo(),
                 'fecha' => $data['fecha'] ?? now()->toDateString(),
-                'descuento' => (float) ($data['descuento'] ?? 0),
+                'descuento' => $descuento,
                 'monto_total' => 0,
                 'observaciones' => $data['observaciones'] ?? null,
             ]);
 
-            $total = 0;
             foreach ($detalles as $linea) {
                 $detalle = $ingreso->detalles()->create($linea);
-                $total += $linea['subtotal'];
                 $this->inventarioService->registrar([
                     'almacen_id' => $almacen->id,
                     'medicamento_id' => $linea['medicamento_id'],
@@ -127,7 +236,7 @@ class IngresoProductoService
                 ]);
             }
 
-            $ingreso->monto_total = round(max(0, $total - (float) $ingreso->descuento), 2);
+            $ingreso->monto_total = round(max(0, $suma - $descuento), 2);
             $ingreso->save();
 
             return $ingreso->fresh(self::RELATIONS);
@@ -159,7 +268,9 @@ class IngresoProductoService
             $search = (string) $filters['search'];
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('cod_ingreso', 'ilike', '%'.$search.'%')
-                    ->orWhereHas('orden', fn (Builder $q) => $q->where('cod_compra', 'ilike', '%'.$search.'%'));
+                    ->orWhereHas('orden', fn (Builder $q) => $q->where('cod_compra', 'ilike', '%'.$search.'%'))
+                    ->orWhereHas('proveedor', fn (Builder $q) => $q->where('razon_social', 'ilike', '%'.$search.'%')
+                        ->orWhere('nit', 'ilike', '%'.$search.'%'));
             });
         }
         if (! empty($filters['orden_compra_id'])) {
@@ -183,18 +294,89 @@ class IngresoProductoService
         return $query->orderBy($sortBy, $sortDir);
     }
 
+    private function resolverOrden(mixed $ordenId): ?OrdenCompraProducto
+    {
+        if ($ordenId === null || $ordenId === '' || (int) $ordenId < 1) {
+            return null;
+        }
+
+        $orden = OrdenCompraProducto::query()
+            ->with('detalles')
+            ->lockForUpdate()
+            ->find((int) $ordenId);
+
+        if (! $orden) {
+            throw ValidationException::withMessages([
+                'orden_compra_id' => 'La orden de compra no existe.',
+            ]);
+        }
+
+        if (! $orden->estaAutorizada()) {
+            throw ValidationException::withMessages([
+                'orden_compra_id' => 'Solo se pueden ingresar productos de una orden autorizada.',
+            ]);
+        }
+
+        return $orden;
+    }
+
+    private function assertAlmacen(int $almacenId): Almacen
+    {
+        $almacen = Almacen::query()
+            ->whereKey($almacenId)
+            ->where('activo', true)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (! $almacen) {
+            throw ValidationException::withMessages([
+                'almacen_id' => 'El almacén seleccionado no existe o no está activo.',
+            ]);
+        }
+
+        return $almacen;
+    }
+
+    private function assertProveedor(int $proveedorId, ?OrdenCompraProducto $orden): void
+    {
+        if ($proveedorId < 1) {
+            throw ValidationException::withMessages([
+                'proveedor_id' => 'Debe seleccionar un proveedor.',
+            ]);
+        }
+
+        $ok = Persona::query()
+            ->whereKey($proveedorId)
+            ->where('estado', Persona::ESTADO_ACTIVO)
+            ->whereNull('deleted_at')
+            ->whereHas('tipos', fn ($q) => $q->where('tipo.nombre', TipoPersona::PROVEEDOR))
+            ->exists();
+
+        if (! $ok) {
+            throw ValidationException::withMessages([
+                'proveedor_id' => 'Debe seleccionar un proveedor válido.',
+            ]);
+        }
+
+        if ($orden && (int) $orden->proveedor_id !== $proveedorId) {
+            throw ValidationException::withMessages([
+                'proveedor_id' => 'El proveedor no coincide con la orden de compra asociada.',
+            ]);
+        }
+    }
+
     /**
      * @param  array<int, array<string, mixed>>  $detalles
      * @return list<array{medicamento_id:int, cantidad:int, precio:float, descuento:float, subtotal:float}>
      */
-    private function normalizeDetalles(OrdenCompraProducto $orden, array $detalles): array
+    private function normalizeDetalles(array $detalles, ?OrdenCompraProducto $orden): array
     {
         if ($detalles === []) {
             throw ValidationException::withMessages(['detalles' => 'Debe ingresar al menos un producto.']);
         }
 
-        $autorizados = $orden->detalles->keyBy('medicamento_id');
-        $yaIngresado = $this->cantidadesIngresadas($orden->id);
+        $autorizados = $orden?->detalles->keyBy('medicamento_id');
+        $yaIngresado = $orden ? $this->cantidadesIngresadas($orden->id) : collect();
 
         $normalizados = [];
         $vistos = [];
@@ -206,21 +388,46 @@ class IngresoProductoService
                     "detalles.$index.medicamento_id" => 'El producto es obligatorio y no puede repetirse.',
                 ]);
             }
-            $autorizado = $autorizados->get($productoId);
-            if (! $autorizado) {
+
+            $producto = Medicamento::query()
+                ->whereKey($productoId)
+                ->where('activo', true)
+                ->whereNull('deleted_at')
+                ->first();
+            if (! $producto) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.medicamento_id" => 'El producto no figura en la orden autorizada.',
+                    "detalles.$index.medicamento_id" => 'El producto no existe o no está activo.',
                 ]);
             }
-            $pendiente = (int) $autorizado->cantidad - (int) ($yaIngresado[$productoId] ?? 0);
-            if ($cantidad < 1 || $cantidad > $pendiente) {
+
+            if ($autorizados) {
+                $autorizado = $autorizados->get($productoId);
+                if (! $autorizado) {
+                    throw ValidationException::withMessages([
+                        "detalles.$index.medicamento_id" => 'El producto no figura en la orden autorizada.',
+                    ]);
+                }
+                $pendiente = (int) $autorizado->cantidad - (int) ($yaIngresado[$productoId] ?? 0);
+                if ($cantidad < 1 || $cantidad > $pendiente) {
+                    throw ValidationException::withMessages([
+                        "detalles.$index.cantidad" => "La cantidad supera lo pendiente de ingresar ({$pendiente}).",
+                    ]);
+                }
+            } elseif ($cantidad < 1) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.cantidad" => "La cantidad supera lo pendiente de ingresar ({$pendiente}).",
+                    "detalles.$index.cantidad" => 'La cantidad debe ser mayor a cero.',
                 ]);
             }
-            $precio = round((float) ($linea['precio'] ?? $autorizado->precio), 2);
-            $descuento = round((float) ($linea['descuento'] ?? 0), 2);
-            $subtotal = round(($cantidad * $precio) - $descuento, 2);
+
+            $precio = round((float) ($linea['precio'] ?? 0), 2);
+            if ($precio < 0) {
+                throw ValidationException::withMessages([
+                    "detalles.$index.precio" => 'El precio no puede ser negativo.',
+                ]);
+            }
+
+            $descuento = 0.0;
+            $subtotal = round($cantidad * $precio, 2);
             $vistos[] = $productoId;
             $normalizados[] = [
                 'medicamento_id' => $productoId,
@@ -232,6 +439,72 @@ class IngresoProductoService
         }
 
         return $normalizados;
+    }
+
+    /**
+     * @param  array<string, mixed>  $cruda
+     * @param  array<string, int>  $codigos
+     * @return array<string, mixed>
+     */
+    private function normalizarFilaExcel(array $cruda, array &$codigos): array
+    {
+        $linea = (int) ($cruda['linea'] ?? 0);
+        $codigo = strtoupper(trim((string) ($cruda['codigo_producto'] ?? '')));
+        $cantidadRaw = str_replace(',', '.', (string) ($cruda['cantidad'] ?? ''));
+        $precioRaw = str_replace(',', '.', (string) ($cruda['precio'] ?? ''));
+        $errores = [];
+
+        $cantidad = is_numeric($cantidadRaw) ? (int) $cantidadRaw : 0;
+        $precio = is_numeric($precioRaw) ? round((float) $precioRaw, 2) : null;
+
+        if ($codigo === '') {
+            $errores[] = 'El código de producto es obligatorio.';
+        }
+        if ($cantidad < 1) {
+            $errores[] = 'La cantidad debe ser un entero mayor a cero.';
+        }
+        if ($precio === null || $precio < 0) {
+            $errores[] = 'El precio no es válido.';
+        }
+        if ($codigo !== '' && isset($codigos[$codigo])) {
+            $errores[] = 'El producto está duplicado en el archivo (línea '.$codigos[$codigo].').';
+        }
+
+        $producto = null;
+        if ($codigo !== '') {
+            $producto = Medicamento::query()
+                ->with('presentacion:id,descripcion')
+                ->whereNull('deleted_at')
+                ->whereRaw('upper(codigo) = ?', [$codigo])
+                ->first();
+
+            if (! $producto) {
+                $errores[] = 'El producto no existe.';
+            } elseif (! $producto->activo) {
+                $errores[] = 'El producto está inactivo.';
+            }
+        }
+
+        if ($codigo !== '') {
+            $codigos[$codigo] = $linea;
+        }
+
+        $valida = $errores === [];
+        $subtotal = $valida ? round($cantidad * (float) $precio, 2) : 0;
+
+        return [
+            'linea' => $linea,
+            'codigo_producto' => $codigo,
+            'medicamento_id' => $producto?->id,
+            'producto_codigo' => $producto?->codigo,
+            'producto_nombre' => $producto?->nombre,
+            'unidad' => $producto?->presentacion?->descripcion,
+            'cantidad' => $cantidad > 0 ? $cantidad : (is_numeric($cantidadRaw) ? $cantidad : null),
+            'precio' => $precio,
+            'subtotal' => $subtotal,
+            'errores' => $errores,
+            'valida' => $valida,
+        ];
     }
 
     /**
@@ -248,12 +521,18 @@ class IngresoProductoService
 
     private function nextCodigo(): string
     {
-        $ultimo = IngresoProducto::query()->lockForUpdate()->orderByDesc('id')->value('cod_ingreso');
-        $n = 1;
-        if (is_string($ultimo) && preg_match('/(\d+)$/', $ultimo, $m)) {
-            $n = (int) $m[1] + 1;
+        $prefix = self::PREFIJO_COMPRA;
+        $ultimo = IngresoProducto::query()
+            ->where('cod_ingreso', 'like', $prefix.'%')
+            ->lockForUpdate()
+            ->orderByDesc('cod_ingreso')
+            ->value('cod_ingreso');
+
+        $secuencia = 1;
+        if (is_string($ultimo) && preg_match('/^'.preg_quote($prefix, '/').'(\d+)$/', $ultimo, $matches)) {
+            $secuencia = ((int) $matches[1]) + 1;
         }
 
-        return 'IP-'.str_pad((string) $n, 6, '0', STR_PAD_LEFT);
+        return $prefix.str_pad((string) $secuencia, 6, '0', STR_PAD_LEFT);
     }
 }

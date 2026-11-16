@@ -137,7 +137,13 @@ class PersonaService
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('razon_social', 'like', "%{$search}%")
                     ->orWhere('responsable', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('nit', 'like', "%{$search}%");
+
+                if (is_numeric($search)) {
+                    $builder->orWhere('ci', (int) $search)
+                        ->orWhere('id', (int) $search);
+                }
             });
         }
 

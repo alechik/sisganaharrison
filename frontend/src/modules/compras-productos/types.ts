@@ -3,6 +3,7 @@ export interface OrdenCompraProductoDetalle {
   medicamento_id: number;
   producto_codigo?: string | null;
   producto_nombre?: string | null;
+  unidad?: string | null;
   cantidad: number;
   cantidad_pendiente?: number | null;
   precio: number;
@@ -73,7 +74,7 @@ export interface OrdenProductoFilters extends OrdenCompraProductoListParams {
 
 export interface IngresoProducto {
   id: number;
-  orden_compra_id: number;
+  orden_compra_id?: number | null;
   orden_cod_compra?: string | null;
   cod_ingreso: string;
   fecha: string;
@@ -91,12 +92,55 @@ export interface IngresoProducto {
 }
 
 export interface IngresoProductoCreateRequest {
-  orden_compra_id: number;
+  proveedor_id: number;
   almacen_id: number;
   fecha: string;
   descuento?: number;
   observaciones?: string | null;
+  orden_compra_id?: number | null;
   detalles: OrdenCompraProductoDetalleRequest[];
+}
+
+export interface ProductoDisponibleIngreso {
+  id: number;
+  codigo: string;
+  nombre: string;
+  precio: number;
+  presentacion_descripcion?: string | null;
+}
+
+export interface ProveedorDisponibleIngreso {
+  id: number;
+  codigo: string;
+  razon_social: string;
+  nit?: string | null;
+}
+
+export interface AlmacenDisponibleIngreso {
+  id: number;
+  nombre: string;
+  establecimiento_nombre?: string | null;
+  establecimiento_codigo?: string | null;
+}
+
+export interface IngresoProductoExcelFila {
+  linea: number;
+  codigo_producto: string;
+  medicamento_id: number | null;
+  producto_codigo?: string | null;
+  producto_nombre?: string | null;
+  unidad?: string | null;
+  cantidad: number | null;
+  precio: number | null;
+  subtotal: number;
+  errores: string[];
+  valida: boolean;
+}
+
+export interface IngresoProductoExcelPreview {
+  filas: IngresoProductoExcelFila[];
+  validas: number;
+  con_errores: number;
 }
 
 export interface IngresoProductoListParams {

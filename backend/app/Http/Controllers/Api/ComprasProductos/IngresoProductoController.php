@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api\ComprasProductos;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ComprasProductos\PreviewIngresoProductoExcelRequest;
 use App\Http\Requests\ComprasProductos\StoreIngresoProductoRequest;
+use App\Http\Resources\Almacenes\AlmacenResource;
 use App\Http\Resources\ComprasProductos\IngresoProductoResource;
 use App\Http\Resources\ComprasProductos\OrdenCompraProductoResource;
+use App\Http\Resources\Medicamentos\MedicamentoResource;
 use App\Models\IngresoProducto;
 use App\Services\ComprasProductos\IngresoProductoService;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class IngresoProductoController extends Controller
 {
@@ -30,6 +34,57 @@ class IngresoProductoController extends Controller
         $this->authorize('view', $ingresoProducto);
 
         return new IngresoProductoResource($this->service->find($ingresoProducto->id));
+    }
+
+    public function productosDisponibles(Request $request): AnonymousResourceCollection
+    {
+        $this->authorize('create', IngresoProducto::class);
+
+        return MedicamentoResource::collection($this->service->productosDisponibles($request->all()));
+    }
+
+    public function proveedoresDisponibles(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', IngresoProducto::class);
+
+        $proveedores = $this->service->proveedoresDisponibles($request->all())->map(fn ($persona) => [
+            'id' => $persona->id,
+            'codigo' => $persona->nit ?: (string) $persona->id,
+            'razon_social' => $persona->razon_social,
+            'nit' => $persona->nit,
+        ])->values();
+
+        return response()->json(['data' => $proveedores]);
+    }
+
+    public function almacenesDisponibles(): AnonymousResourceCollection
+    {
+        $this->authorize('viewAny', IngresoProducto::class);
+
+        return AlmacenResource::collection($this->service->almacenesDisponibles());
+    }
+
+    public function plantillaExcel(): StreamedResponse
+    {
+        $this->authorize('create', IngresoProducto::class);
+
+        return $this->service->descargarPlantilla();
+    }
+
+    public function previewExcel(PreviewIngresoProductoExcelRequest $request): JsonResponse
+    {
+        $this->authorize('create', IngresoProducto::class);
+
+        try {
+            $preview = $this->service->previewExcel($request->file('archivo'));
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        return response()->json(['data' => $preview]);
     }
 
     public function traer(Request $request): JsonResponse

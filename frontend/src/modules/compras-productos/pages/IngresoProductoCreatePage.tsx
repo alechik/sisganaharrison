@@ -7,7 +7,7 @@ export default function IngresoProductoCreatePage() {
   return (
     <div className="space-y-6">
       <PageBreadCrumb pageTitle="Nuevo ingreso de productos" items={breadcrumbs.ingresoProductoCrear} />
-      <ComponentCard title="Registrar ingreso desde una orden autorizada">
+      <ComponentCard title="Registrar ingreso de productos">
         <IngresoProductoForm />
       </ComponentCard>
     </div>
