@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $pesaje_id
  * @property int $animal_id
- * @property int|null $lote_id
+ * @property int|null $potrero_id
  * @property string $peso
  */
 class DetallePesaje extends Model
@@ -21,7 +21,7 @@ class DetallePesaje extends Model
     protected $fillable = [
         'pesaje_id',
         'animal_id',
-        'lote_id',
+        'potrero_id',
         'peso',
     ];
 
@@ -49,10 +49,10 @@ class DetallePesaje extends Model
     }
 
     /**
-     * @return BelongsTo<Lote, $this>
+     * @return BelongsTo<Potrero, $this>
      */
-    public function lote(): BelongsTo
+    public function potrero(): BelongsTo
     {
-        return $this->belongsTo(Lote::class, 'lote_id');
+        return $this->belongsTo(Potrero::class, 'potrero_id');
     }
 }

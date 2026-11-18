@@ -25,7 +25,7 @@ const filtrosIniciales = (): ReporteFiltros => {
     raza_id: "all",
     categoria_id: "all",
     estado_productivo_id: "all",
-    lote_id: "all",
+    potrero_id: "all",
     estado: "all",
     tipo_evento_id: "all",
     animal_id: "all",

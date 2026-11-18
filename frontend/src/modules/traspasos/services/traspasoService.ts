@@ -25,8 +25,8 @@ export const getTraspasos = async (
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
       search: params.search || undefined,
-      lote_salida_id: params.lote_salida_id || undefined,
-      lote_ingreso_id: params.lote_ingreso_id || undefined,
+      potrero_salida_id: params.potrero_salida_id || undefined,
+      potrero_ingreso_id: params.potrero_ingreso_id || undefined,
       fecha_desde: params.fecha_desde || undefined,
       fecha_hasta: params.fecha_hasta || undefined,
       sort_by: params.sort_by,
@@ -43,12 +43,12 @@ export const getTraspaso = async (id: number): Promise<Traspaso> => {
 };
 
 export const getAnimalesTraspaso = async (
-  loteId: number,
+  potreroId: number,
   traspasoId?: number
 ): Promise<AnimalDisponibleVenta[]> => {
   const response = await api.get<{ data: AnimalDisponibleVenta[] }>(
     "/traspasos/animales-disponibles",
-    { params: { lote_id: loteId, traspaso_id: traspasoId || undefined } }
+    { params: { potrero_id: potreroId, traspaso_id: traspasoId || undefined } }
   );
   return response.data.data;
 };

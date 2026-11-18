@@ -85,10 +85,10 @@ class StoreIngresoRequest extends FormRequest
                 'integer',
                 Rule::exists('personas', 'id')->whereNull('deleted_at'),
             ],
-            'lote_id' => [
+            'potrero_id' => [
                 'required',
                 'integer',
-                Rule::exists('lotes', 'id')->whereNull('deleted_at')->where('activo', true),
+                Rule::exists('potreros', 'id')->whereNull('deleted_at')->where('activo', true),
             ],
             'grupo_id' => [
                 'required',
@@ -127,8 +127,8 @@ class StoreIngresoRequest extends FormRequest
     {
         return [
             'tipo_ingreso_id.exists' => 'El tipo de ingreso no existe o no está activo.',
-            'lote_id.exists' => 'El lote seleccionado no existe o no está activo.',
-            'grupo_id.required' => 'Debe seleccionar un grupo del lote.',
+            'potrero_id.exists' => 'El potrero seleccionado no existe o no está activo.',
+            'grupo_id.required' => 'Debe seleccionar un grupo del potrero.',
             'detalles.required' => 'Debe registrar al menos un animal para el ingreso.',
             'detalles.*.arete.distinct' => 'No se puede repetir el mismo arete en el ingreso.',
             'detalles.*.peso_ingreso.min' => 'El peso debe ser mayor a cero.',

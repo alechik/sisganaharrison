@@ -42,26 +42,70 @@ return new class extends Migration
             'CREATE UNIQUE INDEX subcategorias_productos_categoria_nombre_unique ON subcategorias_productos (categoria_producto_id, lower(nombre)) WHERE deleted_at IS NULL'
         );
 
-        Schema::table('medicamentos', function (Blueprint $table) {
+        Schema::table('productos', function (Blueprint $table) {
             $table->foreignId('subcategoria_producto_id')
                 ->nullable()
                 ->constrained('subcategorias_productos')
                 ->restrictOnUpdate()
-                ->nullOnDelete();
-            $table->string('nombre_cientifico', 120)->nullable();
-            $table->decimal('cantidad_acumulada', 12, 2)->default(0);
-            $table->decimal('valor_acumulado', 14, 2)->default(0);
+                ->restrictOnDelete();
             $table->index('subcategoria_producto_id');
         });
+
+        $this->exigirSubcategoriaProducto();
     }
 
     public function down(): void
     {
-        Schema::table('medicamentos', function (Blueprint $table) {
+        Schema::table('productos', function (Blueprint $table) {
             $table->dropConstrainedForeignId('subcategoria_producto_id');
-            $table->dropColumn(['nombre_cientifico', 'cantidad_acumulada', 'valor_acumulado']);
         });
         Schema::dropIfExists('subcategorias_productos');
         Schema::dropIfExists('categorias_productos');
+    }
+
+    private function exigirSubcategoriaProducto(): void
+    {
+        $subcategoriaId = $this->fallbackSubcategoriaId();
+
+        DB::table('productos')
+            ->whereNull('subcategoria_producto_id')
+            ->update(['subcategoria_producto_id' => $subcategoriaId]);
+
+        DB::statement('ALTER TABLE productos ALTER COLUMN subcategoria_producto_id SET NOT NULL');
+    }
+
+    private function fallbackSubcategoriaId(): int
+    {
+        $now = now();
+
+        $categoriaId = DB::table('categorias_productos')
+            ->whereRaw('lower(nombre) = ?', ['medicamentos veterinarios'])
+            ->value('id');
+
+        if (! $categoriaId) {
+            $categoriaId = DB::table('categorias_productos')->insertGetId([
+                'nombre' => 'Medicamentos veterinarios',
+                'activo' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+
+        $subcategoriaId = DB::table('subcategorias_productos')
+            ->where('categoria_producto_id', $categoriaId)
+            ->whereRaw('lower(nombre) = ?', ['medicamentos específicos'])
+            ->value('id');
+
+        if (! $subcategoriaId) {
+            $subcategoriaId = DB::table('subcategorias_productos')->insertGetId([
+                'categoria_producto_id' => $categoriaId,
+                'nombre' => 'Medicamentos específicos',
+                'activo' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+
+        return (int) $subcategoriaId;
     }
 };

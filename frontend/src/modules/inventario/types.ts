@@ -2,8 +2,8 @@ export interface StockItem {
   id: number;
   almacen_id: number;
   almacen_nombre?: string | null;
-  establecimiento_nombre?: string | null;
-  medicamento_id: number;
+  estancia_nombre?: string | null;
+  producto_id: number;
   producto_codigo?: string | null;
   producto_nombre?: string | null;
   precio?: number;

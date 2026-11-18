@@ -7,7 +7,7 @@ import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import { POTRERO_ROUTES } from "../constants";
-import { useActiveEstablecimientoOptions } from "../hooks/useActiveEstablecimientoOptions";
+import { useActiveParcelaOptions } from "../hooks/useActiveParcelaOptions";
 import { useCreatePotrero } from "../hooks/useCreatePotrero";
 import { useUpdatePotrero } from "../hooks/useUpdatePotrero";
 import { getPotrero } from "../services";
@@ -18,13 +18,12 @@ interface Props {
 }
 
 const emptyForm: PotreroCreateRequest = {
-  establecimiento_id: 0,
+  parcela_id: 0,
   codigo: "",
   nombre: "",
+  capacidad_animales: 0,
   area_ha: null,
-  tipo_pasto: "",
-  disponibilidad: true,
-  descripcion: "",
+  observaciones: "",
 };
 
 export default function PotreroForm({ potreroId }: Props) {
@@ -32,10 +31,10 @@ export default function PotreroForm({ potreroId }: Props) {
   const isEdit = Boolean(potreroId);
 
   const {
-    options: establecimientoOptions,
-    loading: loadingEstablecimientos,
-    error: establecimientosError,
-  } = useActiveEstablecimientoOptions();
+    options: parcelaOptions,
+    loading: loadingParcelas,
+    error: parcelasError,
+  } = useActiveParcelaOptions();
 
   const {
     create,
@@ -54,7 +53,7 @@ export default function PotreroForm({ potreroId }: Props) {
   const [loading, setLoading] = useState(isEdit);
 
   const saving = creating || updating;
-  const error = createError || updateError || establecimientosError;
+  const error = createError || updateError || parcelasError;
 
   useEffect(() => {
     if (!potreroId) {
@@ -65,17 +64,16 @@ export default function PotreroForm({ potreroId }: Props) {
       try {
         const potrero = await getPotrero(potreroId);
         setForm({
-          establecimiento_id: potrero.establecimiento_id,
+          parcela_id: potrero.parcela_id,
           codigo: potrero.codigo,
           nombre: potrero.nombre,
+          capacidad_animales: potrero.capacidad_animales,
           area_ha: potrero.area_ha,
-          tipo_pasto: potrero.tipo_pasto ?? "",
-          disponibilidad: potrero.disponibilidad,
-          descripcion: potrero.descripcion ?? "",
+          observaciones: potrero.observaciones ?? "",
         });
       } catch (err) {
         console.error(err);
-        setUpdateError("No se pudo cargar la parcela.");
+        setUpdateError("No se pudo cargar el potrero.");
       } finally {
         setLoading(false);
       }
@@ -95,7 +93,11 @@ export default function PotreroForm({ potreroId }: Props) {
             ? value === ""
               ? null
               : Number(value)
-            : value,
+            : name === "capacidad_animales"
+              ? value === ""
+                ? 0
+                : Number(value)
+              : value,
     }));
   };
 
@@ -104,8 +106,8 @@ export default function PotreroForm({ potreroId }: Props) {
     setCreateError(null);
     setUpdateError(null);
 
-    if (!form.establecimiento_id) {
-      setCreateError("Debe seleccionar una estancia.");
+    if (!form.parcela_id) {
+      setCreateError("Debe seleccionar una parcela.");
       return;
     }
 
@@ -122,7 +124,7 @@ export default function PotreroForm({ potreroId }: Props) {
     }
   };
 
-  if (loading || loadingEstablecimientos) {
+  if (loading || loadingParcelas) {
     return <div>Cargando formulario...</div>;
   }
 
@@ -136,15 +138,15 @@ export default function PotreroForm({ potreroId }: Props) {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <Label>Estancia</Label>
+          <Label>Parcela</Label>
           <Select
-            value={form.establecimiento_id ? String(form.establecimiento_id) : ""}
-            placeholder="Seleccione una estancia"
-            options={establecimientoOptions}
+            value={form.parcela_id ? String(form.parcela_id) : ""}
+            placeholder="Seleccione una parcela"
+            options={parcelaOptions}
             onChange={(value) =>
               setForm((current) => ({
                 ...current,
-                establecimiento_id: Number(value),
+                parcela_id: Number(value),
               }))
             }
           />
@@ -157,7 +159,7 @@ export default function PotreroForm({ potreroId }: Props) {
             name="codigo"
             value={form.codigo}
             onChange={handleChange}
-            placeholder="Ej: POT_CARMEN_N"
+            placeholder="Ej: LOT_CARMEN_ENG"
           />
         </div>
 
@@ -168,6 +170,17 @@ export default function PotreroForm({ potreroId }: Props) {
             name="nombre"
             value={form.nombre}
             onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <Label>Capacidad de animales</Label>
+          <InputField
+            type="number"
+            name="capacidad_animales"
+            value={form.capacidad_animales ?? 0}
+            onChange={handleChange}
+            min="0"
           />
         </div>
 
@@ -183,47 +196,19 @@ export default function PotreroForm({ potreroId }: Props) {
           />
         </div>
 
-        <div>
-          <Label>Tipo de pasto</Label>
-          <InputField
-            type="text"
-            name="tipo_pasto"
-            value={form.tipo_pasto ?? ""}
-            onChange={handleChange}
-            placeholder="Ej: Brachiaria"
-          />
-        </div>
-
-        <div>
-          <Label>Disponibilidad</Label>
-          <Select
-            value={form.disponibilidad ? "true" : "false"}
-            options={[
-              { value: "true", label: "Disponible" },
-              { value: "false", label: "No disponible" },
-            ]}
-            onChange={(value) =>
-              setForm((current) => ({
-                ...current,
-                disponibilidad: value === "true",
-              }))
-            }
-          />
-        </div>
-
         <div className="md:col-span-2">
-          <Label>Descripción</Label>
+          <Label>Observaciones</Label>
           <TextArea
             rows={4}
-            value={form.descripcion ?? ""}
-            onChange={(value) => setForm((current) => ({ ...current, descripcion: value }))}
+            value={form.observaciones ?? ""}
+            onChange={(value) => setForm((current) => ({ ...current, observaciones: value }))}
           />
         </div>
       </div>
 
       <div className="mt-6 flex gap-3">
         <Button size="sm" type="submit" disabled={saving}>
-          {saving ? "Guardando..." : isEdit ? "Actualizar Parcela" : "Guardar Parcela"}
+          {saving ? "Guardando..." : isEdit ? "Actualizar Potrero" : "Guardar Potrero"}
         </Button>
 
         <Button

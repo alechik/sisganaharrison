@@ -104,8 +104,8 @@ export default function PresentacionDeletedPage() {
         title="Restaurar presentación"
         message={
           actionError
-            ? `¿Desea restaurar la presentación ${selectedTipo?.descripcion}?\n\n${actionError}`
-            : `¿Desea restaurar la presentación ${selectedTipo?.descripcion}?`
+            ? `¿Desea restaurar la presentación ${selectedTipo?.nombre}?\n\n${actionError}`
+            : `¿Desea restaurar la presentación ${selectedTipo?.nombre}?`
         }
         confirmLabel="Restaurar"
         loading={processing}

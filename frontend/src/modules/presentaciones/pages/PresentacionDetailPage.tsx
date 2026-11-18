@@ -50,7 +50,7 @@ export default function PresentacionDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <PageBreadCrumb pageTitle={tipo.descripcion} items={breadcrumbs.presentacionDetalle} />
+        <PageBreadCrumb pageTitle={tipo.nombre} items={breadcrumbs.presentacionDetalle} />
         <div className="flex gap-3">
           <Link
             to={PRESENTACION_ROUTES.list}
@@ -72,8 +72,8 @@ export default function PresentacionDetailPage() {
       <ComponentCard title="Detalle de presentación">
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Descripción</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">{tipo.descripcion}</dd>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Nombre</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{tipo.nombre}</dd>
           </div>
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Fecha de creación</dt>

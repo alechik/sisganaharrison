@@ -4,16 +4,16 @@ namespace App\Services\Dashboard;
 
 use App\Models\Animal;
 use App\Models\Cuarentena;
-use App\Models\Establecimiento;
+use App\Models\Estancia;
 use App\Models\EventoSanitario;
 use App\Models\Gestacion;
 use App\Models\Ingreso;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Nacimiento;
 use App\Models\OrdenCompra;
 use App\Models\Parto;
 use App\Models\Pesaje;
-use App\Models\Potrero;
+use App\Models\Parcela;
 use App\Models\Salida;
 use App\Models\ServicioReproductivo;
 use App\Models\TipoSalida;
@@ -85,10 +85,10 @@ class DashboardService
             ])
             ->all();
 
-        $lotesOcupacion = $this->ocupacionLotes();
-        $capacidadTotal = (int) $lotesOcupacion->sum('capacidad');
-        $ocupacionTotal = (int) $lotesOcupacion->sum('ocupacion');
-        $lotesSobrecupo = $lotesOcupacion->filter(fn ($lote) => $lote['ocupacion'] > $lote['capacidad'] && $lote['capacidad'] > 0)->count();
+        $potrerosOcupacion = $this->ocupacionPotreros();
+        $capacidadTotal = (int) $potrerosOcupacion->sum('capacidad');
+        $ocupacionTotal = (int) $potrerosOcupacion->sum('ocupacion');
+        $potrerosSobrecupo = $potrerosOcupacion->filter(fn ($potrero) => $potrero['ocupacion'] > $potrero['capacidad'] && $potrero['capacidad'] > 0)->count();
 
         $pesoMensual = Pesaje::query()
             ->join('detalle_pesajes', 'detalle_pesajes.pesaje_id', '=', 'pesajes.id')
@@ -130,10 +130,10 @@ class DashboardService
                 'hato_actual' => (clone $hato)->count(),
                 'animales_activos' => Animal::query()->activos()->count(),
                 'animales_enfermos' => Animal::query()->where('estado', Animal::ESTADO_ENFERMO)->count(),
-                'establecimientos' => Establecimiento::query()->activos()->count(),
+                'estancias' => Estancia::query()->activos()->count(),
+                'parcelas' => Parcela::query()->activos()->count(),
                 'potreros' => Potrero::query()->activos()->count(),
-                'lotes' => Lote::query()->activos()->count(),
-                'ocupacion_lotes_pct' => $capacidadTotal > 0
+                'ocupacion_potreros_pct' => $capacidadTotal > 0
                     ? round(($ocupacionTotal / $capacidadTotal) * 100, 1)
                     : null,
                 'gestaciones_activas' => Gestacion::query()->where('estado', Gestacion::ESTADO_ACTIVA)->count(),
@@ -152,8 +152,8 @@ class DashboardService
             'infraestructura' => [
                 'capacidad_total' => $capacidadTotal,
                 'ocupacion_total' => $ocupacionTotal,
-                'lotes_sobrecupo' => $lotesSobrecupo,
-                'lotes' => $lotesOcupacion->take(8)->values()->all(),
+                'potreros_sobrecupo' => $potrerosSobrecupo,
+                'potreros' => $potrerosOcupacion->take(8)->values()->all(),
             ],
             'produccion' => [
                 'peso_promedio_mensual' => $pesoMensual,
@@ -185,7 +185,7 @@ class DashboardService
                 'salidas_30d' => Salida::query()->where('fecha_salida', '>=', $desde30)->count(),
                 'traspasos_30d' => Traspaso::query()->where('fecha_traspaso', '>=', $desde30)->count(),
             ],
-            'pendientes' => $this->pendientes($gestacionesPartoPronto, $lotesSobrecupo),
+            'pendientes' => $this->pendientes($gestacionesPartoPronto, $potrerosSobrecupo),
             'actividad_reciente' => $this->actividadReciente(),
             'periodo' => [
                 'desde' => $desde->toDateString(),
@@ -199,30 +199,30 @@ class DashboardService
     /**
      * @return \Illuminate\Support\Collection<int, array{codigo: string, nombre: string, capacidad: int, ocupacion: int, pct: float|null}>
      */
-    private function ocupacionLotes()
+    private function ocupacionPotreros()
     {
         $muerto = Animal::ESTADO_MUERTO;
         $vendido = Animal::ESTADO_VENDIDO;
 
-        return Lote::query()
+        return Potrero::query()
             ->activos()
-            ->select('lotes.id', 'lotes.codigo', 'lotes.nombre', 'lotes.capacidad_animales')
+            ->select('potreros.id', 'potreros.codigo', 'potreros.nombre', 'potreros.capacidad_animales')
             ->selectRaw(
                 "(SELECT COUNT(*) FROM animales
-                  WHERE animales.lote_id = lotes.id
+                  WHERE animales.potrero_id = potreros.id
                     AND animales.deleted_at IS NULL
                     AND animales.estado NOT IN (?, ?)) as ocupacion",
                 [$muerto, $vendido]
             )
             ->orderByDesc('ocupacion')
             ->get()
-            ->map(function ($lote) {
-                $capacidad = (int) $lote->capacidad_animales;
-                $ocupacion = (int) $lote->ocupacion;
+            ->map(function ($potrero) {
+                $capacidad = (int) $potrero->capacidad_animales;
+                $ocupacion = (int) $potrero->ocupacion;
 
                 return [
-                    'codigo' => (string) $lote->codigo,
-                    'nombre' => (string) $lote->nombre,
+                    'codigo' => (string) $potrero->codigo,
+                    'nombre' => (string) $potrero->nombre,
                     'capacidad' => $capacidad,
                     'ocupacion' => $ocupacion,
                     'pct' => $capacidad > 0 ? round(($ocupacion / $capacidad) * 100, 1) : null,
@@ -233,7 +233,7 @@ class DashboardService
     /**
      * @return list<array{tipo: string, titulo: string, total: int, nivel: string}>
      */
-    private function pendientes(int $gestacionesPartoPronto, int $lotesSobrecupo): array
+    private function pendientes(int $gestacionesPartoPronto, int $potrerosSobrecupo): array
     {
         $items = [
             [
@@ -279,9 +279,9 @@ class DashboardService
                 'nivel' => 'error',
             ],
             [
-                'tipo' => 'lotes',
-                'titulo' => 'Lotes sobre capacidad',
-                'total' => $lotesSobrecupo,
+                'tipo' => 'potreros',
+                'titulo' => 'Potreros sobre capacidad',
+                'total' => $potrerosSobrecupo,
                 'nivel' => 'error',
             ],
         ];

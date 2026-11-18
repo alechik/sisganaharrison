@@ -6,7 +6,7 @@ use App\Models\Almacen;
 use App\Models\Animal;
 use App\Models\DetallePesaje;
 use App\Models\EventoSanitario;
-use App\Models\Medicamento;
+use App\Models\Producto;
 use App\Models\MovimientoInventario;
 use App\Models\TipoEventoSanitario;
 use App\Services\Documentos\PdfGenerator;
@@ -26,10 +26,10 @@ class EventoSanitarioService
     private const RELATIONS = [
         'tipoEvento:id,nombre,codigo',
         'usuario:id,nombre,apellido',
-        'detalles.animal:id,codigo,arete,lote_id',
-        'detalles.lote:id,nombre,codigo',
-        'detalles.medicamento:id,codigo,nombre,presentacion_id,precio',
-        'detalles.medicamento.presentacion:id,descripcion',
+        'detalles.animal:id,codigo,arete,potrero_id',
+        'detalles.potrero:id,nombre,codigo',
+        'detalles.producto:id,codigo,nombre,presentacion_id,precio',
+        'detalles.producto.presentacion:id,nombre',
         'detalles.almacen:id,nombre',
     ];
 
@@ -67,8 +67,8 @@ class EventoSanitarioService
 
         return Animal::query()
             ->with([
-                'lote:id,nombre,codigo,potrero_id',
-                'lote.potrero:id,nombre',
+                'potrero:id,nombre,codigo,parcela_id',
+                'potrero.parcela:id,nombre',
                 'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
             ])
             ->whereNull('deleted_at')
@@ -102,13 +102,13 @@ class EventoSanitarioService
             $total = 0;
             foreach ($detalles as $linea) {
                 $detalle = $evento->detalles()->create($linea);
-                $total += $linea['precio_medicamento'] * $linea['cantidad'];
+                $total += $linea['precio_producto'] * $linea['cantidad'];
                 $this->inventarioService->registrar([
                     'almacen_id' => $linea['almacen_id'],
-                    'medicamento_id' => $linea['medicamento_id'],
+                    'producto_id' => $linea['producto_id'],
                     'tipo' => MovimientoInventario::TIPO_CONSUMO_SANITARIO,
                     'cantidad' => -1 * (float) $linea['cantidad'],
-                    'precio_unitario' => $linea['precio_medicamento'],
+                    'precio_unitario' => $linea['precio_producto'],
                     'origen_type' => 'evento_sanitario',
                     'origen_id' => $detalle->id,
                     'observaciones' => 'Consumo '.$evento->codigo_evento_sanitario,
@@ -156,7 +156,7 @@ class EventoSanitarioService
                         $animalQuery->where('codigo', 'ilike', '%'.$search.'%')
                             ->orWhere('arete', 'ilike', '%'.$search.'%');
                     })
-                    ->orWhereHas('detalles.medicamento', fn (Builder $medQuery) => $medQuery->where('nombre', 'ilike', '%'.$search.'%'));
+                    ->orWhereHas('detalles.producto', fn (Builder $medQuery) => $medQuery->where('nombre', 'ilike', '%'.$search.'%'));
             });
         }
 
@@ -171,10 +171,10 @@ class EventoSanitarioService
             $query->where('tipo_evento_id', (int) $filters['tipo_evento_id']);
         }
 
-        if (! empty($filters['medicamento_id'])) {
+        if (! empty($filters['producto_id'])) {
             $query->whereHas(
                 'detalles',
-                fn (Builder $builder) => $builder->where('medicamento_id', (int) $filters['medicamento_id'])
+                fn (Builder $builder) => $builder->where('producto_id', (int) $filters['producto_id'])
             );
         }
 
@@ -214,7 +214,7 @@ class EventoSanitarioService
 
     /**
      * @param  array<int, array<string, mixed>>  $detalles
-     * @return list<array{animal_id: int, lote_id: int, medicamento_id: int, almacen_id: int, cantidad: float, peso_animal: float, precio_medicamento: float}>
+     * @return list<array{animal_id: int, potrero_id: int, producto_id: int, almacen_id: int, cantidad: float, peso_animal: float, precio_producto: float}>
      */
     private function normalizeDetalles(array $detalles): array
     {
@@ -229,7 +229,7 @@ class EventoSanitarioService
 
         foreach ($detalles as $index => $linea) {
             $animalId = (int) ($linea['animal_id'] ?? 0);
-            $medicamentoId = (int) ($linea['medicamento_id'] ?? 0);
+            $productoId = (int) ($linea['producto_id'] ?? 0);
             $almacenId = (int) ($linea['almacen_id'] ?? 0);
             $cantidad = round((float) ($linea['cantidad'] ?? 1), 2);
 
@@ -239,16 +239,16 @@ class EventoSanitarioService
                 ]);
             }
 
-            $clave = $animalId.'-'.$medicamentoId;
+            $clave = $animalId.'-'.$productoId;
             if (in_array($clave, $vistos, true)) {
                 throw ValidationException::withMessages([
                     "detalles.$index.animal_id" => 'El mismo animal no puede repetir el mismo producto en el evento.',
                 ]);
             }
 
-            if ($medicamentoId < 1) {
+            if ($productoId < 1) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.medicamento_id" => 'Debe seleccionar un producto.',
+                    "detalles.$index.producto_id" => 'Debe seleccionar un producto.',
                 ]);
             }
             if ($almacenId < 1) {
@@ -274,21 +274,21 @@ class EventoSanitarioService
                 ]);
             }
 
-            if (! $animal->lote_id) {
+            if (! $animal->potrero_id) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.animal_id" => 'El animal no tiene un lote asignado.',
+                    "detalles.$index.animal_id" => 'El animal no tiene un potrero asignado.',
                 ]);
             }
 
-            $medicamento = Medicamento::query()
-                ->whereKey($medicamentoId)
+            $producto = Producto::query()
+                ->whereKey($productoId)
                 ->where('activo', true)
                 ->whereNull('deleted_at')
                 ->first();
 
-            if (! $medicamento) {
+            if (! $producto) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.medicamento_id" => 'El producto seleccionado no está activo o no existe.',
+                    "detalles.$index.producto_id" => 'El producto seleccionado no está activo o no existe.',
                 ]);
             }
 
@@ -313,12 +313,12 @@ class EventoSanitarioService
             $vistos[] = $clave;
             $normalizados[] = [
                 'animal_id' => $animal->id,
-                'lote_id' => (int) $animal->lote_id,
-                'medicamento_id' => $medicamento->id,
+                'potrero_id' => (int) $animal->potrero_id,
+                'producto_id' => $producto->id,
                 'almacen_id' => $almacen->id,
                 'cantidad' => $cantidad,
                 'peso_animal' => $peso,
-                'precio_medicamento' => round((float) $medicamento->precio, 2),
+                'precio_producto' => round((float) $producto->precio, 2),
             ];
         }
 

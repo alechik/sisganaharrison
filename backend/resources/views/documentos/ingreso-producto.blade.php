@@ -38,9 +38,9 @@
         <tbody>
             @foreach ($ingreso->detalles as $detalle)
                 <tr>
-                    <td>{{ $detalle->medicamento?->codigo ?: '—' }}</td>
-                    <td>{{ $detalle->medicamento?->nombre }}</td>
-                    <td>{{ $detalle->medicamento?->presentacion?->descripcion ?: '—' }}</td>
+                    <td>{{ $detalle->producto?->codigo ?: '—' }}</td>
+                    <td>{{ $detalle->producto?->nombre }}</td>
+                    <td>{{ $detalle->producto?->presentacion?->nombre ?: '—' }}</td>
                     <td class="text-right">{{ $detalle->cantidad }}</td>
                     <td class="text-right">{{ \App\Support\Money::format($detalle->precio) }}</td>
                     <td class="text-right">{{ \App\Support\Money::format($detalle->descuento) }}</td>

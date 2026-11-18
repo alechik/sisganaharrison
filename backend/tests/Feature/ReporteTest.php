@@ -8,8 +8,8 @@ use App\Models\DetalleEventoSanitario;
 use App\Models\EstadoProductivo;
 use App\Models\EventoSanitario;
 use App\Models\Gestacion;
-use App\Models\Lote;
-use App\Models\Medicamento;
+use App\Models\Potrero;
+use App\Models\Producto;
 use App\Models\Nacimiento;
 use App\Models\Parto;
 use App\Models\Raza;
@@ -84,10 +84,10 @@ class ReporteTest extends TestCase
         DetalleEventoSanitario::query()->create([
             'evento_sanitario_id' => $evento->id,
             'animal_id' => $animal->id,
-            'lote_id' => $animal->lote_id,
-            'medicamento_id' => Medicamento::factory()->create()->id,
+            'potrero_id' => $animal->potrero_id,
+            'producto_id' => Producto::factory()->create()->id,
             'peso_animal' => 220,
-            'precio_medicamento' => 15,
+            'precio_producto' => 15,
         ]);
 
         $conDatos = $this->getJson('/api/reportes/sanidad?desde=1991-04-04&hasta=1991-04-04&tipo_evento_id='.$tipo->id);
@@ -192,7 +192,7 @@ class ReporteTest extends TestCase
     private function animal(array $attributes = []): Animal
     {
         return Animal::factory()->create(array_merge([
-            'lote_id' => Lote::query()->value('id'),
+            'potrero_id' => Potrero::query()->value('id'),
             'categoria_id' => CategoriaAnimal::query()->value('id'),
             'estado_productivo_id' => EstadoProductivo::query()->value('id'),
             'raza_id' => Raza::query()->value('id'),

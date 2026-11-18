@@ -18,28 +18,28 @@ interface LineState {
   animal_id: number | null;
   animal_codigo: string;
   animal_arete: string;
-  lote_id: number | null;
-  lote_nombre: string;
+  potrero_id: number | null;
+  potrero_nombre: string;
   peso_animal: number | null;
   presentacion_id: number | null;
-  medicamento_id: number | null;
+  producto_id: number | null;
   almacen_id: number | null;
   cantidad: number;
-  precio_medicamento: number;
+  precio_producto: number;
 }
 
 const emptyLine = (): LineState => ({
   animal_id: null,
   animal_codigo: "",
   animal_arete: "",
-  lote_id: null,
-  lote_nombre: "",
+  potrero_id: null,
+  potrero_nombre: "",
   peso_animal: null,
   presentacion_id: null,
-  medicamento_id: null,
+  producto_id: null,
   almacen_id: null,
   cantidad: 1,
-  precio_medicamento: 0,
+  precio_producto: 0,
 });
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -50,7 +50,7 @@ export default function EventoSanitarioForm() {
   const {
     tipoEventoOptions,
     presentacionOptions,
-    medicamentos,
+    productos,
     loading: loadingOptions,
     error: optionsError,
   } = useSanitarioReferenceOptions();
@@ -76,12 +76,12 @@ export default function EventoSanitarioForm() {
   );
 
   const totalEstimado = lines.reduce(
-    (acc, line) => acc + (Number(line.precio_medicamento) || 0) * (Number(line.cantidad) || 0),
+    (acc, line) => acc + (Number(line.precio_producto) || 0) * (Number(line.cantidad) || 0),
     0
   );
 
-  const medicamentosFiltrados = (presentacionId: number | null) =>
-    medicamentos.filter((item) => !presentacionId || item.presentacion_id === presentacionId);
+  const productosFiltrados = (presentacionId: number | null) =>
+    productos.filter((item) => !presentacionId || item.presentacion_id === presentacionId);
 
   const applyAnimal = (index: number, animal: AnimalDisponibleVenta) => {
     setLines((current) =>
@@ -92,8 +92,8 @@ export default function EventoSanitarioForm() {
               animal_id: animal.id,
               animal_codigo: animal.codigo,
               animal_arete: animal.arete ?? "",
-              lote_id: animal.lote_id,
-              lote_nombre: animal.lote_nombre ?? "",
+              potrero_id: animal.potrero_id,
+              potrero_nombre: animal.potrero_nombre ?? "",
               peso_animal: animal.peso ?? null,
             }
           : line
@@ -101,16 +101,16 @@ export default function EventoSanitarioForm() {
     );
   };
 
-  const applyMedicamento = (index: number, medicamentoId: number) => {
-    const medicamento = medicamentos.find((item) => item.id === medicamentoId);
+  const applyProducto = (index: number, productoId: number) => {
+    const producto = productos.find((item) => item.id === productoId);
     setLines((current) =>
       current.map((line, i) =>
         i === index
           ? {
               ...line,
-              medicamento_id: medicamentoId || null,
-              presentacion_id: medicamento?.presentacion_id ?? line.presentacion_id,
-              precio_medicamento: medicamento?.precio ?? 0,
+              producto_id: productoId || null,
+              presentacion_id: producto?.presentacion_id ?? line.presentacion_id,
+              precio_producto: producto?.precio ?? 0,
             }
           : line
       )
@@ -132,7 +132,7 @@ export default function EventoSanitarioForm() {
       return;
     }
 
-    if (lines.some((line) => !line.animal_id || !line.medicamento_id || !line.almacen_id || !line.cantidad)) {
+    if (lines.some((line) => !line.animal_id || !line.producto_id || !line.almacen_id || !line.cantidad)) {
       setValidationError("Cada línea debe tener animal, producto, almacén y cantidad.");
       return;
     }
@@ -145,7 +145,7 @@ export default function EventoSanitarioForm() {
       observaciones: observaciones || null,
       detalles: lines.map((line) => ({
         animal_id: Number(line.animal_id),
-        medicamento_id: Number(line.medicamento_id),
+        producto_id: Number(line.producto_id),
         almacen_id: Number(line.almacen_id),
         cantidad: Number(line.cantidad),
       })),
@@ -214,7 +214,7 @@ export default function EventoSanitarioForm() {
         </div>
 
         {lines.map((line, index) => {
-          const medOptions = medicamentosFiltrados(line.presentacion_id).map((item) => ({
+          const medOptions = productosFiltrados(line.presentacion_id).map((item) => ({
             value: String(item.id),
             label: `${item.codigo} — ${item.nombre}`,
           }));
@@ -238,8 +238,8 @@ export default function EventoSanitarioForm() {
                 )}
               </div>
               <div>
-                <Label>Potrero al momento del evento</Label>
-                <InputField type="text" value={line.lote_nombre || "—"} disabled />
+                <Label>Parcela al momento del evento</Label>
+                <InputField type="text" value={line.potrero_nombre || "—"} disabled />
               </div>
               <div>
                 <Label>Peso actual (kg)</Label>
@@ -259,7 +259,7 @@ export default function EventoSanitarioForm() {
                     setLines((current) =>
                       current.map((item, i) =>
                         i === index
-                          ? { ...item, presentacion_id: value ? Number(value) : null, medicamento_id: null, precio_medicamento: 0 }
+                          ? { ...item, presentacion_id: value ? Number(value) : null, producto_id: null, precio_producto: 0 }
                           : item
                       )
                     )
@@ -269,10 +269,10 @@ export default function EventoSanitarioForm() {
               <div>
                 <Label>Producto *</Label>
                 <Select
-                  value={line.medicamento_id ? String(line.medicamento_id) : ""}
+                  value={line.producto_id ? String(line.producto_id) : ""}
                   placeholder="Seleccione un producto activo"
                   options={medOptions}
-                  onChange={(value) => applyMedicamento(index, Number(value))}
+                  onChange={(value) => applyProducto(index, Number(value))}
                 />
               </div>
               <div>
@@ -306,7 +306,7 @@ export default function EventoSanitarioForm() {
               </div>
               <div>
                 <Label>Precio del producto</Label>
-                <InputField type="text" value={formatMoney(line.precio_medicamento)} disabled />
+                <InputField type="text" value={formatMoney(line.precio_producto)} disabled />
               </div>
               {lines.length > 1 && (
                 <div className="md:col-span-3">

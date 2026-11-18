@@ -14,14 +14,13 @@ class PotreroResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'establecimiento_id' => $this->establecimiento_id,
-            'establecimiento_nombre' => $this->establecimiento?->nombre,
+            'parcela_id' => $this->parcela_id,
+            'parcela_nombre' => $this->parcela?->nombre,
             'codigo' => $this->codigo,
             'nombre' => $this->nombre,
+            'capacidad_animales' => $this->capacidad_animales,
             'area_ha' => $this->area_ha !== null ? (float) $this->area_ha : null,
-            'tipo_pasto' => $this->tipo_pasto,
-            'disponibilidad' => $this->disponibilidad,
-            'descripcion' => $this->descripcion,
+            'observaciones' => $this->observaciones,
             'activo' => $this->activo,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),

@@ -9,6 +9,6 @@
 export const PRESENTACION_DEFAULT_PAGE_SIZE = 10;
 
 export const PRESENTACION_SORT_OPTIONS = [
-  { value: "descripcion", label: "Descripción" },
+  { value: "nombre", label: "Nombre" },
   { value: "created_at", label: "Fecha de creación" },
 ] as const;

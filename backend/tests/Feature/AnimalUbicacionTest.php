@@ -6,7 +6,7 @@ use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\DetallePesaje;
 use App\Models\EstadoProductivo;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Pesaje;
 use App\Models\Raza;
 use App\Models\User;
@@ -32,12 +32,12 @@ class AnimalUbicacionTest extends TestCase
         $user = $this->userWithPermission();
         Sanctum::actingAs($user);
 
-        [$origen, $destino] = $this->dosLotes();
+        [$origen, $destino] = $this->dosPotreros();
         $animal = $this->animalEn($origen, $user);
 
         app(TraspasoService::class)->create([
-            'lote_salida_id' => $origen->id,
-            'lote_ingreso_id' => $destino->id,
+            'potrero_salida_id' => $origen->id,
+            'potrero_ingreso_id' => $destino->id,
             'fecha_traspaso' => '2024-03-01',
             'observacion' => 'Cambio de potrero',
             'detalles' => [
@@ -46,13 +46,13 @@ class AnimalUbicacionTest extends TestCase
         ]);
 
         $animal->refresh();
-        $this->assertSame($destino->id, (int) $animal->lote_id);
+        $this->assertSame($destino->id, (int) $animal->potrero_id);
 
         $segundoOrigen = $destino;
         $segundoDestino = $origen;
         app(TraspasoService::class)->create([
-            'lote_salida_id' => $segundoOrigen->id,
-            'lote_ingreso_id' => $segundoDestino->id,
+            'potrero_salida_id' => $segundoOrigen->id,
+            'potrero_ingreso_id' => $segundoDestino->id,
             'fecha_traspaso' => '2024-08-15',
             'observacion' => 'Regreso',
             'detalles' => [
@@ -62,16 +62,16 @@ class AnimalUbicacionTest extends TestCase
 
         $response = $this->getJson('/api/animales/'.$animal->id.'/ubicacion');
         $response->assertOk();
-        $response->assertJsonPath('data.actual.ubicacion.lote_id', $origen->id);
+        $response->assertJsonPath('data.actual.ubicacion.potrero_id', $origen->id);
         $response->assertJsonPath('data.actual.fecha_ultimo_cambio', '2024-08-15');
         $response->assertJsonPath('data.historial.0.tipo', 'TRASLADO');
         $response->assertJsonPath('data.historial.0.fecha', '2024-03-01');
-        $response->assertJsonPath('data.historial.0.origen.lote_id', $origen->id);
-        $response->assertJsonPath('data.historial.0.destino.lote_id', $destino->id);
+        $response->assertJsonPath('data.historial.0.origen.potrero_id', $origen->id);
+        $response->assertJsonPath('data.historial.0.destino.potrero_id', $destino->id);
         $response->assertJsonPath('data.historial.0.observacion', 'Cambio de potrero');
         $response->assertJsonPath('data.historial.1.fecha', '2024-08-15');
-        $response->assertJsonPath('data.historial.1.origen.lote_id', $destino->id);
-        $response->assertJsonPath('data.historial.1.destino.lote_id', $origen->id);
+        $response->assertJsonPath('data.historial.1.origen.potrero_id', $destino->id);
+        $response->assertJsonPath('data.historial.1.destino.potrero_id', $origen->id);
         $this->assertCount(2, $response->json('data.historial'));
     }
 
@@ -79,13 +79,13 @@ class AnimalUbicacionTest extends TestCase
     {
         $user = $this->userWithPermission();
         Sanctum::actingAs($user);
-        $lote = Lote::query()->firstOrFail();
-        $animal = $this->animalEn($lote, $user);
+        $potrero = Potrero::query()->firstOrFail();
+        $animal = $this->animalEn($potrero, $user);
 
         $response = $this->getJson('/api/animales/'.$animal->id.'/ubicacion');
 
         $response->assertOk();
-        $response->assertJsonPath('data.actual.ubicacion.lote_id', $lote->id);
+        $response->assertJsonPath('data.actual.ubicacion.potrero_id', $potrero->id);
         $response->assertJsonPath('data.actual.fecha_ultimo_cambio', null);
         $response->assertJsonPath('data.historial', []);
     }
@@ -94,8 +94,8 @@ class AnimalUbicacionTest extends TestCase
     {
         Permission::findOrCreate('animales.view', 'web');
         $user = User::factory()->create();
-        $lote = Lote::query()->firstOrFail();
-        $animal = $this->animalEn($lote, $user);
+        $potrero = Potrero::query()->firstOrFail();
+        $animal = $this->animalEn($potrero, $user);
         Sanctum::actingAs($user);
 
         $this->getJson('/api/animales/'.$animal->id.'/ubicacion')->assertForbidden();
@@ -105,14 +105,14 @@ class AnimalUbicacionTest extends TestCase
     {
         $user = $this->userWithPermission();
         Sanctum::actingAs($user);
-        $lote = Lote::query()->firstOrFail();
-        $animal = $this->animalEn($lote, $user);
+        $potrero = Potrero::query()->firstOrFail();
+        $animal = $this->animalEn($potrero, $user);
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
 
         app(TraspasoService::class)->create([
-            'lote_salida_id' => $lote->id,
-            'lote_ingreso_id' => $lote->id,
+            'potrero_salida_id' => $potrero->id,
+            'potrero_ingreso_id' => $potrero->id,
             'fecha_traspaso' => '2024-01-01',
             'detalles' => [
                 ['animal_id' => $animal->id],
@@ -120,10 +120,10 @@ class AnimalUbicacionTest extends TestCase
         ]);
     }
 
-    private function animalEn(Lote $lote, User $user): Animal
+    private function animalEn(Potrero $potrero, User $user): Animal
     {
         $animal = Animal::factory()->create([
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'categoria_id' => CategoriaAnimal::query()->value('id'),
             'estado_productivo_id' => EstadoProductivo::query()->value('id'),
             'raza_id' => Raza::query()->value('id'),
@@ -139,7 +139,7 @@ class AnimalUbicacionTest extends TestCase
         DetallePesaje::query()->create([
             'pesaje_id' => $pesaje->id,
             'animal_id' => $animal->id,
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'peso' => 250,
         ]);
 
@@ -147,17 +147,17 @@ class AnimalUbicacionTest extends TestCase
     }
 
     /**
-     * @return array{0: Lote, 1: Lote}
+     * @return array{0: Potrero, 1: Potrero}
      */
-    private function dosLotes(): array
+    private function dosPotreros(): array
     {
-        $origen = Lote::query()->firstOrFail();
-        $destino = Lote::query()->where('id', '!=', $origen->id)->first();
+        $origen = Potrero::query()->firstOrFail();
+        $destino = Potrero::query()->where('id', '!=', $origen->id)->first();
         if ($destino === null) {
-            $destino = Lote::factory()->create([
-                'potrero_id' => $origen->potrero_id,
+            $destino = Potrero::factory()->create([
+                'parcela_id' => $origen->parcela_id,
                 'codigo' => 'UB'.strtoupper(substr(uniqid(), -6)),
-                'nombre' => 'Potrero destino',
+                'nombre' => 'Parcela destino',
             ]);
         }
 

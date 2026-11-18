@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Almacen;
-use App\Models\Establecimiento;
+use App\Models\Estancia;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -15,12 +15,12 @@ class AlmacenFactory extends Factory
 
     public function definition(): array
     {
-        $establecimiento = Establecimiento::query()->first() ?? Establecimiento::factory()->create();
+        $estancia = Estancia::query()->first() ?? Estancia::factory()->create();
 
         return [
-            'establecimiento_id' => $establecimiento->id,
-            'nombre' => 'Almacén '.$establecimiento->nombre,
-            'direccion' => $establecimiento->direccion,
+            'estancia_id' => $estancia->id,
+            'nombre' => 'Almacén '.$estancia->nombre,
+            'direccion' => $estancia->direccion,
             'observacion' => null,
             'activo' => true,
         ];

@@ -15,7 +15,7 @@ interface Props {
 }
 
 const emptyForm: PresentacionCreateRequest = {
-  descripcion: "",
+  nombre: "",
 };
 
 export default function PresentacionForm({ presentacionId }: Props) {
@@ -49,7 +49,7 @@ export default function PresentacionForm({ presentacionId }: Props) {
     const load = async () => {
       try {
         const tipo = await getPresentacion(presentacionId);
-        setForm({ descripcion: tipo.descripcion });
+        setForm({ nombre: tipo.nombre });
       } catch (err) {
         console.error(err);
         setUpdateError("No se pudo cargar la presentación.");
@@ -66,8 +66,8 @@ export default function PresentacionForm({ presentacionId }: Props) {
     setCreateError(null);
     setUpdateError(null);
 
-    if (!form.descripcion.trim()) {
-      setCreateError("La descripción es obligatoria.");
+    if (!form.nombre.trim()) {
+      setCreateError("El nombre es obligatorio.");
       return;
     }
 
@@ -97,12 +97,12 @@ export default function PresentacionForm({ presentacionId }: Props) {
       )}
 
       <div>
-        <Label>Descripción *</Label>
+        <Label>Nombre *</Label>
         <InputField
           type="text"
-          name="descripcion"
-          value={form.descripcion}
-          onChange={(e) => setForm({ descripcion: e.target.value })}
+          name="nombre"
+          value={form.nombre}
+          onChange={(e) => setForm({ nombre: e.target.value })}
         />
       </div>
 

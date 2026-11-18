@@ -35,7 +35,7 @@ export const getAnimales = async (
       raza_id: params.raza_id || undefined,
       categoria_id: params.categoria_id || undefined,
       estado_productivo_id: params.estado_productivo_id || undefined,
-      lote_id: params.lote_id || undefined,
+      potrero_id: params.potrero_id || undefined,
       sexo: params.sexo || undefined,
       activo: params.activo,
       con_arete: params.con_arete ? 1 : undefined,
@@ -51,7 +51,7 @@ export const getAnimales = async (
 export const getDeletedAnimales = async (
   params: Pick<
     AnimalListParams,
-    "page" | "per_page" | "sort_by" | "sort_dir" | "lote_id" | "raza_id"
+    "page" | "per_page" | "sort_by" | "sort_dir" | "potrero_id" | "raza_id"
   > = {},
   signal?: AbortSignal
 ): Promise<PaginatedResponse<Animal>> => {
@@ -62,7 +62,7 @@ export const getDeletedAnimales = async (
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
-        lote_id: params.lote_id || undefined,
+        potrero_id: params.potrero_id || undefined,
         raza_id: params.raza_id || undefined,
         sort_by: params.sort_by,
         sort_dir: params.sort_dir,

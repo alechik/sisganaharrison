@@ -17,12 +17,12 @@ interface Props {
 }
 
 export default function EventoSanitarioFiltersBar({ filters, onChange }: Props) {
-  const { tipoEventoOptions, medicamentos } = useSanitarioReferenceOptions();
+  const { tipoEventoOptions, productos } = useSanitarioReferenceOptions();
   const { animalOptions } = useActiveAnimalOptions();
   const [extraAnimalOption, setExtraAnimalOption] = useState<{ value: string; label: string } | null>(
     null
   );
-  const medicamentoOptions = medicamentos.map((item) => ({
+  const productoOptions = productos.map((item) => ({
     value: String(item.id),
     label: item.nombre,
   }));
@@ -77,7 +77,7 @@ export default function EventoSanitarioFiltersBar({ filters, onChange }: Props) 
       <div>
         <Label>Búsqueda</Label>
         <DebouncedSearchField
-          placeholder="Animal, tipo, medicamento u observaciones"
+          placeholder="Animal, tipo, producto u observaciones"
           value={filters.search ?? ""}
           onValueChange={(search) => onChange({ search })}
         />
@@ -112,14 +112,14 @@ export default function EventoSanitarioFiltersBar({ filters, onChange }: Props) 
       </div>
 
       <div>
-        <Label>Medicamento</Label>
+        <Label>Producto</Label>
         <Select
-          value={filters.medicamento_id ? String(filters.medicamento_id) : "all"}
+          value={filters.producto_id ? String(filters.producto_id) : "all"}
           placeholder="Todos"
-          options={[{ value: "all", label: "Todos" }, ...medicamentoOptions]}
+          options={[{ value: "all", label: "Todos" }, ...productoOptions]}
           onChange={(value) =>
             onChange({
-              medicamento_id: value === "all" ? undefined : Number(value),
+              producto_id: value === "all" ? undefined : Number(value),
             })
           }
         />

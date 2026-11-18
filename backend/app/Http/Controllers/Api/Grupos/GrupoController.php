@@ -37,7 +37,7 @@ class GrupoController extends Controller
     {
         $this->authorize('view', $grupo);
 
-        $grupo->load('lote:id,nombre,codigo');
+        $grupo->load('potrero:id,nombre,codigo');
 
         return new GrupoResource($grupo);
     }

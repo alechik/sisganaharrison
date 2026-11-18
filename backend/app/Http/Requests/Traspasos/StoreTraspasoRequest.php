@@ -19,17 +19,17 @@ class StoreTraspasoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'lote_salida_id' => [
+            'potrero_salida_id' => [
                 'required',
                 'integer',
-                'different:lote_ingreso_id',
-                Rule::exists('lotes', 'id')->where('activo', true)->whereNull('deleted_at'),
+                'different:potrero_ingreso_id',
+                Rule::exists('potreros', 'id')->where('activo', true)->whereNull('deleted_at'),
             ],
-            'lote_ingreso_id' => [
+            'potrero_ingreso_id' => [
                 'required',
                 'integer',
-                'different:lote_salida_id',
-                Rule::exists('lotes', 'id')->where('activo', true)->whereNull('deleted_at'),
+                'different:potrero_salida_id',
+                Rule::exists('potreros', 'id')->where('activo', true)->whereNull('deleted_at'),
             ],
             'fecha_traspaso' => 'required|date|before_or_equal:today',
             'observacion' => 'nullable|string|max:2000',
@@ -44,10 +44,10 @@ class StoreTraspasoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'lote_salida_id.required' => 'Debe seleccionar el lote de salida.',
-            'lote_ingreso_id.required' => 'Debe seleccionar el lote de ingreso.',
-            'lote_salida_id.different' => 'El lote de salida y el de ingreso deben ser distintos.',
-            'lote_ingreso_id.different' => 'El lote de salida y el de ingreso deben ser distintos.',
+            'potrero_salida_id.required' => 'Debe seleccionar el potrero de salida.',
+            'potrero_ingreso_id.required' => 'Debe seleccionar el potrero de ingreso.',
+            'potrero_salida_id.different' => 'El potrero de salida y el de ingreso deben ser distintos.',
+            'potrero_ingreso_id.different' => 'El potrero de salida y el de ingreso deben ser distintos.',
             'fecha_traspaso.required' => 'La fecha de traspaso es obligatoria.',
             'detalles.required' => 'Debe seleccionar al menos un animal.',
             'detalles.min' => 'Debe seleccionar al menos un animal.',

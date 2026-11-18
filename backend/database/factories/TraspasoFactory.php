@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Traspaso;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -16,14 +16,14 @@ class TraspasoFactory extends Factory
 
     public function definition(): array
     {
-        $loteSalida = Lote::query()->value('id') ?? Lote::factory();
-        $loteIngreso = Lote::query()->where('id', '!=', is_numeric($loteSalida) ? $loteSalida : 0)->value('id')
-            ?? Lote::factory();
+        $potreroSalida = Potrero::query()->value('id') ?? Potrero::factory();
+        $potreroIngreso = Potrero::query()->where('id', '!=', is_numeric($potreroSalida) ? $potreroSalida : 0)->value('id')
+            ?? Potrero::factory();
 
         return [
             'user_id' => User::query()->value('id') ?? User::factory(),
-            'lote_salida_id' => $loteSalida,
-            'lote_ingreso_id' => $loteIngreso,
+            'potrero_salida_id' => $potreroSalida,
+            'potrero_ingreso_id' => $potreroIngreso,
             'fecha_traspaso' => fake()->date(),
             'observacion' => fake()->optional()->sentence(),
             'total_peso' => 0,

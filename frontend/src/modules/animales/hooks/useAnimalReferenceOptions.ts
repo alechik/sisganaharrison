@@ -3,7 +3,7 @@ import { getRazas } from "@/modules/razas/services";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
 import { CategoriaAnimal } from "@/modules/categorias-animales/types";
 import { getEstadosProductivos } from "@/modules/estados-productivos/services";
-import { getLotes } from "@/modules/lotes/services";
+import { getPotreros } from "@/modules/potreros/services";
 import { getAnimales } from "../services";
 
 export interface SelectOption {
@@ -16,7 +16,7 @@ export const useAnimalReferenceOptions = (excludeAnimalId?: number) => {
   const [categoriaOptions, setCategoriaOptions] = useState<SelectOption[]>([]);
   const [categorias, setCategorias] = useState<CategoriaAnimal[]>([]);
   const [estadoProductivoOptions, setEstadoProductivoOptions] = useState<SelectOption[]>([]);
-  const [loteOptions, setLoteOptions] = useState<SelectOption[]>([]);
+  const [potreroOptions, setPotreroOptions] = useState<SelectOption[]>([]);
   const [parentOptions, setParentOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,11 +26,11 @@ export const useAnimalReferenceOptions = (excludeAnimalId?: number) => {
       setLoading(true);
       setError(null);
 
-      const [razas, categorias, estados, lotes, animales] = await Promise.all([
+      const [razas, categorias, estados, potreros, animales] = await Promise.all([
         getRazas({ estado: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
         getCategoriasAnimales({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
         getEstadosProductivos({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
-        getLotes({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
+        getPotreros({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
         getAnimales({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
       ]);
 
@@ -49,8 +49,8 @@ export const useAnimalReferenceOptions = (excludeAnimalId?: number) => {
       setEstadoProductivoOptions(
         estados.data.map((item) => ({ value: String(item.id), label: item.nombre }))
       );
-      setLoteOptions(
-        lotes.data.map((item) => ({ value: String(item.id), label: item.nombre }))
+      setPotreroOptions(
+        potreros.data.map((item) => ({ value: String(item.id), label: item.nombre }))
       );
       setParentOptions(
         animales.data
@@ -77,7 +77,7 @@ export const useAnimalReferenceOptions = (excludeAnimalId?: number) => {
     categoriaOptions,
     categorias,
     estadoProductivoOptions,
-    loteOptions,
+    potreroOptions,
     parentOptions,
     loading,
     error,

@@ -43,7 +43,7 @@ export default function GrupoTable({ grupos, meta, deletedView = false, onPageCh
                   <TableCell className="px-5 py-4">
                     <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">{grupo.nombre}</span>
                   </TableCell>
-                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">{grupo.lote_nombre || "—"}</TableCell>
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">{grupo.potrero_nombre || "—"}</TableCell>
                   <TableCell className="px-5 py-4">
                     {!deletedView ? (
                       <PermissionGate permission={GRUPOS_PERMISSIONS.activate}>

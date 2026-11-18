@@ -6,28 +6,28 @@ import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import { GRUPO_ROUTES } from "../constants";
-import { useActiveLoteOptions } from "../hooks/useActiveLoteOptions";
+import { useActivePotreroOptions } from "../hooks/useActivePotreroOptions";
 import { useCreateGrupo } from "../hooks/useCreateGrupo";
 import { useUpdateGrupo } from "../hooks/useUpdateGrupo";
 import { getGrupo } from "../services";
 import { GrupoCreateRequest } from "../types";
 
-const emptyForm: GrupoCreateRequest = { lote_id: 0, nombre: "", observaciones: "" };
+const emptyForm: GrupoCreateRequest = { potrero_id: 0, nombre: "", observaciones: "" };
 
 export default function GrupoForm({ grupoId }: { grupoId?: number }) {
   const navigate = useNavigate();
   const isEdit = Boolean(grupoId);
-  const { options: loteOptions, loading: loadingLotes, error: lotesError } = useActiveLoteOptions();
+  const { options: potreroOptions, loading: loadingPotreros, error: potrerosError } = useActivePotreroOptions();
   const { create, loading: creating, error: createError, setError: setCreateError } = useCreateGrupo();
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateGrupo();
   const [form, setForm] = useState<GrupoCreateRequest>(emptyForm);
   const [loading, setLoading] = useState(isEdit);
-  const error = createError || updateError || lotesError;
+  const error = createError || updateError || potrerosError;
 
   useEffect(() => {
     if (!grupoId) return;
     getGrupo(grupoId)
-      .then((grupo) => setForm({ lote_id: grupo.lote_id, nombre: grupo.nombre, observaciones: grupo.observaciones ?? "" }))
+      .then((grupo) => setForm({ potrero_id: grupo.potrero_id, nombre: grupo.nombre, observaciones: grupo.observaciones ?? "" }))
       .catch(() => setUpdateError("No se pudo cargar el grupo."))
       .finally(() => setLoading(false));
   }, [grupoId, setUpdateError]);
@@ -36,7 +36,7 @@ export default function GrupoForm({ grupoId }: { grupoId?: number }) {
     e.preventDefault();
     setCreateError(null);
     setUpdateError(null);
-    if (!form.lote_id) {
+    if (!form.potrero_id) {
       setCreateError("Debe seleccionar un potrero.");
       return;
     }
@@ -53,7 +53,7 @@ export default function GrupoForm({ grupoId }: { grupoId?: number }) {
     }
   };
 
-  if (loading || loadingLotes) return <div>Cargando formulario...</div>;
+  if (loading || loadingPotreros) return <div>Cargando formulario...</div>;
 
   return (
     <form onSubmit={handleSubmit}>
@@ -62,10 +62,10 @@ export default function GrupoForm({ grupoId }: { grupoId?: number }) {
         <div className="md:col-span-2">
           <Label>Potrero</Label>
           <Select
-            value={form.lote_id ? String(form.lote_id) : ""}
+            value={form.potrero_id ? String(form.potrero_id) : ""}
             placeholder="Seleccione un potrero"
-            options={loteOptions}
-            onChange={(value) => setForm((current) => ({ ...current, lote_id: Number(value) }))}
+            options={potreroOptions}
+            onChange={(value) => setForm((current) => ({ ...current, potrero_id: Number(value) }))}
           />
         </div>
         <div className="md:col-span-2">

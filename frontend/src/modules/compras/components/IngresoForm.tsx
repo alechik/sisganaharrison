@@ -9,9 +9,9 @@ import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
 import { CategoriaAnimal } from "@/modules/categorias-animales/types";
-import { useGruposByLote } from "@/modules/grupos/hooks/useGruposByLote";
-import { getLotes } from "@/modules/lotes/services";
-import { Lote } from "@/modules/lotes/types";
+import { useGruposByPotrero } from "@/modules/grupos/hooks/useGruposByPotrero";
+import { getPotreros } from "@/modules/potreros/services";
+import { Potrero } from "@/modules/potreros/types";
 import { getRazas } from "@/modules/razas/services";
 import { Raza } from "@/modules/razas/types";
 import { getTiposIngresos } from "@/modules/tipos-ingresos/services";
@@ -44,7 +44,7 @@ export default function IngresoForm() {
   const { create, loading, error, setError } = useCreateIngreso();
 
   const [tipos, setTipos] = useState<TipoIngreso[]>([]);
-  const [lotes, setLotes] = useState<Lote[]>([]);
+  const [potreros, setPotreros] = useState<Potrero[]>([]);
   const [razas, setRazas] = useState<Raza[]>([]);
   const [categorias, setCategorias] = useState<CategoriaAnimal[]>([]);
   const [modo, setModo] = useState<"manual" | "excel">("manual");
@@ -53,7 +53,7 @@ export default function IngresoForm() {
 
   const [tipoIngresoId, setTipoIngresoId] = useState("");
   const [proveedorId, setProveedorId] = useState("");
-  const [loteId, setLoteId] = useState("");
+  const [potreroId, setPotreroId] = useState("");
   const [grupoId, setGrupoId] = useState("");
   const [fechaIngreso, setFechaIngreso] = useState(new Date().toISOString().slice(0, 10));
   const [descuento, setDescuento] = useState("0");
@@ -61,8 +61,8 @@ export default function IngresoForm() {
   const [detalles, setDetalles] = useState<IngresoDetalleRequest[]>([emptyDetalle()]);
   const [excelFilas, setExcelFilas] = useState<IngresoExcelFila[]>([]);
 
-  const loteNumero = loteId ? Number(loteId) : null;
-  const { grupos, loading: loadingGrupos } = useGruposByLote(loteNumero);
+  const potreroNumero = potreroId ? Number(potreroId) : null;
+  const { grupos, loading: loadingGrupos } = useGruposByPotrero(potreroNumero);
 
   const tipoSeleccionado = useMemo(
     () => tipos.find((tipo) => String(tipo.id) === tipoIngresoId) ?? null,
@@ -82,14 +82,14 @@ export default function IngresoForm() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [tiposRes, lotesRes, razasRes, categoriasRes] = await Promise.all([
+        const [tiposRes, potrerosRes, razasRes, categoriasRes] = await Promise.all([
           getTiposIngresos({ estado: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
-          getLotes({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
+          getPotreros({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
           getRazas({ estado: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
           getCategoriasAnimales({ activo: true, per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
         ]);
         setTipos(tiposRes.data);
-        setLotes(lotesRes.data);
+        setPotreros(potrerosRes.data);
         setRazas(razasRes.data);
         setCategorias(categoriasRes.data);
       } catch (err) {
@@ -103,7 +103,7 @@ export default function IngresoForm() {
 
   useEffect(() => {
     setGrupoId("");
-  }, [loteId]);
+  }, [potreroId]);
 
   const updateDetalle = (index: number, partial: Partial<IngresoDetalleRequest>) => {
     setDetalles((current) =>
@@ -193,8 +193,8 @@ export default function IngresoForm() {
     e.preventDefault();
     setError(null);
 
-    if (!tipoIngresoId || !loteId || !grupoId) {
-      setError("Complete tipo de ingreso, lote y grupo.");
+    if (!tipoIngresoId || !potreroId || !grupoId) {
+      setError("Complete tipo de ingreso, potrero y grupo.");
       return;
     }
 
@@ -217,7 +217,7 @@ export default function IngresoForm() {
       const response = await create({
         tipo_ingreso_id: Number(tipoIngresoId),
         proveedor_id: proveedorId ? Number(proveedorId) : null,
-        lote_id: Number(loteId),
+        potrero_id: Number(potreroId),
         grupo_id: Number(grupoId),
         fecha_ingreso: fechaIngreso,
         descuento: Number(descuento || 0),
@@ -247,7 +247,7 @@ export default function IngresoForm() {
         <div>
           <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90">Cabecera</h3>
           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-            Datos generales del ingreso. El grupo se filtra según el lote.
+            Datos generales del ingreso. El grupo se filtra según el potrero.
           </p>
         </div>
 
@@ -283,15 +283,15 @@ export default function IngresoForm() {
             />
           </div>
           <div className="min-w-0 w-full sm:min-w-[14rem] sm:flex-[1_1_14rem]">
-            <Label>Lote</Label>
+            <Label>Potrero</Label>
             <Select
-              value={loteId}
-              placeholder="Seleccione lote"
-              options={lotes.map((lote) => ({
-                value: String(lote.id),
-                label: lote.codigo ? `${lote.codigo} — ${lote.nombre}` : lote.nombre,
+              value={potreroId}
+              placeholder="Seleccione potrero"
+              options={potreros.map((potrero) => ({
+                value: String(potrero.id),
+                label: potrero.codigo ? `${potrero.codigo} — ${potrero.nombre}` : potrero.nombre,
               }))}
-              onChange={setLoteId}
+              onChange={setPotreroId}
             />
           </div>
         </div>
@@ -315,8 +315,8 @@ export default function IngresoForm() {
             <Select
               value={grupoId}
               placeholder={
-                !loteId
-                  ? "Seleccione primero un lote"
+                !potreroId
+                  ? "Seleccione primero un potrero"
                   : loadingGrupos
                     ? "Cargando grupos..."
                     : "Seleccione grupo"

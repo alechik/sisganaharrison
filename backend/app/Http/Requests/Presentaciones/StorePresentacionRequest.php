@@ -15,9 +15,9 @@ class StorePresentacionRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->has('descripcion')) {
+        if ($this->has('nombre')) {
             $this->merge([
-                'descripcion' => trim((string) $this->input('descripcion')),
+                'nombre' => trim((string) $this->input('nombre')),
             ]);
         }
     }
@@ -28,11 +28,11 @@ class StorePresentacionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'descripcion' => [
+            'nombre' => [
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('presentaciones', 'descripcion'),
+                Rule::unique('presentaciones', 'nombre'),
             ],
         ];
     }
@@ -43,8 +43,8 @@ class StorePresentacionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'descripcion.required' => 'La descripción es obligatoria.',
-            'descripcion.unique' => 'Ya existe una presentación con esta descripción.',
+            'nombre.required' => 'El nombre es obligatorio.',
+            'nombre.unique' => 'Ya existe una presentación con este nombre.',
         ];
     }
 }

@@ -28,7 +28,7 @@ import { categoriaAnimalRoutes } from "./modules/categorias-animales/routes";
 import { presentacionRoutes } from "./modules/presentaciones/routes";
 import { categoriaProductoRoutes } from "./modules/categorias-productos/routes";
 import { subcategoriaProductoRoutes } from "./modules/subcategorias-productos/routes";
-import { medicamentoRoutes } from "./modules/medicamentos/routes";
+import { productoRoutes } from "./modules/productos/routes";
 import { almacenRoutes } from "./modules/almacenes/routes";
 import { inventarioRoutes } from "./modules/inventario/routes";
 import { comprasProductosRoutes } from "./modules/compras-productos/routes";
@@ -38,9 +38,9 @@ import { tipoMovimientoRoutes } from "./modules/tipos-movimientos/routes";
 import { tipoAlertaRoutes } from "./modules/tipos-alertas/routes";
 import { tipoSalidaRoutes } from "./modules/tipos-salidas/routes";
 import { tipoIngresoRoutes } from "./modules/tipos-ingresos/routes";
-import { establecimientoRoutes } from "./modules/establecimientos/routes";
+import { estanciaRoutes } from "./modules/estancias/routes";
+import { parcelaRoutes } from "./modules/parcelas/routes";
 import { potreroRoutes } from "./modules/potreros/routes";
-import { loteRoutes } from "./modules/lotes/routes";
 import { grupoRoutes } from "./modules/grupos/routes";
 import { animalRoutes } from "./modules/animales/routes";
 import { ventasRoutes } from "./modules/ventas/routes";
@@ -89,16 +89,16 @@ export default function App() {
             {presentacionRoutes}
             {categoriaProductoRoutes}
             {subcategoriaProductoRoutes}
-            {medicamentoRoutes}
+            {productoRoutes}
             {estadoProductivoRoutes}
             {tipoEventoSanitarioRoutes}
             {tipoMovimientoRoutes}
             {tipoAlertaRoutes}
             {tipoSalidaRoutes}
             {tipoIngresoRoutes}
-            {establecimientoRoutes}
+            {estanciaRoutes}
+            {parcelaRoutes}
             {potreroRoutes}
-            {loteRoutes}
             {grupoRoutes}
             {almacenRoutes}
             {animalRoutes}

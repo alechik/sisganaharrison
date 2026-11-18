@@ -16,7 +16,7 @@ import {
   useUpdateNacimiento,
 } from "../hooks";
 import { ESTADOS_NACIMIENTO, NACIMIENTO_ROUTES, SEXOS_NACIMIENTO } from "../constants";
-import { useGruposByLote } from "@/modules/grupos/hooks";
+import { useGruposByPotrero } from "@/modules/grupos/hooks";
 import { getNacimiento } from "../services";
 import { NacimientoAnimalPayload, NacimientoCreateRequest } from "../types";
 
@@ -29,7 +29,7 @@ const emptyAnimal: NacimientoAnimalPayload = {
   nombre: "",
   raza_id: null,
   estado_productivo_id: null,
-  lote_id: null,
+  potrero_id: null,
   grupo_id: null,
   color: "",
   observaciones: "",
@@ -54,7 +54,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
 
   const [form, setForm] = useState<NacimientoCreateRequest>(emptyForm);
   const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
-  const { options: grupoOptions, loading: loadingGrupos } = useGruposByLote(form.animal?.lote_id ?? null);
+  const { options: grupoOptions, loading: loadingGrupos } = useGruposByPotrero(form.animal?.potrero_id ?? null);
   const [categorias, setCategorias] = useState<CategoriaAnimal[]>([]);
   const [codigoPreview, setCodigoPreview] = useState("");
   const [loading, setLoading] = useState(isEdit);
@@ -67,7 +67,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
   const {
     razaOptions,
     estadoProductivoOptions,
-    loteOptions,
+    potreroOptions,
     loading: loadingRefs,
     error: refsError,
   } = useAnimalReferenceOptions();
@@ -117,7 +117,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
             nombre: ficha.nombre ?? "",
             raza_id: ficha.raza_id,
             estado_productivo_id: ficha.estado_productivo_id,
-            lote_id: ficha.lote_id,
+            potrero_id: ficha.potrero_id,
             grupo_id: ficha.grupo_id,
             color: ficha.color ?? "",
             observaciones: ficha.observaciones ?? "",
@@ -231,7 +231,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
             nombre: form.animal?.nombre || null,
             raza_id: form.animal?.raza_id ?? null,
             estado_productivo_id: form.animal?.estado_productivo_id ?? null,
-            lote_id: form.animal?.lote_id ?? null,
+            potrero_id: form.animal?.potrero_id ?? null,
             color: form.animal?.color || null,
             observaciones: form.animal?.observaciones || null,
           },
@@ -363,17 +363,17 @@ export default function NacimientoForm({ nacimientoId }: Props) {
             <div>
               <Label>Potrero</Label>
               <Select
-                value={form.animal?.lote_id ? String(form.animal.lote_id) : ""}
+                value={form.animal?.potrero_id ? String(form.animal.potrero_id) : ""}
                 placeholder="Sin potrero"
-                options={loteOptions}
-                onChange={(value) => handleAnimalChange({ lote_id: value ? Number(value) : null, grupo_id: null })}
+                options={potreroOptions}
+                onChange={(value) => handleAnimalChange({ potrero_id: value ? Number(value) : null, grupo_id: null })}
               />
             </div>
             <div>
               <Label>Grupo</Label>
               <Select
                 value={form.animal?.grupo_id ? String(form.animal.grupo_id) : ""}
-                placeholder={!form.animal?.lote_id ? "Seleccione un potrero" : loadingGrupos ? "Cargando..." : "Sin grupo"}
+                placeholder={!form.animal?.potrero_id ? "Seleccione un potrero" : loadingGrupos ? "Cargando..." : "Sin grupo"}
                 options={grupoOptions}
                 onChange={(value) => handleAnimalChange({ grupo_id: value ? Number(value) : null })}
               />

@@ -29,8 +29,8 @@ class ServicioReproductivoResource extends JsonResource
             'semen_nombre' => $this->whenLoaded('insumos', function () {
                 $insumo = $this->insumos->first();
 
-                return $insumo?->medicamento
-                    ? trim(($insumo->medicamento->codigo ? $insumo->medicamento->codigo.' — ' : '').($insumo->medicamento->nombre ?? ''))
+                return $insumo?->producto
+                    ? trim(($insumo->producto->codigo ? $insumo->producto->codigo.' — ' : '').($insumo->producto->nombre ?? ''))
                     : null;
             }),
             'fecha_servicio' => $this->fecha_servicio?->format('Y-m-d'),
@@ -73,9 +73,9 @@ class ServicioReproductivoResource extends JsonResource
             'insumos' => $this->whenLoaded('insumos', function () {
                 return $this->insumos->map(fn ($insumo) => [
                     'id' => $insumo->id,
-                    'medicamento_id' => $insumo->medicamento_id,
-                    'producto_codigo' => $insumo->medicamento?->codigo,
-                    'producto_nombre' => $insumo->medicamento?->nombre,
+                    'producto_id' => $insumo->producto_id,
+                    'producto_codigo' => $insumo->producto?->codigo,
+                    'producto_nombre' => $insumo->producto?->nombre,
                     'almacen_id' => $insumo->almacen_id,
                     'almacen_nombre' => $insumo->almacen?->nombre,
                     'precio' => (float) $insumo->precio,

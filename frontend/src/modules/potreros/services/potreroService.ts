@@ -29,9 +29,8 @@ export const getPotreros = async (
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
       search: params.search || undefined,
-      establecimiento_id: params.establecimiento_id || undefined,
+      parcela_id: params.parcela_id || undefined,
       activo: params.activo,
-      disponibilidad: params.disponibilidad,
       sort_by: params.sort_by,
       sort_dir: params.sort_dir,
     },
@@ -41,7 +40,7 @@ export const getPotreros = async (
 };
 
 export const getDeletedPotreros = async (
-  params: Pick<PotreroListParams, "page" | "per_page" | "sort_by" | "sort_dir" | "establecimiento_id"> = {},
+  params: Pick<PotreroListParams, "page" | "per_page" | "sort_by" | "sort_dir" | "parcela_id"> = {},
   signal?: AbortSignal
 ): Promise<PaginatedResponse<Potrero>> => {
   const response = await api.get<LaravelPaginatedResponse<Potrero>>(
@@ -51,7 +50,7 @@ export const getDeletedPotreros = async (
       params: {
         page: params.page ?? 1,
         per_page: params.per_page ?? 10,
-        establecimiento_id: params.establecimiento_id || undefined,
+        parcela_id: params.parcela_id || undefined,
         sort_by: params.sort_by,
         sort_dir: params.sort_dir,
       },

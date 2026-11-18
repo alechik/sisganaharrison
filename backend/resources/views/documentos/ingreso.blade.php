@@ -15,7 +15,7 @@
             <td><strong>NIT:</strong> {{ $ingreso->proveedor?->nit ?: '—' }}</td>
         </tr>
         <tr>
-            <td><strong>Lote destino:</strong> {{ $ingreso->lote?->codigo ? $ingreso->lote->codigo.' — ' : '' }}{{ $ingreso->lote?->nombre }}</td>
+            <td><strong>Potrero destino:</strong> {{ $ingreso->potrero?->codigo ? $ingreso->potrero->codigo.' — ' : '' }}{{ $ingreso->potrero?->nombre }}</td>
             <td><strong>Grupo:</strong> {{ $ingreso->grupo?->nombre ?: '—' }}</td>
         </tr>
         <tr>

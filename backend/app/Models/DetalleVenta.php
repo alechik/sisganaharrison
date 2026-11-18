@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $animal_id
  * @property int $cantidad
  * @property string $peso
- * @property int|null $lote_id
+ * @property int|null $potrero_id
  * @property string $precio
  * @property string $descuento
  * @property string $subtotal
@@ -27,7 +27,7 @@ class DetalleVenta extends Model
         'animal_id',
         'cantidad',
         'peso',
-        'lote_id',
+        'potrero_id',
         'precio',
         'descuento',
         'subtotal',
@@ -61,10 +61,10 @@ class DetalleVenta extends Model
     }
 
     /**
-     * @return BelongsTo<Lote, $this>
+     * @return BelongsTo<Potrero, $this>
      */
-    public function lote(): BelongsTo
+    public function potrero(): BelongsTo
     {
-        return $this->belongsTo(Lote::class, 'lote_id');
+        return $this->belongsTo(Potrero::class, 'potrero_id');
     }
 }

@@ -6,7 +6,7 @@ use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\EstadoProductivo;
 use App\Models\Gestacion;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Parto;
 use App\Models\Raza;
 use App\Models\ServicioReproductivo;
@@ -190,7 +190,7 @@ class DashboardAlertaTest extends TestCase
     private function animal(array $attributes = []): Animal
     {
         return Animal::factory()->create(array_merge([
-            'lote_id' => Lote::query()->value('id'),
+            'potrero_id' => Potrero::query()->value('id'),
             'categoria_id' => CategoriaAnimal::query()->value('id'),
             'estado_productivo_id' => EstadoProductivo::query()->value('id'),
             'raza_id' => Raza::query()->value('id'),

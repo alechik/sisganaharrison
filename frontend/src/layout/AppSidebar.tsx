@@ -70,15 +70,15 @@ const navItems: NavItem[] = [
     subItems: [
       {
         name: "Estancias",
-        path: "/establecimientos",
+        path: "/estancias",
       },
       {
         name: "Parcelas",
-        path: "/potreros",
+        path: "/parcelas",
       },
       {
         name: "Potreros",
-        path: "/lotes",
+        path: "/potreros",
       },
       {
         name: "Grupos",
@@ -212,7 +212,7 @@ const navItems: NavItem[] = [
       },
       {
         name: "Productos",
-        path: "/medicamentos",
+        path: "/productos",
       },
       {
         name: "Estados Productivos",

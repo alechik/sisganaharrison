@@ -7,10 +7,10 @@ use App\Models\AlmacenProducto;
 use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\DetallePesaje;
-use App\Models\Establecimiento;
+use App\Models\Estancia;
 use App\Models\EstadoProductivo;
-use App\Models\Lote;
-use App\Models\Medicamento;
+use App\Models\Potrero;
+use App\Models\Producto;
 use App\Models\MovimientoInventario;
 use App\Models\Pesaje;
 use App\Models\OrdenCompraProducto;
@@ -67,22 +67,22 @@ class InventarioProductoTest extends TestCase
     {
         $user = $this->userWithPermissions(['almacenes.view', 'almacenes.create']);
         Sanctum::actingAs($user);
-        $estancia = Establecimiento::query()->firstOrFail();
+        $estancia = Estancia::query()->firstOrFail();
         Almacen::query()->firstOrCreate(
-            ['establecimiento_id' => $estancia->id],
+            ['estancia_id' => $estancia->id],
             ['nombre' => 'Almacén '.$estancia->nombre, 'activo' => true]
         );
 
         $this->postJson('/api/almacenes', [
-            'establecimiento_id' => $estancia->id,
+            'estancia_id' => $estancia->id,
             'nombre' => 'Duplicado',
         ])->assertStatus(422);
 
-        $almacen = Almacen::query()->where('establecimiento_id', $estancia->id)->firstOrFail();
-        $producto = Medicamento::factory()->create();
+        $almacen = Almacen::query()->where('estancia_id', $estancia->id)->firstOrFail();
+        $producto = Producto::factory()->create();
         app(InventarioService::class)->registrar([
             'almacen_id' => $almacen->id,
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'tipo' => MovimientoInventario::TIPO_INGRESO_COMPRA,
             'cantidad' => 10,
             'precio_unitario' => 5,
@@ -90,19 +90,19 @@ class InventarioProductoTest extends TestCase
             'origen_id' => 900001,
         ]);
 
-        $this->assertEquals(10, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('medicamento_id', $producto->id)->value('stock'));
+        $this->assertEquals(10, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('producto_id', $producto->id)->value('stock'));
     }
 
     public function test_promedio_ponderado_y_consumo_sin_duplicados(): void
     {
         Sanctum::actingAs($this->userWithPermissions(['movimientos.view']));
         $almacen = $this->almacen();
-        $producto = Medicamento::factory()->create(['precio' => 0, 'cantidad_acumulada' => 0, 'valor_acumulado' => 0]);
+        $producto = Producto::factory()->create(['precio' => 0, 'cantidad_acumulada' => 0, 'valor_acumulado' => 0]);
         $inventario = app(InventarioService::class);
 
         $inventario->registrar([
             'almacen_id' => $almacen->id,
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'tipo' => MovimientoInventario::TIPO_INGRESO_COMPRA,
             'cantidad' => 10,
             'precio_unitario' => 10,
@@ -111,7 +111,7 @@ class InventarioProductoTest extends TestCase
         ]);
         $inventario->registrar([
             'almacen_id' => $almacen->id,
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'tipo' => MovimientoInventario::TIPO_INGRESO_COMPRA,
             'cantidad' => 10,
             'precio_unitario' => 20,
@@ -124,7 +124,7 @@ class InventarioProductoTest extends TestCase
 
         $inventario->registrar([
             'almacen_id' => $almacen->id,
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'tipo' => MovimientoInventario::TIPO_CONSUMO_SANITARIO,
             'cantidad' => -4,
             'precio_unitario' => 15,
@@ -133,12 +133,12 @@ class InventarioProductoTest extends TestCase
         ]);
         $producto->refresh();
         $this->assertEquals(15.0, (float) $producto->precio);
-        $this->assertEquals(16.0, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('medicamento_id', $producto->id)->value('stock'));
+        $this->assertEquals(16.0, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('producto_id', $producto->id)->value('stock'));
 
         $this->expectException(ValidationException::class);
         $inventario->registrar([
             'almacen_id' => $almacen->id,
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'tipo' => MovimientoInventario::TIPO_CONSUMO_SANITARIO,
             'cantidad' => -4,
             'precio_unitario' => 15,
@@ -152,13 +152,13 @@ class InventarioProductoTest extends TestCase
         $creador = $this->userWithPermissions(['compras_productos.view', 'compras_productos.create', 'compras_productos.update']);
         Sanctum::actingAs($creador);
         $proveedor = $this->proveedor();
-        $producto = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
 
         $orden = app(OrdenCompraProductoService::class)->create([
             'proveedor_id' => $proveedor->id,
             'fecha' => now()->toDateString(),
             'descuento' => 0,
-            'detalles' => [['medicamento_id' => $producto->id, 'cantidad' => 5, 'precio' => 8, 'descuento' => 0]],
+            'detalles' => [['producto_id' => $producto->id, 'cantidad' => 5, 'precio' => 8, 'descuento' => 0]],
         ]);
         $this->assertSame(OrdenCompraProducto::ESTADO_PENDIENTE, $orden->estado);
 
@@ -180,9 +180,9 @@ class InventarioProductoTest extends TestCase
             'orden_compra_id' => $orden->id,
             'almacen_id' => $almacen->id,
             'fecha' => now()->toDateString(),
-            'detalles' => [['medicamento_id' => $producto->id, 'cantidad' => 3, 'precio' => 8]],
+            'detalles' => [['producto_id' => $producto->id, 'cantidad' => 3, 'precio' => 8]],
         ]);
-        $this->assertEquals(3, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('medicamento_id', $producto->id)->value('stock'));
+        $this->assertEquals(3, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('producto_id', $producto->id)->value('stock'));
         $this->get('/api/compras-productos/ingresos/'.$ingreso->id.'/pdf')->assertOk();
         $this->get('/api/compras-productos/ordenes/'.$orden->id.'/pdf')->assertOk();
     }
@@ -194,7 +194,7 @@ class InventarioProductoTest extends TestCase
         $orden = app(OrdenCompraProductoService::class)->create([
             'proveedor_id' => $this->proveedor()->id,
             'fecha' => now()->toDateString(),
-            'detalles' => [['medicamento_id' => Medicamento::factory()->create()->id, 'cantidad' => 2, 'precio' => 4, 'descuento' => 0]],
+            'detalles' => [['producto_id' => Producto::factory()->create()->id, 'cantidad' => 2, 'precio' => 4, 'descuento' => 0]],
         ]);
 
         $this->expectException(ValidationException::class);
@@ -202,7 +202,7 @@ class InventarioProductoTest extends TestCase
             'orden_compra_id' => $orden->id,
             'almacen_id' => $this->almacen()->id,
             'fecha' => now()->toDateString(),
-            'detalles' => [['medicamento_id' => $orden->detalles->first()->medicamento_id, 'cantidad' => 1, 'precio' => 4]],
+            'detalles' => [['producto_id' => $orden->detalles->first()->producto_id, 'cantidad' => 1, 'precio' => 4]],
         ]);
     }
 
@@ -211,10 +211,10 @@ class InventarioProductoTest extends TestCase
         $user = $this->userWithPermissions(['sanitario.view', 'sanitario.create']);
         Sanctum::actingAs($user);
         $almacen = $this->almacen();
-        $producto = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
         app(InventarioService::class)->registrar([
             'almacen_id' => $almacen->id,
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'tipo' => MovimientoInventario::TIPO_INGRESO_COMPRA,
             'cantidad' => 8,
             'precio_unitario' => 12,
@@ -229,7 +229,7 @@ class InventarioProductoTest extends TestCase
         DetallePesaje::query()->create([
             'pesaje_id' => $pesaje->id,
             'animal_id' => $animal->id,
-            'lote_id' => $animal->lote_id,
+            'potrero_id' => $animal->potrero_id,
             'peso' => 280,
         ]);
 
@@ -238,13 +238,13 @@ class InventarioProductoTest extends TestCase
             'fecha' => now()->toDateString(),
             'detalles' => [[
                 'animal_id' => $animal->id,
-                'medicamento_id' => $producto->id,
+                'producto_id' => $producto->id,
                 'almacen_id' => $almacen->id,
                 'cantidad' => 2,
             ]],
         ]);
 
-        $this->assertEquals(6, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('medicamento_id', $producto->id)->value('stock'));
+        $this->assertEquals(6, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('producto_id', $producto->id)->value('stock'));
         $this->assertSame(1, MovimientoInventario::query()->where('tipo', MovimientoInventario::TIPO_CONSUMO_SANITARIO)->where('origen_type', 'evento_sanitario')->where('origen_id', $evento->detalles->first()->id)->count());
         $this->get('/api/eventos-sanitarios/'.$evento->id.'/pdf')->assertOk();
     }
@@ -254,10 +254,10 @@ class InventarioProductoTest extends TestCase
         $user = $this->userWithPermissions(['reproduccion.view', 'reproduccion.create', 'reproduccion.update']);
         Sanctum::actingAs($user);
         $almacen = $this->almacen();
-        $producto = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
         app(InventarioService::class)->registrar([
             'almacen_id' => $almacen->id,
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'tipo' => MovimientoInventario::TIPO_INGRESO_COMPRA,
             'cantidad' => 5,
             'precio_unitario' => 9,
@@ -271,10 +271,10 @@ class InventarioProductoTest extends TestCase
             'fecha_servicio' => now()->toDateString(),
             'tipo_servicio' => 'INSEMINACION_ARTIFICIAL',
             'resultado' => ServicioReproductivo::RESULTADO_PENDIENTE,
-            'insumos' => [['medicamento_id' => $producto->id, 'almacen_id' => $almacen->id, 'cantidad' => 1]],
+            'insumos' => [['producto_id' => $producto->id, 'almacen_id' => $almacen->id, 'cantidad' => 1]],
         ]);
 
-        $this->assertEquals(5, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('medicamento_id', $producto->id)->value('stock'));
+        $this->assertEquals(5, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('producto_id', $producto->id)->value('stock'));
         $this->assertNull($servicio->inventario_aplicado_at);
 
         $servicio = app(ServicioReproductivoService::class)->update($servicio, [
@@ -284,7 +284,7 @@ class InventarioProductoTest extends TestCase
             'resultado' => ServicioReproductivo::RESULTADO_PRENADA,
         ]);
         $this->assertNotNull($servicio->inventario_aplicado_at);
-        $this->assertEquals(4, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('medicamento_id', $producto->id)->value('stock'));
+        $this->assertEquals(4, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('producto_id', $producto->id)->value('stock'));
 
         $servicio = app(ServicioReproductivoService::class)->update($servicio, [
             'hembra_id' => $hembra->id,
@@ -293,7 +293,7 @@ class InventarioProductoTest extends TestCase
             'resultado' => ServicioReproductivo::RESULTADO_PRENADA,
             'observaciones' => 'sin recargo de inventario',
         ]);
-        $this->assertEquals(4, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('medicamento_id', $producto->id)->value('stock'));
+        $this->assertEquals(4, (float) AlmacenProducto::query()->where('almacen_id', $almacen->id)->where('producto_id', $producto->id)->value('stock'));
         $this->get('/api/servicios-reproductivos/'.$servicio->id.'/pdf')->assertOk();
     }
 
@@ -303,7 +303,7 @@ class InventarioProductoTest extends TestCase
     private function animalActivo(array $attributes = []): Animal
     {
         return Animal::factory()->create(array_merge([
-            'lote_id' => Lote::query()->value('id') ?? Lote::factory(),
+            'potrero_id' => Potrero::query()->value('id') ?? Potrero::factory(),
             'categoria_id' => CategoriaAnimal::query()->value('id'),
             'estado_productivo_id' => EstadoProductivo::query()->value('id'),
             'raza_id' => Raza::query()->value('id'),
@@ -314,10 +314,10 @@ class InventarioProductoTest extends TestCase
 
     private function almacen(): Almacen
     {
-        $estancia = Establecimiento::query()->firstOrFail();
+        $estancia = Estancia::query()->firstOrFail();
 
         return Almacen::query()->firstOrCreate(
-            ['establecimiento_id' => $estancia->id],
+            ['estancia_id' => $estancia->id],
             ['nombre' => 'Almacén '.$estancia->nombre, 'activo' => true]
         );
     }

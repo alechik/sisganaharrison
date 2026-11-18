@@ -35,7 +35,7 @@ class StoreAnimalRequest extends FormRequest
             }
         }
 
-        foreach (['raza_id', 'estado_productivo_id', 'lote_id', 'grupo_id', 'madre_id', 'padre_id'] as $field) {
+        foreach (['raza_id', 'estado_productivo_id', 'potrero_id', 'grupo_id', 'madre_id', 'padre_id'] as $field) {
             if ($this->exists($field) && ($this->input($field) === '' || $this->input($field) === '0')) {
                 $merge[$field] = null;
             }
@@ -79,10 +79,10 @@ class StoreAnimalRequest extends FormRequest
                     ->whereNull('deleted_at')
                     ->where('activo', true),
             ],
-            'lote_id' => [
+            'potrero_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('lotes', 'id')
+                Rule::exists('potreros', 'id')
                     ->whereNull('deleted_at')
                     ->where('activo', true),
             ],
@@ -126,7 +126,7 @@ class StoreAnimalRequest extends FormRequest
             'raza_id.exists' => 'La raza seleccionada no existe o no está activa.',
             'categoria_id.exists' => 'La categoría seleccionada no existe o no está activa.',
             'estado_productivo_id.exists' => 'El estado productivo seleccionado no existe o no está activo.',
-            'lote_id.exists' => 'El lote seleccionado no existe o no está activo.',
+            'potrero_id.exists' => 'El potrero seleccionado no existe o no está activo.',
             'madre_id.exists' => 'La madre seleccionada no existe o no está activa.',
             'padre_id.exists' => 'El padre seleccionado no existe o no está activo.',
             'edad_inicial.integer' => 'La edad inicial debe expresarse en meses.',

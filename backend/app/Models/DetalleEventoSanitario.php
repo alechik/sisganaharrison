@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $evento_sanitario_id
  * @property int $animal_id
- * @property int|null $lote_id
- * @property int $medicamento_id
+ * @property int|null $potrero_id
+ * @property int $producto_id
  * @property string $peso_animal
- * @property string $precio_medicamento
+ * @property string $precio_producto
  */
 class DetalleEventoSanitario extends Model
 {
@@ -23,19 +23,19 @@ class DetalleEventoSanitario extends Model
     protected $fillable = [
         'evento_sanitario_id',
         'animal_id',
-        'lote_id',
-        'medicamento_id',
+        'potrero_id',
+        'producto_id',
         'almacen_id',
         'cantidad',
         'peso_animal',
-        'precio_medicamento',
+        'precio_producto',
     ];
 
     protected function casts(): array
     {
         return [
             'peso_animal' => 'decimal:2',
-            'precio_medicamento' => 'decimal:2',
+            'precio_producto' => 'decimal:2',
             'cantidad' => 'decimal:2',
         ];
     }
@@ -57,19 +57,19 @@ class DetalleEventoSanitario extends Model
     }
 
     /**
-     * @return BelongsTo<Lote, $this>
+     * @return BelongsTo<Potrero, $this>
      */
-    public function lote(): BelongsTo
+    public function potrero(): BelongsTo
     {
-        return $this->belongsTo(Lote::class, 'lote_id');
+        return $this->belongsTo(Potrero::class, 'potrero_id');
     }
 
     /**
-     * @return BelongsTo<Medicamento, $this>
+     * @return BelongsTo<Producto, $this>
      */
-    public function medicamento(): BelongsTo
+    public function producto(): BelongsTo
     {
-        return $this->belongsTo(Medicamento::class, 'medicamento_id');
+        return $this->belongsTo(Producto::class, 'producto_id');
     }
 
     /**

@@ -32,7 +32,7 @@
         <tbody>
             @forelse ($servicio->insumos as $insumo)
                 <tr>
-                    <td>{{ $insumo->medicamento?->nombre }}</td>
+                    <td>{{ $insumo->producto?->nombre }}</td>
                     <td>{{ $insumo->almacen?->nombre ?: '—' }}</td>
                     <td class="text-right">{{ $insumo->cantidad }}</td>
                     <td class="text-right">{{ \App\Support\Money::format($insumo->precio) }}</td>

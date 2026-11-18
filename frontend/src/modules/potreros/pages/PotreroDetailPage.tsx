@@ -26,7 +26,7 @@ export default function PotreroDetailPage() {
         setPotrero(data);
       } catch (err) {
         console.error(err);
-        setError("No se pudo cargar el detalle de la parcela.");
+        setError("No se pudo cargar el detalle del potrero.");
       } finally {
         setLoading(false);
       }
@@ -44,7 +44,7 @@ export default function PotreroDetailPage() {
   if (error || !potrero) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-        {error ?? "Parcela no encontrada."}
+        {error ?? "Potrero no encontrado."}
       </div>
     );
   }
@@ -74,12 +74,12 @@ export default function PotreroDetailPage() {
         </div>
       </div>
 
-      <ComponentCard title="Detalle de la parcela">
+      <ComponentCard title="Detalle del potrero">
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Estancia</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Parcela</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {potrero.establecimiento_nombre || "—"}
+              {potrero.parcela_nombre || "—"}
             </dd>
           </div>
           <div>
@@ -91,21 +91,15 @@ export default function PotreroDetailPage() {
             <dd className="font-medium text-gray-800 dark:text-white/90">{potrero.nombre}</dd>
           </div>
           <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Capacidad de animales</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {potrero.capacidad_animales.toLocaleString("es-PY")}
+            </dd>
+          </div>
+          <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Área (ha)</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
               {potrero.area_ha != null ? potrero.area_ha.toLocaleString("es-PY") : "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Tipo de pasto</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {potrero.tipo_pasto || "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Disponibilidad</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">
-              {potrero.disponibilidad ? "Disponible" : "No disponible"}
             </dd>
           </div>
           <div>
@@ -123,9 +117,9 @@ export default function PotreroDetailPage() {
             </dd>
           </div>
           <div className="md:col-span-2">
-            <dt className="text-sm text-gray-500 dark:text-gray-400">Descripción</dt>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Observaciones</dt>
             <dd className="mt-1 text-gray-700 dark:text-gray-300">
-              {potrero.descripcion || "Sin descripción"}
+              {potrero.observaciones || "Sin observaciones"}
             </dd>
           </div>
         </dl>

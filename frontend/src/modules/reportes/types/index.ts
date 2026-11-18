@@ -8,7 +8,7 @@ export interface ReporteFiltros {
   raza_id: string;
   categoria_id: string;
   estado_productivo_id: string;
-  lote_id: string;
+  potrero_id: string;
   estado: string;
   tipo_evento_id: string;
   animal_id: string;

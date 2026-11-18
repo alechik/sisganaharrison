@@ -44,7 +44,7 @@ export const useAnimales = ({
           ? await getDeletedAnimales({
               page: nextFilters.page,
               per_page: nextFilters.per_page,
-              lote_id: nextFilters.lote_id,
+              potrero_id: nextFilters.potrero_id,
               raza_id: nextFilters.raza_id,
               sort_by: nextFilters.sort_by,
               sort_dir: nextFilters.sort_dir,
@@ -89,7 +89,7 @@ export const useAnimales = ({
     filters.raza_id,
     filters.categoria_id,
     filters.estado_productivo_id,
-    filters.lote_id,
+    filters.potrero_id,
     filters.sexo,
     filters.activo,
     filters.sort_by,

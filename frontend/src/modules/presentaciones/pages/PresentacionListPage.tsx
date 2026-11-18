@@ -101,8 +101,8 @@ export default function PresentacionListPage() {
         title="Eliminar presentación"
         message={
           actionError
-            ? `¿Desea eliminar la presentación ${selectedTipo?.descripcion}?\n\n${actionError}`
-            : `¿Desea eliminar la presentación ${selectedTipo?.descripcion}? Quedará fuera del listado principal.`
+            ? `¿Desea eliminar la presentación ${selectedTipo?.nombre}?\n\n${actionError}`
+            : `¿Desea eliminar la presentación ${selectedTipo?.nombre}? Quedará fuera del listado principal.`
         }
         confirmLabel="Eliminar"
         loading={processing}

@@ -48,8 +48,8 @@ class TraspasoController extends Controller
 
         $traspaso->load([
             'usuario:id,nombre,apellido',
-            'loteSalida:id,codigo,nombre',
-            'loteIngreso:id,codigo,nombre',
+            'potreroSalida:id,codigo,nombre',
+            'potreroIngreso:id,codigo,nombre',
             'detalles.animal:id,codigo,arete,sexo,categoria_id',
             'detalles.animal.categoria:id,codigo,nombre',
         ]);

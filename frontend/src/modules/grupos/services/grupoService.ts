@@ -24,7 +24,7 @@ export const getGrupos = async (
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
       search: params.search || undefined,
-      lote_id: params.lote_id || undefined,
+      potrero_id: params.potrero_id || undefined,
       activo: params.activo,
       sort_by: params.sort_by,
       sort_dir: params.sort_dir,
@@ -35,7 +35,7 @@ export const getGrupos = async (
 };
 
 export const getDeletedGrupos = async (
-  params: Pick<GrupoListParams, "page" | "per_page" | "sort_by" | "sort_dir" | "lote_id"> = {},
+  params: Pick<GrupoListParams, "page" | "per_page" | "sort_by" | "sort_dir" | "potrero_id"> = {},
   signal?: AbortSignal
 ): Promise<PaginatedResponse<Grupo>> => {
   const response = await api.get<LaravelPaginatedResponse<Grupo>>("/grupos/eliminados", {
@@ -43,7 +43,7 @@ export const getDeletedGrupos = async (
     params: {
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
-      lote_id: params.lote_id || undefined,
+      potrero_id: params.potrero_id || undefined,
       sort_by: params.sort_by,
       sort_dir: params.sort_dir,
     },

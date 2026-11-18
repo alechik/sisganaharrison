@@ -3,9 +3,9 @@ export interface PesajeDetalle {
   animal_id: number;
   animal_codigo?: string | null;
   animal_arete?: string | null;
-  lote_id?: number | null;
-  lote_nombre?: string | null;
+  potrero_id?: number | null;
   potrero_nombre?: string | null;
+  parcela_nombre?: string | null;
   peso: number;
 }
 
@@ -42,10 +42,10 @@ export interface AnimalDisponiblePesaje {
   arete: string | null;
   sexo?: "M" | "H" | null;
   estado?: string;
-  lote_id?: number | null;
-  lote_nombre?: string | null;
   potrero_id?: number | null;
   potrero_nombre?: string | null;
+  parcela_id?: number | null;
+  parcela_nombre?: string | null;
   peso?: number | null;
 }
 
@@ -55,9 +55,9 @@ export interface PesajeExcelFila {
   peso_kg: number | null;
   animal_id: number | null;
   animal_codigo?: string | null;
-  lote_id?: number | null;
-  lote_nombre?: string | null;
+  potrero_id?: number | null;
   potrero_nombre?: string | null;
+  parcela_nombre?: string | null;
   errores: string[];
   valida: boolean;
 }

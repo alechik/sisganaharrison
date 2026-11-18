@@ -20,8 +20,8 @@ interface Props {
 
 const toOption = (almacen: AlmacenDisponibleIngreso): AlmacenOption => ({
   value: almacen.id,
-  label: almacen.establecimiento_codigo
-    ? `${almacen.establecimiento_codigo} · ${almacen.nombre}`
+  label: almacen.estancia_codigo
+    ? `${almacen.estancia_codigo} · ${almacen.nombre}`
     : almacen.nombre,
   almacen,
 });
@@ -96,12 +96,12 @@ export default function AlmacenSelect({ value, onChange, disabled }: Props) {
       formatOptionLabel={(option) => (
         <div>
           <span className="font-medium">{option.almacen.nombre}</span>
-          {option.almacen.establecimiento_nombre ? (
+          {option.almacen.estancia_nombre ? (
             <span className="mt-0.5 block text-xs text-gray-500">
-              {option.almacen.establecimiento_codigo
-                ? `${option.almacen.establecimiento_codigo} · `
+              {option.almacen.estancia_codigo
+                ? `${option.almacen.estancia_codigo} · `
                 : ""}
-              {option.almacen.establecimiento_nombre}
+              {option.almacen.estancia_nombre}
             </span>
           ) : null}
         </div>

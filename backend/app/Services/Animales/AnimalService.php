@@ -5,7 +5,7 @@ namespace App\Services\Animales;
 use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\Grupo;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\User;
 use App\Support\CategoriaAnimalReglas;
 use Carbon\Carbon;
@@ -24,9 +24,9 @@ class AnimalService
         'raza:id,nombre',
         'categoria:id,codigo,nombre',
         'estadoProductivo:id,nombre',
-        'lote:id,nombre,codigo,potrero_id',
-        'lote.potrero:id,nombre',
-        'grupo:id,nombre,lote_id',
+        'potrero:id,nombre,codigo,parcela_id',
+        'potrero.parcela:id,nombre',
+        'grupo:id,nombre,potrero_id',
         'madre:id,nombre,codigo',
         'padre:id,nombre,codigo',
         'usuario:id,nombre,apellido',
@@ -154,14 +154,14 @@ class AnimalService
                 ]);
             }
 
-            if (! empty($contexto['lote_id'])) {
-                $this->assertLoteTieneCapacidad((int) $contexto['lote_id'], $animal->id);
+            if (! empty($contexto['potrero_id'])) {
+                $this->assertPotreroTieneCapacidad((int) $contexto['potrero_id'], $animal->id);
             }
 
             $payloadNacimiento = [
-                'lote_id' => array_key_exists('lote_id', $contexto)
-                    ? $this->nullableId($contexto['lote_id'])
-                    : $animal->lote_id,
+                'potrero_id' => array_key_exists('potrero_id', $contexto)
+                    ? $this->nullableId($contexto['potrero_id'])
+                    : $animal->potrero_id,
                 'grupo_id' => array_key_exists('grupo_id', $contexto)
                     ? $this->nullableId($contexto['grupo_id'])
                     : $animal->grupo_id,
@@ -184,7 +184,7 @@ class AnimalService
                 'estado_productivo_id' => array_key_exists('estado_productivo_id', $contexto)
                     ? $this->nullableId($contexto['estado_productivo_id'])
                     : $animal->estado_productivo_id,
-                'lote_id' => $payloadNacimiento['lote_id'],
+                'potrero_id' => $payloadNacimiento['potrero_id'],
                 'grupo_id' => $payloadNacimiento['grupo_id'],
                 'color' => array_key_exists('color', $contexto)
                     ? $this->nullableString($contexto['color'])
@@ -214,7 +214,7 @@ class AnimalService
             'padre_id' => $contexto['padre_id'] ?? null,
             'raza_id' => $this->nullableId($contexto['raza_id'] ?? null),
             'estado_productivo_id' => $this->nullableId($contexto['estado_productivo_id'] ?? null),
-            'lote_id' => $this->nullableId($contexto['lote_id'] ?? null),
+            'potrero_id' => $this->nullableId($contexto['potrero_id'] ?? null),
             'grupo_id' => $this->nullableId($contexto['grupo_id'] ?? null),
             'color' => $this->nullableString($contexto['color'] ?? null),
             'observaciones' => $this->nullableString($contexto['observaciones'] ?? null),
@@ -329,8 +329,8 @@ class AnimalService
                 $data['codigo'] = $this->buildSiguienteCodigo((int) $data['categoria_id'], lock: true);
             }
 
-            if (! empty($data['lote_id'])) {
-                $this->assertLoteTieneCapacidad((int) $data['lote_id']);
+            if (! empty($data['potrero_id'])) {
+                $this->assertPotreroTieneCapacidad((int) $data['potrero_id']);
             }
 
             $this->aplicarGrupo($data);
@@ -365,7 +365,7 @@ class AnimalService
      *
      * @param  array<string, mixed>  $fila
      */
-    public function crearDesdeIngresoFisico(array $fila, int $loteId, ?int $grupoId, string $fechaIngreso, int $index = 0): Animal
+    public function crearDesdeIngresoFisico(array $fila, int $potreroId, ?int $grupoId, string $fechaIngreso, int $index = 0): Animal
     {
         $edad = (int) $fila['edad'];
         $arete = Str::upper(trim((string) ($fila['arete'] ?? '')));
@@ -394,7 +394,7 @@ class AnimalService
                 'raza_id' => $this->nullableId($fila['raza_id'] ?? null),
                 'categoria_id' => (int) $fila['categoria_id'],
                 'estado_productivo_id' => null,
-                'lote_id' => $loteId,
+                'potrero_id' => $potreroId,
                 'grupo_id' => $grupoId,
                 'madre_id' => null,
                 'padre_id' => null,
@@ -433,12 +433,12 @@ class AnimalService
     {
         unset($data['user_id']);
 
-        if (! empty($data['lote_id'])) {
-            $this->assertLoteTieneCapacidad((int) $data['lote_id'], $animal->id);
+        if (! empty($data['potrero_id'])) {
+            $this->assertPotreroTieneCapacidad((int) $data['potrero_id'], $animal->id);
         }
 
-        if (array_key_exists('lote_id', $data) || array_key_exists('grupo_id', $data)) {
-            $data['lote_id'] = array_key_exists('lote_id', $data) ? $this->nullableId($data['lote_id']) : $animal->lote_id;
+        if (array_key_exists('potrero_id', $data) || array_key_exists('grupo_id', $data)) {
+            $data['potrero_id'] = array_key_exists('potrero_id', $data) ? $this->nullableId($data['potrero_id']) : $animal->potrero_id;
             $data['grupo_id'] = array_key_exists('grupo_id', $data) ? $this->nullableId($data['grupo_id']) : $animal->grupo_id;
             $this->aplicarGrupo($data);
         }
@@ -471,9 +471,9 @@ class AnimalService
      *
      * @param  array<string, mixed>  $data
      */
-    public function completarDesdeIngreso(Animal $animal, array $data, int $loteId, string $fechaIngreso, ?float $precioKilo = null): Animal
+    public function completarDesdeIngreso(Animal $animal, array $data, int $potreroId, string $fechaIngreso, ?float $precioKilo = null): Animal
     {
-        $this->assertLoteTieneCapacidad($loteId, $animal->id);
+        $this->assertPotreroTieneCapacidad($potreroId, $animal->id);
 
         $arete = isset($data['arete']) ? Str::upper(trim((string) $data['arete'])) : $animal->arete;
         $arete = $arete === '' ? null : $arete;
@@ -506,7 +506,7 @@ class AnimalService
             'fecha_nacimiento' => $fechaNacimiento,
             'raza_id' => $this->nullableId($data['raza_id'] ?? $animal->raza_id),
             'estado_productivo_id' => $this->nullableId($data['estado_productivo_id'] ?? $animal->estado_productivo_id),
-            'lote_id' => $loteId,
+            'potrero_id' => $potreroId,
             'grupo_id' => $this->nullableId($data['grupo_id'] ?? null),
             'madre_id' => $this->nullableId($data['madre_id'] ?? $animal->madre_id),
             'padre_id' => $this->nullableId($data['padre_id'] ?? $animal->padre_id),
@@ -591,7 +591,7 @@ class AnimalService
                     ->orWhere('arete', 'like', "%{$search}%")
                     ->orWhere('color', 'like', "%{$search}%")
                     ->orWhereHas('raza', fn (Builder $q) => $q->where('nombre', 'like', "%{$search}%"))
-                    ->orWhereHas('lote', fn (Builder $q) => $q->where('nombre', 'like', "%{$search}%"));
+                    ->orWhereHas('potrero', fn (Builder $q) => $q->where('nombre', 'like', "%{$search}%"));
             });
         }
 
@@ -607,8 +607,8 @@ class AnimalService
             $query->where('estado_productivo_id', (int) $filters['estado_productivo_id']);
         }
 
-        if (! empty($filters['lote_id'])) {
-            $query->where('lote_id', (int) $filters['lote_id']);
+        if (! empty($filters['potrero_id'])) {
+            $query->where('potrero_id', (int) $filters['potrero_id']);
         }
 
         if (! empty($filters['sexo']) && in_array($filters['sexo'], ['M', 'H'], true)) {
@@ -695,16 +695,16 @@ class AnimalService
         return $linea;
     }
 
-    private function assertLoteTieneCapacidad(int $loteId, ?int $excludeAnimalId = null): void
+    private function assertPotreroTieneCapacidad(int $potreroId, ?int $excludeAnimalId = null): void
     {
-        $lote = Lote::query()->findOrFail($loteId);
+        $potrero = Potrero::query()->findOrFail($potreroId);
 
-        if ($lote->capacidad_animales <= 0) {
+        if ($potrero->capacidad_animales <= 0) {
             return;
         }
 
         $query = Animal::query()
-            ->where('lote_id', $loteId)
+            ->where('potrero_id', $potreroId)
             ->whereNull('deleted_at');
 
         if ($excludeAnimalId) {
@@ -713,9 +713,9 @@ class AnimalService
 
         $asignados = $query->count();
 
-        if ($asignados >= $lote->capacidad_animales) {
+        if ($asignados >= $potrero->capacidad_animales) {
             throw ValidationException::withMessages([
-                'lote_id' => "El lote {$lote->nombre} ha alcanzado su capacidad máxima ({$lote->capacidad_animales} animales).",
+                'potrero_id' => "El potrero {$potrero->nombre} ha alcanzado su capacidad máxima ({$potrero->capacidad_animales} animales).",
             ]);
         }
     }
@@ -726,9 +726,9 @@ class AnimalService
     private function aplicarGrupo(array &$data): void
     {
         $grupoId = $this->nullableId($data['grupo_id'] ?? null);
-        $loteId = $this->nullableId($data['lote_id'] ?? null);
+        $potreroId = $this->nullableId($data['potrero_id'] ?? null);
         $data['grupo_id'] = $grupoId;
-        Grupo::assertCompatibleConLote($grupoId, $loteId);
+        Grupo::assertCompatibleConPotrero($grupoId, $potreroId);
     }
 
     private function nullableString(mixed $value): ?string

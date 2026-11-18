@@ -215,8 +215,8 @@ export default function ServicioReproductivoDetailPage() {
             </thead>
             <tbody>
               {(servicio.insumos ?? []).map((insumo) => (
-                <tr key={insumo.id ?? `${insumo.medicamento_id}-${insumo.almacen_id}`}>
-                  <td className="px-3 py-2">{insumo.producto_nombre || insumo.producto_codigo || insumo.medicamento_id}</td>
+                <tr key={insumo.id ?? `${insumo.producto_id}-${insumo.almacen_id}`}>
+                  <td className="px-3 py-2">{insumo.producto_nombre || insumo.producto_codigo || insumo.producto_id}</td>
                   <td className="px-3 py-2">{insumo.almacen_nombre || "—"}</td>
                   <td className="px-3 py-2 text-right">{insumo.cantidad}</td>
                 </tr>

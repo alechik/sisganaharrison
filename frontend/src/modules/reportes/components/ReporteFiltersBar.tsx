@@ -18,7 +18,7 @@ const conTodos = (options: { value: string; label: string }[]) => [
 ];
 
 export default function ReporteFiltersBar({ filtros, onChange }: Props) {
-  const { razaOptions, categoriaOptions, estadoProductivoOptions, loteOptions } =
+  const { razaOptions, categoriaOptions, estadoProductivoOptions, potreroOptions } =
     useAnimalReferenceOptions();
   const { tipoEventoOptions } = useSanitarioReferenceOptions();
   const { animalOptions } = useActiveAnimalOptions();
@@ -92,11 +92,11 @@ export default function ReporteFiltersBar({ filtros, onChange }: Props) {
             />
           </div>
           <div>
-            <Label>Lote</Label>
+            <Label>Potrero</Label>
             <Select
-              options={conTodos(loteOptions)}
-              value={filtros.lote_id}
-              onChange={(value) => onChange({ lote_id: value, page: 1 })}
+              options={conTodos(potreroOptions)}
+              value={filtros.potrero_id}
+              onChange={(value) => onChange({ potrero_id: value, page: 1 })}
             />
           </div>
           <div>

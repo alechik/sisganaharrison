@@ -18,7 +18,7 @@ class StoreOrdenCompraProductoRequest extends FormRequest
             'fecha' => 'required|date',
             'descuento' => 'nullable|numeric|min:0',
             'detalles' => 'required|array|min:1',
-            'detalles.*.medicamento_id' => 'required|integer|distinct|exists:medicamentos,id',
+            'detalles.*.producto_id' => 'required|integer|distinct|exists:productos,id',
             'detalles.*.cantidad' => 'required|integer|min:1',
             'detalles.*.precio' => 'required|numeric|min:0',
             'detalles.*.descuento' => 'nullable|numeric|min:0',

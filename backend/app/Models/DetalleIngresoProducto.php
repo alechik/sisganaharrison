@@ -11,7 +11,7 @@ class DetalleIngresoProducto extends Model
 
     protected $fillable = [
         'ingreso_producto_id',
-        'medicamento_id',
+        'producto_id',
         'cantidad',
         'precio',
         'descuento',
@@ -37,10 +37,10 @@ class DetalleIngresoProducto extends Model
     }
 
     /**
-     * @return BelongsTo<Medicamento, $this>
+     * @return BelongsTo<Producto, $this>
      */
-    public function medicamento(): BelongsTo
+    public function producto(): BelongsTo
     {
-        return $this->belongsTo(Medicamento::class);
+        return $this->belongsTo(Producto::class);
     }
 }

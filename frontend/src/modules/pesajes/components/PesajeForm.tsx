@@ -16,8 +16,8 @@ interface LineState {
   animal_id: number | null;
   animal_codigo: string;
   animal_arete: string;
-  lote_nombre: string;
   potrero_nombre: string;
+  parcela_nombre: string;
   peso: number;
   option: AreteOption | null;
 }
@@ -26,8 +26,8 @@ const emptyLine = (): LineState => ({
   animal_id: null,
   animal_codigo: "",
   animal_arete: "",
-  lote_nombre: "",
   potrero_nombre: "",
+  parcela_nombre: "",
   peso: 0,
   option: null,
 });
@@ -47,8 +47,8 @@ const fromAnimal = (animal: AnimalDisponiblePesaje, peso = 0): LineState => ({
   animal_id: animal.id,
   animal_codigo: animal.codigo,
   animal_arete: animal.arete ?? "",
-  lote_nombre: animal.lote_nombre ?? "",
   potrero_nombre: animal.potrero_nombre ?? "",
+  parcela_nombre: animal.parcela_nombre ?? "",
   peso,
   option: {
     value: animal.id,
@@ -70,9 +70,9 @@ const fromExcel = (fila: PesajeExcelFila): LineState => {
     id: fila.animal_id,
     codigo: fila.animal_codigo ?? "",
     arete: fila.codigo_arete,
-    lote_id: fila.lote_id,
-    lote_nombre: fila.lote_nombre,
+    potrero_id: fila.potrero_id,
     potrero_nombre: fila.potrero_nombre,
+    parcela_nombre: fila.parcela_nombre,
   };
 
   return fromAnimal(animal, fila.peso_kg ?? 0);
@@ -315,8 +315,8 @@ export default function PesajeForm() {
                         <td className="whitespace-nowrap px-2 py-2">{fila.linea}</td>
                         <td className="whitespace-nowrap px-2 py-2">{fila.codigo_arete || "—"}</td>
                         <td className="whitespace-nowrap px-2 py-2">{fila.peso_kg ?? "—"}</td>
-                        <td className="px-2 py-2">{fila.lote_nombre || "—"}</td>
                         <td className="px-2 py-2">{fila.potrero_nombre || "—"}</td>
+                        <td className="px-2 py-2">{fila.parcela_nombre || "—"}</td>
                         <td className="px-2 py-2">{fila.valida ? "Lista" : fila.errores.join(" ")}</td>
                         <td className="px-2 py-2">
                           <button
@@ -366,11 +366,11 @@ export default function PesajeForm() {
                 </div>
                 <div className="w-full shrink-0 sm:w-[9.5rem]">
                   {index === 0 ? <Label>Potrero</Label> : null}
-                  <InputField type="text" value={linea.lote_nombre} disabled />
+                  <InputField type="text" value={linea.potrero_nombre} disabled />
                 </div>
                 <div className="w-full shrink-0 sm:w-[9.5rem]">
                   {index === 0 ? <Label>Parcela</Label> : null}
-                  <InputField type="text" value={linea.potrero_nombre} disabled />
+                  <InputField type="text" value={linea.parcela_nombre} disabled />
                 </div>
                 <div className="w-full shrink-0 sm:w-[7rem]">
                   {index === 0 ? <Label>Peso (kg)</Label> : null}

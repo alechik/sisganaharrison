@@ -10,7 +10,7 @@ import { useAnimalReferenceOptions } from "@/modules/animales/hooks/useAnimalRef
 import { getSiguienteCodigoAnimal } from "@/modules/animales/services";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
 import { CategoriaAnimal } from "@/modules/categorias-animales/types";
-import { useGruposByLote } from "@/modules/grupos/hooks";
+import { useGruposByPotrero } from "@/modules/grupos/hooks";
 import { ESTADOS_NACIMIENTO, SEXOS_NACIMIENTO } from "@/modules/nacimientos/constants";
 import { NacimientoAnimalPayload } from "@/modules/nacimientos/types";
 import { hoyISO, validarFechaPartoExitoso } from "@/utils/reglasReproductivas";
@@ -29,7 +29,7 @@ const emptyAnimal: NacimientoAnimalPayload = {
   nombre: "",
   raza_id: null,
   estado_productivo_id: null,
-  lote_id: null,
+  potrero_id: null,
   grupo_id: null,
   color: "",
   observaciones: "",
@@ -54,11 +54,11 @@ export default function RegistrarPartoNacimientoModal({
   const [codigoPreview, setCodigoPreview] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const { options: grupoOptions, loading: loadingGrupos } = useGruposByLote(animal.lote_id ?? null);
+  const { options: grupoOptions, loading: loadingGrupos } = useGruposByPotrero(animal.potrero_id ?? null);
   const {
     razaOptions,
     estadoProductivoOptions,
-    loteOptions,
+    potreroOptions,
     loading: loadingRefs,
     error: refsError,
   } = useAnimalReferenceOptions();
@@ -158,7 +158,7 @@ export default function RegistrarPartoNacimientoModal({
             nombre: animal.nombre || null,
             raza_id: animal.raza_id ?? null,
             estado_productivo_id: animal.estado_productivo_id ?? null,
-            lote_id: animal.lote_id ?? null,
+            potrero_id: animal.potrero_id ?? null,
             grupo_id: animal.grupo_id ?? null,
             color: animal.color || null,
             observaciones: animal.observaciones || null,
@@ -298,11 +298,11 @@ export default function RegistrarPartoNacimientoModal({
               <div>
                 <Label>Potrero</Label>
                 <Select
-                  value={animal.lote_id ? String(animal.lote_id) : ""}
+                  value={animal.potrero_id ? String(animal.potrero_id) : ""}
                   placeholder="Sin potrero"
-                  options={loteOptions}
+                  options={potreroOptions}
                   onChange={(value) =>
-                    handleAnimalChange({ lote_id: value ? Number(value) : null, grupo_id: null })
+                    handleAnimalChange({ potrero_id: value ? Number(value) : null, grupo_id: null })
                   }
                 />
               </div>
@@ -310,7 +310,7 @@ export default function RegistrarPartoNacimientoModal({
                 <Label>Grupo</Label>
                 <Select
                   value={animal.grupo_id ? String(animal.grupo_id) : ""}
-                  placeholder={!animal.lote_id ? "Seleccione un potrero" : loadingGrupos ? "Cargando..." : "Sin grupo"}
+                  placeholder={!animal.potrero_id ? "Seleccione un potrero" : loadingGrupos ? "Cargando..." : "Sin grupo"}
                   options={grupoOptions}
                   onChange={(value) => handleAnimalChange({ grupo_id: value ? Number(value) : null })}
                 />

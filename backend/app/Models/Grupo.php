@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Grupo de animales dentro de un lote (potrero en la UI).
+ * Grupo de animales dentro de un potrero.
  *
  * @property int $id
- * @property int $lote_id
+ * @property int $potrero_id
  * @property string $nombre
  * @property string|null $observaciones
  * @property bool $activo
@@ -28,7 +28,7 @@ class Grupo extends Model
     protected $table = 'grupos';
 
     protected $fillable = [
-        'lote_id',
+        'potrero_id',
         'nombre',
         'observaciones',
         'activo',
@@ -42,11 +42,11 @@ class Grupo extends Model
     }
 
     /**
-     * @return BelongsTo<Lote, $this>
+     * @return BelongsTo<Potrero, $this>
      */
-    public function lote(): BelongsTo
+    public function potrero(): BelongsTo
     {
-        return $this->belongsTo(Lote::class);
+        return $this->belongsTo(Potrero::class);
     }
 
     /**
@@ -66,13 +66,13 @@ class Grupo extends Model
         return $query->where('activo', true);
     }
 
-    public static function assertCompatibleConLote(?int $grupoId, ?int $loteId): void
+    public static function assertCompatibleConPotrero(?int $grupoId, ?int $potreroId): void
     {
         if ($grupoId === null) {
             return;
         }
 
-        if ($loteId === null) {
+        if ($potreroId === null) {
             throw ValidationException::withMessages([
                 'grupo_id' => 'Seleccione un potrero antes de asignar el grupo.',
             ]);
@@ -90,7 +90,7 @@ class Grupo extends Model
             ]);
         }
 
-        if ((int) $grupo->lote_id !== (int) $loteId) {
+        if ((int) $grupo->potrero_id !== (int) $potreroId) {
             throw ValidationException::withMessages([
                 'grupo_id' => 'El grupo no pertenece al potrero seleccionado.',
             ]);

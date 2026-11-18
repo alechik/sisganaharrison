@@ -69,7 +69,7 @@ class AnimalController extends Controller
             'raza:id,nombre',
             'categoria:id,codigo,nombre',
             'estadoProductivo:id,nombre',
-            'lote:id,nombre',
+            'potrero:id,nombre',
             'madre:id,nombre,codigo',
             'padre:id,nombre,codigo',
         ]);

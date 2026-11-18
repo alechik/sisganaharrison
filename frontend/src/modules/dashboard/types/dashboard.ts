@@ -9,7 +9,7 @@ export interface PesoMensual {
   registros: number;
 }
 
-export interface LoteOcupacion {
+export interface PotreroOcupacion {
   codigo: string;
   nombre: string;
   capacidad: number;
@@ -35,10 +35,10 @@ export interface DashboardData {
     hato_actual: number;
     animales_activos: number;
     animales_enfermos: number;
-    establecimientos: number;
+    estancias: number;
+    parcelas: number;
     potreros: number;
-    lotes: number;
-    ocupacion_lotes_pct: number | null;
+    ocupacion_potreros_pct: number | null;
     gestaciones_activas: number;
     ventas_pendientes: number;
     ordenes_pendientes: number;
@@ -52,8 +52,8 @@ export interface DashboardData {
   infraestructura: {
     capacidad_total: number;
     ocupacion_total: number;
-    lotes_sobrecupo: number;
-    lotes: LoteOcupacion[];
+    potreros_sobrecupo: number;
+    potreros: PotreroOcupacion[];
   };
   produccion: {
     peso_promedio_mensual: PesoMensual[];

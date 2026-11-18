@@ -31,7 +31,7 @@ export const getIngresos = async (
       codigo: params.codigo || undefined,
       proveedor_id: params.proveedor_id,
       tipo_ingreso_id: params.tipo_ingreso_id,
-      lote_id: params.lote_id,
+      potrero_id: params.potrero_id,
       fecha: params.fecha || undefined,
       sort_by: params.sort_by,
       sort_dir: params.sort_dir,

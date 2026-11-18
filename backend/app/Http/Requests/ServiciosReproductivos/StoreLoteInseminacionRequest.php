@@ -22,7 +22,7 @@ class StoreLoteInseminacionRequest extends FormRequest
         return [
             'fecha_servicio' => 'required|date|before_or_equal:today',
             'observaciones' => 'nullable|string|max:2000',
-            'medicamento_id' => 'required|integer|exists:medicamentos,id',
+            'producto_id' => 'required|integer|exists:productos,id',
             'hembras' => 'required|array|min:1',
             'hembras.*' => [
                 'required',
@@ -46,7 +46,7 @@ class StoreLoteInseminacionRequest extends FormRequest
         return [
             'fecha_servicio.required' => 'La fecha de servicio es obligatoria.',
             'fecha_servicio.before_or_equal' => 'La fecha de servicio no puede ser futura.',
-            'medicamento_id.required' => 'Debe seleccionar el semen.',
+            'producto_id.required' => 'Debe seleccionar el semen.',
             'hembras.required' => 'Debe seleccionar al menos una vaca.',
             'hembras.*.distinct' => 'La misma vaca no puede repetirse.',
             'hembras.*.exists' => 'La vaca seleccionada no está activa, no tiene arete válido o no es hembra.',

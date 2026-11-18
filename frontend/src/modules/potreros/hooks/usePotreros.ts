@@ -44,7 +44,7 @@ export const usePotreros = ({
           ? await getDeletedPotreros({
               page: nextFilters.page,
               per_page: nextFilters.per_page,
-              establecimiento_id: nextFilters.establecimiento_id,
+              parcela_id: nextFilters.parcela_id,
               sort_by: nextFilters.sort_by,
               sort_dir: nextFilters.sort_dir,
             }, signal)
@@ -71,7 +71,7 @@ export const usePotreros = ({
         return;
       }
       console.error(err);
-      setError("No se pudieron cargar las parcelas.");
+      setError("No se pudieron cargar los potreros.");
       fail(signal);
     }
     },
@@ -85,9 +85,8 @@ export const usePotreros = ({
     filters.page,
     filters.per_page,
     filters.search,
-    filters.establecimiento_id,
+    filters.parcela_id,
     filters.activo,
-    filters.disponibilidad,
     filters.sort_by,
     filters.sort_dir,
   ]);

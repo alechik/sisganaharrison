@@ -56,7 +56,7 @@ class SubcategoriaProductoService
 
     public function delete(SubcategoriaProducto $subcategoria): void
     {
-        if ($subcategoria->medicamentos()->whereNull('deleted_at')->exists()) {
+        if ($subcategoria->productos()->whereNull('deleted_at')->exists()) {
             throw ValidationException::withMessages([
                 'subcategoria' => 'No se puede eliminar porque tiene productos asociados.',
             ]);

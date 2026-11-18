@@ -11,9 +11,9 @@ class AlmacenResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'establecimiento_id' => $this->establecimiento_id,
-            'establecimiento_nombre' => $this->whenLoaded('establecimiento', fn () => $this->establecimiento?->nombre),
-            'establecimiento_codigo' => $this->whenLoaded('establecimiento', fn () => $this->establecimiento?->codigo),
+            'estancia_id' => $this->estancia_id,
+            'estancia_nombre' => $this->whenLoaded('estancia', fn () => $this->estancia?->nombre),
+            'estancia_codigo' => $this->whenLoaded('estancia', fn () => $this->estancia?->codigo),
             'nombre' => $this->nombre,
             'direccion' => $this->direccion,
             'observacion' => $this->observacion,

@@ -6,7 +6,7 @@ use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\DetallePesaje;
 use App\Models\DetalleSalida;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Persona;
 use App\Models\Pesaje;
 use App\Models\Raza;
@@ -291,15 +291,15 @@ class SalidaFisicaTest extends TestCase
      */
     private function animalActivo(array $attributes = []): Animal
     {
-        $lote = Lote::query()->first();
-        if ($lote) {
-            $lote->capacidad_animales = max((int) $lote->capacidad_animales, 500);
-            $lote->activo = true;
-            $lote->save();
+        $potrero = Potrero::query()->first();
+        if ($potrero) {
+            $potrero->capacidad_animales = max((int) $potrero->capacidad_animales, 500);
+            $potrero->activo = true;
+            $potrero->save();
         }
 
         return Animal::factory()->create(array_merge([
-            'lote_id' => $lote?->id,
+            'potrero_id' => $potrero?->id,
             'categoria_id' => CategoriaAnimal::query()->value('id') ?? CategoriaAnimal::factory(),
             'raza_id' => Raza::query()->value('id') ?? Raza::factory(),
             'estado_productivo_id' => null,
@@ -327,7 +327,7 @@ class SalidaFisicaTest extends TestCase
         DetallePesaje::query()->create([
             'pesaje_id' => $pesaje->id,
             'animal_id' => $animal->id,
-            'lote_id' => $animal->lote_id,
+            'potrero_id' => $animal->potrero_id,
             'peso' => $peso,
         ]);
     }

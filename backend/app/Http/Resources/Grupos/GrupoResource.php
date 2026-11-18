@@ -14,9 +14,9 @@ class GrupoResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'lote_id' => $this->lote_id,
-            'lote_nombre' => $this->lote?->nombre,
-            'lote_codigo' => $this->lote?->codigo,
+            'potrero_id' => $this->potrero_id,
+            'potrero_nombre' => $this->potrero?->nombre,
+            'potrero_codigo' => $this->potrero?->codigo,
             'nombre' => $this->nombre,
             'observaciones' => $this->observaciones,
             'activo' => $this->activo,

@@ -46,7 +46,7 @@ class StoreServicioReproductivoRequest extends FormRequest
             'resultado' => ['nullable', 'string', 'max:30', Rule::in(ServicioReproductivo::RESULTADOS)],
             'observaciones' => 'nullable|string|max:2000',
             'insumos' => 'nullable|array',
-            'insumos.*.medicamento_id' => 'required_with:insumos|integer|exists:medicamentos,id',
+            'insumos.*.producto_id' => 'required_with:insumos|integer|exists:productos,id',
             'insumos.*.almacen_id' => 'required_with:insumos|integer|exists:almacenes,id',
             'insumos.*.cantidad' => 'required_with:insumos|integer|min:1',
         ];

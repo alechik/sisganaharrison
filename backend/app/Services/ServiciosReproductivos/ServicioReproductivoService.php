@@ -6,7 +6,7 @@ use App\Models\Almacen;
 use App\Models\AlmacenProducto;
 use App\Models\Animal;
 use App\Models\Gestacion;
-use App\Models\Medicamento;
+use App\Models\Producto;
 use App\Models\MovimientoInventario;
 use App\Models\ServicioReproductivo;
 use App\Services\Documentos\PdfGenerator;
@@ -33,7 +33,7 @@ class ServicioReproductivoService
         'hembra:id,codigo,arete,sexo',
         'macho:id,codigo,arete,sexo',
         'usuario:id,nombre,apellido',
-        'insumos.medicamento:id,codigo,nombre,precio',
+        'insumos.producto:id,codigo,nombre,precio',
         'insumos.almacen:id,nombre',
         'gestacion:id,servicio_id,estado,fecha_confirmacion,fecha_probable_parto,observaciones',
         'gestacion.parto:id,gestacion_id,fecha_parto,estado,observaciones',
@@ -84,8 +84,8 @@ class ServicioReproductivoService
         return Animal::query()
             ->with([
                 'categoria:id,codigo,nombre',
-                'lote:id,nombre,codigo,potrero_id',
-                'lote.potrero:id,nombre',
+                'potrero:id,nombre,codigo,parcela_id',
+                'potrero.parcela:id,nombre',
                 'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
             ])
             ->whereNull('deleted_at')
@@ -102,19 +102,23 @@ class ServicioReproductivoService
     }
 
     /**
-     * @return Collection<int, Medicamento>
+     * @return Collection<int, Producto>
      */
     public function semenDisponible(array $filters = []): Collection
     {
         $search = trim((string) ($filters['search'] ?? ''));
 
-        return Medicamento::query()
+        return Producto::query()
             ->where('activo', true)
             ->whereNull('deleted_at')
+            ->whereHas('subcategoria', function (Builder $builder) {
+                $builder->where('nombre', 'Semen de Bovino');
+            })
             ->when($search !== '', function (Builder $builder) use ($search) {
                 $builder->where(function (Builder $inner) use ($search) {
                     $inner->where('nombre', 'ilike', "%{$search}%")
-                        ->orWhere('codigo', 'ilike', "%{$search}%");
+                        ->orWhere('codigo', 'ilike', "%{$search}%")
+                        ->orWhere('nombre_cientifico', 'ilike', "%{$search}%");
                 });
             })
             ->orderBy('nombre')
@@ -180,7 +184,7 @@ class ServicioReproductivoService
         }
 
         $this->assertFechaServicio($data);
-        $insumo = $this->insumoSemen((int) ($data['medicamento_id'] ?? 0));
+        $insumo = $this->insumoSemen((int) ($data['producto_id'] ?? 0));
 
         return DB::transaction(function () use ($data, $hembras, $insumo) {
             $servicios = [];
@@ -547,37 +551,37 @@ class ServicioReproductivoService
 
     /**
      * @param  array<int, array<string, mixed>>  $insumos
-     * @return list<array{medicamento_id:int, almacen_id:int, precio:float, cantidad:int}>
+     * @return list<array{producto_id:int, almacen_id:int, precio:float, cantidad:int}>
      */
     private function normalizeInsumos(array $insumos): array
     {
         $normalizados = [];
         $vistos = [];
         foreach ($insumos as $index => $linea) {
-            $productoId = (int) ($linea['medicamento_id'] ?? 0);
+            $productoId = (int) ($linea['producto_id'] ?? 0);
             $almacenId = (int) ($linea['almacen_id'] ?? 0);
             $cantidad = (int) ($linea['cantidad'] ?? 0);
             if ($productoId < 1 || $almacenId < 1 || $cantidad < 1) {
                 throw ValidationException::withMessages([
-                    "insumos.$index.medicamento_id" => 'Cada insumo requiere producto, almacén y cantidad.',
+                    "insumos.$index.producto_id" => 'Cada insumo requiere producto, almacén y cantidad.',
                 ]);
             }
             $clave = $productoId.'-'.$almacenId;
             if (in_array($clave, $vistos, true)) {
                 throw ValidationException::withMessages([
-                    "insumos.$index.medicamento_id" => 'El mismo producto no puede repetirse para el mismo almacén.',
+                    "insumos.$index.producto_id" => 'El mismo producto no puede repetirse para el mismo almacén.',
                 ]);
             }
-            $producto = Medicamento::query()->whereKey($productoId)->where('activo', true)->whereNull('deleted_at')->first();
+            $producto = Producto::query()->whereKey($productoId)->where('activo', true)->whereNull('deleted_at')->first();
             $almacen = Almacen::query()->whereKey($almacenId)->where('activo', true)->whereNull('deleted_at')->first();
             if (! $producto || ! $almacen) {
                 throw ValidationException::withMessages([
-                    "insumos.$index.medicamento_id" => 'El producto o el almacén no están activos.',
+                    "insumos.$index.producto_id" => 'El producto o el almacén no están activos.',
                 ]);
             }
             $vistos[] = $clave;
             $normalizados[] = [
-                'medicamento_id' => $producto->id,
+                'producto_id' => $producto->id,
                 'almacen_id' => $almacen->id,
                 'precio' => round((float) $producto->precio, 2),
                 'cantidad' => $cantidad,
@@ -609,7 +613,7 @@ class ServicioReproductivoService
         foreach ($servicio->insumos as $insumo) {
             $this->inventarioService->registrar([
                 'almacen_id' => (int) $insumo->almacen_id,
-                'medicamento_id' => (int) $insumo->medicamento_id,
+                'producto_id' => (int) $insumo->producto_id,
                 'tipo' => MovimientoInventario::TIPO_CONSUMO_REPRODUCTIVO,
                 'cantidad' => -1 * (int) $insumo->cantidad,
                 'precio_unitario' => (float) $insumo->precio,
@@ -624,30 +628,30 @@ class ServicioReproductivoService
     }
 
     /**
-     * @return array{medicamento_id: int, almacen_id: int, cantidad: int}
+     * @return array{producto_id: int, almacen_id: int, cantidad: int}
      */
-    private function insumoSemen(int $medicamentoId): array
+    private function insumoSemen(int $productoId): array
     {
-        if ($medicamentoId < 1) {
+        if ($productoId < 1) {
             throw ValidationException::withMessages([
-                'medicamento_id' => 'Debe seleccionar el semen.',
+                'producto_id' => 'Debe seleccionar el semen.',
             ]);
         }
 
-        $producto = Medicamento::query()
-            ->whereKey($medicamentoId)
+        $producto = Producto::query()
+            ->whereKey($productoId)
             ->where('activo', true)
             ->whereNull('deleted_at')
             ->first();
 
         if (! $producto) {
             throw ValidationException::withMessages([
-                'medicamento_id' => 'El semen seleccionado no está activo.',
+                'producto_id' => 'El semen seleccionado no está activo.',
             ]);
         }
 
         $almacenId = AlmacenProducto::query()
-            ->where('medicamento_id', $producto->id)
+            ->where('producto_id', $producto->id)
             ->where('stock', '>', 0)
             ->orderByDesc('stock')
             ->value('almacen_id');
@@ -662,12 +666,12 @@ class ServicioReproductivoService
 
         if (! $almacenId) {
             throw ValidationException::withMessages([
-                'medicamento_id' => 'No hay un almacén activo para asociar el semen.',
+                'producto_id' => 'No hay un almacén activo para asociar el semen.',
             ]);
         }
 
         return [
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'almacen_id' => (int) $almacenId,
             'cantidad' => 1,
         ];
@@ -696,7 +700,7 @@ class ServicioReproductivoService
             ? Animal::query()
                 ->with([
                     'categoria:id,codigo,nombre',
-                    'lote:id,nombre,codigo,potrero_id',
+                    'potrero:id,nombre,codigo,parcela_id',
                     'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
                 ])
                 ->whereNull('deleted_at')
@@ -730,8 +734,8 @@ class ServicioReproductivoService
             'animal_id' => $animal?->id,
             'animal_codigo' => $animal?->codigo,
             'categoria_nombre' => $animal?->categoria?->nombre,
-            'lote_id' => $animal?->lote_id,
-            'lote_nombre' => $animal?->lote?->nombre,
+            'potrero_id' => $animal?->potrero_id,
+            'potrero_nombre' => $animal?->potrero?->nombre,
             'peso' => $ultimoPeso !== null ? (float) $ultimoPeso : null,
             'errores' => $errores,
             'valida' => $errores === [],

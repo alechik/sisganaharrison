@@ -5,10 +5,10 @@ namespace Tests\Feature;
 use App\Models\Almacen;
 use App\Models\Animal;
 use App\Models\CategoriaAnimal;
-use App\Models\Establecimiento;
+use App\Models\Estancia;
 use App\Models\EstadoProductivo;
-use App\Models\Lote;
-use App\Models\Medicamento;
+use App\Models\Potrero;
+use App\Models\Producto;
 use App\Models\ProductoServicio;
 use App\Models\Raza;
 use App\Models\ServicioReproductivo;
@@ -57,13 +57,13 @@ class ReproduccionSimplificacionTest extends TestCase
         Sanctum::actingAs($this->userWithPermissions(['reproduccion.create', 'reproduccion.view']));
         [$hembraA] = $this->pareja();
         [$hembraB] = $this->pareja();
-        $producto = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
         $this->almacen();
 
         $response = $this->postJson('/api/servicios-reproductivos/lote-ia', [
             'fecha_servicio' => now()->toDateString(),
-            'observaciones' => 'Lote de IA',
-            'medicamento_id' => $producto->id,
+            'observaciones' => 'Potrero de IA',
+            'producto_id' => $producto->id,
             'hembras' => [$hembraA->id, $hembraB->id],
         ]);
 
@@ -75,7 +75,7 @@ class ReproduccionSimplificacionTest extends TestCase
             ->count());
         $this->assertSame(
             2,
-            ProductoServicio::query()->where('medicamento_id', $producto->id)->count()
+            ProductoServicio::query()->where('producto_id', $producto->id)->count()
         );
     }
 
@@ -83,12 +83,12 @@ class ReproduccionSimplificacionTest extends TestCase
     {
         Sanctum::actingAs($this->userWithPermissions(['reproduccion.create']));
         [$hembra] = $this->pareja();
-        $producto = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
         $this->almacen();
 
         $this->postJson('/api/servicios-reproductivos/lote-ia', [
             'fecha_servicio' => now()->toDateString(),
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'hembras' => [$hembra->id, $hembra->id],
         ])->assertStatus(422);
     }
@@ -118,7 +118,7 @@ class ReproduccionSimplificacionTest extends TestCase
         $this->assertSame(1, $preview->json('data.validas'));
         $this->assertSame(2, $preview->json('data.con_errores'));
         $this->assertSame($hembra->id, $preview->json('data.filas.0.animal_id'));
-        $this->assertFalse(ServicioReproductivo::query()->where('observaciones', 'Lote Excel')->exists());
+        $this->assertFalse(ServicioReproductivo::query()->where('observaciones', 'Potrero Excel')->exists());
     }
 
     public function test_busca_hembra_y_macho_por_arete(): void
@@ -151,7 +151,7 @@ class ReproduccionSimplificacionTest extends TestCase
             'categoria_id' => $vacas->id,
             'raza_id' => Raza::query()->value('id') ?? Raza::factory(),
             'estado_productivo_id' => EstadoProductivo::query()->value('id'),
-            'lote_id' => Lote::query()->value('id'),
+            'potrero_id' => Potrero::query()->value('id'),
             'grupo_id' => null,
             'madre_id' => null,
             'padre_id' => null,
@@ -165,7 +165,7 @@ class ReproduccionSimplificacionTest extends TestCase
             'categoria_id' => $toros->id,
             'raza_id' => Raza::query()->value('id') ?? Raza::factory(),
             'estado_productivo_id' => EstadoProductivo::query()->value('id'),
-            'lote_id' => Lote::query()->value('id'),
+            'potrero_id' => Potrero::query()->value('id'),
             'grupo_id' => null,
             'madre_id' => null,
             'padre_id' => null,
@@ -192,10 +192,10 @@ class ReproduccionSimplificacionTest extends TestCase
 
     private function almacen(): Almacen
     {
-        $estancia = Establecimiento::query()->firstOrFail();
+        $estancia = Estancia::query()->firstOrFail();
 
         return Almacen::query()->firstOrCreate(
-            ['establecimiento_id' => $estancia->id],
+            ['estancia_id' => $estancia->id],
             ['nombre' => 'Almacén '.$estancia->nombre, 'activo' => true]
         );
     }

@@ -37,7 +37,7 @@ export const useGrupos = ({
           ? await getDeletedGrupos({
               page: nextFilters.page,
               per_page: nextFilters.per_page,
-              lote_id: nextFilters.lote_id,
+              potrero_id: nextFilters.potrero_id,
               sort_by: nextFilters.sort_by,
               sort_dir: nextFilters.sort_dir,
             }, signal)
@@ -57,7 +57,7 @@ export const useGrupos = ({
 
   useEffect(() => {
     void fetchGrupos(filters);
-  }, [fetchGrupos, filters.page, filters.per_page, filters.search, filters.lote_id, filters.activo, filters.sort_by, filters.sort_dir]);
+  }, [fetchGrupos, filters.page, filters.per_page, filters.search, filters.potrero_id, filters.activo, filters.sort_by, filters.sort_dir]);
 
   return {
     grupos,

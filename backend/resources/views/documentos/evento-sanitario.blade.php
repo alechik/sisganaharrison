@@ -22,7 +22,7 @@
         <thead>
             <tr>
                 <th>Animal</th>
-                <th>Potrero</th>
+                <th>Parcela</th>
                 <th>Producto</th>
                 <th>Almacén</th>
                 <th class="text-right">Cantidad</th>
@@ -34,12 +34,12 @@
             @foreach ($evento->detalles as $detalle)
                 <tr>
                     <td>{{ $detalle->animal?->codigo }}</td>
-                    <td>{{ $detalle->lote?->nombre ?: '—' }}</td>
-                    <td>{{ $detalle->medicamento?->nombre }}</td>
+                    <td>{{ $detalle->potrero?->nombre ?: '—' }}</td>
+                    <td>{{ $detalle->producto?->nombre }}</td>
                     <td>{{ $detalle->almacen?->nombre ?: '—' }}</td>
                     <td class="text-right">{{ $detalle->cantidad }}</td>
                     <td class="text-right">{{ number_format((float) $detalle->peso_animal, 2, ',', '.') }}</td>
-                    <td class="text-right">{{ \App\Support\Money::format($detalle->precio_medicamento) }}</td>
+                    <td class="text-right">{{ \App\Support\Money::format($detalle->precio_producto) }}</td>
                 </tr>
             @endforeach
         </tbody>

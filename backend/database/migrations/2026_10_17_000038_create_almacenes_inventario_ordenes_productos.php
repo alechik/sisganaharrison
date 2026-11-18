@@ -11,8 +11,8 @@ return new class extends Migration
     {
         Schema::create('almacenes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('establecimiento_id')
-                ->constrained('establecimientos')
+            $table->foreignId('estancia_id')
+                ->constrained('estancias')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->string('nombre', 100);
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique('establecimiento_id');
+            $table->unique('estancia_id');
             $table->index('activo');
         });
 
@@ -32,16 +32,16 @@ return new class extends Migration
                 ->constrained('almacenes')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
-            $table->foreignId('medicamento_id')
-                ->constrained('medicamentos')
+            $table->foreignId('producto_id')
+                ->constrained('productos')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->decimal('stock', 12, 2)->default(0);
             $table->boolean('activo')->default(true);
             $table->timestamps();
 
-            $table->unique(['almacen_id', 'medicamento_id']);
-            $table->index('medicamento_id');
+            $table->unique(['almacen_id', 'producto_id']);
+            $table->index('producto_id');
         });
 
         Schema::create('movimientos_inventario', function (Blueprint $table) {
@@ -50,8 +50,8 @@ return new class extends Migration
                 ->constrained('almacenes')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
-            $table->foreignId('medicamento_id')
-                ->constrained('medicamentos')
+            $table->foreignId('producto_id')
+                ->constrained('productos')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->string('tipo', 40);
@@ -67,13 +67,13 @@ return new class extends Migration
             $table->text('observaciones')->nullable();
             $table->timestamps();
 
-            $table->index(['almacen_id', 'medicamento_id']);
+            $table->index(['almacen_id', 'producto_id']);
             $table->index(['origen_type', 'origen_id']);
             $table->index('tipo');
         });
 
         DB::statement(
-            'CREATE UNIQUE INDEX movimientos_inventario_origen_unico ON movimientos_inventario (tipo, origen_type, origen_id, almacen_id, medicamento_id)'
+            'CREATE UNIQUE INDEX movimientos_inventario_origen_unico ON movimientos_inventario (tipo, origen_type, origen_id, almacen_id, producto_id)'
         );
 
         Schema::create('orden_compras_productos', function (Blueprint $table) {
@@ -111,8 +111,8 @@ return new class extends Migration
                 ->constrained('orden_compras_productos')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->foreignId('medicamento_id')
-                ->constrained('medicamentos')
+            $table->foreignId('producto_id')
+                ->constrained('productos')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->integer('cantidad');
@@ -122,7 +122,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('orden_compra_id');
-            $table->index('medicamento_id');
+            $table->index('producto_id');
         });
 
         Schema::create('ingreso_productos', function (Blueprint $table) {
@@ -160,8 +160,8 @@ return new class extends Migration
                 ->constrained('ingreso_productos')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->foreignId('medicamento_id')
-                ->constrained('medicamentos')
+            $table->foreignId('producto_id')
+                ->constrained('productos')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->integer('cantidad');
@@ -171,7 +171,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('ingreso_producto_id');
-            $table->index('medicamento_id');
+            $table->index('producto_id');
         });
     }
 

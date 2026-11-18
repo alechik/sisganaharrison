@@ -56,9 +56,9 @@ return new class extends Migration
                 ->restrictOnDelete();
             $table->integer('cantidad')->default(1);
             $table->decimal('peso', 8, 2);
-            $table->foreignId('lote_id')
+            $table->foreignId('potrero_id')
                 ->nullable()
-                ->constrained('lotes')
+                ->constrained('potreros')
                 ->nullOnDelete();
             $table->decimal('precio', 8, 2);
             $table->decimal('descuento', 8, 2)->default(0);
@@ -67,7 +67,7 @@ return new class extends Migration
 
             $table->index('salida_id');
             $table->index('animal_id');
-            $table->index('lote_id');
+            $table->index('potrero_id');
             $table->unique(['salida_id', 'animal_id']);
             $table->unique('animal_id');
         });

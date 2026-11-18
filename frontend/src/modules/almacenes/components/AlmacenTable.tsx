@@ -81,7 +81,7 @@ export default function AlmacenTable({
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {item.establecimiento_nombre || "—"}
+                    {item.estancia_nombre || "—"}
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">

@@ -23,8 +23,8 @@ return new class extends Migration
                 ->constrained('cuarentenas')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
-            $table->foreignId('lote_id')
-                ->constrained('lotes')
+            $table->foreignId('potrero_id')
+                ->constrained('potreros')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->date('fecha_ingreso');
@@ -38,7 +38,7 @@ return new class extends Migration
             $table->index('proveedor_id');
             $table->index('user_id');
             $table->index('cuarentena_id');
-            $table->index('lote_id');
+            $table->index('potrero_id');
             $table->index('fecha_ingreso');
             $table->index('estado');
         });

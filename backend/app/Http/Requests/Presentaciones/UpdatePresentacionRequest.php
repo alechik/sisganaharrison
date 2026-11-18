@@ -16,9 +16,9 @@ class UpdatePresentacionRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->has('descripcion')) {
+        if ($this->has('nombre')) {
             $this->merge([
-                'descripcion' => trim((string) $this->input('descripcion')),
+                'nombre' => trim((string) $this->input('nombre')),
             ]);
         }
     }
@@ -32,11 +32,11 @@ class UpdatePresentacionRequest extends FormRequest
         $presentacion = $this->route('presentacion');
 
         return [
-            'descripcion' => [
+            'nombre' => [
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('presentaciones', 'descripcion')->ignore($presentacion?->id),
+                Rule::unique('presentaciones', 'nombre')->ignore($presentacion?->id),
             ],
         ];
     }
@@ -47,8 +47,8 @@ class UpdatePresentacionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'descripcion.required' => 'La descripción es obligatoria.',
-            'descripcion.unique' => 'Ya existe una presentación con esta descripción.',
+            'nombre.required' => 'El nombre es obligatorio.',
+            'nombre.unique' => 'Ya existe una presentación con este nombre.',
         ];
     }
 }

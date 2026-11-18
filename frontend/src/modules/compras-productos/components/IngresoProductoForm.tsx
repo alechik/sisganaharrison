@@ -14,7 +14,7 @@ import ProductoSelect, { ProductoOption } from "./ProductoSelect";
 import ProveedorSelect, { ProveedorOption } from "./ProveedorSelect";
 
 interface LineState {
-  medicamento_id: number | null;
+  producto_id: number | null;
   producto_codigo: string;
   producto_nombre: string;
   unidad: string;
@@ -24,7 +24,7 @@ interface LineState {
 }
 
 const emptyLine = (): LineState => ({
-  medicamento_id: null,
+  producto_id: null,
   producto_codigo: "",
   producto_nombre: "",
   unidad: "",
@@ -44,10 +44,10 @@ const sectionClass =
   "rounded-xl border border-gray-200 bg-gray-50/60 p-4 dark:border-white/[0.06] dark:bg-white/[0.02] sm:p-5";
 
 const fromProducto = (producto: ProductoDisponibleIngreso, cantidad = 0, precio?: number): LineState => ({
-  medicamento_id: producto.id,
+  producto_id: producto.id,
   producto_codigo: producto.codigo,
   producto_nombre: producto.nombre,
-  unidad: producto.presentacion_descripcion ?? "",
+  unidad: producto.presentacion_nombre ?? producto.presentacion_descripcion ?? "",
   precio: precio ?? Number(producto.precio ?? 0),
   cantidad,
   option: {
@@ -58,7 +58,7 @@ const fromProducto = (producto: ProductoDisponibleIngreso, cantidad = 0, precio?
 });
 
 const fromExcel = (fila: IngresoProductoExcelFila): LineState => {
-  if (!fila.medicamento_id) {
+  if (!fila.producto_id) {
     return {
       ...emptyLine(),
       producto_codigo: fila.codigo_producto,
@@ -68,10 +68,11 @@ const fromExcel = (fila: IngresoProductoExcelFila): LineState => {
   }
 
   const producto: ProductoDisponibleIngreso = {
-    id: fila.medicamento_id,
+    id: fila.producto_id,
     codigo: fila.producto_codigo ?? fila.codigo_producto,
     nombre: fila.producto_nombre ?? "",
     precio: fila.precio ?? 0,
+    presentacion_nombre: fila.unidad,
     presentacion_descripcion: fila.unidad,
   };
 
@@ -94,12 +95,12 @@ export default function IngresoProductoForm() {
   const [lines, setLines] = useState<LineState[]>([emptyLine()]);
 
   const selectedIds = useMemo(
-    () => lines.map((line) => line.medicamento_id).filter((id): id is number => id !== null),
+    () => lines.map((line) => line.producto_id).filter((id): id is number => id !== null),
     [lines]
   );
 
   const preview = useMemo(() => {
-    const validas = lines.filter((line) => line.medicamento_id && line.cantidad > 0);
+    const validas = lines.filter((line) => line.producto_id && line.cantidad > 0);
     const suma = validas.reduce((acc, line) => acc + line.cantidad * (Number(line.precio) || 0), 0);
     const desc = Number(descuento) || 0;
     return {
@@ -163,7 +164,7 @@ export default function IngresoProductoForm() {
     }
 
     const origen = modo === "excel" ? excelFilas.filter((fila) => fila.valida).map(fromExcel) : lines;
-    const payload = origen.filter((line) => line.medicamento_id && line.cantidad > 0);
+    const payload = origen.filter((line) => line.producto_id && line.cantidad > 0);
     if (payload.length === 0) {
       setError(
         modo === "excel" && excelFilas.length > 0
@@ -184,7 +185,7 @@ export default function IngresoProductoForm() {
         fecha,
         descuento: Number(descuento) || 0,
         detalles: payload.map((line) => ({
-          medicamento_id: line.medicamento_id as number,
+          producto_id: line.producto_id as number,
           cantidad: line.cantidad,
           precio: line.precio,
         })),
@@ -383,7 +384,7 @@ export default function IngresoProductoForm() {
                     {index === 0 ? <Label>Código / Nombre</Label> : null}
                     <ProductoSelect
                       value={linea.option}
-                      excludedIds={selectedIds.filter((id) => id !== linea.medicamento_id)}
+                      excludedIds={selectedIds.filter((id) => id !== linea.producto_id)}
                       onChange={(option) => handleSelectProducto(index, option)}
                     />
                   </div>

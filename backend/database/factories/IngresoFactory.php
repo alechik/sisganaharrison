@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Ingreso;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Persona;
 use App\Models\TipoIngreso;
 use App\Models\TipoPersona;
@@ -28,7 +28,7 @@ class IngresoFactory extends Factory
                 ->value('id') ?? Persona::factory(),
             'user_id' => User::query()->value('id') ?? User::factory(),
             'cuarentena_id' => null,
-            'lote_id' => Lote::query()->value('id') ?? Lote::factory(),
+            'potrero_id' => Potrero::query()->value('id') ?? Potrero::factory(),
             'fecha_ingreso' => now()->toDateString(),
             'estado' => Ingreso::ESTADO_REGISTRADO,
             'observaciones' => null,

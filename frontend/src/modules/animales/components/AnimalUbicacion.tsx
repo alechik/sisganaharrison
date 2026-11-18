@@ -20,9 +20,9 @@ const fecha = (value: string | null) => {
 const lugar = (value: UbicacionLugar | null) => {
   if (!value) return "—";
   const partes = [
-    value.establecimiento_nombre ? `Estancia ${value.establecimiento_nombre}` : null,
-    value.potrero_nombre ? `Parcela ${value.potrero_nombre}` : null,
-    value.lote_nombre ? `Potrero ${value.lote_nombre}` : null,
+    value.estancia_nombre ? `Estancia ${value.estancia_nombre}` : null,
+    value.parcela_nombre ? `Parcela ${value.parcela_nombre}` : null,
+    value.potrero_nombre ? `Potrero ${value.potrero_nombre}` : null,
   ].filter((parte): parte is string => Boolean(parte));
   return partes.join(" · ") || "—";
 };

@@ -1,8 +1,8 @@
 export interface Almacen {
   id: number;
-  establecimiento_id: number;
-  establecimiento_nombre?: string | null;
-  establecimiento_codigo?: string | null;
+  estancia_id: number;
+  estancia_nombre?: string | null;
+  estancia_codigo?: string | null;
   nombre: string;
   direccion?: string | null;
   observacion?: string | null;
@@ -13,7 +13,7 @@ export interface Almacen {
 }
 
 export interface AlmacenCreateRequest {
-  establecimiento_id: number;
+  estancia_id: number;
   nombre: string;
   direccion?: string | null;
   observacion?: string | null;
@@ -23,7 +23,7 @@ export interface AlmacenListParams {
   page?: number;
   per_page?: number;
   search?: string;
-  establecimiento_id?: number;
+  estancia_id?: number;
   activo?: boolean;
   sort_by?: string;
   sort_dir?: "asc" | "desc";

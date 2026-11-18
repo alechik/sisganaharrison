@@ -8,7 +8,7 @@ import Select from "@/components/form/Select";
 import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import { ANIMAL_ROUTES, ANIMAL_SEXO_OPTIONS } from "../constants";
-import { useGruposByLote } from "@/modules/grupos/hooks";
+import { useGruposByPotrero } from "@/modules/grupos/hooks";
 import { mensajeCategoriaIncompatible, textoRegla } from "@/modules/categorias-animales/utils";
 import { hoyISO } from "@/utils/reglasReproductivas";
 import { useAnimalReferenceOptions } from "../hooks/useAnimalReferenceOptions";
@@ -31,7 +31,7 @@ const emptyForm: AnimalCreateRequest = {
   raza_id: null,
   categoria_id: 0,
   estado_productivo_id: null,
-  lote_id: null,
+  potrero_id: null,
   grupo_id: null,
   madre_id: null,
   padre_id: null,
@@ -50,7 +50,7 @@ export default function AnimalForm({ animalId }: Props) {
     categoriaOptions,
     categorias,
     estadoProductivoOptions,
-    loteOptions,
+    potreroOptions,
     parentOptions,
     loading: loadingOptions,
     error: optionsError,
@@ -72,7 +72,7 @@ export default function AnimalForm({ animalId }: Props) {
   const [form, setForm] = useState<AnimalCreateRequest>(emptyForm);
   const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
   const [loading, setLoading] = useState(isEdit);
-  const { options: grupoOptions, loading: loadingGrupos } = useGruposByLote(form.lote_id ?? null);
+  const { options: grupoOptions, loading: loadingGrupos } = useGruposByPotrero(form.potrero_id ?? null);
 
   const saving = creating || updating;
   const error = createError || updateError || optionsError;
@@ -95,7 +95,7 @@ export default function AnimalForm({ animalId }: Props) {
           raza_id: animal.raza_id,
           categoria_id: animal.categoria_id,
           estado_productivo_id: animal.estado_productivo_id,
-          lote_id: animal.lote_id,
+          potrero_id: animal.potrero_id,
           grupo_id: animal.grupo_id,
           madre_id: animal.madre_id,
           padre_id: animal.padre_id,
@@ -158,7 +158,7 @@ export default function AnimalForm({ animalId }: Props) {
       fecha_nacimiento: form.fecha_nacimiento || null,
       raza_id: form.raza_id || null,
       estado_productivo_id: form.estado_productivo_id || null,
-      lote_id: form.lote_id || null,
+      potrero_id: form.potrero_id || null,
       grupo_id: form.grupo_id || null,
       madre_id: form.madre_id || null,
       padre_id: form.padre_id || null,
@@ -382,13 +382,13 @@ export default function AnimalForm({ animalId }: Props) {
         <div>
           <Label>Potrero</Label>
           <Select
-            value={form.lote_id ? String(form.lote_id) : "none"}
+            value={form.potrero_id ? String(form.potrero_id) : "none"}
             placeholder="Opcional (Ingreso)"
-            options={[{ value: "none", label: "Sin seleccionar" }, ...loteOptions]}
+            options={[{ value: "none", label: "Sin seleccionar" }, ...potreroOptions]}
             onChange={(value) =>
               setForm((current) => ({
                 ...current,
-                lote_id: !value || value === "none" ? null : Number(value),
+                potrero_id: !value || value === "none" ? null : Number(value),
                 grupo_id: null,
               }))
             }
@@ -399,7 +399,7 @@ export default function AnimalForm({ animalId }: Props) {
           <Label>Grupo</Label>
           <Select
             value={form.grupo_id ? String(form.grupo_id) : "none"}
-            placeholder={!form.lote_id ? "Seleccione un potrero" : loadingGrupos ? "Cargando..." : "Sin grupo"}
+            placeholder={!form.potrero_id ? "Seleccione un potrero" : loadingGrupos ? "Cargando..." : "Sin grupo"}
             options={[{ value: "none", label: "Sin grupo" }, ...grupoOptions]}
             onChange={(value) =>
               setForm((current) => ({

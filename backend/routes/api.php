@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\Razas\RazaController;
 use App\Http\Controllers\Api\CategoriasAnimales\CategoriaAnimalController;
 use App\Http\Controllers\Api\Vacunas\VacunaController;
 use App\Http\Controllers\Api\Presentaciones\PresentacionController;
-use App\Http\Controllers\Api\Medicamentos\MedicamentoController;
+use App\Http\Controllers\Api\Productos\ProductoController;
 use App\Http\Controllers\Api\CategoriasProductos\CategoriaProductoController;
 use App\Http\Controllers\Api\SubcategoriasProductos\SubcategoriaProductoController;
 use App\Http\Controllers\Api\Almacenes\AlmacenController;
@@ -20,9 +20,9 @@ use App\Http\Controllers\Api\TiposMovimientos\TipoMovimientoController;
 use App\Http\Controllers\Api\TiposAlertas\TipoAlertaController;
 use App\Http\Controllers\Api\TiposSalidas\TipoSalidaController;
 use App\Http\Controllers\Api\TiposIngresos\TipoIngresoController;
-use App\Http\Controllers\Api\Establecimientos\EstablecimientoController;
+use App\Http\Controllers\Api\Estancias\EstanciaController;
+use App\Http\Controllers\Api\Parcelas\ParcelaController;
 use App\Http\Controllers\Api\Potreros\PotreroController;
-use App\Http\Controllers\Api\Lotes\LoteController;
 use App\Http\Controllers\Api\Grupos\GrupoController;
 use App\Http\Controllers\Api\Animales\AnimalController;
 use App\Http\Controllers\Api\Animales\AnimalHistorialController;
@@ -277,37 +277,37 @@ Route::middleware('auth:sanctum')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| MEDICAMENTOS
+| PRODUCTOS
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('medicamentos/eliminados', [MedicamentoController::class, 'deleted'])
-        ->middleware('permission:medicamentos.view');
+    Route::get('productos/eliminados', [ProductoController::class, 'deleted'])
+        ->middleware('permission:productos.view');
 
-    Route::post('medicamentos/{id}/restaurar', [MedicamentoController::class, 'restore'])
-        ->middleware('permission:medicamentos.restore');
+    Route::post('productos/{id}/restaurar', [ProductoController::class, 'restore'])
+        ->middleware('permission:productos.restore');
 
-    Route::get('medicamentos', [MedicamentoController::class, 'index'])
-        ->middleware('permission:medicamentos.view');
+    Route::get('productos', [ProductoController::class, 'index'])
+        ->middleware('permission:productos.view');
 
-    Route::post('medicamentos', [MedicamentoController::class, 'store'])
-        ->middleware('permission:medicamentos.create');
+    Route::post('productos', [ProductoController::class, 'store'])
+        ->middleware('permission:productos.create');
 
-    Route::get('medicamentos/{medicamento}', [MedicamentoController::class, 'show'])
-        ->middleware('permission:medicamentos.view');
+    Route::get('productos/{producto}', [ProductoController::class, 'show'])
+        ->middleware('permission:productos.view');
 
-    Route::put('medicamentos/{medicamento}', [MedicamentoController::class, 'update'])
-        ->middleware('permission:medicamentos.update');
+    Route::put('productos/{producto}', [ProductoController::class, 'update'])
+        ->middleware('permission:productos.update');
 
-    Route::patch('medicamentos/{medicamento}', [MedicamentoController::class, 'update'])
-        ->middleware('permission:medicamentos.update');
+    Route::patch('productos/{producto}', [ProductoController::class, 'update'])
+        ->middleware('permission:productos.update');
 
-    Route::delete('medicamentos/{medicamento}', [MedicamentoController::class, 'destroy'])
-        ->middleware('permission:medicamentos.delete');
+    Route::delete('productos/{producto}', [ProductoController::class, 'destroy'])
+        ->middleware('permission:productos.delete');
 
-    Route::patch('medicamentos/{medicamento}/estado', [MedicamentoController::class, 'changeStatus'])
-        ->middleware('permission:medicamentos.activate');
+    Route::patch('productos/{producto}/estado', [ProductoController::class, 'changeStatus'])
+        ->middleware('permission:productos.activate');
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -573,37 +573,72 @@ Route::middleware('auth:sanctum')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| ESTABLECIMIENTOS
+| ESTANCIAS
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('establecimientos/eliminados', [EstablecimientoController::class, 'deleted'])
-        ->middleware('permission:establecimientos.view');
+    Route::get('estancias/eliminados', [EstanciaController::class, 'deleted'])
+        ->middleware('permission:estancias.view');
 
-    Route::post('establecimientos/{id}/restaurar', [EstablecimientoController::class, 'restore'])
-        ->middleware('permission:establecimientos.restore');
+    Route::post('estancias/{id}/restaurar', [EstanciaController::class, 'restore'])
+        ->middleware('permission:estancias.restore');
 
-    Route::get('establecimientos', [EstablecimientoController::class, 'index'])
-        ->middleware('permission:establecimientos.view');
+    Route::get('estancias', [EstanciaController::class, 'index'])
+        ->middleware('permission:estancias.view');
 
-    Route::post('establecimientos', [EstablecimientoController::class, 'store'])
-        ->middleware('permission:establecimientos.create');
+    Route::post('estancias', [EstanciaController::class, 'store'])
+        ->middleware('permission:estancias.create');
 
-    Route::get('establecimientos/{establecimiento}', [EstablecimientoController::class, 'show'])
-        ->middleware('permission:establecimientos.view');
+    Route::get('estancias/{estancia}', [EstanciaController::class, 'show'])
+        ->middleware('permission:estancias.view');
 
-    Route::put('establecimientos/{establecimiento}', [EstablecimientoController::class, 'update'])
-        ->middleware('permission:establecimientos.update');
+    Route::put('estancias/{estancia}', [EstanciaController::class, 'update'])
+        ->middleware('permission:estancias.update');
 
-    Route::patch('establecimientos/{establecimiento}', [EstablecimientoController::class, 'update'])
-        ->middleware('permission:establecimientos.update');
+    Route::patch('estancias/{estancia}', [EstanciaController::class, 'update'])
+        ->middleware('permission:estancias.update');
 
-    Route::delete('establecimientos/{establecimiento}', [EstablecimientoController::class, 'destroy'])
-        ->middleware('permission:establecimientos.delete');
+    Route::delete('estancias/{estancia}', [EstanciaController::class, 'destroy'])
+        ->middleware('permission:estancias.delete');
 
-    Route::patch('establecimientos/{establecimiento}/estado', [EstablecimientoController::class, 'changeStatus'])
-        ->middleware('permission:establecimientos.activate');
+    Route::patch('estancias/{estancia}/estado', [EstanciaController::class, 'changeStatus'])
+        ->middleware('permission:estancias.activate');
+});
+
+/*
+|--------------------------------------------------------------------------
+| PARCELAS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('parcelas/eliminados', [ParcelaController::class, 'deleted'])
+        ->middleware('permission:parcelas.view');
+
+    Route::post('parcelas/{id}/restaurar', [ParcelaController::class, 'restore'])
+        ->middleware('permission:parcelas.restore');
+
+    Route::get('parcelas', [ParcelaController::class, 'index'])
+        ->middleware('permission:parcelas.view');
+
+    Route::post('parcelas', [ParcelaController::class, 'store'])
+        ->middleware('permission:parcelas.create');
+
+    Route::get('parcelas/{parcela}', [ParcelaController::class, 'show'])
+        ->middleware('permission:parcelas.view');
+
+    Route::put('parcelas/{parcela}', [ParcelaController::class, 'update'])
+        ->middleware('permission:parcelas.update');
+
+    Route::patch('parcelas/{parcela}', [ParcelaController::class, 'update'])
+        ->middleware('permission:parcelas.update');
+
+    Route::delete('parcelas/{parcela}', [ParcelaController::class, 'destroy'])
+        ->middleware('permission:parcelas.delete');
+
+    Route::patch('parcelas/{parcela}/estado', [ParcelaController::class, 'changeStatus'])
+        ->middleware('permission:parcelas.activate');
 });
 
 /*
@@ -639,41 +674,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('potreros/{potrero}/estado', [PotreroController::class, 'changeStatus'])
         ->middleware('permission:potreros.activate');
-});
-
-/*
-|--------------------------------------------------------------------------
-| LOTES
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('lotes/eliminados', [LoteController::class, 'deleted'])
-        ->middleware('permission:lotes.view');
-
-    Route::post('lotes/{id}/restaurar', [LoteController::class, 'restore'])
-        ->middleware('permission:lotes.restore');
-
-    Route::get('lotes', [LoteController::class, 'index'])
-        ->middleware('permission:lotes.view');
-
-    Route::post('lotes', [LoteController::class, 'store'])
-        ->middleware('permission:lotes.create');
-
-    Route::get('lotes/{lote}', [LoteController::class, 'show'])
-        ->middleware('permission:lotes.view');
-
-    Route::put('lotes/{lote}', [LoteController::class, 'update'])
-        ->middleware('permission:lotes.update');
-
-    Route::patch('lotes/{lote}', [LoteController::class, 'update'])
-        ->middleware('permission:lotes.update');
-
-    Route::delete('lotes/{lote}', [LoteController::class, 'destroy'])
-        ->middleware('permission:lotes.delete');
-
-    Route::patch('lotes/{lote}/estado', [LoteController::class, 'changeStatus'])
-        ->middleware('permission:lotes.activate');
 });
 
 /*

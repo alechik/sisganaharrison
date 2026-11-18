@@ -91,9 +91,9 @@ export default function ProductoSelect({ value, excludedIds, onChange, disabled 
         <div>
           <span className="font-medium">{option.producto.codigo}</span>
           <span className="text-gray-500"> · {option.producto.nombre}</span>
-          {option.producto.presentacion_descripcion ? (
+          {option.producto.presentacion_nombre || option.producto.presentacion_descripcion ? (
             <span className="mt-0.5 block text-xs text-gray-500">
-              {option.producto.presentacion_descripcion}
+              {option.producto.presentacion_nombre || option.producto.presentacion_descripcion}
             </span>
           ) : null}
         </div>

@@ -28,14 +28,14 @@ class SalidaService
         'creador:id,nombre,apellido',
         'tipoSalida:id,nombre,codigo,iniciales,requiere_cliente',
         'venta:id,cod_venta,cliente_id,fecha_venta',
-        'detalles.animal:id,codigo,arete,sexo,categoria_id,lote_id,grupo_id,estado,fecha_nacimiento,edad_inicial,edad_actual',
+        'detalles.animal:id,codigo,arete,sexo,categoria_id,potrero_id,grupo_id,estado,fecha_nacimiento,edad_inicial,edad_actual',
         'detalles.animal.grupo:id,nombre',
         'detalles.grupo:id,nombre',
         'detalles.animal.categoria:id,codigo,nombre',
-        'detalles.animal.lote:id,nombre,codigo,potrero_id',
-        'detalles.animal.lote.potrero:id,nombre',
-        'detalles.lote:id,nombre,codigo,potrero_id',
-        'detalles.lote.potrero:id,nombre',
+        'detalles.animal.potrero:id,nombre,codigo,parcela_id',
+        'detalles.animal.potrero.parcela:id,nombre',
+        'detalles.potrero:id,nombre,codigo,parcela_id',
+        'detalles.potrero.parcela:id,nombre',
     ];
 
     public function __construct(
@@ -73,8 +73,8 @@ class SalidaService
         return Animal::query()
             ->with([
                 'categoria:id,codigo,nombre',
-                'lote:id,nombre,codigo,potrero_id',
-                'lote.potrero:id,nombre',
+                'potrero:id,nombre,codigo,parcela_id',
+                'potrero.parcela:id,nombre',
                 'grupo:id,nombre',
                 'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
             ])
@@ -375,7 +375,7 @@ class SalidaService
                 'animal_id' => $linea['animal_id'],
                 'cantidad' => 1,
                 'peso' => $linea['peso'],
-                'lote_id' => $animal?->lote_id,
+                'potrero_id' => $animal?->potrero_id,
                 'grupo_id' => $animal?->grupo_id,
                 'precio' => $linea['precio'],
                 'descuento' => $linea['descuento'],
@@ -470,8 +470,8 @@ class SalidaService
             ? Animal::query()
                 ->with([
                     'categoria:id,codigo,nombre',
-                    'lote:id,nombre,codigo,potrero_id',
-                    'lote.potrero:id,nombre',
+                    'potrero:id,nombre,codigo,parcela_id',
+                    'potrero.parcela:id,nombre',
                     'grupo:id,nombre',
                     'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
                 ])
@@ -509,11 +509,11 @@ class SalidaService
             'categoria_id' => $animal?->categoria_id,
             'categoria_codigo' => $animal?->categoria?->codigo,
             'categoria_nombre' => $animal?->categoria?->nombre,
-            'lote_id' => $animal?->lote_id,
-            'lote_nombre' => $animal?->lote?->nombre,
+            'potrero_id' => $animal?->potrero_id,
+            'potrero_nombre' => $animal?->potrero?->nombre,
             'grupo_id' => $animal?->grupo_id,
             'grupo_nombre' => $animal?->grupo?->nombre,
-            'potrero_nombre' => $animal?->lote?->potrero?->nombre,
+            'parcela_nombre' => $animal?->potrero?->parcela?->nombre,
             'errores' => $errores,
             'valida' => $errores === [],
         ];

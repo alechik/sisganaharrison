@@ -9,7 +9,7 @@ use Illuminate\Validation\ValidationException;
 
 class PresentacionService
 {
-    private const SORTABLE_COLUMNS = ['descripcion', 'created_at'];
+    private const SORTABLE_COLUMNS = ['nombre', 'created_at'];
 
     /**
      * @param  array<string, mixed>  $filters
@@ -54,9 +54,9 @@ class PresentacionService
 
     public function delete(Presentacion $presentacion): void
     {
-        if ($presentacion->medicamentos()->exists()) {
+        if ($presentacion->productos()->exists()) {
             throw ValidationException::withMessages([
-                'presentacion' => 'No se puede eliminar la presentación porque está asociada a medicamentos.',
+                'presentacion' => 'No se puede eliminar la presentación porque está asociada a productos.',
             ]);
         }
 
@@ -83,12 +83,12 @@ class PresentacionService
 
         if (! empty($filters['search'])) {
             $search = (string) $filters['search'];
-            $query->where('descripcion', 'ilike', '%'.$search.'%');
+            $query->where('nombre', 'ilike', '%'.$search.'%');
         }
 
         $sortBy = in_array($filters['sort_by'] ?? '', self::SORTABLE_COLUMNS, true)
             ? $filters['sort_by']
-            : 'descripcion';
+            : 'nombre';
 
         $sortDir = strtolower((string) ($filters['sort_dir'] ?? 'asc')) === 'desc' ? 'desc' : 'asc';
 

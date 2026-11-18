@@ -1,8 +1,8 @@
 export interface UbicacionLugar {
-  lote_id: number;
-  lote_nombre: string;
-  potrero_nombre: string | null;
-  establecimiento_nombre: string | null;
+  potrero_id: number;
+  potrero_nombre: string;
+  parcela_nombre: string | null;
+  estancia_nombre: string | null;
 }
 
 export interface MovimientoUbicacion {

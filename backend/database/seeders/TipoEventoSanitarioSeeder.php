@@ -26,7 +26,7 @@ class TipoEventoSanitarioSeeder extends Seeder
         [
             'codigo' => 'TRATAMIENTO',
             'nombre' => 'Tratamiento',
-            'descripcion' => 'Administración de medicamentos o terapias veterinarias.',
+            'descripcion' => 'Administración de productos o terapias veterinarias.',
         ],
         [
             'codigo' => 'ENFERMEDAD',

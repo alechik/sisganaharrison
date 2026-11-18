@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\DetallePesaje;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Pesaje;
 use App\Models\Raza;
 use App\Models\User;
@@ -50,7 +50,7 @@ class PesajeFisicoTest extends TestCase
 
         $this->assertEquals(530.5, (float) $response->json('data.total_peso'));
         $this->assertSame(2, DetallePesaje::query()->where('pesaje_id', $response->json('data.id'))->count());
-        $this->assertSame($animalA->lote_id, DetallePesaje::query()->where('animal_id', $animalA->id)->value('lote_id'));
+        $this->assertSame($animalA->potrero_id, DetallePesaje::query()->where('animal_id', $animalA->id)->value('potrero_id'));
 
         $segundo = $this->postJson('/api/pesajes', [
             'fecha_pesaje' => now()->toDateString(),
@@ -137,7 +137,7 @@ class PesajeFisicoTest extends TestCase
         $this->assertSame(1, $preview->json('data.validas'));
         $this->assertSame(3, $preview->json('data.con_errores'));
         $this->assertSame($animal->id, $preview->json('data.filas.0.animal_id'));
-        $this->assertSame($animal->lote?->nombre, $preview->json('data.filas.0.lote_nombre'));
+        $this->assertSame($animal->potrero?->nombre, $preview->json('data.filas.0.potrero_nombre'));
         $this->assertFalse(Pesaje::query()->where('observacion', 'Sesión Excel')->exists());
     }
 
@@ -149,7 +149,7 @@ class PesajeFisicoTest extends TestCase
         $this->getJson('/api/pesajes/animales-disponibles?search=AR-PES-SRC')
             ->assertOk()
             ->assertJsonPath('data.0.id', $animal->id)
-            ->assertJsonPath('data.0.lote_nombre', $animal->lote?->nombre);
+            ->assertJsonPath('data.0.potrero_nombre', $animal->potrero?->nombre);
     }
 
     public function test_sin_permiso_no_registra_pesaje(): void
@@ -170,21 +170,21 @@ class PesajeFisicoTest extends TestCase
      */
     private function animalActivo(array $attributes = []): Animal
     {
-        $lote = Lote::query()->first();
-        if ($lote) {
-            $lote->capacidad_animales = max((int) $lote->capacidad_animales, 500);
-            $lote->activo = true;
-            $lote->save();
+        $potrero = Potrero::query()->first();
+        if ($potrero) {
+            $potrero->capacidad_animales = max((int) $potrero->capacidad_animales, 500);
+            $potrero->activo = true;
+            $potrero->save();
         }
 
         return Animal::factory()->create(array_merge([
-            'lote_id' => $lote?->id,
+            'potrero_id' => $potrero?->id,
             'categoria_id' => CategoriaAnimal::query()->value('id') ?? CategoriaAnimal::factory(),
             'raza_id' => Raza::query()->value('id') ?? Raza::factory(),
             'estado_productivo_id' => null,
             'estado' => Animal::ESTADO_ACTIVO,
             'fecha_nacimiento' => now()->subMonths(12)->toDateString(),
-        ], $attributes))->load('lote.potrero');
+        ], $attributes))->load('potrero.parcela');
     }
 
     private function siguienteCodigo(): string

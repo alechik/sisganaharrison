@@ -3,8 +3,8 @@ import { TraspasoFilters, TraspasoSortDirection, TraspasoSortField } from "../ty
 
 export const defaultTraspasoFilters = (): TraspasoFilters => ({
   search: "",
-  lote_salida_id: undefined,
-  lote_ingreso_id: undefined,
+  potrero_salida_id: undefined,
+  potrero_ingreso_id: undefined,
   fecha_desde: "",
   fecha_hasta: "",
   sort_by: "fecha_traspaso" as TraspasoSortField,
@@ -45,7 +45,7 @@ export const formatSexo = (sexo?: string | null): string => {
 export const lineSubtotal = (peso: number, precio: number): number =>
   Math.round((Number(peso) || 0) * (Number(precio) || 0) * 100) / 100;
 
-export const loteLabel = (codigo?: string | null, nombre?: string | null): string => {
+export const potreroLabel = (codigo?: string | null, nombre?: string | null): string => {
   if (codigo && nombre) {
     return `${codigo} — ${nombre}`;
   }

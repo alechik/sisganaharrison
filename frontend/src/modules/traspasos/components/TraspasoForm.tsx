@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getLotes } from "@/modules/lotes/services";
+import { getPotreros } from "@/modules/potreros/services";
 import { AnimalDisponibleVenta } from "@/modules/ventas/types";
 import { TRASPASO_ROUTES } from "../constants";
 import { useCreateTraspaso, useUpdateTraspaso } from "../hooks";
@@ -38,9 +38,9 @@ export default function TraspasoForm({ traspasoId }: Props) {
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateTraspaso();
   const skipResetSelection = useRef(isEdit);
 
-  const [loteOptions, setLoteOptions] = useState<{ value: string; label: string }[]>([]);
-  const [loteSalidaId, setLoteSalidaId] = useState(0);
-  const [loteIngresoId, setLoteIngresoId] = useState(0);
+  const [potreroOptions, setPotreroOptions] = useState<{ value: string; label: string }[]>([]);
+  const [potreroSalidaId, setPotreroSalidaId] = useState(0);
+  const [potreroIngresoId, setPotreroIngresoId] = useState(0);
   const [fecha, setFecha] = useState(today());
   const [observacion, setObservacion] = useState("");
   const [animales, setAnimales] = useState<AnimalDisponibleVenta[]>([]);
@@ -58,12 +58,12 @@ export default function TraspasoForm({ traspasoId }: Props) {
   };
 
   useEffect(() => {
-    getLotes({ per_page: 100, activo: true, sort_by: "nombre", sort_dir: "asc" })
+    getPotreros({ per_page: 100, activo: true, sort_by: "nombre", sort_dir: "asc" })
       .then((res) =>
-        setLoteOptions(
-          res.data.map((lote) => ({
-            value: String(lote.id),
-            label: `${lote.codigo} — ${lote.nombre}`,
+        setPotreroOptions(
+          res.data.map((potrero) => ({
+            value: String(potrero.id),
+            label: `${potrero.codigo} — ${potrero.nombre}`,
           }))
         )
       )
@@ -82,8 +82,8 @@ export default function TraspasoForm({ traspasoId }: Props) {
       try {
         const traspaso = await getTraspaso(traspasoId);
         skipResetSelection.current = true;
-        setLoteSalidaId(traspaso.lote_salida_id);
-        setLoteIngresoId(traspaso.lote_ingreso_id);
+        setPotreroSalidaId(traspaso.potrero_salida_id);
+        setPotreroIngresoId(traspaso.potrero_ingreso_id);
         setFecha(traspaso.fecha_traspaso);
         setObservacion(traspaso.observacion ?? "");
         setRegistradoPorNombre(traspaso.usuario_nombre ?? null);
@@ -100,7 +100,7 @@ export default function TraspasoForm({ traspasoId }: Props) {
   }, [traspasoId]);
 
   useEffect(() => {
-    if (!loteSalidaId) {
+    if (!potreroSalidaId) {
       setAnimales([]);
       return;
     }
@@ -108,7 +108,7 @@ export default function TraspasoForm({ traspasoId }: Props) {
     const load = async () => {
       try {
         setLoadingAnimales(true);
-        setAnimales(await getAnimalesTraspaso(loteSalidaId, traspasoId));
+        setAnimales(await getAnimalesTraspaso(potreroSalidaId, traspasoId));
         if (skipResetSelection.current) {
           skipResetSelection.current = false;
         } else {
@@ -123,9 +123,9 @@ export default function TraspasoForm({ traspasoId }: Props) {
     };
 
     load();
-  }, [loteSalidaId, traspasoId]);
+  }, [potreroSalidaId, traspasoId]);
 
-  const ingresoOptions = loteOptions.filter((option) => Number(option.value) !== loteSalidaId);
+  const ingresoOptions = potreroOptions.filter((option) => Number(option.value) !== potreroSalidaId);
   const seleccionables = animales.filter(puedeTraspasar);
 
   const selectedAnimales = useMemo(
@@ -163,15 +163,15 @@ export default function TraspasoForm({ traspasoId }: Props) {
     setError(null);
     setValidationError(null);
 
-    if (!loteSalidaId) {
+    if (!potreroSalidaId) {
       setValidationError("Debe seleccionar el potrero de salida.");
       return;
     }
-    if (!loteIngresoId) {
+    if (!potreroIngresoId) {
       setValidationError("Debe seleccionar el potrero de ingreso.");
       return;
     }
-    if (loteSalidaId === loteIngresoId) {
+    if (potreroSalidaId === potreroIngresoId) {
       setValidationError("El potrero de salida y el de ingreso deben ser distintos.");
       return;
     }
@@ -185,8 +185,8 @@ export default function TraspasoForm({ traspasoId }: Props) {
     }
 
     const payload: TraspasoCreateRequest = {
-      lote_salida_id: loteSalidaId,
-      lote_ingreso_id: loteIngresoId,
+      potrero_salida_id: potreroSalidaId,
+      potrero_ingreso_id: potreroIngresoId,
       fecha_traspaso: fecha,
       observacion: observacion || null,
       detalles: selectedIds.map((animal_id) => ({ animal_id })),
@@ -223,14 +223,14 @@ export default function TraspasoForm({ traspasoId }: Props) {
         <div>
           <Label>Potrero de salida *</Label>
           <Select
-            value={loteSalidaId ? String(loteSalidaId) : ""}
+            value={potreroSalidaId ? String(potreroSalidaId) : ""}
             placeholder="Seleccione potrero de salida"
-            options={loteOptions}
+            options={potreroOptions}
             onChange={(value) => {
               const next = Number(value);
-              setLoteSalidaId(next);
-              if (loteIngresoId === next) {
-                setLoteIngresoId(0);
+              setPotreroSalidaId(next);
+              if (potreroIngresoId === next) {
+                setPotreroIngresoId(0);
               }
             }}
           />
@@ -238,10 +238,10 @@ export default function TraspasoForm({ traspasoId }: Props) {
         <div>
           <Label>Potrero de ingreso *</Label>
           <Select
-            value={loteIngresoId ? String(loteIngresoId) : ""}
+            value={potreroIngresoId ? String(potreroIngresoId) : ""}
             placeholder="Seleccione potrero de ingreso"
             options={ingresoOptions}
-            onChange={(value) => setLoteIngresoId(Number(value))}
+            onChange={(value) => setPotreroIngresoId(Number(value))}
           />
         </div>
         <div>
@@ -263,7 +263,7 @@ export default function TraspasoForm({ traspasoId }: Props) {
           </p>
         </div>
 
-        {!loteSalidaId ? (
+        {!potreroSalidaId ? (
           <p className="text-sm text-gray-500">Seleccione un potrero de salida para listar sus animales.</p>
         ) : loadingAnimales ? (
           <p className="text-sm text-gray-500">Cargando animales...</p>

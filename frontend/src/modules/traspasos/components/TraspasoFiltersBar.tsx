@@ -4,7 +4,7 @@ import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
-import { getLotes } from "@/modules/lotes/services";
+import { getPotreros } from "@/modules/potreros/services";
 import { TRASPASO_SORT_OPTIONS } from "../constants";
 import { TraspasoFilters, TraspasoSortDirection } from "../types";
 
@@ -14,15 +14,15 @@ interface Props {
 }
 
 export default function TraspasoFiltersBar({ filters, onChange }: Props) {
-  const [loteOptions, setLoteOptions] = useState<{ value: string; label: string }[]>([]);
+  const [potreroOptions, setPotreroOptions] = useState<{ value: string; label: string }[]>([]);
 
   useEffect(() => {
-    getLotes({ per_page: 100, activo: true, sort_by: "nombre", sort_dir: "asc" })
+    getPotreros({ per_page: 100, activo: true, sort_by: "nombre", sort_dir: "asc" })
       .then((res) =>
-        setLoteOptions(
-          res.data.map((lote) => ({
-            value: String(lote.id),
-            label: `${lote.codigo} — ${lote.nombre}`,
+        setPotreroOptions(
+          res.data.map((potrero) => ({
+            value: String(potrero.id),
+            label: `${potrero.codigo} — ${potrero.nombre}`,
           }))
         )
       )
@@ -42,20 +42,20 @@ export default function TraspasoFiltersBar({ filters, onChange }: Props) {
       <div>
         <Label>Potrero de salida</Label>
         <Select
-          value={filters.lote_salida_id ? String(filters.lote_salida_id) : "all"}
-          options={[{ value: "all", label: "Todos" }, ...loteOptions]}
+          value={filters.potrero_salida_id ? String(filters.potrero_salida_id) : "all"}
+          options={[{ value: "all", label: "Todos" }, ...potreroOptions]}
           onChange={(value) =>
-            onChange({ lote_salida_id: value === "all" ? undefined : Number(value) })
+            onChange({ potrero_salida_id: value === "all" ? undefined : Number(value) })
           }
         />
       </div>
       <div>
         <Label>Potrero de ingreso</Label>
         <Select
-          value={filters.lote_ingreso_id ? String(filters.lote_ingreso_id) : "all"}
-          options={[{ value: "all", label: "Todos" }, ...loteOptions]}
+          value={filters.potrero_ingreso_id ? String(filters.potrero_ingreso_id) : "all"}
+          options={[{ value: "all", label: "Todos" }, ...potreroOptions]}
           onChange={(value) =>
-            onChange({ lote_ingreso_id: value === "all" ? undefined : Number(value) })
+            onChange({ potrero_ingreso_id: value === "all" ? undefined : Number(value) })
           }
         />
       </div>

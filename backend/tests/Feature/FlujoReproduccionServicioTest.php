@@ -6,11 +6,11 @@ use App\Models\Almacen;
 use App\Models\AlmacenProducto;
 use App\Models\Animal;
 use App\Models\CategoriaAnimal;
-use App\Models\Establecimiento;
+use App\Models\Estancia;
 use App\Models\EstadoProductivo;
 use App\Models\Gestacion;
-use App\Models\Lote;
-use App\Models\Medicamento;
+use App\Models\Potrero;
+use App\Models\Producto;
 use App\Models\MovimientoInventario;
 use App\Models\Nacimiento;
 use App\Models\Parto;
@@ -92,10 +92,10 @@ class FlujoReproduccionServicioTest extends TestCase
         Sanctum::actingAs($this->userWithPermissions(['reproduccion.create', 'reproduccion.view', 'reproduccion.update']));
         [$hembra] = $this->parejaReproductora();
         $almacen = $this->almacen();
-        $producto = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
         app(InventarioService::class)->registrar([
             'almacen_id' => $almacen->id,
-            'medicamento_id' => $producto->id,
+            'producto_id' => $producto->id,
             'tipo' => MovimientoInventario::TIPO_INGRESO_COMPRA,
             'cantidad' => 3,
             'precio_unitario' => 12,
@@ -109,7 +109,7 @@ class FlujoReproduccionServicioTest extends TestCase
             'tipo_servicio' => ServicioReproductivo::TIPO_INSEMINACION_ARTIFICIAL,
             'resultado' => ServicioReproductivo::RESULTADO_PENDIENTE,
             'insumos' => [[
-                'medicamento_id' => $producto->id,
+                'producto_id' => $producto->id,
                 'almacen_id' => $almacen->id,
                 'cantidad' => 1,
             ]],
@@ -117,7 +117,7 @@ class FlujoReproduccionServicioTest extends TestCase
 
         $this->assertEquals(3, (float) AlmacenProducto::query()
             ->where('almacen_id', $almacen->id)
-            ->where('medicamento_id', $producto->id)
+            ->where('producto_id', $producto->id)
             ->value('stock'));
 
         $this->postJson("/api/servicios-reproductivos/{$servicio['id']}/confirmar-gestacion", [
@@ -126,7 +126,7 @@ class FlujoReproduccionServicioTest extends TestCase
 
         $this->assertEquals(2, (float) AlmacenProducto::query()
             ->where('almacen_id', $almacen->id)
-            ->where('medicamento_id', $producto->id)
+            ->where('producto_id', $producto->id)
             ->value('stock'));
 
         $this->postJson("/api/servicios-reproductivos/{$servicio['id']}/confirmar-gestacion", [
@@ -135,7 +135,7 @@ class FlujoReproduccionServicioTest extends TestCase
 
         $this->assertEquals(2, (float) AlmacenProducto::query()
             ->where('almacen_id', $almacen->id)
-            ->where('medicamento_id', $producto->id)
+            ->where('producto_id', $producto->id)
             ->value('stock'));
         $this->assertSame(1, Gestacion::query()->where('servicio_id', $servicio['id'])->count());
     }
@@ -303,7 +303,7 @@ class FlujoReproduccionServicioTest extends TestCase
         return Animal::factory()->create(array_merge([
             'raza_id' => Raza::query()->value('id'),
             'estado_productivo_id' => EstadoProductivo::query()->value('id'),
-            'lote_id' => Lote::query()->value('id'),
+            'potrero_id' => Potrero::query()->value('id'),
             'grupo_id' => null,
             'madre_id' => null,
             'padre_id' => null,
@@ -326,10 +326,10 @@ class FlujoReproduccionServicioTest extends TestCase
 
     private function almacen(): Almacen
     {
-        $estancia = Establecimiento::query()->firstOrFail();
+        $estancia = Estancia::query()->firstOrFail();
 
         return Almacen::query()->firstOrCreate(
-            ['establecimiento_id' => $estancia->id],
+            ['estancia_id' => $estancia->id],
             ['nombre' => 'Almacén '.$estancia->nombre, 'activo' => true]
         );
     }

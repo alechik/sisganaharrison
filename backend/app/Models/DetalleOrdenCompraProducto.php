@@ -11,7 +11,7 @@ class DetalleOrdenCompraProducto extends Model
 
     protected $fillable = [
         'orden_compra_id',
-        'medicamento_id',
+        'producto_id',
         'cantidad',
         'precio',
         'descuento',
@@ -37,10 +37,10 @@ class DetalleOrdenCompraProducto extends Model
     }
 
     /**
-     * @return BelongsTo<Medicamento, $this>
+     * @return BelongsTo<Producto, $this>
      */
-    public function medicamento(): BelongsTo
+    public function producto(): BelongsTo
     {
-        return $this->belongsTo(Medicamento::class);
+        return $this->belongsTo(Producto::class);
     }
 }

@@ -45,10 +45,10 @@ class EventoSanitarioController extends Controller
         $eventoSanitario->load([
             'tipoEvento:id,nombre,codigo',
             'usuario:id,nombre,apellido',
-            'detalles.animal:id,codigo,arete,lote_id',
-            'detalles.lote:id,nombre,codigo',
-            'detalles.medicamento:id,codigo,nombre,presentacion_id,precio',
-            'detalles.medicamento.presentacion:id,descripcion',
+            'detalles.animal:id,codigo,arete,potrero_id',
+            'detalles.potrero:id,nombre,codigo',
+            'detalles.producto:id,codigo,nombre,presentacion_id,precio',
+            'detalles.producto.presentacion:id,nombre',
             'detalles.almacen:id,nombre',
         ]);
 

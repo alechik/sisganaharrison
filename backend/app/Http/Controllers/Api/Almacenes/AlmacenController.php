@@ -34,7 +34,7 @@ class AlmacenController extends Controller
     public function show(Almacen $almacen): AlmacenResource
     {
         $this->authorize('view', $almacen);
-        $almacen->load('establecimiento:id,codigo,nombre');
+        $almacen->load('estancia:id,codigo,nombre');
 
         return new AlmacenResource($almacen);
     }

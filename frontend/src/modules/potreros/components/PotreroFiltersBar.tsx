@@ -2,7 +2,7 @@ import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import { POTRERO_SORT_OPTIONS } from "../constants";
-import { useActiveEstablecimientoOptions } from "../hooks";
+import { useActiveParcelaOptions } from "../hooks";
 import { PotreroFilters, PotreroSortDirection } from "../types";
 
 interface Props {
@@ -11,32 +11,32 @@ interface Props {
 }
 
 export default function PotreroFiltersBar({ filters, onChange }: Props) {
-  const { options: establecimientoOptions, loading: loadingEstablecimientos } =
-    useActiveEstablecimientoOptions();
+  const { options: parcelaOptions, loading: loadingParcelas } =
+    useActiveParcelaOptions();
 
   return (
     <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-5">
       <div>
         <Label>Búsqueda</Label>
         <DebouncedSearchField
-          placeholder="Nombre, código o pasto"
+          placeholder="Nombre, código u observaciones"
           value={filters.search ?? ""}
           onValueChange={(search) => onChange({ search })}
         />
       </div>
 
       <div>
-        <Label>Estancia</Label>
+        <Label>Parcela</Label>
         <Select
-          value={filters.establecimiento_id ? String(filters.establecimiento_id) : "all"}
-          placeholder={loadingEstablecimientos ? "Cargando..." : "Todos"}
+          value={filters.parcela_id ? String(filters.parcela_id) : "all"}
+          placeholder={loadingParcelas ? "Cargando..." : "Todos"}
           options={[
             { value: "all", label: "Todos" },
-            ...establecimientoOptions,
+            ...parcelaOptions,
           ]}
           onChange={(value) =>
             onChange({
-              establecimiento_id: value === "all" ? undefined : Number(value),
+              parcela_id: value === "all" ? undefined : Number(value),
             })
           }
         />

@@ -10,7 +10,7 @@ use App\Models\CuarentenaDetalle;
 use App\Models\DetalleIngreso;
 use App\Models\Grupo;
 use App\Models\Ingreso;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Persona;
 use App\Models\Pesaje;
 use App\Models\Raza;
@@ -41,11 +41,11 @@ class IngresoService
     private const RELATIONS = [
         'proveedor:id,razon_social,nit,email',
         'creador:id,nombre,apellido',
-        'lote:id,nombre,codigo',
-        'grupo:id,nombre,lote_id',
+        'potrero:id,nombre,codigo',
+        'grupo:id,nombre,potrero_id',
         'tipoIngreso:id,nombre,codigo,iniciales,requiere_proveedor',
         'cuarentena:id,cod_compra,estado,origen,proveedor_id,fecha_inicio,fecha_fin',
-        'detalles.animal:id,codigo,sexo,categoria_id,raza_id,arete,nombre,edad_inicial,edad_actual,precio_kilo,lote_id,color',
+        'detalles.animal:id,codigo,sexo,categoria_id,raza_id,arete,nombre,edad_inicial,edad_actual,precio_kilo,potrero_id,color',
         'detalles.animal.categoria:id,codigo,nombre',
         'detalles.animal.raza:id,codigo,nombre',
     ];
@@ -120,19 +120,19 @@ class IngresoService
 
         $this->assertProveedor($tipo, $data['proveedor_id'] ?? null);
 
-        if (! Lote::query()->whereKey((int) $data['lote_id'])->where('activo', true)->whereNull('deleted_at')->exists()) {
+        if (! Potrero::query()->whereKey((int) $data['potrero_id'])->where('activo', true)->whereNull('deleted_at')->exists()) {
             throw ValidationException::withMessages([
-                'lote_id' => 'El lote seleccionado no existe o no está activo.',
+                'potrero_id' => 'El potrero seleccionado no existe o no está activo.',
             ]);
         }
 
         $grupoId = isset($data['grupo_id']) && $data['grupo_id'] !== '' ? (int) $data['grupo_id'] : null;
         if ($grupoId === null) {
             throw ValidationException::withMessages([
-                'grupo_id' => 'Debe seleccionar un grupo perteneciente al lote.',
+                'grupo_id' => 'Debe seleccionar un grupo perteneciente al potrero.',
             ]);
         }
-        Grupo::assertCompatibleConLote($grupoId, (int) $data['lote_id']);
+        Grupo::assertCompatibleConPotrero($grupoId, (int) $data['potrero_id']);
 
         $detalles = $this->normalizeDetallesFisicos($data['detalles'] ?? []);
 
@@ -145,7 +145,7 @@ class IngresoService
                     : null,
                 'user_id' => Auth::id(),
                 'cuarentena_id' => null,
-                'lote_id' => (int) $data['lote_id'],
+                'potrero_id' => (int) $data['potrero_id'],
                 'grupo_id' => $grupoId,
                 'fecha_ingreso' => $data['fecha_ingreso'],
                 'estado' => Ingreso::ESTADO_REGISTRADO,
@@ -158,7 +158,7 @@ class IngresoService
             foreach ($detalles as $index => $linea) {
                 $animal = $this->animalService->crearDesdeIngresoFisico(
                     $linea,
-                    (int) $data['lote_id'],
+                    (int) $data['potrero_id'],
                     $grupoId,
                     (string) $data['fecha_ingreso'],
                     $index
@@ -183,7 +183,7 @@ class IngresoService
                         'ingreso_codigo' => $ingreso->codigo,
                         'tipo_ingreso_id' => $tipo->id,
                         'tipo_ingreso' => $tipo->codigo,
-                        'lote_id' => (int) $data['lote_id'],
+                        'potrero_id' => (int) $data['potrero_id'],
                         'grupo_id' => $grupoId,
                         'peso_ingreso' => (float) $linea['peso_ingreso'],
                         'precio_compra' => (float) ($linea['precio_compra'] ?? 0),
@@ -229,7 +229,7 @@ class IngresoService
             'detalles.animal.raza:id,nombre',
             'detalles.animal.categoria:id,codigo,nombre',
             'detalles.animal.estadoProductivo:id,nombre',
-            'detalles.animal.lote:id,nombre',
+            'detalles.animal.potrero:id,nombre',
             'detalles.animal.madre:id,nombre,codigo',
             'detalles.animal.padre:id,nombre,codigo',
         ]);
@@ -278,7 +278,7 @@ class IngresoService
                         'raza_id' => $animal->raza_id,
                         'categoria_id' => $animal->categoria_id,
                         'estado_productivo_id' => $animal->estado_productivo_id,
-                        'lote_id' => $animal->lote_id,
+                        'potrero_id' => $animal->potrero_id,
                         'madre_id' => $animal->madre_id,
                         'padre_id' => $animal->padre_id,
                         'color' => $animal->color,
@@ -342,8 +342,8 @@ class IngresoService
             $query->where('cuarentena_id', (int) $filters['cuarentena_id']);
         }
 
-        if (! empty($filters['lote_id'])) {
-            $query->where('lote_id', (int) $filters['lote_id']);
+        if (! empty($filters['potrero_id'])) {
+            $query->where('potrero_id', (int) $filters['potrero_id']);
         }
 
         if (! empty($filters['fecha'])) {

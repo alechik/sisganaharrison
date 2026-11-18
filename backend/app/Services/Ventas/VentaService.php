@@ -26,12 +26,12 @@ class VentaService
         'cliente:id,razon_social,nit,email',
         'creador:id,nombre,apellido',
         'autorizador:id,nombre,apellido',
-        'detalles.animal:id,codigo,arete,sexo,categoria_id,lote_id,estado',
+        'detalles.animal:id,codigo,arete,sexo,categoria_id,potrero_id,estado',
         'detalles.animal.categoria:id,codigo,nombre',
-        'detalles.animal.lote:id,nombre,codigo,potrero_id',
-        'detalles.animal.lote.potrero:id,nombre',
-        'detalles.lote:id,nombre,codigo,potrero_id',
-        'detalles.lote.potrero:id,nombre',
+        'detalles.animal.potrero:id,nombre,codigo,parcela_id',
+        'detalles.animal.potrero.parcela:id,nombre',
+        'detalles.potrero:id,nombre,codigo,parcela_id',
+        'detalles.potrero.parcela:id,nombre',
     ];
 
     public function __construct(
@@ -63,8 +63,8 @@ class VentaService
         $query = Animal::query()
             ->with([
                 'categoria:id,codigo,nombre',
-                'lote:id,nombre,codigo,potrero_id',
-                'lote.potrero:id,nombre',
+                'potrero:id,nombre,codigo,parcela_id',
+                'potrero.parcela:id,nombre',
                 'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
             ])
             ->whereNull('deleted_at')
@@ -78,12 +78,12 @@ class VentaService
                 }
             });
 
-        if (! empty($filters['potrero_id'])) {
-            $query->whereHas('lote', fn (Builder $builder) => $builder->where('potrero_id', (int) $filters['potrero_id']));
+        if (! empty($filters['parcela_id'])) {
+            $query->whereHas('potrero', fn (Builder $builder) => $builder->where('parcela_id', (int) $filters['parcela_id']));
         }
 
-        if (! empty($filters['lote_id'])) {
-            $query->where('lote_id', (int) $filters['lote_id']);
+        if (! empty($filters['potrero_id'])) {
+            $query->where('potrero_id', (int) $filters['potrero_id']);
         }
 
         if (! empty($filters['categoria_id'])) {
@@ -380,7 +380,7 @@ class VentaService
                 'animal_id' => $linea['animal_id'],
                 'cantidad' => 1,
                 'peso' => $linea['peso'],
-                'lote_id' => $animal?->lote_id,
+                'potrero_id' => $animal?->potrero_id,
                 'precio' => $linea['precio'],
                 'descuento' => $linea['descuento'],
                 'subtotal' => $linea['subtotal'],

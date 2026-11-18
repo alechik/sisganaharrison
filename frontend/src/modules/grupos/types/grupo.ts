@@ -1,8 +1,8 @@
 export interface Grupo {
   id: number;
-  lote_id: number;
-  lote_nombre?: string | null;
-  lote_codigo?: string | null;
+  potrero_id: number;
+  potrero_nombre?: string | null;
+  potrero_codigo?: string | null;
   nombre: string;
   observaciones: string | null;
   activo: boolean;
@@ -12,7 +12,7 @@ export interface Grupo {
 }
 
 export interface GrupoCreateRequest {
-  lote_id: number;
+  potrero_id: number;
   nombre: string;
   observaciones?: string | null;
 }
@@ -23,7 +23,7 @@ export interface GrupoListParams {
   page?: number;
   per_page?: number;
   search?: string;
-  lote_id?: number;
+  potrero_id?: number;
   activo?: boolean;
   sort_by?: string;
   sort_dir?: "asc" | "desc";

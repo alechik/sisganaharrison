@@ -24,11 +24,11 @@ class PesajeService
 
     private const RELATIONS = [
         'usuario:id,nombre,apellido',
-        'detalles.animal:id,codigo,arete,lote_id,estado',
-        'detalles.lote:id,nombre,codigo,potrero_id',
-        'detalles.lote.potrero:id,nombre',
-        'detalles.animal.lote:id,nombre,codigo,potrero_id',
-        'detalles.animal.lote.potrero:id,nombre',
+        'detalles.animal:id,codigo,arete,potrero_id,estado',
+        'detalles.potrero:id,nombre,codigo,parcela_id',
+        'detalles.potrero.parcela:id,nombre',
+        'detalles.animal.potrero:id,nombre,codigo,parcela_id',
+        'detalles.animal.potrero.parcela:id,nombre',
     ];
 
     /**
@@ -61,8 +61,8 @@ class PesajeService
         return Animal::query()
             ->with([
                 'categoria:id,codigo,nombre',
-                'lote:id,nombre,codigo,potrero_id',
-                'lote.potrero:id,nombre',
+                'potrero:id,nombre,codigo,parcela_id',
+                'potrero.parcela:id,nombre',
                 'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
             ])
             ->whereNull('deleted_at')
@@ -129,7 +129,7 @@ class PesajeService
     public function create(array $data): Pesaje
     {
         return DB::transaction(function () use ($data) {
-            $detalles = $this->normalizeDetalles($data['detalles'] ?? [], requireLote: true);
+            $detalles = $this->normalizeDetalles($data['detalles'] ?? [], requirePotrero: true);
 
             return $this->persistirSesion(
                 (string) $data['fecha_pesaje'],
@@ -156,7 +156,7 @@ class PesajeService
         foreach ($ingreso->detalles as $linea) {
             $detalles[] = [
                 'animal_id' => (int) $linea->animal_id,
-                'lote_id' => $ingreso->lote_id,
+                'potrero_id' => $ingreso->potrero_id,
                 'peso' => round((float) $linea->peso_ingreso, 2),
             ];
         }
@@ -202,7 +202,7 @@ class PesajeService
             $observacion,
             [[
                 'animal_id' => $animal->id,
-                'lote_id' => $animal->lote_id,
+                'potrero_id' => $animal->potrero_id,
                 'peso' => round($peso, 2),
             ]],
             $userId ?? Auth::id()
@@ -231,7 +231,7 @@ class PesajeService
             $observacion,
             [[
                 'animal_id' => $animal->id,
-                'lote_id' => $animal->lote_id,
+                'potrero_id' => $animal->potrero_id,
                 'peso' => round($peso, 2),
             ]],
             Auth::id() ?? $animal->user_id
@@ -285,9 +285,9 @@ class PesajeService
 
     /**
      * @param  array<int, array<string, mixed>>  $detalles
-     * @return list<array{animal_id: int, lote_id: int|null, peso: float}>
+     * @return list<array{animal_id: int, potrero_id: int|null, peso: float}>
      */
-    private function normalizeDetalles(array $detalles, bool $requireLote = false): array
+    private function normalizeDetalles(array $detalles, bool $requirePotrero = false): array
     {
         if ($detalles === []) {
             throw ValidationException::withMessages([
@@ -324,7 +324,7 @@ class PesajeService
             $ids[] = $animalId;
             $normalizados[] = [
                 'animal_id' => $animalId,
-                'lote_id' => isset($linea['lote_id']) ? (int) $linea['lote_id'] : null,
+                'potrero_id' => isset($linea['potrero_id']) ? (int) $linea['potrero_id'] : null,
                 'peso' => $peso,
             ];
         }
@@ -344,27 +344,27 @@ class PesajeService
                 ]);
             }
 
-            if ($requireLote && $animal->estado !== Animal::ESTADO_ACTIVO) {
+            if ($requirePotrero && $animal->estado !== Animal::ESTADO_ACTIVO) {
                 throw ValidationException::withMessages([
                     "detalles.$index.animal_id" => 'El animal seleccionado no está activo.',
                 ]);
             }
 
-            $loteId = $animal->lote_id;
-            if ($requireLote && ! $loteId) {
+            $potreroId = $animal->potrero_id;
+            if ($requirePotrero && ! $potreroId) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.animal_id" => 'El animal no tiene un lote asignado.',
+                    "detalles.$index.animal_id" => 'El animal no tiene un potrero asignado.',
                 ]);
             }
 
-            $normalizados[$index]['lote_id'] = $loteId;
+            $normalizados[$index]['potrero_id'] = $potreroId;
         }
 
         return $normalizados;
     }
 
     /**
-     * @param  list<array{animal_id: int, lote_id: int|null, peso: float}>  $detalles
+     * @param  list<array{animal_id: int, potrero_id: int|null, peso: float}>  $detalles
      */
     private function persistirSesion(
         string $fecha,
@@ -392,7 +392,7 @@ class PesajeService
             foreach ($detalles as $linea) {
                 $pesaje->detalles()->create([
                     'animal_id' => $linea['animal_id'],
-                    'lote_id' => $linea['lote_id'],
+                    'potrero_id' => $linea['potrero_id'],
                     'peso' => $linea['peso'],
                 ]);
             }
@@ -453,8 +453,8 @@ class PesajeService
         $animal = $arete !== ''
             ? Animal::query()
                 ->with([
-                    'lote:id,nombre,codigo,potrero_id',
-                    'lote.potrero:id,nombre',
+                    'potrero:id,nombre,codigo,parcela_id',
+                    'potrero.parcela:id,nombre',
                 ])
                 ->whereNull('deleted_at')
                 ->whereRaw('UPPER(BTRIM(arete)) = ?', [$arete])
@@ -469,8 +469,8 @@ class PesajeService
             $errores[] = 'El animal no está activo.';
         }
 
-        if ($animal && ! $animal->lote_id) {
-            $errores[] = 'El animal no tiene un lote asignado.';
+        if ($animal && ! $animal->potrero_id) {
+            $errores[] = 'El animal no tiene un potrero asignado.';
         }
 
         return [
@@ -479,9 +479,9 @@ class PesajeService
             'peso_kg' => $peso,
             'animal_id' => $animal?->id,
             'animal_codigo' => $animal?->codigo,
-            'lote_id' => $animal?->lote_id,
-            'lote_nombre' => $animal?->lote?->nombre,
-            'potrero_nombre' => $animal?->lote?->potrero?->nombre,
+            'potrero_id' => $animal?->potrero_id,
+            'potrero_nombre' => $animal?->potrero?->nombre,
+            'parcela_nombre' => $animal?->potrero?->parcela?->nombre,
             'errores' => $errores,
             'valida' => $errores === [],
         ];

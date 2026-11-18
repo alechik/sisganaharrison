@@ -61,7 +61,7 @@ class ReporteService
             ->leftJoin('razas', 'razas.id', '=', 'animales.raza_id')
             ->leftJoin('categorias_animales', 'categorias_animales.id', '=', 'animales.categoria_id')
             ->leftJoin('estados_productivos', 'estados_productivos.id', '=', 'animales.estado_productivo_id')
-            ->leftJoin('lotes', 'lotes.id', '=', 'animales.lote_id')
+            ->leftJoin('potreros', 'potreros.id', '=', 'animales.potrero_id')
             ->select([
                 'animales.codigo',
                 'animales.arete',
@@ -71,7 +71,7 @@ class ReporteService
             ->selectRaw("COALESCE(razas.nombre, '—') as raza")
             ->selectRaw("COALESCE(categorias_animales.nombre, '—') as categoria")
             ->selectRaw("COALESCE(estados_productivos.nombre, '—') as estado_productivo")
-            ->selectRaw("COALESCE(lotes.nombre, '—') as lote")
+            ->selectRaw("COALESCE(potreros.nombre, '—') as potrero")
             ->orderBy('animales.codigo');
 
         return $this->envoltorio(
@@ -106,13 +106,13 @@ class ReporteService
                     'Por estado productivo',
                 ),
                 $this->grupoJoin(
-                    (clone $query)->leftJoin('lotes', 'lotes.id', '=', 'animales.lote_id'),
-                    "COALESCE(lotes.nombre, 'Sin lote')",
-                    [DB::raw("COALESCE(lotes.nombre, 'Sin lote')")],
-                    'Por lote',
+                    (clone $query)->leftJoin('potreros', 'potreros.id', '=', 'animales.potrero_id'),
+                    "COALESCE(potreros.nombre, 'Sin potrero')",
+                    [DB::raw("COALESCE(potreros.nombre, 'Sin potrero')")],
+                    'Por potrero',
                 ),
             ],
-            $this->paginar($detalle, $filtros, $total, ['Código', 'Arete', 'Sexo', 'Raza', 'Categoría', 'Estado productivo', 'Estado', 'Lote'], function ($row) {
+            $this->paginar($detalle, $filtros, $total, ['Código', 'Arete', 'Sexo', 'Raza', 'Categoría', 'Estado productivo', 'Estado', 'Potrero'], function ($row) {
                 return [
                     (string) $row->codigo,
                     (string) ($row->arete ?: '—'),
@@ -121,7 +121,7 @@ class ReporteService
                     (string) $row->categoria,
                     (string) $row->estado_productivo,
                     (string) $row->estado,
-                    (string) $row->lote,
+                    (string) $row->potrero,
                 ];
             }),
         );
@@ -152,8 +152,8 @@ class ReporteService
         if (! empty($filtros['estado_productivo_id'])) {
             $query->where('animales.estado_productivo_id', $filtros['estado_productivo_id']);
         }
-        if (! empty($filtros['lote_id'])) {
-            $query->where('animales.lote_id', $filtros['lote_id']);
+        if (! empty($filtros['potrero_id'])) {
+            $query->where('animales.potrero_id', $filtros['potrero_id']);
         }
 
         return $query;
@@ -175,14 +175,14 @@ class ReporteService
         $detalle = (clone $detalles)
             ->join('animales', 'animales.id', '=', 'detalle_eventos_sanitarios.animal_id')
             ->join('tipos_eventos_sanitarios', 'tipos_eventos_sanitarios.id', '=', 'eventos_sanitarios.tipo_evento_id')
-            ->leftJoin('medicamentos', 'medicamentos.id', '=', 'detalle_eventos_sanitarios.medicamento_id')
+            ->leftJoin('productos', 'productos.id', '=', 'detalle_eventos_sanitarios.producto_id')
             ->select([
                 'eventos_sanitarios.fecha',
                 'animales.codigo',
                 'tipos_eventos_sanitarios.nombre as tipo',
                 'eventos_sanitarios.diagnostico',
             ])
-            ->selectRaw("COALESCE(medicamentos.nombre, '—') as medicamento")
+            ->selectRaw("COALESCE(productos.nombre, '—') as producto")
             ->orderByDesc('eventos_sanitarios.fecha')
             ->orderBy('animales.codigo');
 
@@ -203,12 +203,12 @@ class ReporteService
                     'Eventos por tipo',
                 ),
             ],
-            $this->paginar($detalle, $filtros, $totalAplicaciones, ['Fecha', 'Animal', 'Tipo', 'Medicamento', 'Diagnóstico'], function ($row) {
+            $this->paginar($detalle, $filtros, $totalAplicaciones, ['Fecha', 'Animal', 'Tipo', 'Producto', 'Diagnóstico'], function ($row) {
                 return [
                     $this->fecha($row->fecha),
                     (string) $row->codigo,
                     (string) $row->tipo,
-                    (string) $row->medicamento,
+                    (string) $row->producto,
                     (string) ($row->diagnostico ?: '—'),
                 ];
             }),
@@ -386,20 +386,20 @@ class ReporteService
         $ingresos = DB::table('detalle_ingresos')
             ->join('ingresos', 'ingresos.id', '=', 'detalle_ingresos.ingreso_id')
             ->join('animales', 'animales.id', '=', 'detalle_ingresos.animal_id')
-            ->leftJoin('lotes', 'lotes.id', '=', 'ingresos.lote_id')
+            ->leftJoin('potreros', 'potreros.id', '=', 'ingresos.potrero_id')
             ->whereDate('ingresos.fecha_ingreso', '>=', $desde)
             ->whereDate('ingresos.fecha_ingreso', '<=', $hasta)
             ->selectRaw('ingresos.fecha_ingreso as fecha')
             ->selectRaw('ingresos.codigo as documento')
             ->selectRaw("'Ingreso' as tipo")
             ->selectRaw('animales.codigo as animal')
-            ->selectRaw("COALESCE(lotes.nombre, '—') as detalle");
+            ->selectRaw("COALESCE(potreros.nombre, '—') as detalle");
 
         $traspasos = DB::table('detalle_traspasos')
             ->join('traspasos', 'traspasos.id', '=', 'detalle_traspasos.traspaso_id')
             ->join('animales', 'animales.id', '=', 'detalle_traspasos.animal_id')
-            ->join('lotes as origen', 'origen.id', '=', 'traspasos.lote_salida_id')
-            ->join('lotes as destino', 'destino.id', '=', 'traspasos.lote_ingreso_id')
+            ->join('potreros as origen', 'origen.id', '=', 'traspasos.potrero_salida_id')
+            ->join('potreros as destino', 'destino.id', '=', 'traspasos.potrero_ingreso_id')
             ->whereDate('traspasos.fecha_traspaso', '>=', $desde)
             ->whereDate('traspasos.fecha_traspaso', '<=', $hasta)
             ->selectRaw('traspasos.fecha_traspaso as fecha')
@@ -564,7 +564,7 @@ class ReporteService
         if (! empty($filtros['sexo'])) {
             $filas[] = ['etiqueta' => 'Sexo', 'valor' => $filtros['sexo'] === 'M' ? 'Machos' : 'Hembras'];
         }
-        foreach (['raza_id' => 'Raza', 'categoria_id' => 'Categoría', 'estado_productivo_id' => 'Estado productivo', 'lote_id' => 'Lote'] as $key => $etiqueta) {
+        foreach (['raza_id' => 'Raza', 'categoria_id' => 'Categoría', 'estado_productivo_id' => 'Estado productivo', 'potrero_id' => 'Potrero'] as $key => $etiqueta) {
             if (! empty($filtros[$key])) {
                 $filas[] = ['etiqueta' => $etiqueta, 'valor' => '#'.$filtros[$key]];
             }

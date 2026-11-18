@@ -7,8 +7,8 @@
             <td><strong>Fecha:</strong> {{ $traspaso->fecha_traspaso?->format('d/m/Y') }}</td>
         </tr>
         <tr>
-            <td><strong>Lote de salida:</strong> {{ $traspaso->loteSalida?->codigo }} — {{ $traspaso->loteSalida?->nombre }}</td>
-            <td><strong>Lote de ingreso:</strong> {{ $traspaso->loteIngreso?->codigo }} — {{ $traspaso->loteIngreso?->nombre }}</td>
+            <td><strong>Potrero de salida:</strong> {{ $traspaso->potreroSalida?->codigo }} — {{ $traspaso->potreroSalida?->nombre }}</td>
+            <td><strong>Potrero de ingreso:</strong> {{ $traspaso->potreroIngreso?->codigo }} — {{ $traspaso->potreroIngreso?->nombre }}</td>
         </tr>
         <tr>
             <td colspan="2"><strong>Usuario:</strong> {{ trim(($traspaso->usuario?->nombre ?? '').' '.($traspaso->usuario?->apellido ?? '')) ?: '—' }}</td>

@@ -73,8 +73,8 @@ export default function AnimalSearchField({ excludedIds, onSelect, disabled }: P
                 <span className="font-medium">{animal.codigo}</span>
                 {animal.arete ? ` · ${animal.arete}` : ""}
                 <span className="block text-xs text-gray-500">
-                  {animal.lote_nombre || "Sin potrero"}
-                  {animal.potrero_nombre ? ` · ${animal.potrero_nombre}` : ""}
+                  {animal.potrero_nombre || "Sin potrero"}
+                  {animal.parcela_nombre ? ` · ${animal.parcela_nombre}` : ""}
                 </span>
               </button>
             </li>

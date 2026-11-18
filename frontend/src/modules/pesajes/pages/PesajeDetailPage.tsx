@@ -122,8 +122,8 @@ export default function PesajeDetailPage() {
                 <TableCell className="px-4 py-3">
                   {formatAnimalLabel(detalle.animal_codigo, detalle.animal_arete)}
                 </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500">{detalle.lote_nombre || "—"}</TableCell>
                 <TableCell className="px-4 py-3 text-gray-500">{detalle.potrero_nombre || "—"}</TableCell>
+                <TableCell className="px-4 py-3 text-gray-500">{detalle.parcela_nombre || "—"}</TableCell>
                 <TableCell className="px-4 py-3">{formatPeso(detalle.peso)}</TableCell>
               </TableRow>
             ))}

@@ -21,7 +21,7 @@ export const getAlmacenes = async (params: AlmacenListParams = {}, signal?: Abor
       page: params.page ?? 1,
       per_page: params.per_page ?? 10,
       search: params.search || undefined,
-      establecimiento_id: params.establecimiento_id,
+      estancia_id: params.estancia_id,
       activo: params.activo,
       sort_by: params.sort_by,
       sort_dir: params.sort_dir,

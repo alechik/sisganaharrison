@@ -12,8 +12,8 @@ use App\Models\EstadoProductivo;
 use App\Models\EventoSanitario;
 use App\Models\Gestacion;
 use App\Models\Ingreso;
-use App\Models\Lote;
-use App\Models\Medicamento;
+use App\Models\Potrero;
+use App\Models\Producto;
 use App\Models\Nacimiento;
 use App\Models\Parto;
 use App\Models\Pesaje;
@@ -101,7 +101,7 @@ class DashboardEstrategicoTest extends TestCase
 
         $ingreso = Ingreso::factory()->create([
             'fecha_ingreso' => '1998-07-05',
-            'lote_id' => $hembra->lote_id,
+            'potrero_id' => $hembra->potrero_id,
         ]);
         DetalleIngreso::query()->create([
             'ingreso_id' => $ingreso->id,
@@ -115,7 +115,7 @@ class DashboardEstrategicoTest extends TestCase
             'codigo' => 'VAC'.strtoupper(substr(uniqid(), -5)),
             'nombre' => 'Vacunación de prueba',
         ]);
-        $medicamento = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
         foreach (['1998-07-20', '1998-07-21'] as $fecha) {
             $evento = EventoSanitario::factory()->create([
                 'tipo_evento_id' => $tipo->id,
@@ -124,10 +124,10 @@ class DashboardEstrategicoTest extends TestCase
             DetalleEventoSanitario::query()->create([
                 'evento_sanitario_id' => $evento->id,
                 'animal_id' => $hembra->id,
-                'lote_id' => $hembra->lote_id,
-                'medicamento_id' => $medicamento->id,
+                'potrero_id' => $hembra->potrero_id,
+                'producto_id' => $producto->id,
                 'peso_animal' => 400,
-                'precio_medicamento' => 10,
+                'precio_producto' => 10,
             ]);
         }
 
@@ -136,13 +136,13 @@ class DashboardEstrategicoTest extends TestCase
         DetallePesaje::query()->create([
             'pesaje_id' => $primero->id,
             'animal_id' => $hembra->id,
-            'lote_id' => $hembra->lote_id,
+            'potrero_id' => $hembra->potrero_id,
             'peso' => 400,
         ]);
         DetallePesaje::query()->create([
             'pesaje_id' => $segundo->id,
             'animal_id' => $hembra->id,
-            'lote_id' => $hembra->lote_id,
+            'potrero_id' => $hembra->potrero_id,
             'peso' => 430,
         ]);
 
@@ -185,7 +185,7 @@ class DashboardEstrategicoTest extends TestCase
     private function animal(array $attributes = []): Animal
     {
         return Animal::factory()->create(array_merge([
-            'lote_id' => Lote::query()->value('id'),
+            'potrero_id' => Potrero::query()->value('id'),
             'categoria_id' => CategoriaAnimal::query()->value('id'),
             'estado_productivo_id' => EstadoProductivo::query()->value('id'),
             'raza_id' => Raza::query()->value('id'),
@@ -204,7 +204,7 @@ class DashboardEstrategicoTest extends TestCase
             'animal_id' => $animal->id,
             'cantidad' => 1,
             'peso' => 300,
-            'lote_id' => $animal->lote_id,
+            'potrero_id' => $animal->potrero_id,
             'precio' => 0,
             'descuento' => 0,
             'subtotal' => 0,

@@ -48,7 +48,7 @@ export default function GrupoDetailPage() {
         <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Potrero</dt>
-            <dd className="font-medium text-gray-800 dark:text-white/90">{grupo.lote_nombre || "—"}</dd>
+            <dd className="font-medium text-gray-800 dark:text-white/90">{grupo.potrero_nombre || "—"}</dd>
           </div>
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Nombre</dt>

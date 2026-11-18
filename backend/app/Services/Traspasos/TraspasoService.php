@@ -5,7 +5,7 @@ namespace App\Services\Traspasos;
 use App\Models\Animal;
 use App\Models\DetallePesaje;
 use App\Models\DetalleTraspaso;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Traspaso;
 use App\Services\Documentos\PdfGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -22,8 +22,8 @@ class TraspasoService
 
     private const RELATIONS = [
         'usuario:id,nombre,apellido',
-        'loteSalida:id,codigo,nombre',
-        'loteIngreso:id,codigo,nombre',
+        'potreroSalida:id,codigo,nombre',
+        'potreroIngreso:id,codigo,nombre',
         'detalles.animal:id,codigo,arete,sexo,categoria_id',
         'detalles.animal.categoria:id,codigo,nombre',
     ];
@@ -54,9 +54,9 @@ class TraspasoService
      */
     public function animalesDisponibles(array $filters = []): Collection
     {
-        $loteId = (int) ($filters['lote_id'] ?? 0);
+        $potreroId = (int) ($filters['potrero_id'] ?? 0);
         $traspasoId = (int) ($filters['traspaso_id'] ?? 0);
-        if ($loteId < 1) {
+        if ($potreroId < 1) {
             return collect();
         }
 
@@ -67,14 +67,14 @@ class TraspasoService
         return Animal::query()
             ->with([
                 'categoria:id,codigo,nombre',
-                'lote:id,nombre,codigo,potrero_id',
-                'lote.potrero:id,nombre',
+                'potrero:id,nombre,codigo,parcela_id',
+                'potrero.parcela:id,nombre',
                 'detallesPesaje' => fn ($builder) => $builder->latest('id')->limit(1),
             ])
             ->whereNull('deleted_at')
             ->where('estado', Animal::ESTADO_ACTIVO)
-            ->where(function (Builder $builder) use ($loteId, $incluidos) {
-                $builder->where('lote_id', $loteId);
+            ->where(function (Builder $builder) use ($potreroId, $incluidos) {
+                $builder->where('potrero_id', $potreroId);
                 if ($incluidos !== []) {
                     $builder->orWhereIn('id', $incluidos);
                 }
@@ -89,16 +89,16 @@ class TraspasoService
     public function create(array $data): Traspaso
     {
         return DB::transaction(function () use ($data) {
-            $loteSalidaId = (int) $data['lote_salida_id'];
-            $loteIngresoId = (int) $data['lote_ingreso_id'];
+            $potreroSalidaId = (int) $data['potrero_salida_id'];
+            $potreroIngresoId = (int) $data['potrero_ingreso_id'];
 
-            $this->assertLotesDistintosYActivos($loteSalidaId, $loteIngresoId);
-            $lineas = $this->normalizeDetalles($data['detalles'] ?? [], $loteSalidaId);
+            $this->assertPotrerosDistintosYActivos($potreroSalidaId, $potreroIngresoId);
+            $lineas = $this->normalizeDetalles($data['detalles'] ?? [], $potreroSalidaId);
 
             $traspaso = Traspaso::query()->create([
                 'user_id' => Auth::id(),
-                'lote_salida_id' => $loteSalidaId,
-                'lote_ingreso_id' => $loteIngresoId,
+                'potrero_salida_id' => $potreroSalidaId,
+                'potrero_ingreso_id' => $potreroIngresoId,
                 'fecha_traspaso' => $data['fecha_traspaso'],
                 'observacion' => $data['observacion'] ?? null,
                 'total_peso' => 0,
@@ -118,7 +118,7 @@ class TraspasoService
 
             Animal::query()
                 ->whereIn('id', $animalIds)
-                ->update(['lote_id' => $loteIngresoId, 'grupo_id' => null]);
+                ->update(['potrero_id' => $potreroIngresoId, 'grupo_id' => null]);
 
             $traspaso->total_peso = round($totalPeso, 2);
             $traspaso->monto_total = round($montoTotal, 2);
@@ -137,19 +137,19 @@ class TraspasoService
             $traspaso = Traspaso::query()->lockForUpdate()->findOrFail($traspaso->id);
             $traspaso->load('detalles');
 
-            $loteSalidaAnterior = (int) $traspaso->lote_salida_id;
-            $loteIngresoAnterior = (int) $traspaso->lote_ingreso_id;
+            $potreroSalidaAnterior = (int) $traspaso->potrero_salida_id;
+            $potreroIngresoAnterior = (int) $traspaso->potrero_ingreso_id;
             $idsAnteriores = $traspaso->detalles->pluck('animal_id')->map(fn ($id) => (int) $id)->all();
 
-            $loteSalidaId = (int) $data['lote_salida_id'];
-            $loteIngresoId = (int) $data['lote_ingreso_id'];
-            $this->assertLotesDistintosYActivos($loteSalidaId, $loteIngresoId);
+            $potreroSalidaId = (int) $data['potrero_salida_id'];
+            $potreroIngresoId = (int) $data['potrero_ingreso_id'];
+            $this->assertPotrerosDistintosYActivos($potreroSalidaId, $potreroIngresoId);
 
             $lineas = $this->normalizeDetalles(
                 $data['detalles'] ?? [],
-                $loteSalidaId,
+                $potreroSalidaId,
                 $idsAnteriores,
-                $loteIngresoAnterior
+                $potreroIngresoAnterior
             );
             $idsNuevos = array_column($lineas, 'animal_id');
 
@@ -161,20 +161,20 @@ class TraspasoService
                 Animal::query()->whereIn('id', $removidos)->lockForUpdate()->get();
             }
 
-            $this->assertAnimalesEnLote($removidos, $loteIngresoAnterior, 'El animal ya no está en el lote de ingreso del traspaso y no puede revertirse.');
-            $this->assertAnimalesEnLote($conservados, $loteIngresoAnterior, 'El animal del traspaso ya no está en el lote de ingreso registrado.');
-            $this->assertAnimalesEnLote($agregados, $loteSalidaId, 'El animal no pertenece actualmente al lote de salida.');
+            $this->assertAnimalesEnPotrero($removidos, $potreroIngresoAnterior, 'El animal ya no está en el potrero de ingreso del traspaso y no puede revertirse.');
+            $this->assertAnimalesEnPotrero($conservados, $potreroIngresoAnterior, 'El animal del traspaso ya no está en el potrero de ingreso registrado.');
+            $this->assertAnimalesEnPotrero($agregados, $potreroSalidaId, 'El animal no pertenece actualmente al potrero de salida.');
 
             if ($removidos !== []) {
-                Animal::query()->whereIn('id', $removidos)->update(['lote_id' => $loteSalidaAnterior, 'grupo_id' => null]);
+                Animal::query()->whereIn('id', $removidos)->update(['potrero_id' => $potreroSalidaAnterior, 'grupo_id' => null]);
             }
 
             if ($agregados !== []) {
-                Animal::query()->whereIn('id', $agregados)->update(['lote_id' => $loteIngresoId, 'grupo_id' => null]);
+                Animal::query()->whereIn('id', $agregados)->update(['potrero_id' => $potreroIngresoId, 'grupo_id' => null]);
             }
 
-            if ($conservados !== [] && $loteIngresoAnterior !== $loteIngresoId) {
-                Animal::query()->whereIn('id', $conservados)->update(['lote_id' => $loteIngresoId, 'grupo_id' => null]);
+            if ($conservados !== [] && $potreroIngresoAnterior !== $potreroIngresoId) {
+                Animal::query()->whereIn('id', $conservados)->update(['potrero_id' => $potreroIngresoId, 'grupo_id' => null]);
             }
 
             $traspaso->detalles()->delete();
@@ -188,8 +188,8 @@ class TraspasoService
             }
 
             $traspaso->fill([
-                'lote_salida_id' => $loteSalidaId,
-                'lote_ingreso_id' => $loteIngresoId,
+                'potrero_salida_id' => $potreroSalidaId,
+                'potrero_ingreso_id' => $potreroIngresoId,
                 'fecha_traspaso' => $data['fecha_traspaso'],
                 'observacion' => $data['observacion'] ?? null,
                 'total_peso' => round($totalPeso, 2),
@@ -229,12 +229,12 @@ class TraspasoService
             $search = (string) $filters['search'];
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('observacion', 'ilike', '%'.$search.'%')
-                    ->orWhereHas('loteSalida', function (Builder $loteQuery) use ($search) {
-                        $loteQuery->where('nombre', 'ilike', '%'.$search.'%')
+                    ->orWhereHas('potreroSalida', function (Builder $potreroQuery) use ($search) {
+                        $potreroQuery->where('nombre', 'ilike', '%'.$search.'%')
                             ->orWhere('codigo', 'ilike', '%'.$search.'%');
                     })
-                    ->orWhereHas('loteIngreso', function (Builder $loteQuery) use ($search) {
-                        $loteQuery->where('nombre', 'ilike', '%'.$search.'%')
+                    ->orWhereHas('potreroIngreso', function (Builder $potreroQuery) use ($search) {
+                        $potreroQuery->where('nombre', 'ilike', '%'.$search.'%')
                             ->orWhere('codigo', 'ilike', '%'.$search.'%');
                     })
                     ->orWhereHas('detalles.animal', function (Builder $animalQuery) use ($search) {
@@ -244,12 +244,12 @@ class TraspasoService
             });
         }
 
-        if (! empty($filters['lote_salida_id'])) {
-            $query->where('lote_salida_id', (int) $filters['lote_salida_id']);
+        if (! empty($filters['potrero_salida_id'])) {
+            $query->where('potrero_salida_id', (int) $filters['potrero_salida_id']);
         }
 
-        if (! empty($filters['lote_ingreso_id'])) {
-            $query->where('lote_ingreso_id', (int) $filters['lote_ingreso_id']);
+        if (! empty($filters['potrero_ingreso_id'])) {
+            $query->where('potrero_ingreso_id', (int) $filters['potrero_ingreso_id']);
         }
 
         if (! empty($filters['fecha_desde'])) {
@@ -269,31 +269,31 @@ class TraspasoService
         return $query->orderBy($sortBy, $sortDir)->orderByDesc('id');
     }
 
-    private function assertLotesDistintosYActivos(int $loteSalidaId, int $loteIngresoId): void
+    private function assertPotrerosDistintosYActivos(int $potreroSalidaId, int $potreroIngresoId): void
     {
-        if ($loteSalidaId === $loteIngresoId) {
+        if ($potreroSalidaId === $potreroIngresoId) {
             throw ValidationException::withMessages([
-                'lote_ingreso_id' => 'El lote de salida y el de ingreso deben ser distintos.',
+                'potrero_ingreso_id' => 'El potrero de salida y el de ingreso deben ser distintos.',
             ]);
         }
 
-        $lotes = Lote::query()
-            ->whereIn('id', [$loteSalidaId, $loteIngresoId])
+        $potreros = Potrero::query()
+            ->whereIn('id', [$potreroSalidaId, $potreroIngresoId])
             ->where('activo', true)
             ->whereNull('deleted_at')
             ->lockForUpdate()
             ->get()
             ->keyBy('id');
 
-        if (! $lotes->has($loteSalidaId)) {
+        if (! $potreros->has($potreroSalidaId)) {
             throw ValidationException::withMessages([
-                'lote_salida_id' => 'El lote de salida no está activo o no existe.',
+                'potrero_salida_id' => 'El potrero de salida no está activo o no existe.',
             ]);
         }
 
-        if (! $lotes->has($loteIngresoId)) {
+        if (! $potreros->has($potreroIngresoId)) {
             throw ValidationException::withMessages([
-                'lote_ingreso_id' => 'El lote de ingreso no está activo o no existe.',
+                'potrero_ingreso_id' => 'El potrero de ingreso no está activo o no existe.',
             ]);
         }
     }
@@ -305,9 +305,9 @@ class TraspasoService
      */
     private function normalizeDetalles(
         array $detalles,
-        int $loteSalidaId,
+        int $potreroSalidaId,
         array $existentesEnTraspaso = [],
-        ?int $loteIngresoActual = null
+        ?int $potreroIngresoActual = null
     ): array
     {
         if ($detalles === []) {
@@ -359,14 +359,14 @@ class TraspasoService
             }
 
             if (in_array($animalId, $existentesEnTraspaso, true)) {
-                if ($loteIngresoActual === null || (int) $animal->lote_id !== $loteIngresoActual) {
+                if ($potreroIngresoActual === null || (int) $animal->potrero_id !== $potreroIngresoActual) {
                     throw ValidationException::withMessages([
-                        "detalles.$index.animal_id" => "El animal {$animal->codigo} ya no está en el lote de ingreso del traspaso.",
+                        "detalles.$index.animal_id" => "El animal {$animal->codigo} ya no está en el potrero de ingreso del traspaso.",
                     ]);
                 }
-            } elseif ((int) $animal->lote_id !== $loteSalidaId) {
+            } elseif ((int) $animal->potrero_id !== $potreroSalidaId) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.animal_id" => 'El animal no pertenece actualmente al lote de salida.',
+                    "detalles.$index.animal_id" => 'El animal no pertenece actualmente al potrero de salida.',
                 ]);
             }
 
@@ -402,7 +402,7 @@ class TraspasoService
     /**
      * @param  list<int>  $animalIds
      */
-    private function assertAnimalesEnLote(array $animalIds, int $loteId, string $mensaje): void
+    private function assertAnimalesEnPotrero(array $animalIds, int $potreroId, string $mensaje): void
     {
         if ($animalIds === []) {
             return;
@@ -410,9 +410,9 @@ class TraspasoService
 
         $fuera = Animal::query()
             ->whereIn('id', $animalIds)
-            ->where(function (Builder $builder) use ($loteId) {
-                $builder->where('lote_id', '!=', $loteId)
-                    ->orWhereNull('lote_id');
+            ->where(function (Builder $builder) use ($potreroId) {
+                $builder->where('potrero_id', '!=', $potreroId)
+                    ->orWhereNull('potrero_id');
             })
             ->pluck('codigo');
 

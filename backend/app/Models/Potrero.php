@@ -11,16 +11,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * División física del establecimiento destinada al pastoreo.
+ * Unidad operativa donde se agrupan animales.
  *
  * @property int $id
- * @property int $establecimiento_id
+ * @property int $parcela_id
  * @property string $codigo
  * @property string $nombre
+ * @property int $capacidad_animales
  * @property float|null $area_ha
- * @property string|null $tipo_pasto
- * @property bool $disponibilidad
- * @property string|null $descripcion
+ * @property string|null $observaciones
  * @property bool $activo
  */
 class Potrero extends Model
@@ -31,39 +30,46 @@ class Potrero extends Model
     protected $table = 'potreros';
 
     protected $fillable = [
-        'establecimiento_id',
+        'parcela_id',
         'codigo',
         'nombre',
+        'capacidad_animales',
         'area_ha',
-        'tipo_pasto',
-        'disponibilidad',
-        'descripcion',
+        'observaciones',
         'activo',
     ];
 
     protected function casts(): array
     {
         return [
+            'capacidad_animales' => 'integer',
             'area_ha' => 'decimal:2',
-            'disponibilidad' => 'boolean',
             'activo' => 'boolean',
         ];
     }
 
     /**
-     * @return BelongsTo<Establecimiento, $this>
+     * @return BelongsTo<Parcela, $this>
      */
-    public function establecimiento(): BelongsTo
+    public function parcela(): BelongsTo
     {
-        return $this->belongsTo(Establecimiento::class);
+        return $this->belongsTo(Parcela::class);
     }
 
     /**
-     * @return HasMany<Lote, $this>
+     * @return HasMany<Animal, $this>
      */
-    public function lotes(): HasMany
+    public function animales(): HasMany
     {
-        return $this->hasMany(Lote::class);
+        return $this->hasMany(Animal::class);
+    }
+
+    /**
+     * @return HasMany<Grupo, $this>
+     */
+    public function grupos(): HasMany
+    {
+        return $this->hasMany(Grupo::class);
     }
 
     /**

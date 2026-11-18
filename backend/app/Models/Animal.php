@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $raza_id
  * @property int $categoria_id
  * @property int|null $estado_productivo_id
- * @property int|null $lote_id
+ * @property int|null $potrero_id
  * @property int|null $madre_id
  * @property int|null $padre_id
  * @property string|null $color
@@ -54,7 +54,7 @@ class Animal extends Model
         'raza_id',
         'categoria_id',
         'estado_productivo_id',
-        'lote_id',
+        'potrero_id',
         'grupo_id',
         'madre_id',
         'padre_id',
@@ -138,11 +138,11 @@ class Animal extends Model
     }
 
     /**
-     * @return BelongsTo<Lote, $this>
+     * @return BelongsTo<Potrero, $this>
      */
-    public function lote(): BelongsTo
+    public function potrero(): BelongsTo
     {
-        return $this->belongsTo(Lote::class);
+        return $this->belongsTo(Potrero::class);
     }
 
     /**

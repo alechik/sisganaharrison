@@ -10,7 +10,7 @@ use App\Models\DetallePesaje;
 use App\Models\DetalleSalida;
 use App\Models\DetalleTraspaso;
 use App\Models\Gestacion;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Nacimiento;
 use App\Models\Parto;
 use App\Models\ServicioReproductivo;
@@ -150,20 +150,20 @@ class AnimalHistorialService
             return ((int) $a['proceso_id']) <=> ((int) $b['proceso_id']);
         });
 
-        $loteIds = array_filter([
-            $animal->lote_id,
-            ...array_column($crudos, 'origen_lote_id'),
-            ...array_column($crudos, 'destino_lote_id'),
+        $potreroIds = array_filter([
+            $animal->potrero_id,
+            ...array_column($crudos, 'origen_potrero_id'),
+            ...array_column($crudos, 'destino_potrero_id'),
         ]);
-        $lotes = $this->cargarLotes($loteIds);
+        $potreros = $this->cargarPotreros($potreroIds);
 
-        $historial = array_map(function (array $movimiento) use ($lotes): array {
+        $historial = array_map(function (array $movimiento) use ($potreros): array {
             return [
                 'fecha' => $movimiento['fecha'],
                 'tipo' => $movimiento['tipo'],
                 'tipo_nombre' => $movimiento['tipo_nombre'],
-                'origen' => $this->lugar($lotes->get($movimiento['origen_lote_id'])),
-                'destino' => $this->lugar($lotes->get($movimiento['destino_lote_id'])),
+                'origen' => $this->lugar($potreros->get($movimiento['origen_potrero_id'])),
+                'destino' => $this->lugar($potreros->get($movimiento['destino_potrero_id'])),
                 'referencia' => $movimiento['referencia'],
                 'observacion' => $movimiento['observacion'],
                 'usuario' => $movimiento['usuario'],
@@ -176,7 +176,7 @@ class AnimalHistorialService
 
         return [
             'actual' => [
-                'ubicacion' => $this->lugar($animal->lote_id !== null ? $lotes->get((int) $animal->lote_id) : null),
+                'ubicacion' => $this->lugar($animal->potrero_id !== null ? $potreros->get((int) $animal->potrero_id) : null),
                 'fecha_ultimo_cambio' => $ultimo,
             ],
             'historial' => $historial,
@@ -193,7 +193,7 @@ class AnimalHistorialService
             ->select(['id', 'ingreso_id', 'animal_id'])
             ->where('animal_id', $animal->id)
             ->with([
-                'ingreso:id,fecha_ingreso,lote_id,codigo,observaciones,user_id',
+                'ingreso:id,fecha_ingreso,potrero_id,codigo,observaciones,user_id',
                 'ingreso.creador:id,nombre,apellido',
             ])
             ->get()
@@ -204,8 +204,8 @@ class AnimalHistorialService
                     'fecha' => $this->formatDate($ingreso?->fecha_ingreso) ?? '',
                     'tipo' => 'COMPRA',
                     'tipo_nombre' => $nombreTipo('COMPRA', 'Compra'),
-                    'origen_lote_id' => null,
-                    'destino_lote_id' => $ingreso?->lote_id,
+                    'origen_potrero_id' => null,
+                    'destino_potrero_id' => $ingreso?->potrero_id,
                     'referencia' => $ingreso?->codigo,
                     'observacion' => $ingreso?->observaciones,
                     'usuario' => $this->nombreUsuario($ingreso?->creador),
@@ -226,7 +226,7 @@ class AnimalHistorialService
             ->select(['id', 'traspaso_id', 'animal_id'])
             ->where('animal_id', $animal->id)
             ->with([
-                'traspaso:id,fecha_traspaso,lote_salida_id,lote_ingreso_id,observacion,user_id',
+                'traspaso:id,fecha_traspaso,potrero_salida_id,potrero_ingreso_id,observacion,user_id',
                 'traspaso.usuario:id,nombre,apellido',
             ])
             ->get()
@@ -237,8 +237,8 @@ class AnimalHistorialService
                     'fecha' => $this->formatDate($traspaso?->fecha_traspaso) ?? '',
                     'tipo' => 'TRASLADO',
                     'tipo_nombre' => $nombreTipo('TRASLADO', 'Traslado'),
-                    'origen_lote_id' => $traspaso?->lote_salida_id,
-                    'destino_lote_id' => $traspaso?->lote_ingreso_id,
+                    'origen_potrero_id' => $traspaso?->potrero_salida_id,
+                    'destino_potrero_id' => $traspaso?->potrero_ingreso_id,
                     'referencia' => $traspaso ? 'TR-'.$traspaso->id : null,
                     'observacion' => $traspaso?->observacion,
                     'usuario' => $this->nombreUsuario($traspaso?->usuario),
@@ -256,7 +256,7 @@ class AnimalHistorialService
     private function movimientosSalida(Animal $animal, \Closure $nombreTipo): array
     {
         return DetalleSalida::query()
-            ->select(['id', 'salida_id', 'animal_id', 'lote_id'])
+            ->select(['id', 'salida_id', 'animal_id', 'potrero_id'])
             ->where('animal_id', $animal->id)
             ->with([
                 'salida:id,fecha_salida,tipo_salida_id,codigo,user_id',
@@ -281,8 +281,8 @@ class AnimalHistorialService
                     'fecha' => $this->formatDate($salida?->fecha_salida) ?? '',
                     'tipo' => $codigo,
                     'tipo_nombre' => $nombreTipo($codigo, $defecto),
-                    'origen_lote_id' => $detalle->lote_id,
-                    'destino_lote_id' => null,
+                    'origen_potrero_id' => $detalle->potrero_id,
+                    'destino_potrero_id' => null,
                     'referencia' => $salida?->codigo,
                     'observacion' => null,
                     'usuario' => $this->nombreUsuario($salida?->creador),
@@ -295,9 +295,9 @@ class AnimalHistorialService
 
     /**
      * @param  array<int, mixed>  $ids
-     * @return Collection<int, Lote>
+     * @return Collection<int, Potrero>
      */
-    private function cargarLotes(array $ids): Collection
+    private function cargarPotreros(array $ids): Collection
     {
         $ids = array_values(array_unique(array_filter(array_map(
             fn (mixed $id) => $id === null ? null : (int) $id,
@@ -308,10 +308,10 @@ class AnimalHistorialService
             return new Collection;
         }
 
-        return Lote::withTrashed()
+        return Potrero::withTrashed()
             ->with([
-                'potrero' => fn ($query) => $query->withTrashed()->with([
-                    'establecimiento' => fn ($query) => $query->withTrashed(),
+                'parcela' => fn ($query) => $query->withTrashed()->with([
+                    'estancia' => fn ($query) => $query->withTrashed(),
                 ]),
             ])
             ->whereIn('id', $ids)
@@ -320,19 +320,19 @@ class AnimalHistorialService
     }
 
     /**
-     * @return array{lote_id: int, lote_nombre: string, potrero_nombre: string|null, establecimiento_nombre: string|null}|null
+     * @return array{potrero_id: int, potrero_nombre: string, parcela_nombre: string|null, estancia_nombre: string|null}|null
      */
-    private function lugar(?Lote $lote): ?array
+    private function lugar(?Potrero $potrero): ?array
     {
-        if ($lote === null) {
+        if ($potrero === null) {
             return null;
         }
 
         return [
-            'lote_id' => $lote->id,
-            'lote_nombre' => $lote->nombre,
-            'potrero_nombre' => $lote->potrero?->nombre,
-            'establecimiento_nombre' => $lote->potrero?->establecimiento?->nombre,
+            'potrero_id' => $potrero->id,
+            'potrero_nombre' => $potrero->nombre,
+            'parcela_nombre' => $potrero->parcela?->nombre,
+            'estancia_nombre' => $potrero->parcela?->estancia?->nombre,
         ];
     }
 
@@ -377,9 +377,9 @@ class AnimalHistorialService
             ->select(['id', 'ingreso_id', 'animal_id', 'peso_ingreso', 'precio_compra'])
             ->where('animal_id', $animal->id)
             ->with([
-                'ingreso:id,fecha_ingreso,proveedor_id,lote_id,codigo',
+                'ingreso:id,fecha_ingreso,proveedor_id,potrero_id,codigo',
                 'ingreso.proveedor:id,razon_social',
-                'ingreso.lote:id,nombre',
+                'ingreso.potrero:id,nombre',
             ]);
 
         $this->filtrarFechaRelacion($query, 'ingreso', 'fecha_ingreso', $desde, $hasta);
@@ -388,7 +388,7 @@ class AnimalHistorialService
             $ingreso = $detalle->ingreso;
             $fecha = $this->formatDate($ingreso?->fecha_ingreso);
             $proveedor = $ingreso?->proveedor?->razon_social;
-            $lote = $ingreso?->lote?->nombre;
+            $potrero = $ingreso?->potrero?->nombre;
 
             return $this->item(
                 'ingreso-'.$detalle->id,
@@ -401,7 +401,7 @@ class AnimalHistorialService
                     'proveedor' => $proveedor,
                     'peso_ingreso' => $detalle->peso_ingreso !== null ? (float) $detalle->peso_ingreso : null,
                     'precio_compra' => $detalle->precio_compra !== null ? (float) $detalle->precio_compra : null,
-                    'lote' => $lote,
+                    'potrero' => $potrero,
                     'ingreso_codigo' => $ingreso?->codigo,
                 ],
                 'ingresos',
@@ -460,18 +460,18 @@ class AnimalHistorialService
     private function fromPesajes(Animal $animal, ?string $desde, ?string $hasta): array
     {
         $query = DetallePesaje::query()
-            ->select(['id', 'pesaje_id', 'animal_id', 'lote_id', 'peso'])
+            ->select(['id', 'pesaje_id', 'animal_id', 'potrero_id', 'peso'])
             ->where('animal_id', $animal->id)
             ->with([
                 'pesaje:id,fecha_pesaje',
-                'lote:id,nombre',
+                'potrero:id,nombre',
             ]);
 
         $this->filtrarFechaRelacion($query, 'pesaje', 'fecha_pesaje', $desde, $hasta);
 
         return $query->get()->map(function (DetallePesaje $detalle): array {
             $fecha = $this->formatDate($detalle->pesaje?->fecha_pesaje);
-            $lote = $detalle->lote?->nombre;
+            $potrero = $detalle->potrero?->nombre;
             $peso = $detalle->peso !== null ? (float) $detalle->peso : null;
 
             return $this->item(
@@ -479,11 +479,11 @@ class AnimalHistorialService
                 'PESAJE',
                 $fecha,
                 'Pesaje'.($peso !== null ? ' · '.$peso.' kg' : ''),
-                $lote ? 'Lote: '.$lote : null,
+                $potrero ? 'Potrero: '.$potrero : null,
                 [
                     'fecha_pesaje' => $fecha,
                     'peso' => $peso,
-                    'lote' => $lote,
+                    'potrero' => $potrero,
                 ],
                 'pesajes',
                 (int) ($detalle->pesaje?->id ?? $detalle->pesaje_id),
@@ -498,12 +498,12 @@ class AnimalHistorialService
     private function fromSanitarios(Animal $animal, ?string $desde, ?string $hasta): array
     {
         $query = DetalleEventoSanitario::query()
-            ->select(['id', 'evento_sanitario_id', 'animal_id', 'medicamento_id', 'peso_animal'])
+            ->select(['id', 'evento_sanitario_id', 'animal_id', 'producto_id', 'peso_animal'])
             ->where('animal_id', $animal->id)
             ->with([
                 'eventoSanitario:id,tipo_evento_id,fecha,diagnostico,tratamiento',
                 'eventoSanitario.tipoEvento:id,nombre',
-                'medicamento:id,nombre',
+                'producto:id,nombre',
             ]);
 
         $this->filtrarFechaRelacion($query, 'eventoSanitario', 'fecha', $desde, $hasta);
@@ -518,11 +518,11 @@ class AnimalHistorialService
                 'SANITARIO',
                 $fecha,
                 $tipo ? 'Evento sanitario · '.$tipo : 'Evento sanitario',
-                $detalle->medicamento?->nombre ? 'Medicamento: '.$detalle->medicamento->nombre : $evento?->diagnostico,
+                $detalle->producto?->nombre ? 'Producto: '.$detalle->producto->nombre : $evento?->diagnostico,
                 [
                     'fecha' => $fecha,
                     'tipo_evento' => $tipo,
-                    'medicamento' => $detalle->medicamento?->nombre,
+                    'producto' => $detalle->producto?->nombre,
                     'diagnostico' => $evento?->diagnostico,
                     'tratamiento' => $evento?->tratamiento,
                     'peso_animal' => $detalle->peso_animal !== null ? (float) $detalle->peso_animal : null,
@@ -678,29 +678,29 @@ class AnimalHistorialService
             ->select(['id', 'traspaso_id', 'animal_id'])
             ->where('animal_id', $animal->id)
             ->with([
-                'traspaso:id,fecha_traspaso,lote_salida_id,lote_ingreso_id',
-                'traspaso.loteSalida:id,nombre',
-                'traspaso.loteIngreso:id,nombre',
+                'traspaso:id,fecha_traspaso,potrero_salida_id,potrero_ingreso_id',
+                'traspaso.potreroSalida:id,nombre',
+                'traspaso.potreroIngreso:id,nombre',
             ]);
 
         $this->filtrarFechaRelacion($query, 'traspaso', 'fecha_traspaso', $desde, $hasta);
 
         return $query->get()->map(function (DetalleTraspaso $detalle): array {
             $traspaso = $detalle->traspaso;
-            $origen = $traspaso?->loteSalida?->nombre;
-            $destino = $traspaso?->loteIngreso?->nombre;
+            $origen = $traspaso?->potreroSalida?->nombre;
+            $destino = $traspaso?->potreroIngreso?->nombre;
             $fecha = $this->formatDate($traspaso?->fecha_traspaso);
 
             return $this->item(
                 'traspaso-'.$detalle->id,
                 'TRASPASO',
                 $fecha,
-                'Traspaso de lote',
+                'Traspaso de potrero',
                 ($origen || $destino) ? trim(($origen ?? '—').' → '.($destino ?? '—')) : null,
                 [
                     'fecha_traspaso' => $fecha,
-                    'lote_origen' => $origen,
-                    'lote_destino' => $destino,
+                    'potrero_origen' => $origen,
+                    'potrero_destino' => $destino,
                 ],
                 'traspasos',
                 (int) ($traspaso?->id ?? $detalle->traspaso_id),

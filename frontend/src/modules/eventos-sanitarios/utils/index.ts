@@ -9,7 +9,7 @@ export const defaultEventoSanitarioFilters = (): EventoSanitarioFilters => ({
   search: "",
   animal_id: undefined,
   tipo_evento_id: undefined,
-  medicamento_id: undefined,
+  producto_id: undefined,
   fecha_desde: "",
   fecha_hasta: "",
   sort_by: "fecha" as EventoSanitarioSortField,

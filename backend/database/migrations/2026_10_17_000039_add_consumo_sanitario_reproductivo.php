@@ -69,8 +69,8 @@ return new class extends Migration
                 ->constrained('servicios_reproductivos')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->foreignId('medicamento_id')
-                ->constrained('medicamentos')
+            $table->foreignId('producto_id')
+                ->constrained('productos')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->foreignId('almacen_id')
@@ -83,7 +83,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('servicio_id');
-            $table->index('medicamento_id');
+            $table->index('producto_id');
         });
     }
 

@@ -144,7 +144,7 @@ export default function IngresoProductoDetailPage() {
           </TableHeader>
           <TableBody>
             {(item.detalles ?? []).map((detalle) => (
-              <TableRow key={detalle.id ?? detalle.medicamento_id}>
+              <TableRow key={detalle.id ?? detalle.producto_id}>
                 <TableCell className="px-4 py-3">{detalle.producto_codigo || "—"}</TableCell>
                 <TableCell className="px-4 py-3">{detalle.producto_nombre || "—"}</TableCell>
                 <TableCell className="px-4 py-3">{detalle.unidad || "—"}</TableCell>

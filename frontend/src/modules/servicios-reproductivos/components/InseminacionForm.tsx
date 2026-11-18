@@ -19,7 +19,7 @@ interface LineState {
   animal_codigo: string;
   animal_arete: string;
   categoria_nombre: string;
-  lote_nombre: string;
+  potrero_nombre: string;
   peso: number | null;
   option: ReproAnimalOption | null;
 }
@@ -29,7 +29,7 @@ const emptyLine = (): LineState => ({
   animal_codigo: "",
   animal_arete: "",
   categoria_nombre: "",
-  lote_nombre: "",
+  potrero_nombre: "",
   peso: null,
   option: null,
 });
@@ -42,7 +42,7 @@ const fromAnimal = (animal: AnimalDisponibleRepro): LineState => ({
   animal_codigo: animal.codigo,
   animal_arete: animal.arete ?? "",
   categoria_nombre: animal.categoria_nombre ?? "",
-  lote_nombre: animal.lote_nombre ?? "",
+  potrero_nombre: animal.potrero_nombre ?? "",
   peso: animal.peso ?? null,
   option: animalToOption(animal),
 });
@@ -60,8 +60,8 @@ const fromExcel = (fila: InseminacionExcelFila): LineState => {
     codigo: fila.animal_codigo ?? "",
     arete: fila.codigo_arete,
     categoria_nombre: fila.categoria_nombre,
-    lote_id: fila.lote_id,
-    lote_nombre: fila.lote_nombre,
+    potrero_id: fila.potrero_id,
+    potrero_nombre: fila.potrero_nombre,
     peso: fila.peso,
   });
 };
@@ -163,7 +163,7 @@ export default function InseminacionForm() {
       const response = await create({
         fecha_servicio: fechaServicio,
         observaciones: observaciones || null,
-        medicamento_id: semen.value,
+        producto_id: semen.value,
         hembras: validLines.map((linea) => linea.animal_id as number),
       });
       if (response.data.length === 1) {
@@ -212,7 +212,7 @@ export default function InseminacionForm() {
           <div>
             <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90">Detalle de vacas</h3>
             <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-              Categoría, peso y lote se completan automáticamente.
+              Categoría, peso y potrero se completan automáticamente.
             </p>
           </div>
           <div className="inline-flex shrink-0 rounded-lg border border-gray-200 p-1 dark:border-white/[0.08]">
@@ -275,7 +275,7 @@ export default function InseminacionForm() {
                       <th className="w-24 px-2 py-2 font-medium">Arete</th>
                       <th className="px-2 py-2 font-medium">Categoría</th>
                       <th className="w-16 px-2 py-2 font-medium">Peso</th>
-                      <th className="px-2 py-2 font-medium">Lote</th>
+                      <th className="px-2 py-2 font-medium">Potrero</th>
                       <th className="px-2 py-2 font-medium">Estado</th>
                       <th className="w-16 px-2 py-2 font-medium"></th>
                     </tr>
@@ -296,7 +296,7 @@ export default function InseminacionForm() {
                         <td className="whitespace-nowrap px-2 py-2">
                           {fila.peso != null ? formatPeso(fila.peso) : "—"}
                         </td>
-                        <td className="px-2 py-2">{fila.lote_nombre || "—"}</td>
+                        <td className="px-2 py-2">{fila.potrero_nombre || "—"}</td>
                         <td className="px-2 py-2">{fila.valida ? "Lista" : fila.errores.join(" ")}</td>
                         <td className="px-2 py-2">
                           <button
@@ -356,8 +356,8 @@ export default function InseminacionForm() {
                   />
                 </div>
                 <div className="w-full shrink-0 sm:w-[9.5rem]">
-                  {index === 0 ? <Label>Lote</Label> : null}
-                  <InputField type="text" value={linea.lote_nombre} disabled />
+                  {index === 0 ? <Label>Potrero</Label> : null}
+                  <InputField type="text" value={linea.potrero_nombre} disabled />
                 </div>
                 <div className={`shrink-0 pb-2 ${index === 0 ? "sm:pb-0 sm:pt-6" : ""}`}>
                   {lines.length > 1 ? (

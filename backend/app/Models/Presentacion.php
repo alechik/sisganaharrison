@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Forma farmacéutica de un medicamento.
+ * Forma farmacéutica de un producto.
  *
  * @property int $id
- * @property string $descripcion
+ * @property string $nombre
  */
 class Presentacion extends Model
 {
@@ -23,7 +23,7 @@ class Presentacion extends Model
     protected $table = 'presentaciones';
 
     protected $fillable = [
-        'descripcion',
+        'nombre',
     ];
 
     /**
@@ -32,14 +32,14 @@ class Presentacion extends Model
      */
     public function scopeOrdenadas(Builder $query): Builder
     {
-        return $query->orderBy('descripcion');
+        return $query->orderBy('nombre');
     }
 
     /**
-     * @return HasMany<Medicamento, $this>
+     * @return HasMany<Producto, $this>
      */
-    public function medicamentos(): HasMany
+    public function productos(): HasMany
     {
-        return $this->hasMany(Medicamento::class, 'presentacion_id');
+        return $this->hasMany(Producto::class, 'presentacion_id');
     }
 }

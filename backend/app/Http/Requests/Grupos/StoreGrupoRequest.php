@@ -19,10 +19,10 @@ class StoreGrupoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'lote_id' => [
+            'potrero_id' => [
                 'required',
                 'integer',
-                Rule::exists('lotes', 'id')
+                Rule::exists('potreros', 'id')
                     ->whereNull('deleted_at')
                     ->where('activo', true),
             ],
@@ -31,7 +31,7 @@ class StoreGrupoRequest extends FormRequest
                 'string',
                 'max:100',
                 Rule::unique('grupos', 'nombre')
-                    ->where(fn ($query) => $query->where('lote_id', $this->input('lote_id'))->whereNull('deleted_at')),
+                    ->where(fn ($query) => $query->where('potrero_id', $this->input('potrero_id'))->whereNull('deleted_at')),
             ],
             'observaciones' => 'nullable|string|max:2000',
         ];
@@ -43,7 +43,7 @@ class StoreGrupoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'lote_id.exists' => 'El potrero seleccionado no existe o no está activo.',
+            'potrero_id.exists' => 'El potrero seleccionado no existe o no está activo.',
             'nombre.unique' => 'Ya existe un grupo con este nombre en el potrero.',
         ];
     }

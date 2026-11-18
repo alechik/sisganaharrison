@@ -47,8 +47,8 @@ export const getVenta = async (id: number): Promise<Venta> => {
 };
 
 export const getAnimalesDisponiblesVenta = async (params: {
+  parcela_id?: number;
   potrero_id?: number;
-  lote_id?: number;
   categoria_id?: number;
   venta_id?: number;
 }): Promise<AnimalDisponibleVenta[]> => {

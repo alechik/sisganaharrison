@@ -11,8 +11,8 @@ use App\Models\DetalleSalida;
 use App\Models\DetalleTraspaso;
 use App\Models\EventoSanitario;
 use App\Models\Ingreso;
-use App\Models\Lote;
-use App\Models\Medicamento;
+use App\Models\Potrero;
+use App\Models\Producto;
 use App\Models\Pesaje;
 use App\Models\Salida;
 use App\Models\Traspaso;
@@ -37,11 +37,11 @@ class AnimalHistorialTest extends TestCase
     {
         $user = $this->userWithPermission();
         $animal = Animal::factory()->create();
-        $loteDestino = Lote::factory()->create();
+        $potreroDestino = Potrero::factory()->create();
 
         $ingreso = Ingreso::factory()->create([
             'fecha_ingreso' => '2024-01-10',
-            'lote_id' => $animal->lote_id,
+            'potrero_id' => $animal->potrero_id,
             'user_id' => $user->id,
         ]);
         DetalleIngreso::query()->create([
@@ -65,7 +65,7 @@ class AnimalHistorialTest extends TestCase
         DetallePesaje::query()->create([
             'pesaje_id' => $pesaje->id,
             'animal_id' => $animal->id,
-            'lote_id' => $animal->lote_id,
+            'potrero_id' => $animal->potrero_id,
             'peso' => 280,
         ]);
 
@@ -78,16 +78,16 @@ class AnimalHistorialTest extends TestCase
         DetalleEventoSanitario::query()->create([
             'evento_sanitario_id' => $evento->id,
             'animal_id' => $animal->id,
-            'lote_id' => $animal->lote_id,
-            'medicamento_id' => Medicamento::factory()->create()->id,
+            'potrero_id' => $animal->potrero_id,
+            'producto_id' => Producto::factory()->create()->id,
             'peso_animal' => 275,
-            'precio_medicamento' => 40,
+            'precio_producto' => 40,
         ]);
 
         $traspaso = Traspaso::factory()->create([
             'user_id' => $user->id,
-            'lote_salida_id' => $animal->lote_id,
-            'lote_ingreso_id' => $loteDestino->id,
+            'potrero_salida_id' => $animal->potrero_id,
+            'potrero_ingreso_id' => $potreroDestino->id,
             'fecha_traspaso' => '2024-07-01',
             'total_peso' => 280,
             'monto_total' => 0,
@@ -110,7 +110,7 @@ class AnimalHistorialTest extends TestCase
             'animal_id' => $animal->id,
             'cantidad' => 1,
             'peso' => 300,
-            'lote_id' => $loteDestino->id,
+            'potrero_id' => $potreroDestino->id,
             'precio' => 0,
             'descuento' => 0,
             'subtotal' => 0,

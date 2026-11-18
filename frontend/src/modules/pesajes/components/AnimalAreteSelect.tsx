@@ -136,8 +136,8 @@ export default function AnimalAreteSelect({ value, excludedIds, onChange, disabl
             <span className="text-gray-500"> · {option.animal.codigo}</span>
           ) : null}
           <span className="mt-0.5 block text-xs text-gray-500">
-            {option.animal.lote_nombre || "Sin potrero"}
-            {option.animal.potrero_nombre ? ` · ${option.animal.potrero_nombre}` : ""}
+            {option.animal.potrero_nombre || "Sin potrero"}
+            {option.animal.parcela_nombre ? ` · ${option.animal.parcela_nombre}` : ""}
           </span>
         </div>
       )}

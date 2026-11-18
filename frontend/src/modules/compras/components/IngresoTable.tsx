@@ -35,7 +35,7 @@ export default function IngresoTable({ ingresos, meta, onPageChange, onDownloadP
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Fecha</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Tipo</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Proveedor / persona</TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Lote</TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Potrero</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Animales</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Peso ingreso</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start text-gray-800 dark:text-white">Monto</TableCell>
@@ -66,7 +66,7 @@ export default function IngresoTable({ ingresos, meta, onPageChange, onDownloadP
                     {item.proveedor_razon_social || "—"}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {item.lote_nombre || "—"}
+                    {item.potrero_nombre || "—"}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
                     {item.cantidad_total ?? 0}

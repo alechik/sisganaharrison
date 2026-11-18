@@ -17,13 +17,14 @@ class PresentacionSeeder extends Seeder
         'Bolus',
         'Pour-on',
         'Inyectable',
+        'Pajuela',
     ];
 
     public function run(): void
     {
-        foreach (self::PRESENTACIONES as $descripcion) {
-            Presentacion::firstOrCreate(
-                ['descripcion' => $descripcion]
+        foreach (self::PRESENTACIONES as $nombre) {
+            Presentacion::query()->updateOrCreate(
+                ['nombre' => $nombre]
             );
         }
     }

@@ -18,7 +18,7 @@ class Almacen extends Model
     protected $table = 'almacenes';
 
     protected $fillable = [
-        'establecimiento_id',
+        'estancia_id',
         'nombre',
         'direccion',
         'observacion',
@@ -42,11 +42,11 @@ class Almacen extends Model
     }
 
     /**
-     * @return BelongsTo<Establecimiento, $this>
+     * @return BelongsTo<Estancia, $this>
      */
-    public function establecimiento(): BelongsTo
+    public function estancia(): BelongsTo
     {
-        return $this->belongsTo(Establecimiento::class);
+        return $this->belongsTo(Estancia::class);
     }
 
     /**

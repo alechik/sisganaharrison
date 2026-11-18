@@ -34,11 +34,11 @@ export interface Ingreso {
   creador_nombre?: string | null;
   cuarentena_id?: number | null;
   cuarentena_codigo?: string | null;
-  lote_id: number;
-  lote_nombre?: string | null;
+  potrero_id: number;
+  potrero_nombre?: string | null;
   grupo_id?: number | null;
   grupo_nombre?: string | null;
-  lote_codigo?: string | null;
+  potrero_codigo?: string | null;
   cantidad_total?: number;
   detalles?: IngresoDetalle[];
   created_at?: string | null;
@@ -61,7 +61,7 @@ export interface IngresoDetalleRequest {
 export interface IngresoCreateRequest {
   tipo_ingreso_id: number;
   proveedor_id?: number | null;
-  lote_id: number;
+  potrero_id: number;
   grupo_id: number;
   fecha_ingreso: string;
   observaciones?: string | null;
@@ -102,7 +102,7 @@ export interface IngresoListParams {
   proveedor_id?: number;
   tipo_ingreso_id?: number;
   cuarentena_id?: number;
-  lote_id?: number;
+  potrero_id?: number;
   fecha?: string;
   sort_by?: string;
   sort_dir?: "asc" | "desc";

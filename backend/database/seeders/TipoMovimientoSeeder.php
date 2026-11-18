@@ -16,7 +16,7 @@ class TipoMovimientoSeeder extends Seeder
         [
             'codigo' => 'TRASLADO',
             'nombre' => 'Traslado',
-            'descripcion' => 'Movimiento de animales entre potreros, lotes o establecimientos.',
+            'descripcion' => 'Movimiento de animales entre parcelas, potreros o estancias.',
         ],
         [
             'codigo' => 'COMPRA',

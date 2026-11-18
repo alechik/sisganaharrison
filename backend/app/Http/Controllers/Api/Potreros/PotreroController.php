@@ -41,7 +41,7 @@ class PotreroController extends Controller
     {
         $this->authorize('view', $potrero);
 
-        $potrero->load('establecimiento:id,nombre');
+        $potrero->load('parcela:id,nombre');
 
         return new PotreroResource($potrero);
     }
@@ -62,7 +62,14 @@ class PotreroController extends Controller
     {
         $this->authorize('update', $potrero);
 
-        $potrero = $this->potreroService->update($potrero, $request->validated());
+        try {
+            $potrero = $this->potreroService->update($potrero, $request->validated());
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'errors' => $exception->errors(),
+            ], 422);
+        }
 
         return response()->json([
             'message' => 'Potrero actualizado correctamente',

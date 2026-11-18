@@ -16,24 +16,24 @@ class MovimientoInventarioConsultaService
     {
         $query = AlmacenProducto::query()
             ->with([
-                'almacen:id,nombre,establecimiento_id',
-                'almacen.establecimiento:id,nombre,codigo',
-                'medicamento:id,codigo,nombre,precio,presentacion_id,subcategoria_producto_id',
-                'medicamento.presentacion:id,descripcion',
-                'medicamento.subcategoria:id,nombre,categoria_producto_id',
-                'medicamento.subcategoria.categoria:id,nombre',
+                'almacen:id,nombre,estancia_id',
+                'almacen.estancia:id,nombre,codigo',
+                'producto:id,codigo,nombre,precio,presentacion_id,subcategoria_producto_id',
+                'producto.presentacion:id,nombre',
+                'producto.subcategoria:id,nombre,categoria_producto_id',
+                'producto.subcategoria.categoria:id,nombre',
             ]);
 
         if (! empty($filters['almacen_id'])) {
             $query->where('almacen_id', (int) $filters['almacen_id']);
         }
-        if (! empty($filters['medicamento_id'])) {
-            $query->where('medicamento_id', (int) $filters['medicamento_id']);
+        if (! empty($filters['producto_id'])) {
+            $query->where('producto_id', (int) $filters['producto_id']);
         }
         if (! empty($filters['search'])) {
             $search = (string) $filters['search'];
             $query->whereHas(
-                'medicamento',
+                'producto',
                 fn (Builder $q) => $q->where('nombre', 'ilike', '%'.$search.'%')->orWhere('codigo', 'ilike', '%'.$search.'%')
             );
         }
@@ -49,15 +49,15 @@ class MovimientoInventarioConsultaService
         $query = MovimientoInventario::query()
             ->with([
                 'almacen:id,nombre',
-                'medicamento:id,codigo,nombre,precio',
+                'producto:id,codigo,nombre,precio',
                 'usuario:id,nombre,apellido',
             ]);
 
         if (! empty($filters['almacen_id'])) {
             $query->where('almacen_id', (int) $filters['almacen_id']);
         }
-        if (! empty($filters['medicamento_id'])) {
-            $query->where('medicamento_id', (int) $filters['medicamento_id']);
+        if (! empty($filters['producto_id'])) {
+            $query->where('producto_id', (int) $filters['producto_id']);
         }
         if (! empty($filters['tipo'])) {
             $query->where('tipo', $filters['tipo']);
@@ -67,7 +67,7 @@ class MovimientoInventarioConsultaService
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('observaciones', 'ilike', '%'.$search.'%')
                     ->orWhere('origen_type', 'ilike', '%'.$search.'%')
-                    ->orWhereHas('medicamento', fn (Builder $q) => $q->where('nombre', 'ilike', '%'.$search.'%')->orWhere('codigo', 'ilike', '%'.$search.'%'));
+                    ->orWhereHas('producto', fn (Builder $q) => $q->where('nombre', 'ilike', '%'.$search.'%')->orWhere('codigo', 'ilike', '%'.$search.'%'));
             });
         }
 

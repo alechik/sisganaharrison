@@ -74,7 +74,7 @@ class PermissionSeeder extends Seeder
         'categorias_animales.restore',
         'categorias_animales.activate',
 
-        // Vacunas (histórico; Sanidad usa medicamentos)
+        // Vacunas (histórico; Sanidad usa productos)
         'vacunas.view',
         'vacunas.create',
         'vacunas.update',
@@ -89,13 +89,13 @@ class PermissionSeeder extends Seeder
         'presentaciones.delete',
         'presentaciones.restore',
 
-        // Medicamentos
-        'medicamentos.view',
-        'medicamentos.create',
-        'medicamentos.update',
-        'medicamentos.delete',
-        'medicamentos.restore',
-        'medicamentos.activate',
+        // Productos
+        'productos.view',
+        'productos.create',
+        'productos.update',
+        'productos.delete',
+        'productos.restore',
+        'productos.activate',
 
         'categorias_productos.view',
         'categorias_productos.create',
@@ -170,13 +170,21 @@ class PermissionSeeder extends Seeder
         'tipos_ingresos.restore',
         'tipos_ingresos.activate',
 
-        // Establecimientos
-        'establecimientos.view',
-        'establecimientos.create',
-        'establecimientos.update',
-        'establecimientos.delete',
-        'establecimientos.restore',
-        'establecimientos.activate',
+        // Estancias
+        'estancias.view',
+        'estancias.create',
+        'estancias.update',
+        'estancias.delete',
+        'estancias.restore',
+        'estancias.activate',
+
+        // Parcelas
+        'parcelas.view',
+        'parcelas.create',
+        'parcelas.update',
+        'parcelas.delete',
+        'parcelas.restore',
+        'parcelas.activate',
 
         // Potreros
         'potreros.view',
@@ -185,14 +193,6 @@ class PermissionSeeder extends Seeder
         'potreros.delete',
         'potreros.restore',
         'potreros.activate',
-
-        // Lotes
-        'lotes.view',
-        'lotes.create',
-        'lotes.update',
-        'lotes.delete',
-        'lotes.restore',
-        'lotes.activate',
 
         // Grupos
         'grupos.view',

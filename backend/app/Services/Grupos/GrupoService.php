@@ -33,7 +33,7 @@ class GrupoService
     public function find(int $id): Grupo
     {
         return Grupo::query()
-            ->with('lote:id,nombre,codigo')
+            ->with('potrero:id,nombre,codigo')
             ->findOrFail($id);
     }
 
@@ -44,7 +44,7 @@ class GrupoService
     {
         $grupo = Grupo::query()->create($data);
 
-        return $grupo->load('lote:id,nombre,codigo');
+        return $grupo->load('potrero:id,nombre,codigo');
     }
 
     /**
@@ -54,7 +54,7 @@ class GrupoService
     {
         $grupo->update($data);
 
-        return $grupo->fresh(['lote:id,nombre,codigo']);
+        return $grupo->fresh(['potrero:id,nombre,codigo']);
     }
 
     public function delete(Grupo $grupo): void
@@ -75,7 +75,7 @@ class GrupoService
         $grupo = Grupo::onlyTrashed()->findOrFail($id);
         $grupo->restore();
 
-        return $grupo->fresh(['lote:id,nombre,codigo']);
+        return $grupo->fresh(['potrero:id,nombre,codigo']);
     }
 
     public function toggleStatus(Grupo $grupo): Grupo
@@ -83,7 +83,7 @@ class GrupoService
         $grupo->activo = ! $grupo->activo;
         $grupo->save();
 
-        return $grupo->fresh(['lote:id,nombre,codigo']);
+        return $grupo->fresh(['potrero:id,nombre,codigo']);
     }
 
     /**
@@ -96,22 +96,22 @@ class GrupoService
             ? Grupo::onlyTrashed()
             : Grupo::query();
 
-        $query->with('lote:id,nombre,codigo');
+        $query->with('potrero:id,nombre,codigo');
 
         if (! empty($filters['search'])) {
             $search = (string) $filters['search'];
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('nombre', 'ilike', "%{$search}%")
                     ->orWhere('observaciones', 'ilike', "%{$search}%")
-                    ->orWhereHas('lote', function (Builder $loteQuery) use ($search) {
-                        $loteQuery->where('nombre', 'ilike', "%{$search}%")
+                    ->orWhereHas('potrero', function (Builder $potreroQuery) use ($search) {
+                        $potreroQuery->where('nombre', 'ilike', "%{$search}%")
                             ->orWhere('codigo', 'ilike', "%{$search}%");
                     });
             });
         }
 
-        if (! empty($filters['lote_id'])) {
-            $query->where('lote_id', (int) $filters['lote_id']);
+        if (! empty($filters['potrero_id'])) {
+            $query->where('potrero_id', (int) $filters['potrero_id']);
         }
 
         if (array_key_exists('activo', $filters) && $filters['activo'] !== null && $filters['activo'] !== '') {

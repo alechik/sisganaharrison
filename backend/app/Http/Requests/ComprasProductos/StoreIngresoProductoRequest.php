@@ -27,7 +27,7 @@ class StoreIngresoProductoRequest extends FormRequest
                 Rule::exists('orden_compras_productos', 'id')->where('estado', OrdenCompraProducto::ESTADO_AUTORIZADO),
             ],
             'detalles' => 'required|array|min:1',
-            'detalles.*.medicamento_id' => 'required|integer|distinct|exists:medicamentos,id',
+            'detalles.*.producto_id' => 'required|integer|distinct|exists:productos,id',
             'detalles.*.cantidad' => 'required|integer|min:1',
             'detalles.*.precio' => 'required|numeric|min:0',
             'detalles.*.descuento' => 'nullable|numeric|min:0',
@@ -43,7 +43,7 @@ class StoreIngresoProductoRequest extends FormRequest
             'proveedor_id.required' => 'Debe seleccionar un proveedor.',
             'almacen_id.required' => 'Debe seleccionar un almacén.',
             'detalles.required' => 'Debe ingresar al menos un producto.',
-            'detalles.*.medicamento_id.distinct' => 'El producto no puede repetirse en el detalle.',
+            'detalles.*.producto_id.distinct' => 'El producto no puede repetirse en el detalle.',
             'orden_compra_id.exists' => 'Si se asocia una orden, debe estar autorizada.',
         ];
     }

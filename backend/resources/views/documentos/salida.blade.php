@@ -26,7 +26,7 @@
                 <th>Arete</th>
                 <th>Sexo</th>
                 <th>Categoría</th>
-                <th>Potrero / Lote</th>
+                <th>Parcela / Potrero</th>
                 <th class="text-right">Peso</th>
                 <th class="text-right">Precio</th>
                 <th class="text-right">Descuento</th>
@@ -38,15 +38,15 @@
                 @php
                     $sexo = $detalle->animal?->sexo;
                     $sexoLabel = $sexo === 'H' ? 'Hembra' : ($sexo === 'M' ? 'Macho' : '—');
-                    $lote = $detalle->lote ?? $detalle->animal?->lote;
-                    $potreroLote = trim(($lote?->potrero?->nombre ?? '—').' / '.($lote?->nombre ?? '—'));
+                    $potrero = $detalle->potrero ?? $detalle->animal?->potrero;
+                    $parcelaPotrero = trim(($potrero?->parcela?->nombre ?? '—').' / '.($potrero?->nombre ?? '—'));
                 @endphp
                 <tr>
                     <td>{{ $detalle->animal?->codigo ?: '—' }}</td>
                     <td>{{ $detalle->animal?->arete ?: '—' }}</td>
                     <td>{{ $sexoLabel }}</td>
                     <td>{{ $detalle->animal?->categoria?->nombre ?: '—' }}</td>
-                    <td>{{ $potreroLote }}</td>
+                    <td>{{ $parcelaPotrero }}</td>
                     <td class="text-right">{{ number_format((float) $detalle->peso, 2, ',', '.') }}</td>
                     <td class="text-right">{{ \App\Support\Money::format($detalle->precio) }}</td>
                     <td class="text-right">{{ \App\Support\Money::format($detalle->descuento) }}</td>

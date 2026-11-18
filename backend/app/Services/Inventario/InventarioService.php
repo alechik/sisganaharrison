@@ -3,7 +3,7 @@
 namespace App\Services\Inventario;
 
 use App\Models\AlmacenProducto;
-use App\Models\Medicamento;
+use App\Models\Producto;
 use App\Models\MovimientoInventario;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +16,7 @@ class InventarioService
      *
      * cantidad > 0 entra, cantidad < 0 sale.
      *
-     * @param  array{almacen_id:int, medicamento_id:int, tipo:string, cantidad:float|int, precio_unitario?:float, origen_type:string, origen_id:int, observaciones?:string|null}  $data
+     * @param  array{almacen_id:int, producto_id:int, tipo:string, cantidad:float|int, precio_unitario?:float, origen_type:string, origen_id:int, observaciones?:string|null}  $data
      */
     public function registrar(array $data): MovimientoInventario
     {
@@ -31,7 +31,7 @@ class InventarioService
             $existencia = AlmacenProducto::query()->updateOrCreate(
                 [
                     'almacen_id' => (int) $data['almacen_id'],
-                    'medicamento_id' => (int) $data['medicamento_id'],
+                    'producto_id' => (int) $data['producto_id'],
                 ],
                 ['activo' => true]
             );
@@ -55,7 +55,7 @@ class InventarioService
                 ->where('origen_type', $data['origen_type'])
                 ->where('origen_id', (int) $data['origen_id'])
                 ->where('almacen_id', (int) $data['almacen_id'])
-                ->where('medicamento_id', (int) $data['medicamento_id'])
+                ->where('producto_id', (int) $data['producto_id'])
                 ->lockForUpdate()
                 ->first();
 
@@ -69,7 +69,7 @@ class InventarioService
 
             $movimiento = MovimientoInventario::query()->create([
                 'almacen_id' => (int) $data['almacen_id'],
-                'medicamento_id' => (int) $data['medicamento_id'],
+                'producto_id' => (int) $data['producto_id'],
                 'tipo' => $data['tipo'],
                 'cantidad' => $cantidad,
                 'precio_unitario' => $precio,
@@ -83,7 +83,7 @@ class InventarioService
             $existencia->save();
 
             if (in_array($data['tipo'], [MovimientoInventario::TIPO_INGRESO_COMPRA, MovimientoInventario::TIPO_ANULACION], true)) {
-                $this->actualizarPromedioPonderado((int) $data['medicamento_id'], $cantidad, $precio);
+                $this->actualizarPromedioPonderado((int) $data['producto_id'], $cantidad, $precio);
             }
 
             return $movimiento;
@@ -94,7 +94,7 @@ class InventarioService
     {
         return $this->registrar([
             'almacen_id' => $original->almacen_id,
-            'medicamento_id' => $original->medicamento_id,
+            'producto_id' => $original->producto_id,
             'tipo' => MovimientoInventario::TIPO_ANULACION,
             'cantidad' => -1 * (float) $original->cantidad,
             'precio_unitario' => (float) $original->precio_unitario,
@@ -108,9 +108,9 @@ class InventarioService
      * Precio promedio ponderado = valor acumulado de ingresos netos / cantidad neta ingresada.
      * Consumos no alteran el precio. Si la cantidad acumulada queda en cero, se conserva el último precio.
      */
-    private function actualizarPromedioPonderado(int $medicamentoId, float $cantidad, float $precioUnitario): void
+    private function actualizarPromedioPonderado(int $productoId, float $cantidad, float $precioUnitario): void
     {
-        $producto = Medicamento::query()->lockForUpdate()->findOrFail($medicamentoId);
+        $producto = Producto::query()->lockForUpdate()->findOrFail($productoId);
         $cantidadAcumulada = (float) $producto->cantidad_acumulada;
         $valorAcumulado = (float) $producto->valor_acumulado;
 

@@ -6,7 +6,7 @@ use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\Grupo;
 use App\Models\Ingreso;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Persona;
 use App\Models\Raza;
 use App\Models\TipoIngreso;
@@ -72,8 +72,8 @@ class IngresoFisicoTest extends TestCase
         $user = $this->userWithPermissions(['compras.view', 'compras.create']);
         Sanctum::actingAs($user);
         $tipo = TipoIngreso::query()->where('codigo', 'COMPRA')->firstOrFail();
-        $lote = $this->loteConCapacidad();
-        $grupo = Grupo::factory()->create(['lote_id' => $lote->id]);
+        $potrero = $this->potreroConCapacidad();
+        $grupo = Grupo::factory()->create(['potrero_id' => $potrero->id]);
         $categoria = $this->categoria('DESTETES');
         $raza = Raza::query()->first() ?? Raza::factory()->create();
         $proveedor = Persona::factory()->create();
@@ -81,7 +81,7 @@ class IngresoFisicoTest extends TestCase
         $response = $this->postJson('/api/compras/ingresos', [
             'tipo_ingreso_id' => $tipo->id,
             'proveedor_id' => $proveedor->id,
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'grupo_id' => $grupo->id,
             'fecha_ingreso' => now()->toDateString(),
             'descuento' => 50,
@@ -105,7 +105,7 @@ class IngresoFisicoTest extends TestCase
         $this->assertCount(2, $animales);
         $this->assertCount(2, $animales->pluck('codigo')->unique());
         $this->assertTrue($animales->every(fn (Animal $animal) => $animal->estado === Animal::ESTADO_ACTIVO));
-        $this->assertTrue($animales->every(fn (Animal $animal) => (int) $animal->lote_id === $lote->id));
+        $this->assertTrue($animales->every(fn (Animal $animal) => (int) $animal->potrero_id === $potrero->id));
         $this->assertTrue($animales->every(fn (Animal $animal) => (int) $animal->grupo_id === $grupo->id));
         $this->assertTrue($animales->every(fn (Animal $animal) => $animal->madre_id === null && $animal->padre_id === null));
         $this->assertTrue($animales->every(fn (Animal $animal) => $animal->estado_productivo_id === null));
@@ -119,7 +119,7 @@ class IngresoFisicoTest extends TestCase
         $segundo = $this->postJson('/api/compras/ingresos', [
             'tipo_ingreso_id' => $tipo->id,
             'proveedor_id' => $proveedor->id,
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'grupo_id' => $grupo->id,
             'fecha_ingreso' => now()->toDateString(),
             'detalles' => [
@@ -133,14 +133,14 @@ class IngresoFisicoTest extends TestCase
     {
         Sanctum::actingAs($this->userWithPermissions(['compras.create', 'compras.view']));
         $tipo = TipoIngreso::query()->where('codigo', 'REGALO')->firstOrFail();
-        $lote = $this->loteConCapacidad();
-        $grupo = Grupo::factory()->create(['lote_id' => $lote->id]);
+        $potrero = $this->potreroConCapacidad();
+        $grupo = Grupo::factory()->create(['potrero_id' => $potrero->id]);
         $categoria = $this->categoria('DESTETES');
         $raza = Raza::query()->first() ?? Raza::factory()->create();
 
         $this->postJson('/api/compras/ingresos', [
             'tipo_ingreso_id' => $tipo->id,
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'grupo_id' => $grupo->id,
             'fecha_ingreso' => now()->toDateString(),
             'detalles' => [
@@ -153,14 +153,14 @@ class IngresoFisicoTest extends TestCase
     {
         Sanctum::actingAs($this->userWithPermissions(['compras.create']));
         $tipo = TipoIngreso::query()->where('codigo', 'COMPRA')->firstOrFail();
-        $lote = $this->loteConCapacidad();
-        $grupo = Grupo::factory()->create(['lote_id' => $lote->id]);
+        $potrero = $this->potreroConCapacidad();
+        $grupo = Grupo::factory()->create(['potrero_id' => $potrero->id]);
         $categoria = $this->categoria('DESTETES');
         $raza = Raza::query()->first() ?? Raza::factory()->create();
 
         $this->postJson('/api/compras/ingresos', [
             'tipo_ingreso_id' => $tipo->id,
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'grupo_id' => $grupo->id,
             'fecha_ingreso' => now()->toDateString(),
             'detalles' => [
@@ -169,23 +169,23 @@ class IngresoFisicoTest extends TestCase
         ])->assertStatus(422)->assertJsonValidationErrors(['proveedor_id']);
     }
 
-    public function test_rechaza_arete_duplicado_y_grupo_de_otro_lote(): void
+    public function test_rechaza_arete_duplicado_y_grupo_de_otro_potrero(): void
     {
         Sanctum::actingAs($this->userWithPermissions(['compras.create']));
         $tipo = TipoIngreso::query()->where('codigo', 'OTROS')->firstOrFail();
-        $loteA = $this->loteConCapacidad();
-        $loteB = Lote::factory()->create([
-            'potrero_id' => $loteA->potrero_id,
+        $potreroA = $this->potreroConCapacidad();
+        $potreroB = Potrero::factory()->create([
+            'parcela_id' => $potreroA->parcela_id,
             'codigo' => 'LT'.strtoupper(substr(uniqid(), -6)),
             'capacidad_animales' => 200,
         ]);
-        $grupoB = Grupo::factory()->create(['lote_id' => $loteB->id]);
+        $grupoB = Grupo::factory()->create(['potrero_id' => $potreroB->id]);
         $categoria = $this->categoria('DESTETES');
         $raza = Raza::query()->first() ?? Raza::factory()->create();
 
         $this->postJson('/api/compras/ingresos', [
             'tipo_ingreso_id' => $tipo->id,
-            'lote_id' => $loteA->id,
+            'potrero_id' => $potreroA->id,
             'grupo_id' => $grupoB->id,
             'fecha_ingreso' => now()->toDateString(),
             'detalles' => [
@@ -193,10 +193,10 @@ class IngresoFisicoTest extends TestCase
             ],
         ])->assertStatus(422);
 
-        $grupoA = Grupo::factory()->create(['lote_id' => $loteA->id]);
+        $grupoA = Grupo::factory()->create(['potrero_id' => $potreroA->id]);
         $this->postJson('/api/compras/ingresos', [
             'tipo_ingreso_id' => $tipo->id,
-            'lote_id' => $loteA->id,
+            'potrero_id' => $potreroA->id,
             'grupo_id' => $grupoA->id,
             'fecha_ingreso' => now()->toDateString(),
             'detalles' => [
@@ -210,8 +210,8 @@ class IngresoFisicoTest extends TestCase
     {
         Sanctum::actingAs($this->userWithPermissions(['compras.create']));
         $tipo = TipoIngreso::query()->where('codigo', 'OTROS')->firstOrFail();
-        $lote = $this->loteConCapacidad();
-        $grupo = Grupo::factory()->create(['lote_id' => $lote->id]);
+        $potrero = $this->potreroConCapacidad();
+        $grupo = Grupo::factory()->create(['potrero_id' => $potrero->id]);
         $destetes = $this->categoria('DESTETES');
         $vacas = $this->categoria('VACAS');
         $raza = Raza::query()->first() ?? Raza::factory()->create();
@@ -221,7 +221,7 @@ class IngresoFisicoTest extends TestCase
 
         $this->postJson('/api/compras/ingresos', [
             'tipo_ingreso_id' => $tipo->id,
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'grupo_id' => $grupo->id,
             'fecha_ingreso' => now()->toDateString(),
             'detalles' => [
@@ -322,14 +322,14 @@ class IngresoFisicoTest extends TestCase
         );
     }
 
-    private function loteConCapacidad(): Lote
+    private function potreroConCapacidad(): Potrero
     {
-        $lote = Lote::query()->first() ?? Lote::factory()->create();
-        $lote->capacidad_animales = 500;
-        $lote->activo = true;
-        $lote->save();
+        $potrero = Potrero::query()->first() ?? Potrero::factory()->create();
+        $potrero->capacidad_animales = 500;
+        $potrero->activo = true;
+        $potrero->save();
 
-        return $lote;
+        return $potrero;
     }
 
     /**

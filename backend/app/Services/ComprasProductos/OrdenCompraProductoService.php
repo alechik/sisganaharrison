@@ -2,7 +2,7 @@
 
 namespace App\Services\ComprasProductos;
 
-use App\Models\Medicamento;
+use App\Models\Producto;
 use App\Models\OrdenCompraProducto;
 use App\Models\Persona;
 use App\Models\TipoPersona;
@@ -23,7 +23,7 @@ class OrdenCompraProductoService
         'proveedor:id,razon_social,nit,email',
         'creador:id,nombre,apellido',
         'autorizador:id,nombre,apellido',
-        'detalles.medicamento:id,codigo,nombre,precio',
+        'detalles.producto:id,codigo,nombre,precio',
     ];
 
     public function __construct(
@@ -205,7 +205,7 @@ class OrdenCompraProductoService
 
     /**
      * @param  array<int, array<string, mixed>>  $detalles
-     * @return list<array{medicamento_id:int, cantidad:int, precio:float, descuento:float, subtotal:float}>
+     * @return list<array{producto_id:int, cantidad:int, precio:float, descuento:float, subtotal:float}>
      */
     private function normalizeDetalles(array $detalles): array
     {
@@ -215,13 +215,13 @@ class OrdenCompraProductoService
         $normalizados = [];
         $vistos = [];
         foreach ($detalles as $index => $linea) {
-            $productoId = (int) ($linea['medicamento_id'] ?? 0);
+            $productoId = (int) ($linea['producto_id'] ?? 0);
             $cantidad = (int) ($linea['cantidad'] ?? 0);
             $precio = round((float) ($linea['precio'] ?? 0), 2);
             $descuento = round((float) ($linea['descuento'] ?? 0), 2);
             if ($productoId < 1 || in_array($productoId, $vistos, true)) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.medicamento_id" => 'El producto es obligatorio y no puede repetirse.',
+                    "detalles.$index.producto_id" => 'El producto es obligatorio y no puede repetirse.',
                 ]);
             }
             if ($cantidad < 1 || $precio < 0 || $descuento < 0) {
@@ -229,10 +229,10 @@ class OrdenCompraProductoService
                     "detalles.$index.cantidad" => 'Cantidad, precio y descuento no son válidos.',
                 ]);
             }
-            $producto = Medicamento::query()->whereKey($productoId)->where('activo', true)->whereNull('deleted_at')->first();
+            $producto = Producto::query()->whereKey($productoId)->where('activo', true)->whereNull('deleted_at')->first();
             if (! $producto) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.medicamento_id" => 'El producto no existe o no está activo.',
+                    "detalles.$index.producto_id" => 'El producto no existe o no está activo.',
                 ]);
             }
             $subtotal = round(($cantidad * $precio) - $descuento, 2);
@@ -243,7 +243,7 @@ class OrdenCompraProductoService
             }
             $vistos[] = $productoId;
             $normalizados[] = [
-                'medicamento_id' => $productoId,
+                'producto_id' => $productoId,
                 'cantidad' => $cantidad,
                 'precio' => $precio,
                 'descuento' => $descuento,
@@ -255,7 +255,7 @@ class OrdenCompraProductoService
     }
 
     /**
-     * @param  list<array{medicamento_id:int, cantidad:int, precio:float, descuento:float, subtotal:float}>  $detalles
+     * @param  list<array{producto_id:int, cantidad:int, precio:float, descuento:float, subtotal:float}>  $detalles
      */
     private function syncDetalles(OrdenCompraProducto $orden, array $detalles): void
     {

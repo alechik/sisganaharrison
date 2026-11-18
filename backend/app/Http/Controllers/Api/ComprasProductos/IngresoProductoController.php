@@ -8,7 +8,7 @@ use App\Http\Requests\ComprasProductos\StoreIngresoProductoRequest;
 use App\Http\Resources\Almacenes\AlmacenResource;
 use App\Http\Resources\ComprasProductos\IngresoProductoResource;
 use App\Http\Resources\ComprasProductos\OrdenCompraProductoResource;
-use App\Http\Resources\Medicamentos\MedicamentoResource;
+use App\Http\Resources\Productos\ProductoResource;
 use App\Models\IngresoProducto;
 use App\Services\ComprasProductos\IngresoProductoService;
 use Illuminate\Http\JsonResponse;
@@ -40,7 +40,7 @@ class IngresoProductoController extends Controller
     {
         $this->authorize('create', IngresoProducto::class);
 
-        return MedicamentoResource::collection($this->service->productosDisponibles($request->all()));
+        return ProductoResource::collection($this->service->productosDisponibles($request->all()));
     }
 
     public function proveedoresDisponibles(Request $request): JsonResponse

@@ -11,8 +11,8 @@ return new class extends Migration
     {
         Schema::create('grupos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lote_id')
-                ->constrained('lotes')
+            $table->foreignId('potrero_id')
+                ->constrained('potreros')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->string('nombre', 100);
@@ -21,19 +21,19 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('lote_id');
+            $table->index('potrero_id');
             $table->index('activo');
             $table->index('nombre');
         });
 
         DB::statement(
-            'CREATE UNIQUE INDEX grupos_lote_nombre_unique ON grupos (lote_id, lower(nombre)) WHERE deleted_at IS NULL'
+            'CREATE UNIQUE INDEX grupos_potrero_nombre_unique ON grupos (potrero_id, lower(nombre)) WHERE deleted_at IS NULL'
         );
 
         Schema::table('animales', function (Blueprint $table) {
             $table->foreignId('grupo_id')
                 ->nullable()
-                ->after('lote_id')
+                ->after('potrero_id')
                 ->constrained('grupos')
                 ->restrictOnUpdate()
                 ->nullOnDelete();
@@ -43,7 +43,7 @@ return new class extends Migration
         Schema::table('ingresos', function (Blueprint $table) {
             $table->foreignId('grupo_id')
                 ->nullable()
-                ->after('lote_id')
+                ->after('potrero_id')
                 ->constrained('grupos')
                 ->restrictOnUpdate()
                 ->nullOnDelete();
@@ -53,7 +53,7 @@ return new class extends Migration
         Schema::table('detalle_salidas', function (Blueprint $table) {
             $table->foreignId('grupo_id')
                 ->nullable()
-                ->after('lote_id')
+                ->after('potrero_id')
                 ->constrained('grupos')
                 ->restrictOnUpdate()
                 ->nullOnDelete();

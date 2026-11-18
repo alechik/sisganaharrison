@@ -142,8 +142,8 @@ export default function ReproAnimalSelect({
           {option.animal.arete && option.animal.codigo ? (
             <span className="text-gray-500"> · {option.animal.codigo}</span>
           ) : null}
-          {option.animal.lote_nombre ? (
-            <span className="mt-0.5 block text-xs text-gray-500">{option.animal.lote_nombre}</span>
+          {option.animal.potrero_nombre ? (
+            <span className="mt-0.5 block text-xs text-gray-500">{option.animal.potrero_nombre}</span>
           ) : null}
         </div>
       )}

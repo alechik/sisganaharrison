@@ -37,7 +37,7 @@ class RegistrarPartoNacimientoServicioRequest extends FormRequest
                     $animal[$field] = null;
                 }
             }
-            foreach (['raza_id', 'estado_productivo_id', 'lote_id', 'grupo_id'] as $field) {
+            foreach (['raza_id', 'estado_productivo_id', 'potrero_id', 'grupo_id'] as $field) {
                 if (($animal[$field] ?? '') === '' || ($animal[$field] ?? null) === '0') {
                     $animal[$field] = null;
                 }
@@ -82,10 +82,10 @@ class RegistrarPartoNacimientoServicioRequest extends FormRequest
                 'integer',
                 Rule::exists('estados_productivos', 'id')->whereNull('deleted_at')->where('activo', true),
             ],
-            'nacimiento.animal.lote_id' => [
+            'nacimiento.animal.potrero_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('lotes', 'id')->whereNull('deleted_at')->where('activo', true),
+                Rule::exists('potreros', 'id')->whereNull('deleted_at')->where('activo', true),
             ],
             'nacimiento.animal.grupo_id' => [
                 'nullable',

@@ -6,7 +6,7 @@ use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\EstadoProductivo;
 use App\Models\Gestacion;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Raza;
 use App\Models\ServicioReproductivo;
 use App\Models\User;
@@ -177,7 +177,7 @@ class ReglasReproductivasTest extends TestCase
         return Animal::factory()->create(array_merge([
             'raza_id' => Raza::query()->value('id'),
             'estado_productivo_id' => EstadoProductivo::query()->value('id'),
-            'lote_id' => Lote::query()->value('id'),
+            'potrero_id' => Potrero::query()->value('id'),
             'grupo_id' => null,
             'madre_id' => null,
             'padre_id' => null,

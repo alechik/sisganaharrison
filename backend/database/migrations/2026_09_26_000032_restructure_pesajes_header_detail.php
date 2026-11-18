@@ -19,9 +19,9 @@ return new class extends Migration
                 ->constrained('animales')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
-            $table->foreignId('lote_id')
+            $table->foreignId('potrero_id')
                 ->nullable()
-                ->constrained('lotes')
+                ->constrained('potreros')
                 ->restrictOnUpdate()
                 ->nullOnDelete();
             $table->decimal('peso', 8, 2);
@@ -29,7 +29,7 @@ return new class extends Migration
 
             $table->index('pesaje_id');
             $table->index('animal_id');
-            $table->index('lote_id');
+            $table->index('potrero_id');
             $table->unique(['pesaje_id', 'animal_id']);
         });
 
@@ -63,7 +63,7 @@ return new class extends Migration
             DB::table('detalle_pesajes')->insert([
                 'pesaje_id' => $row->id,
                 'animal_id' => $row->animal_id,
-                'lote_id' => $animal->lote_id ?? null,
+                'potrero_id' => $animal->potrero_id ?? null,
                 'peso' => $row->peso,
                 'created_at' => $row->created_at,
                 'updated_at' => $row->created_at,

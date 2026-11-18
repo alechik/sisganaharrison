@@ -1,6 +1,6 @@
 export interface OrdenCompraProductoDetalle {
   id?: number;
-  medicamento_id: number;
+  producto_id: number;
   producto_codigo?: string | null;
   producto_nombre?: string | null;
   unidad?: string | null;
@@ -33,7 +33,7 @@ export interface OrdenCompraProducto {
 }
 
 export interface OrdenCompraProductoDetalleRequest {
-  medicamento_id: number;
+  producto_id: number;
   cantidad: number;
   precio: number;
   descuento?: number;
@@ -106,6 +106,7 @@ export interface ProductoDisponibleIngreso {
   codigo: string;
   nombre: string;
   precio: number;
+  presentacion_nombre?: string | null;
   presentacion_descripcion?: string | null;
 }
 
@@ -119,14 +120,14 @@ export interface ProveedorDisponibleIngreso {
 export interface AlmacenDisponibleIngreso {
   id: number;
   nombre: string;
-  establecimiento_nombre?: string | null;
-  establecimiento_codigo?: string | null;
+  estancia_nombre?: string | null;
+  estancia_codigo?: string | null;
 }
 
 export interface IngresoProductoExcelFila {
   linea: number;
   codigo_producto: string;
-  medicamento_id: number | null;
+  producto_id: number | null;
   producto_codigo?: string | null;
   producto_nombre?: string | null;
   unidad?: string | null;

@@ -33,7 +33,7 @@ export const getEventosSanitarios = async (
         search: params.search || undefined,
         animal_id: params.animal_id || undefined,
         tipo_evento_id: params.tipo_evento_id || undefined,
-        medicamento_id: params.medicamento_id || undefined,
+        producto_id: params.producto_id || undefined,
         fecha_desde: params.fecha_desde || undefined,
         fecha_hasta: params.fecha_hasta || undefined,
         sort_by: params.sort_by,

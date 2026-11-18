@@ -5,7 +5,7 @@ namespace App\Services\ComprasProductos;
 use App\Models\Almacen;
 use App\Models\DetalleIngresoProducto;
 use App\Models\IngresoProducto;
-use App\Models\Medicamento;
+use App\Models\Producto;
 use App\Models\MovimientoInventario;
 use App\Models\OrdenCompraProducto;
 use App\Models\Persona;
@@ -31,10 +31,10 @@ class IngresoProductoService
     private const RELATIONS = [
         'orden:id,cod_compra,estado,proveedor_id',
         'proveedor:id,razon_social,nit',
-        'almacen:id,nombre,establecimiento_id',
+        'almacen:id,nombre,estancia_id',
         'creador:id,nombre,apellido',
-        'detalles.medicamento:id,codigo,nombre,precio,presentacion_id',
-        'detalles.medicamento.presentacion:id,descripcion',
+        'detalles.producto:id,codigo,nombre,precio,presentacion_id',
+        'detalles.producto.presentacion:id,nombre',
     ];
 
     public function __construct(
@@ -58,7 +58,7 @@ class IngresoProductoService
 
     /**
      * @param  array<string, mixed>  $filters
-     * @return Collection<int, Medicamento>
+     * @return Collection<int, Producto>
      */
     public function productosDisponibles(array $filters = []): Collection
     {
@@ -67,8 +67,8 @@ class IngresoProductoService
             return collect();
         }
 
-        return Medicamento::query()
-            ->with('presentacion:id,descripcion')
+        return Producto::query()
+            ->with('presentacion:id,nombre')
             ->where('activo', true)
             ->whereNull('deleted_at')
             ->where(function (Builder $builder) use ($search) {
@@ -115,7 +115,7 @@ class IngresoProductoService
     public function almacenesDisponibles(): Collection
     {
         return Almacen::query()
-            ->with('establecimiento:id,codigo,nombre')
+            ->with('estancia:id,codigo,nombre')
             ->activos()
             ->whereNull('deleted_at')
             ->orderBy('nombre')
@@ -125,7 +125,7 @@ class IngresoProductoService
     public function previewOrden(int $ordenId): OrdenCompraProducto
     {
         $orden = OrdenCompraProducto::query()
-            ->with(['proveedor:id,razon_social,nit', 'detalles.medicamento:id,codigo,nombre,precio,presentacion_id', 'detalles.medicamento.presentacion:id,descripcion'])
+            ->with(['proveedor:id,razon_social,nit', 'detalles.producto:id,codigo,nombre,precio,presentacion_id', 'detalles.producto.presentacion:id,nombre'])
             ->findOrFail($ordenId);
 
         if (! $orden->estaAutorizada()) {
@@ -138,7 +138,7 @@ class IngresoProductoService
         foreach ($orden->detalles as $detalle) {
             $detalle->cantidad_pendiente = max(
                 0,
-                (int) $detalle->cantidad - (int) ($yaIngresado[$detalle->medicamento_id] ?? 0)
+                (int) $detalle->cantidad - (int) ($yaIngresado[$detalle->producto_id] ?? 0)
             );
         }
 
@@ -226,7 +226,7 @@ class IngresoProductoService
                 $detalle = $ingreso->detalles()->create($linea);
                 $this->inventarioService->registrar([
                     'almacen_id' => $almacen->id,
-                    'medicamento_id' => $linea['medicamento_id'],
+                    'producto_id' => $linea['producto_id'],
                     'tipo' => MovimientoInventario::TIPO_INGRESO_COMPRA,
                     'cantidad' => $linea['cantidad'],
                     'precio_unitario' => $linea['precio'],
@@ -367,7 +367,7 @@ class IngresoProductoService
 
     /**
      * @param  array<int, array<string, mixed>>  $detalles
-     * @return list<array{medicamento_id:int, cantidad:int, precio:float, descuento:float, subtotal:float}>
+     * @return list<array{producto_id:int, cantidad:int, precio:float, descuento:float, subtotal:float}>
      */
     private function normalizeDetalles(array $detalles, ?OrdenCompraProducto $orden): array
     {
@@ -375,28 +375,28 @@ class IngresoProductoService
             throw ValidationException::withMessages(['detalles' => 'Debe ingresar al menos un producto.']);
         }
 
-        $autorizados = $orden?->detalles->keyBy('medicamento_id');
+        $autorizados = $orden?->detalles->keyBy('producto_id');
         $yaIngresado = $orden ? $this->cantidadesIngresadas($orden->id) : collect();
 
         $normalizados = [];
         $vistos = [];
         foreach ($detalles as $index => $linea) {
-            $productoId = (int) ($linea['medicamento_id'] ?? 0);
+            $productoId = (int) ($linea['producto_id'] ?? 0);
             $cantidad = (int) ($linea['cantidad'] ?? 0);
             if ($productoId < 1 || in_array($productoId, $vistos, true)) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.medicamento_id" => 'El producto es obligatorio y no puede repetirse.',
+                    "detalles.$index.producto_id" => 'El producto es obligatorio y no puede repetirse.',
                 ]);
             }
 
-            $producto = Medicamento::query()
+            $producto = Producto::query()
                 ->whereKey($productoId)
                 ->where('activo', true)
                 ->whereNull('deleted_at')
                 ->first();
             if (! $producto) {
                 throw ValidationException::withMessages([
-                    "detalles.$index.medicamento_id" => 'El producto no existe o no está activo.',
+                    "detalles.$index.producto_id" => 'El producto no existe o no está activo.',
                 ]);
             }
 
@@ -404,7 +404,7 @@ class IngresoProductoService
                 $autorizado = $autorizados->get($productoId);
                 if (! $autorizado) {
                     throw ValidationException::withMessages([
-                        "detalles.$index.medicamento_id" => 'El producto no figura en la orden autorizada.',
+                        "detalles.$index.producto_id" => 'El producto no figura en la orden autorizada.',
                     ]);
                 }
                 $pendiente = (int) $autorizado->cantidad - (int) ($yaIngresado[$productoId] ?? 0);
@@ -430,7 +430,7 @@ class IngresoProductoService
             $subtotal = round($cantidad * $precio, 2);
             $vistos[] = $productoId;
             $normalizados[] = [
-                'medicamento_id' => $productoId,
+                'producto_id' => $productoId,
                 'cantidad' => $cantidad,
                 'precio' => $precio,
                 'descuento' => $descuento,
@@ -472,8 +472,8 @@ class IngresoProductoService
 
         $producto = null;
         if ($codigo !== '') {
-            $producto = Medicamento::query()
-                ->with('presentacion:id,descripcion')
+            $producto = Producto::query()
+                ->with('presentacion:id,nombre')
                 ->whereNull('deleted_at')
                 ->whereRaw('upper(codigo) = ?', [$codigo])
                 ->first();
@@ -495,10 +495,10 @@ class IngresoProductoService
         return [
             'linea' => $linea,
             'codigo_producto' => $codigo,
-            'medicamento_id' => $producto?->id,
+            'producto_id' => $producto?->id,
             'producto_codigo' => $producto?->codigo,
             'producto_nombre' => $producto?->nombre,
-            'unidad' => $producto?->presentacion?->descripcion,
+            'unidad' => $producto?->presentacion?->nombre,
             'cantidad' => $cantidad > 0 ? $cantidad : (is_numeric($cantidadRaw) ? $cantidad : null),
             'precio' => $precio,
             'subtotal' => $subtotal,
@@ -514,9 +514,9 @@ class IngresoProductoService
     {
         return DetalleIngresoProducto::query()
             ->whereHas('ingreso', fn (Builder $q) => $q->where('orden_compra_id', $ordenId))
-            ->selectRaw('medicamento_id, sum(cantidad) as total')
-            ->groupBy('medicamento_id')
-            ->pluck('total', 'medicamento_id');
+            ->selectRaw('producto_id, sum(cantidad) as total')
+            ->groupBy('producto_id')
+            ->pluck('total', 'producto_id');
     }
 
     private function nextCodigo(): string

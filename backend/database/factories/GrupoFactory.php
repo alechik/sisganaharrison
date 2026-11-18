@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Grupo;
-use App\Models\Lote;
+use App\Models\Potrero;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,7 +16,7 @@ class GrupoFactory extends Factory
     public function definition(): array
     {
         return [
-            'lote_id' => Lote::query()->value('id') ?? Lote::factory(),
+            'potrero_id' => Potrero::query()->value('id') ?? Potrero::factory(),
             'nombre' => 'GRP-'.strtoupper(substr(uniqid(), -6)),
             'observaciones' => fake()->optional()->sentence(),
             'activo' => true,

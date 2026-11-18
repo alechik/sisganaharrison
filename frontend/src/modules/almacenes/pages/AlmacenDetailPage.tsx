@@ -79,7 +79,7 @@ export default function AlmacenDetailPage() {
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Estancia</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">
-              {item.establecimiento_nombre || "—"}
+              {item.estancia_nombre || "—"}
             </dd>
           </div>
           <div>

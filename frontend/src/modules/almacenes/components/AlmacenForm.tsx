@@ -6,7 +6,7 @@ import TextArea from "@/components/form/input/TextArea";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import Button from "@/components/ui/button/Button";
-import { getEstablecimientos } from "@/modules/establecimientos/services";
+import { getEstancias } from "@/modules/estancias/services";
 import { getAlmacen } from "../services";
 import { useCreateAlmacen } from "../hooks/useCreateAlmacen";
 import { useUpdateAlmacen } from "../hooks/useUpdateAlmacen";
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const emptyForm: AlmacenCreateRequest = {
-  establecimiento_id: 0,
+  estancia_id: 0,
   nombre: "",
   direccion: "",
   observacion: "",
@@ -32,7 +32,7 @@ export default function AlmacenForm({ almacenId }: Props) {
   const { update, loading: updating, error: updateError, setError: setUpdateError } = useUpdateAlmacen();
 
   const [form, setForm] = useState<AlmacenCreateRequest>(emptyForm);
-  const [establecimientoNombre, setEstablecimientoNombre] = useState("");
+  const [estanciaNombre, setEstanciaNombre] = useState("");
   const [loading, setLoading] = useState(isEdit);
   const [estancias, setEstancias] = useState<{ value: string; label: string }[]>([]);
 
@@ -44,7 +44,7 @@ export default function AlmacenForm({ almacenId }: Props) {
       return;
     }
 
-    getEstablecimientos({ per_page: 100, activo: true, sort_by: "nombre", sort_dir: "asc" })
+    getEstancias({ per_page: 100, activo: true, sort_by: "nombre", sort_dir: "asc" })
       .then((res) => setEstancias(res.data.map((item) => ({ value: String(item.id), label: item.nombre }))))
       .catch(console.error);
   }, [isEdit]);
@@ -58,12 +58,12 @@ export default function AlmacenForm({ almacenId }: Props) {
       try {
         const item = await getAlmacen(almacenId);
         setForm({
-          establecimiento_id: item.establecimiento_id,
+          estancia_id: item.estancia_id,
           nombre: item.nombre,
           direccion: item.direccion ?? "",
           observacion: item.observacion ?? "",
         });
-        setEstablecimientoNombre(item.establecimiento_nombre ?? "");
+        setEstanciaNombre(item.estancia_nombre ?? "");
       } catch (err) {
         console.error(err);
         setUpdateError("No se pudo cargar el almacén.");
@@ -80,7 +80,7 @@ export default function AlmacenForm({ almacenId }: Props) {
     setCreateError(null);
     setUpdateError(null);
 
-    if (!form.establecimiento_id) {
+    if (!form.estancia_id) {
       setCreateError("Debe seleccionar una estancia.");
       return;
     }
@@ -114,14 +114,14 @@ export default function AlmacenForm({ almacenId }: Props) {
         <div>
           <Label>Estancia</Label>
           {isEdit ? (
-            <InputField type="text" value={establecimientoNombre} disabled />
+            <InputField type="text" value={estanciaNombre} disabled />
           ) : (
             <Select
-              value={form.establecimiento_id ? String(form.establecimiento_id) : ""}
+              value={form.estancia_id ? String(form.estancia_id) : ""}
               placeholder="Seleccione una estancia"
               options={estancias}
               onChange={(value) =>
-                setForm((current) => ({ ...current, establecimiento_id: Number(value) }))
+                setForm((current) => ({ ...current, estancia_id: Number(value) }))
               }
             />
           )}

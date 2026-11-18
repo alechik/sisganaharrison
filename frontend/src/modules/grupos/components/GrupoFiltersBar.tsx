@@ -2,14 +2,14 @@ import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import { GRUPO_SORT_OPTIONS } from "../constants";
-import { useActiveLoteOptions } from "../hooks";
+import { useActivePotreroOptions } from "../hooks";
 import { GrupoFilters, GrupoSortDirection } from "../types";
 
 export default function GrupoFiltersBar({
   filters,
   onChange,
 }: { filters: GrupoFilters; onChange: (partial: Partial<GrupoFilters>) => void }) {
-  const { options: loteOptions, loading } = useActiveLoteOptions();
+  const { options: potreroOptions, loading } = useActivePotreroOptions();
 
   return (
     <div className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] md:grid-cols-2 xl:grid-cols-5">
@@ -20,10 +20,10 @@ export default function GrupoFiltersBar({
       <div>
         <Label>Potrero</Label>
         <Select
-          value={filters.lote_id ? String(filters.lote_id) : "all"}
+          value={filters.potrero_id ? String(filters.potrero_id) : "all"}
           placeholder={loading ? "Cargando..." : "Todos"}
-          options={[{ value: "all", label: "Todos" }, ...loteOptions]}
-          onChange={(value) => onChange({ lote_id: value === "all" ? undefined : Number(value) })}
+          options={[{ value: "all", label: "Todos" }, ...potreroOptions]}
+          onChange={(value) => onChange({ potrero_id: value === "all" ? undefined : Number(value) })}
         />
       </div>
       <div>

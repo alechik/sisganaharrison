@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Almacen;
 use App\Models\AlmacenProducto;
-use App\Models\Establecimiento;
+use App\Models\Estancia;
 use App\Models\IngresoProducto;
-use App\Models\Medicamento;
+use App\Models\Producto;
 use App\Models\MovimientoInventario;
 use App\Models\OrdenCompraProducto;
 use App\Models\Persona;
@@ -34,7 +34,7 @@ class IngresoProductoFisicoTest extends TestCase
     {
         $user = $this->userWithPermissions(['compras_productos.view', 'compras_productos.create']);
         Sanctum::actingAs($user);
-        $producto = Medicamento::factory()->create(['precio' => 0, 'cantidad_acumulada' => 0, 'valor_acumulado' => 0]);
+        $producto = Producto::factory()->create(['precio' => 0, 'cantidad_acumulada' => 0, 'valor_acumulado' => 0]);
         $almacen = $this->almacen();
         $proveedor = $this->proveedor();
 
@@ -44,7 +44,7 @@ class IngresoProductoFisicoTest extends TestCase
             'fecha' => now()->toDateString(),
             'descuento' => 5,
             'detalles' => [
-                ['medicamento_id' => $producto->id, 'cantidad' => 10, 'precio' => 8],
+                ['producto_id' => $producto->id, 'cantidad' => 10, 'precio' => 8],
             ],
         ]);
 
@@ -58,7 +58,7 @@ class IngresoProductoFisicoTest extends TestCase
         $this->assertSame($user->id, (int) $ingreso->user_id);
         $this->assertEquals(10, (float) AlmacenProducto::query()
             ->where('almacen_id', $almacen->id)
-            ->where('medicamento_id', $producto->id)
+            ->where('producto_id', $producto->id)
             ->value('stock'));
         $this->assertSame(1, MovimientoInventario::query()
             ->where('tipo', MovimientoInventario::TIPO_INGRESO_COMPRA)
@@ -72,8 +72,8 @@ class IngresoProductoFisicoTest extends TestCase
     public function test_recalcula_totales_en_backend_y_rechaza_duplicados(): void
     {
         Sanctum::actingAs($this->userWithPermissions(['compras_productos.view', 'compras_productos.create']));
-        $producto = Medicamento::factory()->create();
-        $otro = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
+        $otro = Producto::factory()->create();
 
         $this->postJson('/api/compras-productos/ingresos', [
             'proveedor_id' => $this->proveedor()->id,
@@ -81,7 +81,7 @@ class IngresoProductoFisicoTest extends TestCase
             'fecha' => now()->toDateString(),
             'descuento' => 9999,
             'detalles' => [
-                ['medicamento_id' => $producto->id, 'cantidad' => 2, 'precio' => 10, 'subtotal' => 1],
+                ['producto_id' => $producto->id, 'cantidad' => 2, 'precio' => 10, 'subtotal' => 1],
             ],
         ])->assertStatus(422);
 
@@ -91,8 +91,8 @@ class IngresoProductoFisicoTest extends TestCase
             'fecha' => now()->toDateString(),
             'descuento' => 0,
             'detalles' => [
-                ['medicamento_id' => $producto->id, 'cantidad' => 2, 'precio' => 10],
-                ['medicamento_id' => $producto->id, 'cantidad' => 1, 'precio' => 10],
+                ['producto_id' => $producto->id, 'cantidad' => 2, 'precio' => 10],
+                ['producto_id' => $producto->id, 'cantidad' => 1, 'precio' => 10],
             ],
         ])->assertStatus(422);
 
@@ -102,8 +102,8 @@ class IngresoProductoFisicoTest extends TestCase
             'fecha' => now()->toDateString(),
             'descuento' => 4,
             'detalles' => [
-                ['medicamento_id' => $producto->id, 'cantidad' => 2, 'precio' => 10, 'subtotal' => 1],
-                ['medicamento_id' => $otro->id, 'cantidad' => 1, 'precio' => 5, 'subtotal' => 99],
+                ['producto_id' => $producto->id, 'cantidad' => 2, 'precio' => 10, 'subtotal' => 1],
+                ['producto_id' => $otro->id, 'cantidad' => 1, 'precio' => 5, 'subtotal' => 99],
             ],
         ]);
         $ok->assertCreated()->assertJsonPath('data.monto_total', 21);
@@ -113,7 +113,7 @@ class IngresoProductoFisicoTest extends TestCase
     public function test_transaccion_no_deja_parcial_si_falla_una_linea(): void
     {
         Sanctum::actingAs($this->userWithPermissions(['compras_productos.create', 'compras_productos.view']));
-        $producto = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
         $antesIngresos = IngresoProducto::query()->count();
         $antesMov = MovimientoInventario::query()->count();
 
@@ -122,22 +122,22 @@ class IngresoProductoFisicoTest extends TestCase
             'almacen_id' => $this->almacen()->id,
             'fecha' => now()->toDateString(),
             'detalles' => [
-                ['medicamento_id' => $producto->id, 'cantidad' => 2, 'precio' => 4],
-                ['medicamento_id' => 999999, 'cantidad' => 1, 'precio' => 4],
+                ['producto_id' => $producto->id, 'cantidad' => 2, 'precio' => 4],
+                ['producto_id' => 999999, 'cantidad' => 1, 'precio' => 4],
             ],
         ])->assertStatus(422);
 
         $this->assertSame($antesIngresos, IngresoProducto::query()->count());
         $this->assertSame($antesMov, MovimientoInventario::query()->count());
         $this->assertEquals(0, (float) (AlmacenProducto::query()
-            ->where('medicamento_id', $producto->id)
+            ->where('producto_id', $producto->id)
             ->value('stock') ?? 0));
     }
 
     public function test_preview_excel_y_plantilla_no_persisten(): void
     {
         Sanctum::actingAs($this->userWithPermissions(['compras_productos.create', 'compras_productos.view']));
-        $producto = Medicamento::factory()->create(['codigo' => 'MED-XL-001']);
+        $producto = Producto::factory()->create(['codigo' => 'MED-XL-001']);
 
         $this->get('/api/compras-productos/ingresos/plantilla-excel')
             ->assertOk()
@@ -160,7 +160,7 @@ class IngresoProductoFisicoTest extends TestCase
         $this->assertSame(2, $preview->json('data.con_errores'));
         $this->assertSame(0, IngresoProducto::query()->count());
         $this->assertEquals(0, (float) (AlmacenProducto::query()
-            ->where('medicamento_id', $producto->id)
+            ->where('producto_id', $producto->id)
             ->value('stock') ?? 0));
     }
 
@@ -168,7 +168,7 @@ class IngresoProductoFisicoTest extends TestCase
     {
         $user = $this->userWithPermissions(['compras_productos.view', 'compras_productos.create']);
         Sanctum::actingAs($user);
-        $producto = Medicamento::factory()->create(['codigo' => 'ABC-99', 'nombre' => 'Ivermectina Forte']);
+        $producto = Producto::factory()->create(['codigo' => 'ABC-99', 'nombre' => 'Ivermectina Forte']);
         $proveedor = $this->proveedor(['razon_social' => 'Agro Norte SRL '.uniqid(), 'nit' => 'NIT'.uniqid()]);
 
         $this->getJson('/api/compras-productos/ingresos/productos-disponibles?search=ABC')
@@ -188,11 +188,11 @@ class IngresoProductoFisicoTest extends TestCase
     {
         $creador = $this->userWithPermissions(['compras_productos.view', 'compras_productos.create', 'compras_productos.update']);
         Sanctum::actingAs($creador);
-        $producto = Medicamento::factory()->create();
+        $producto = Producto::factory()->create();
         $orden = app(OrdenCompraProductoService::class)->create([
             'proveedor_id' => $this->proveedor()->id,
             'fecha' => now()->toDateString(),
-            'detalles' => [['medicamento_id' => $producto->id, 'cantidad' => 5, 'precio' => 8, 'descuento' => 0]],
+            'detalles' => [['producto_id' => $producto->id, 'cantidad' => 5, 'precio' => 8, 'descuento' => 0]],
         ]);
 
         $this->postJson('/api/compras-productos/ingresos', [
@@ -200,7 +200,7 @@ class IngresoProductoFisicoTest extends TestCase
             'almacen_id' => $this->almacen()->id,
             'fecha' => now()->toDateString(),
             'orden_compra_id' => $orden->id,
-            'detalles' => [['medicamento_id' => $producto->id, 'cantidad' => 1, 'precio' => 8]],
+            'detalles' => [['producto_id' => $producto->id, 'cantidad' => 1, 'precio' => 8]],
         ])->assertStatus(422);
 
         $orden->estado = OrdenCompraProducto::ESTADO_AUTORIZADO;
@@ -211,7 +211,7 @@ class IngresoProductoFisicoTest extends TestCase
             'almacen_id' => $this->almacen()->id,
             'fecha' => now()->toDateString(),
             'orden_compra_id' => $orden->id,
-            'detalles' => [['medicamento_id' => $producto->id, 'cantidad' => 2, 'precio' => 8]],
+            'detalles' => [['producto_id' => $producto->id, 'cantidad' => 2, 'precio' => 8]],
         ]);
         $response->assertCreated()->assertJsonPath('data.orden_compra_id', $orden->id);
         $this->assertStringStartsWith('INCO', (string) $response->json('data.cod_ingreso'));
@@ -224,16 +224,16 @@ class IngresoProductoFisicoTest extends TestCase
             'proveedor_id' => $this->proveedor()->id,
             'almacen_id' => $this->almacen()->id,
             'fecha' => now()->toDateString(),
-            'detalles' => [['medicamento_id' => Medicamento::factory()->create()->id, 'cantidad' => 1, 'precio' => 2]],
+            'detalles' => [['producto_id' => Producto::factory()->create()->id, 'cantidad' => 1, 'precio' => 2]],
         ])->assertForbidden();
     }
 
     private function almacen(): Almacen
     {
-        $estancia = Establecimiento::query()->firstOrFail();
+        $estancia = Estancia::query()->firstOrFail();
 
         return Almacen::query()->firstOrCreate(
-            ['establecimiento_id' => $estancia->id],
+            ['estancia_id' => $estancia->id],
             ['nombre' => 'Almacén '.$estancia->nombre, 'activo' => true]
         );
     }

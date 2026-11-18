@@ -37,10 +37,10 @@ class PesajeResource extends JsonResource
                     'animal_id' => $detalle->animal_id,
                     'animal_codigo' => $detalle->animal?->codigo,
                     'animal_arete' => $detalle->animal?->arete,
-                    'lote_id' => $detalle->lote_id,
-                    'lote_nombre' => $detalle->lote?->nombre ?? $detalle->animal?->lote?->nombre,
-                    'potrero_nombre' => $detalle->lote?->potrero?->nombre
-                        ?? $detalle->animal?->lote?->potrero?->nombre,
+                    'potrero_id' => $detalle->potrero_id,
+                    'potrero_nombre' => $detalle->potrero?->nombre ?? $detalle->animal?->potrero?->nombre,
+                    'parcela_nombre' => $detalle->potrero?->parcela?->nombre
+                        ?? $detalle->animal?->potrero?->parcela?->nombre,
                     'peso' => (float) $detalle->peso,
                 ])->values();
             }),

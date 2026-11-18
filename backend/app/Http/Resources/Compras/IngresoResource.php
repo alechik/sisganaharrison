@@ -49,14 +49,14 @@ class IngresoResource extends JsonResource
                 'cuarentena',
                 fn () => $this->cuarentena?->cod_compra
             ),
-            'lote_id' => $this->lote_id,
-            'lote_nombre' => $this->whenLoaded(
-                'lote',
-                fn () => $this->lote?->nombre
+            'potrero_id' => $this->potrero_id,
+            'potrero_nombre' => $this->whenLoaded(
+                'potrero',
+                fn () => $this->potrero?->nombre
             ),
-            'lote_codigo' => $this->whenLoaded(
-                'lote',
-                fn () => $this->lote?->codigo
+            'potrero_codigo' => $this->whenLoaded(
+                'potrero',
+                fn () => $this->potrero?->codigo
             ),
             'grupo_id' => $this->grupo_id,
             'grupo_nombre' => $this->whenLoaded(

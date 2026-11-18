@@ -48,13 +48,13 @@ export default function PotreroTable({
                 Código
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
-                Estancia
+                Parcela
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+                Capacidad
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
                 Área (ha)
-              </TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
-                Disponibilidad
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
                 Estado
@@ -79,14 +79,9 @@ export default function PotreroTable({
                   className="transition hover:bg-gray-50 dark:hover:bg-white/[0.02]"
                 >
                   <TableCell className="px-5 py-4">
-                    <div>
-                      <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {potrero.nombre}
-                      </span>
-                      <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
-                        {potrero.tipo_pasto || "Sin tipo de pasto"}
-                      </span>
-                    </div>
+                    <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                      {potrero.nombre}
+                    </span>
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
@@ -94,17 +89,17 @@ export default function PotreroTable({
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {potrero.establecimiento_nombre || "—"}
+                    {potrero.parcela_nombre || "—"}
+                  </TableCell>
+
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {potrero.capacidad_animales.toLocaleString("es-PY")}
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
                     {potrero.area_ha != null
                       ? potrero.area_ha.toLocaleString("es-PY")
                       : "—"}
-                  </TableCell>
-
-                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {potrero.disponibilidad ? "Disponible" : "No disponible"}
                   </TableCell>
 
                   <TableCell className="px-5 py-4">
@@ -139,7 +134,7 @@ export default function PotreroTable({
                             <Link
                               to={POTRERO_ROUTES.edit(potrero.id)}
                               className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition hover:border-blue-200 hover:bg-blue-50 dark:border-white/[0.05] dark:hover:bg-white/[0.05]"
-                              title="Editar parcela"
+                              title="Editar potrero"
                             >
                               <PencilIcon className="size-4" />
                             </Link>
@@ -150,7 +145,7 @@ export default function PotreroTable({
                               type="button"
                               onClick={() => onDelete?.(potrero)}
                               className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 transition hover:border-red-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/[0.05] dark:hover:bg-red-500/10"
-                              title="Eliminar parcela"
+                              title="Eliminar potrero"
                             >
                               <TrashBinIcon className="size-4" />
                             </button>

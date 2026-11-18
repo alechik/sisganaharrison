@@ -15,12 +15,12 @@ return new class extends Migration
                 ->constrained('users')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
-            $table->foreignId('lote_salida_id')
-                ->constrained('lotes')
+            $table->foreignId('potrero_salida_id')
+                ->constrained('potreros')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
-            $table->foreignId('lote_ingreso_id')
-                ->constrained('lotes')
+            $table->foreignId('potrero_ingreso_id')
+                ->constrained('potreros')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->date('fecha_traspaso');
@@ -30,12 +30,12 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('user_id');
-            $table->index('lote_salida_id');
-            $table->index('lote_ingreso_id');
+            $table->index('potrero_salida_id');
+            $table->index('potrero_ingreso_id');
             $table->index('fecha_traspaso');
         });
 
-        DB::statement('ALTER TABLE traspasos ADD CONSTRAINT traspasos_lotes_distintos_chk CHECK (lote_salida_id <> lote_ingreso_id)');
+        DB::statement('ALTER TABLE traspasos ADD CONSTRAINT traspasos_potreros_distintos_chk CHECK (potrero_salida_id <> potrero_ingreso_id)');
 
         Schema::create('detalle_traspasos', function (Blueprint $table) {
             $table->id();

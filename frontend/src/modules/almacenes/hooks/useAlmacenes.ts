@@ -84,7 +84,7 @@ export const useAlmacenes = ({
     filters.per_page,
     filters.search,
     filters.activo,
-    filters.establecimiento_id,
+    filters.estancia_id,
     filters.sort_by,
     filters.sort_dir,
   ]);

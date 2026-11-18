@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { getMedicamentos } from "@/modules/medicamentos/services";
+import { getProductos } from "@/modules/productos/services";
 import { getPresentaciones } from "@/modules/presentaciones/services";
 import { getTiposEventosSanitarios } from "@/modules/tipos-eventos-sanitarios/services";
-import { Medicamento } from "@/modules/medicamentos/types";
+import { Producto } from "@/modules/productos/types";
 
 export interface SelectOption {
   value: string;
@@ -12,7 +12,7 @@ export interface SelectOption {
 export const useSanitarioReferenceOptions = () => {
   const [tipoEventoOptions, setTipoEventoOptions] = useState<SelectOption[]>([]);
   const [presentacionOptions, setPresentacionOptions] = useState<SelectOption[]>([]);
-  const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
+  const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,15 +21,15 @@ export const useSanitarioReferenceOptions = () => {
       setLoading(true);
       setError(null);
 
-      const [tipos, presentaciones, medicamentosRes] = await Promise.all([
+      const [tipos, presentaciones, productosRes] = await Promise.all([
         getTiposEventosSanitarios({
           activo: true,
           per_page: 100,
           sort_by: "nombre",
           sort_dir: "asc",
         }),
-        getPresentaciones({ per_page: 100, sort_by: "descripcion", sort_dir: "asc" }),
-        getMedicamentos({
+        getPresentaciones({ per_page: 100, sort_by: "nombre", sort_dir: "asc" }),
+        getProductos({
           activo: true,
           per_page: 100,
           sort_by: "nombre",
@@ -46,10 +46,10 @@ export const useSanitarioReferenceOptions = () => {
       setPresentacionOptions(
         presentaciones.data.map((item) => ({
           value: String(item.id),
-          label: item.descripcion,
+          label: item.nombre,
         }))
       );
-      setMedicamentos(medicamentosRes.data.filter((item) => item.activo));
+      setProductos(productosRes.data.filter((item) => item.activo));
     } catch (err) {
       console.error(err);
       setError("No se pudieron cargar las opciones de referencia.");
@@ -65,7 +65,7 @@ export const useSanitarioReferenceOptions = () => {
   return {
     tipoEventoOptions,
     presentacionOptions,
-    medicamentos,
+    productos,
     loading,
     error,
     reload: loadOptions,

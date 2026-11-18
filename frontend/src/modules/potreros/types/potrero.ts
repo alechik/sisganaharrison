@@ -1,13 +1,12 @@
 export interface Potrero {
   id: number;
-  establecimiento_id: number;
-  establecimiento_nombre?: string | null;
+  parcela_id: number;
+  parcela_nombre?: string | null;
   codigo: string;
   nombre: string;
+  capacidad_animales: number;
   area_ha: number | null;
-  tipo_pasto: string | null;
-  disponibilidad: boolean;
-  descripcion: string | null;
+  observaciones: string | null;
   activo: boolean;
   created_at?: string | null;
   updated_at?: string | null;
@@ -15,13 +14,12 @@ export interface Potrero {
 }
 
 export interface PotreroCreateRequest {
-  establecimiento_id: number;
+  parcela_id: number;
   codigo: string;
   nombre: string;
+  capacidad_animales?: number;
   area_ha?: number | null;
-  tipo_pasto?: string | null;
-  disponibilidad?: boolean;
-  descripcion?: string | null;
+  observaciones?: string | null;
 }
 
 export interface PotreroUpdateRequest extends PotreroCreateRequest {}
@@ -30,9 +28,8 @@ export interface PotreroListParams {
   page?: number;
   per_page?: number;
   search?: string;
-  establecimiento_id?: number;
+  parcela_id?: number;
   activo?: boolean;
-  disponibilidad?: boolean;
   sort_by?: string;
   sort_dir?: "asc" | "desc";
 }

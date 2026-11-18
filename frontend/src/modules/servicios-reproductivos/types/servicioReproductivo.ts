@@ -1,6 +1,6 @@
 export interface ServicioReproductivoInsumo {
   id?: number;
-  medicamento_id: number;
+  producto_id: number;
   producto_codigo?: string | null;
   producto_nombre?: string | null;
   almacen_id: number;
@@ -66,7 +66,7 @@ export interface ServicioReproductivoCreateRequest {
   resultado?: string | null;
   observaciones?: string | null;
   insumos?: Array<{
-    medicamento_id: number;
+    producto_id: number;
     almacen_id: number;
     cantidad: number;
   }>;
@@ -95,7 +95,7 @@ export interface RegistrarPartoNacimientoRequest {
       nombre?: string | null;
       raza_id?: number | null;
       estado_productivo_id?: number | null;
-      lote_id?: number | null;
+      potrero_id?: number | null;
       grupo_id?: number | null;
       color?: string | null;
       observaciones?: string | null;
@@ -110,8 +110,8 @@ export interface AnimalDisponibleRepro {
   sexo?: "M" | "H" | null;
   categoria_id?: number | null;
   categoria_nombre?: string | null;
-  lote_id?: number | null;
-  lote_nombre?: string | null;
+  potrero_id?: number | null;
+  potrero_nombre?: string | null;
   peso?: number | null;
 }
 
@@ -127,8 +127,8 @@ export interface InseminacionExcelFila {
   animal_id: number | null;
   animal_codigo?: string | null;
   categoria_nombre?: string | null;
-  lote_id?: number | null;
-  lote_nombre?: string | null;
+  potrero_id?: number | null;
+  potrero_nombre?: string | null;
   peso?: number | null;
   errores: string[];
   valida: boolean;
@@ -143,7 +143,7 @@ export interface InseminacionExcelPreview {
 export interface InseminacionLoteRequest {
   fecha_servicio: string;
   observaciones?: string | null;
-  medicamento_id: number;
+  producto_id: number;
   hembras: number[];
 }
 

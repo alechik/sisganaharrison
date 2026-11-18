@@ -17,11 +17,11 @@ class UpdateAlmacenRequest extends FormRequest
         $almacen = $this->route('almacen');
 
         return [
-            'establecimiento_id' => [
+            'estancia_id' => [
                 'required',
                 'integer',
-                Rule::exists('establecimientos', 'id')->whereNull('deleted_at'),
-                Rule::unique('almacenes', 'establecimiento_id')->ignore($almacen?->id)->whereNull('deleted_at'),
+                Rule::exists('estancias', 'id')->whereNull('deleted_at'),
+                Rule::unique('almacenes', 'estancia_id')->ignore($almacen?->id)->whereNull('deleted_at'),
             ],
             'nombre' => 'required|string|max:100',
             'direccion' => 'nullable|string|max:150',

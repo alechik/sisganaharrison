@@ -103,7 +103,7 @@ export const defaultIngresoFilters = (): IngresoFilters => ({
   codigo: "",
   proveedor_id: undefined,
   tipo_ingreso_id: undefined,
-  lote_id: undefined,
+  potrero_id: undefined,
   fecha: "",
   sort_by: "created_at" as IngresoSortField,
   sort_dir: "desc" as IngresoSortDirection,

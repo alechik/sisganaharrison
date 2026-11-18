@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Traslado de animales entre lotes.
+ * Traslado de animales entre potreros.
  *
  * @property int $id
  * @property int $user_id
- * @property int $lote_salida_id
- * @property int $lote_ingreso_id
+ * @property int $potrero_salida_id
+ * @property int $potrero_ingreso_id
  * @property \Illuminate\Support\Carbon $fecha_traspaso
  * @property string|null $observacion
  * @property string $total_peso
@@ -29,8 +29,8 @@ class Traspaso extends Model
 
     protected $fillable = [
         'user_id',
-        'lote_salida_id',
-        'lote_ingreso_id',
+        'potrero_salida_id',
+        'potrero_ingreso_id',
         'fecha_traspaso',
         'observacion',
         'total_peso',
@@ -55,19 +55,19 @@ class Traspaso extends Model
     }
 
     /**
-     * @return BelongsTo<Lote, $this>
+     * @return BelongsTo<Potrero, $this>
      */
-    public function loteSalida(): BelongsTo
+    public function potreroSalida(): BelongsTo
     {
-        return $this->belongsTo(Lote::class, 'lote_salida_id');
+        return $this->belongsTo(Potrero::class, 'potrero_salida_id');
     }
 
     /**
-     * @return BelongsTo<Lote, $this>
+     * @return BelongsTo<Potrero, $this>
      */
-    public function loteIngreso(): BelongsTo
+    public function potreroIngreso(): BelongsTo
     {
-        return $this->belongsTo(Lote::class, 'lote_ingreso_id');
+        return $this->belongsTo(Potrero::class, 'potrero_ingreso_id');
     }
 
     /**

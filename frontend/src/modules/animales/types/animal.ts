@@ -13,8 +13,8 @@ export interface Animal {
   categoria_nombre?: string | null;
   estado_productivo_id: number | null;
   estado_productivo_nombre?: string | null;
-  lote_id: number | null;
-  lote_nombre?: string | null;
+  potrero_id: number | null;
+  potrero_nombre?: string | null;
   grupo_id: number | null;
   grupo_nombre?: string | null;
   madre_id: number | null;
@@ -45,7 +45,7 @@ export interface AnimalCreateRequest {
   raza_id?: number | null;
   categoria_id: number;
   estado_productivo_id?: number | null;
-  lote_id?: number | null;
+  potrero_id?: number | null;
   grupo_id?: number | null;
   madre_id?: number | null;
   padre_id?: number | null;
@@ -64,7 +64,7 @@ export interface AnimalListParams {
   raza_id?: number;
   categoria_id?: number;
   estado_productivo_id?: number;
-  lote_id?: number;
+  potrero_id?: number;
   sexo?: "M" | "H";
   activo?: boolean;
   con_arete?: boolean;

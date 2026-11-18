@@ -34,7 +34,7 @@ class PotreroService
     public function find(int $id): Potrero
     {
         return Potrero::query()
-            ->with('establecimiento:id,nombre')
+            ->with('parcela:id,nombre')
             ->findOrFail($id);
     }
 
@@ -45,7 +45,7 @@ class PotreroService
     {
         $potrero = Potrero::query()->create($data);
 
-        return $potrero->load('establecimiento:id,nombre');
+        return $potrero->load('parcela:id,nombre');
     }
 
     /**
@@ -53,16 +53,20 @@ class PotreroService
      */
     public function update(Potrero $potrero, array $data): Potrero
     {
+        if (array_key_exists('capacidad_animales', $data)) {
+            $this->assertCapacidadValida($potrero, (int) $data['capacidad_animales']);
+        }
+
         $potrero->update($data);
 
-        return $potrero->fresh(['establecimiento:id,nombre']);
+        return $potrero->fresh(['parcela:id,nombre']);
     }
 
     public function delete(Potrero $potrero): void
     {
-        if ($this->hasLotesAsociados($potrero)) {
+        if ($this->hasAnimalesAsignados($potrero)) {
             throw ValidationException::withMessages([
-                'potrero' => 'No se puede eliminar porque tiene lotes asociados.',
+                'potrero' => 'No se puede eliminar porque tiene animales asignados.',
             ]);
         }
 
@@ -76,7 +80,7 @@ class PotreroService
         $potrero = Potrero::onlyTrashed()->findOrFail($id);
         $potrero->restore();
 
-        return $potrero->fresh(['establecimiento:id,nombre']);
+        return $potrero->fresh(['parcela:id,nombre']);
     }
 
     public function toggleStatus(Potrero $potrero): Potrero
@@ -84,7 +88,7 @@ class PotreroService
         $potrero->activo = ! $potrero->activo;
         $potrero->save();
 
-        return $potrero->fresh(['establecimiento:id,nombre']);
+        return $potrero->fresh(['parcela:id,nombre']);
     }
 
     /**
@@ -97,7 +101,7 @@ class PotreroService
             ? Potrero::onlyTrashed()
             : Potrero::query();
 
-        $query->with('establecimiento:id,nombre');
+        $query->with('parcela:id,nombre');
 
         if (! empty($filters['search'])) {
             $search = (string) $filters['search'];
@@ -105,24 +109,19 @@ class PotreroService
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('nombre', 'like', "%{$search}%")
                     ->orWhere('codigo', 'like', "%{$search}%")
-                    ->orWhere('tipo_pasto', 'like', "%{$search}%")
-                    ->orWhere('descripcion', 'like', "%{$search}%")
-                    ->orWhereHas('establecimiento', function (Builder $establecimientoQuery) use ($search) {
-                        $establecimientoQuery->where('nombre', 'like', "%{$search}%");
+                    ->orWhere('observaciones', 'like', "%{$search}%")
+                    ->orWhereHas('parcela', function (Builder $parcelaQuery) use ($search) {
+                        $parcelaQuery->where('nombre', 'like', "%{$search}%");
                     });
             });
         }
 
-        if (! empty($filters['establecimiento_id'])) {
-            $query->where('establecimiento_id', (int) $filters['establecimiento_id']);
+        if (! empty($filters['parcela_id'])) {
+            $query->where('parcela_id', (int) $filters['parcela_id']);
         }
 
         if (array_key_exists('activo', $filters) && $filters['activo'] !== null && $filters['activo'] !== '') {
             $query->where('activo', filter_var($filters['activo'], FILTER_VALIDATE_BOOLEAN));
-        }
-
-        if (array_key_exists('disponibilidad', $filters) && $filters['disponibilidad'] !== null && $filters['disponibilidad'] !== '') {
-            $query->where('disponibilidad', filter_var($filters['disponibilidad'], FILTER_VALIDATE_BOOLEAN));
         }
 
         $sortBy = in_array($filters['sort_by'] ?? '', self::SORTABLE_COLUMNS, true)
@@ -134,15 +133,33 @@ class PotreroService
         return $query->orderBy($sortBy, $sortDir);
     }
 
-    private function hasLotesAsociados(Potrero $potrero): bool
+    private function hasAnimalesAsignados(Potrero $potrero): bool
     {
-        if (! Schema::hasTable('lotes')) {
+        if (! Schema::hasTable('animales')) {
             return false;
         }
 
-        return DB::table('lotes')
+        return DB::table('animales')
             ->where('potrero_id', $potrero->id)
             ->whereNull('deleted_at')
             ->exists();
+    }
+
+    private function assertCapacidadValida(Potrero $potrero, int $capacidad): void
+    {
+        if (! Schema::hasTable('animales')) {
+            return;
+        }
+
+        $asignados = DB::table('animales')
+            ->where('potrero_id', $potrero->id)
+            ->whereNull('deleted_at')
+            ->count();
+
+        if ($capacidad < $asignados) {
+            throw ValidationException::withMessages([
+                'capacidad_animales' => "La capacidad no puede ser menor a los {$asignados} animales asignados.",
+            ]);
+        }
     }
 }

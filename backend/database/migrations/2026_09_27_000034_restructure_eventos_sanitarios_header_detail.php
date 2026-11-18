@@ -13,22 +13,24 @@ return new class extends Migration
         $presentacionId = DB::table('presentaciones')->orderBy('id')->value('id');
         if (! $presentacionId) {
             $presentacionId = DB::table('presentaciones')->insertGetId([
-                'descripcion' => 'Frasco',
+                'nombre' => 'Frasco',
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);
         }
 
-        $fallbackMedicamentoId = DB::table('medicamentos')->orderBy('id')->value('id');
-        if (! $fallbackMedicamentoId) {
-            $fallbackMedicamentoId = DB::table('medicamentos')->insertGetId([
+        $fallbackProductoId = DB::table('productos')->orderBy('id')->value('id');
+        if (! $fallbackProductoId) {
+            $fallbackProductoId = DB::table('productos')->insertGetId([
                 'presentacion_id' => $presentacionId,
                 'codigo' => 'MED_MIGRACION',
-                'nombre' => 'Medicamento de migración',
-                'laboratorio' => null,
+                'nombre' => 'Producto de migración',
+                'nombre_cientifico' => null,
                 'precio' => 0,
                 'descripcion' => 'Registro temporal para migrar eventos sanitarios existentes.',
                 'activo' => true,
+                'cantidad_acumulada' => 0,
+                'valor_acumulado' => 0,
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);
@@ -44,23 +46,23 @@ return new class extends Migration
                 ->constrained('animales')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
-            $table->foreignId('lote_id')
+            $table->foreignId('potrero_id')
                 ->nullable()
-                ->constrained('lotes')
+                ->constrained('potreros')
                 ->restrictOnUpdate()
                 ->nullOnDelete();
-            $table->foreignId('medicamento_id')
-                ->constrained('medicamentos')
+            $table->foreignId('producto_id')
+                ->constrained('productos')
                 ->restrictOnUpdate()
                 ->restrictOnDelete();
             $table->decimal('peso_animal', 8, 2);
-            $table->decimal('precio_medicamento', 8, 2);
+            $table->decimal('precio_producto', 8, 2);
             $table->timestamps();
 
             $table->index('evento_sanitario_id');
             $table->index('animal_id');
-            $table->index('lote_id');
-            $table->index('medicamento_id');
+            $table->index('potrero_id');
+            $table->index('producto_id');
             $table->unique(['evento_sanitario_id', 'animal_id']);
         });
 
@@ -71,7 +73,7 @@ return new class extends Migration
         });
 
         $defaultUserId = DB::table('users')->orderBy('id')->value('id');
-        $fallbackMedicamentoId = DB::table('medicamentos')->orderBy('id')->value('id');
+        $fallbackProductoId = DB::table('productos')->orderBy('id')->value('id');
 
         foreach (DB::table('eventos_sanitarios')->orderBy('id')->get() as $row) {
             $animal = DB::table('animales')->where('id', $row->animal_id)->first();
@@ -80,19 +82,19 @@ return new class extends Migration
                 ->orderByDesc('id')
                 ->value('peso');
 
-            $medicamentoId = null;
+            $productoId = null;
             if (! empty($row->vacuna_id)) {
                 $codigoVacuna = DB::table('vacunas')->where('id', $row->vacuna_id)->value('codigo');
                 if ($codigoVacuna) {
-                    $medicamentoId = DB::table('medicamentos')->where('codigo', $codigoVacuna)->value('id');
+                    $productoId = DB::table('productos')->where('codigo', $codigoVacuna)->value('id');
                 }
             }
-            $medicamentoId = $medicamentoId ?: $fallbackMedicamentoId;
-            if (! $medicamentoId) {
+            $productoId = $productoId ?: $fallbackProductoId;
+            if (! $productoId) {
                 continue;
             }
 
-            $precio = (float) (DB::table('medicamentos')->where('id', $medicamentoId)->value('precio') ?? 0);
+            $precio = (float) (DB::table('productos')->where('id', $productoId)->value('precio') ?? 0);
 
             DB::table('eventos_sanitarios')->where('id', $row->id)->update([
                 'user_id' => $animal->user_id ?? $defaultUserId,
@@ -103,10 +105,10 @@ return new class extends Migration
             DB::table('detalle_eventos_sanitarios')->insert([
                 'evento_sanitario_id' => $row->id,
                 'animal_id' => $row->animal_id,
-                'lote_id' => $animal->lote_id ?? null,
-                'medicamento_id' => $medicamentoId,
+                'potrero_id' => $animal->potrero_id ?? null,
+                'producto_id' => $productoId,
                 'peso_animal' => $peso !== null ? $peso : 0,
-                'precio_medicamento' => $precio,
+                'precio_producto' => $precio,
                 'created_at' => $row->created_at,
                 'updated_at' => $row->created_at,
             ]);

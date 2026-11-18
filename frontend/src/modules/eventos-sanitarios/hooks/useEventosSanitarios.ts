@@ -74,7 +74,7 @@ export const useEventosSanitarios = ({
     filters.search,
     filters.animal_id,
     filters.tipo_evento_id,
-    filters.medicamento_id,
+    filters.producto_id,
     filters.fecha_desde,
     filters.fecha_hasta,
     filters.sort_by,

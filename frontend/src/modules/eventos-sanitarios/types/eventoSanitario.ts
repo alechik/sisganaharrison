@@ -3,17 +3,17 @@ export interface DetalleEventoSanitario {
   animal_id: number;
   animal_codigo?: string | null;
   animal_arete?: string | null;
-  lote_id: number | null;
-  lote_nombre?: string | null;
-  medicamento_id: number;
-  medicamento_codigo?: string | null;
-  medicamento_nombre?: string | null;
+  potrero_id: number | null;
+  potrero_nombre?: string | null;
+  producto_id: number;
+  producto_codigo?: string | null;
+  producto_nombre?: string | null;
   presentacion_descripcion?: string | null;
   almacen_id?: number | null;
   almacen_nombre?: string | null;
   cantidad?: number;
   peso_animal: number;
-  precio_medicamento: number;
+  precio_producto: number;
 }
 
 export interface EventoSanitario {
@@ -37,7 +37,7 @@ export interface EventoSanitario {
 
 export interface EventoSanitarioDetalleRequest {
   animal_id: number;
-  medicamento_id: number;
+  producto_id: number;
   almacen_id: number;
   cantidad: number;
 }
@@ -57,7 +57,7 @@ export interface EventoSanitarioListParams {
   search?: string;
   animal_id?: number;
   tipo_evento_id?: number;
-  medicamento_id?: number;
+  producto_id?: number;
   fecha_desde?: string;
   fecha_hasta?: string;
   sort_by?: string;

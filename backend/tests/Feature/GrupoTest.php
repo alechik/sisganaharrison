@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\CategoriaAnimal;
 use App\Models\Grupo;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\User;
 use App\Services\Animales\AnimalService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -28,22 +28,22 @@ class GrupoTest extends TestCase
     {
         $user = $this->userWithPermissions(['grupos.view', 'grupos.create', 'grupos.update', 'grupos.delete', 'grupos.activate']);
         Sanctum::actingAs($user);
-        $lote = Lote::query()->firstOrFail();
+        $potrero = Potrero::query()->firstOrFail();
 
         $create = $this->postJson('/api/grupos', [
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'nombre' => 'Grupo Alpha '.uniqid(),
-            'observaciones' => 'Lote de recría',
+            'observaciones' => 'Potrero de recría',
         ]);
         $create->assertCreated();
         $id = $create->json('data.id');
 
         $this->getJson('/api/grupos/'.$id)
             ->assertOk()
-            ->assertJsonPath('data.lote_id', $lote->id);
+            ->assertJsonPath('data.potrero_id', $potrero->id);
 
         $this->putJson('/api/grupos/'.$id, [
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'nombre' => 'Grupo Beta '.uniqid(),
             'observaciones' => 'Actualizado',
         ])->assertOk();
@@ -57,28 +57,28 @@ class GrupoTest extends TestCase
     {
         $user = $this->userWithPermissions(['grupos.create']);
         Sanctum::actingAs($user);
-        $lote = Lote::query()->firstOrFail();
+        $potrero = Potrero::query()->firstOrFail();
         $nombre = 'Duplicado '.uniqid();
-        Grupo::factory()->create(['lote_id' => $lote->id, 'nombre' => $nombre]);
+        Grupo::factory()->create(['potrero_id' => $potrero->id, 'nombre' => $nombre]);
 
         $this->postJson('/api/grupos', [
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'nombre' => $nombre,
         ])->assertStatus(422);
     }
 
-    public function test_animal_rechaza_grupo_de_otro_lote(): void
+    public function test_animal_rechaza_grupo_de_otro_potrero(): void
     {
         $user = $this->userWithPermissions(['animales.create', 'animales.update']);
         Sanctum::actingAs($user);
-        [$loteA, $loteB] = $this->dosLotes();
-        $grupoB = Grupo::factory()->create(['lote_id' => $loteB->id]);
+        [$potreroA, $potreroB] = $this->dosPotreros();
+        $grupoB = Grupo::factory()->create(['potrero_id' => $potreroB->id]);
 
         $this->expectException(ValidationException::class);
         app(AnimalService::class)->create([
             'sexo' => 'M',
             'categoria_id' => CategoriaAnimal::query()->value('id'),
-            'lote_id' => $loteA->id,
+            'potrero_id' => $potreroA->id,
             'grupo_id' => $grupoB->id,
             'user_id' => $user->id,
         ]);
@@ -88,43 +88,43 @@ class GrupoTest extends TestCase
     {
         $user = $this->userWithPermissions(['animales.create']);
         Sanctum::actingAs($user);
-        $lote = Lote::query()->firstOrFail();
-        $grupo = Grupo::factory()->create(['lote_id' => $lote->id]);
+        $potrero = Potrero::query()->firstOrFail();
+        $grupo = Grupo::factory()->create(['potrero_id' => $potrero->id]);
 
         $animal = app(AnimalService::class)->asegurarDesdeNacimiento(null, [
             'sexo' => 'M',
-            'lote_id' => $lote->id,
+            'potrero_id' => $potrero->id,
             'grupo_id' => $grupo->id,
             'user_id' => $user->id,
         ]);
 
         $this->assertSame($grupo->id, (int) $animal->grupo_id);
-        $this->assertSame($lote->id, (int) $animal->lote_id);
+        $this->assertSame($potrero->id, (int) $animal->potrero_id);
     }
 
-    public function test_nacimiento_rechaza_grupo_de_otro_lote(): void
+    public function test_nacimiento_rechaza_grupo_de_otro_potrero(): void
     {
         $user = $this->userWithPermissions(['animales.create']);
         Sanctum::actingAs($user);
-        [$loteA, $loteB] = $this->dosLotes();
-        $grupoB = Grupo::factory()->create(['lote_id' => $loteB->id]);
+        [$potreroA, $potreroB] = $this->dosPotreros();
+        $grupoB = Grupo::factory()->create(['potrero_id' => $potreroB->id]);
 
         $this->expectException(ValidationException::class);
         app(AnimalService::class)->asegurarDesdeNacimiento(null, [
             'sexo' => 'M',
-            'lote_id' => $loteA->id,
+            'potrero_id' => $potreroA->id,
             'grupo_id' => $grupoB->id,
             'user_id' => $user->id,
         ]);
     }
 
-    public function test_ingreso_rechaza_grupo_de_otro_lote(): void
+    public function test_ingreso_rechaza_grupo_de_otro_potrero(): void
     {
-        [$loteA, $loteB] = $this->dosLotes();
-        $grupoB = Grupo::factory()->create(['lote_id' => $loteB->id]);
+        [$potreroA, $potreroB] = $this->dosPotreros();
+        $grupoB = Grupo::factory()->create(['potrero_id' => $potreroB->id]);
 
         $this->expectException(ValidationException::class);
-        Grupo::assertCompatibleConLote($grupoB->id, $loteA->id);
+        Grupo::assertCompatibleConPotrero($grupoB->id, $potreroA->id);
     }
 
     public function test_listado_sin_permiso_devuelve_403(): void
@@ -135,17 +135,17 @@ class GrupoTest extends TestCase
     }
 
     /**
-     * @return array{0: Lote, 1: Lote}
+     * @return array{0: Potrero, 1: Potrero}
      */
-    private function dosLotes(): array
+    private function dosPotreros(): array
     {
-        $origen = Lote::query()->firstOrFail();
-        $destino = Lote::query()->where('id', '!=', $origen->id)->first();
+        $origen = Potrero::query()->firstOrFail();
+        $destino = Potrero::query()->where('id', '!=', $origen->id)->first();
         if ($destino === null) {
-            $destino = Lote::factory()->create([
-                'potrero_id' => $origen->potrero_id,
+            $destino = Potrero::factory()->create([
+                'parcela_id' => $origen->parcela_id,
                 'codigo' => 'GR'.strtoupper(substr(uniqid(), -6)),
-                'nombre' => 'Potrero grupo destino',
+                'nombre' => 'Parcela grupo destino',
             ]);
         }
 

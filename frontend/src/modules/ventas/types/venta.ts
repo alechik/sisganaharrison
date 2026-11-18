@@ -6,11 +6,11 @@ export interface VentaDetalle {
   sexo?: "M" | "H" | null;
   categoria_codigo?: string | null;
   categoria_nombre?: string | null;
-  lote_id?: number | null;
-  lote_nombre?: string | null;
+  potrero_id?: number | null;
+  potrero_nombre?: string | null;
   grupo_id?: number | null;
   grupo_nombre?: string | null;
-  potrero_nombre?: string | null;
+  parcela_nombre?: string | null;
   cantidad: number;
   peso: number;
   precio: number;
@@ -77,12 +77,12 @@ export interface AnimalDisponibleVenta {
   categoria_id: number;
   categoria_codigo?: string | null;
   categoria_nombre?: string | null;
-  lote_id: number | null;
-  lote_nombre?: string | null;
+  potrero_id: number | null;
+  potrero_nombre?: string | null;
   grupo_id?: number | null;
   grupo_nombre?: string | null;
-  potrero_id?: number | null;
-  potrero_nombre?: string | null;
+  parcela_id?: number | null;
+  parcela_nombre?: string | null;
   peso?: number | null;
   precio_kilo?: number | null;
 }

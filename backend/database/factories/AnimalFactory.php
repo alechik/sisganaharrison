@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Models\Animal;
 use App\Models\CategoriaAnimal;
 use App\Models\EstadoProductivo;
-use App\Models\Lote;
+use App\Models\Potrero;
 use App\Models\Raza;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -32,7 +32,7 @@ class AnimalFactory extends Factory
             'raza_id' => Raza::factory(),
             'categoria_id' => CategoriaAnimal::factory(),
             'estado_productivo_id' => EstadoProductivo::factory(),
-            'lote_id' => Lote::factory(),
+            'potrero_id' => Potrero::factory(),
             'madre_id' => null,
             'padre_id' => null,
             'color' => fake()->optional()->randomElement(['Negro', 'Colorado', 'Blanco', 'Overo']),
@@ -60,7 +60,7 @@ class AnimalFactory extends Factory
             'fecha_nacimiento' => null,
             'raza_id' => null,
             'estado_productivo_id' => null,
-            'lote_id' => null,
+            'potrero_id' => null,
             'madre_id' => null,
             'padre_id' => null,
             'color' => null,

@@ -29,19 +29,18 @@ class StorePotreroRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'establecimiento_id' => [
+            'parcela_id' => [
                 'required',
                 'integer',
-                Rule::exists('establecimientos', 'id')
+                Rule::exists('parcelas', 'id')
                     ->whereNull('deleted_at')
                     ->where('activo', true),
             ],
             'codigo' => 'required|string|max:20|unique:potreros,codigo|regex:/^[A-Z0-9_]+$/',
             'nombre' => 'required|string|max:100',
+            'capacidad_animales' => 'nullable|integer|min:0|max:999999',
             'area_ha' => 'nullable|numeric|min:0|max:99999999.99',
-            'tipo_pasto' => 'nullable|string|max:100',
-            'disponibilidad' => 'nullable|boolean',
-            'descripcion' => 'nullable|string|max:2000',
+            'observaciones' => 'nullable|string|max:2000',
         ];
     }
 
@@ -51,7 +50,7 @@ class StorePotreroRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'establecimiento_id.exists' => 'El establecimiento seleccionado no existe o no está activo.',
+            'parcela_id.exists' => 'La parcela seleccionada no existe o no está activa.',
             'codigo.regex' => 'El código solo puede contener letras mayúsculas, números y guiones bajos.',
             'codigo.unique' => 'Ya existe un potrero con este código.',
         ];

@@ -11,7 +11,7 @@ class ProductoServicio extends Model
 
     protected $fillable = [
         'servicio_id',
-        'medicamento_id',
+        'producto_id',
         'almacen_id',
         'precio',
         'cantidad',
@@ -34,11 +34,11 @@ class ProductoServicio extends Model
     }
 
     /**
-     * @return BelongsTo<Medicamento, $this>
+     * @return BelongsTo<Producto, $this>
      */
-    public function medicamento(): BelongsTo
+    public function producto(): BelongsTo
     {
-        return $this->belongsTo(Medicamento::class);
+        return $this->belongsTo(Producto::class);
     }
 
     /**

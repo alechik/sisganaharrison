@@ -408,32 +408,32 @@ export const breadcrumbs = {
     { title: "Detalle" },
   ],
 
-  medicamentos: [
+  productos: [
     { title: "Ganadería" },
     { title: "Productos" },
   ],
 
-  medicamentoCrear: [
+  productoCrear: [
     { title: "Ganadería" },
-    { title: "Medicamentos", path: "/medicamentos" },
-    { title: "Nuevo medicamento" },
+    { title: "Productos", path: "/productos" },
+    { title: "Nuevo producto" },
   ],
 
-  medicamentoEditar: [
+  productoEditar: [
     { title: "Ganadería" },
-    { title: "Medicamentos", path: "/medicamentos" },
-    { title: "Editar medicamento" },
+    { title: "Productos", path: "/productos" },
+    { title: "Editar producto" },
   ],
 
-  medicamentoDetalle: [
+  productoDetalle: [
     { title: "Ganadería" },
-    { title: "Medicamentos", path: "/medicamentos" },
+    { title: "Productos", path: "/productos" },
     { title: "Detalle" },
   ],
 
-  medicamentosEliminadas: [
+  productosEliminados: [
     { title: "Ganadería" },
-    { title: "Medicamentos", path: "/medicamentos" },
+    { title: "Productos", path: "/productos" },
     { title: "Eliminados" },
   ],
 
@@ -611,90 +611,90 @@ export const breadcrumbs = {
     { title: "Eliminados" },
   ],
 
-  establecimientos: [
+  estancias: [
     { title: "Infraestructura" },
     { title: "Estancias" },
   ],
 
-  establecimientoCrear: [
+  estanciaCrear: [
     { title: "Infraestructura" },
-    { title: "Estancias", path: "/establecimientos" },
+    { title: "Estancias", path: "/estancias" },
     { title: "Nueva Estancia" },
   ],
 
-  establecimientoEditar: [
+  estanciaEditar: [
     { title: "Infraestructura" },
-    { title: "Estancias", path: "/establecimientos" },
+    { title: "Estancias", path: "/estancias" },
     { title: "Editar Estancia" },
   ],
 
-  establecimientoDetalle: [
+  estanciaDetalle: [
     { title: "Infraestructura" },
-    { title: "Estancias", path: "/establecimientos" },
+    { title: "Estancias", path: "/estancias" },
     { title: "Detalle" },
   ],
 
-  establecimientosEliminados: [
+  estanciasEliminadas: [
     { title: "Infraestructura" },
-    { title: "Estancias", path: "/establecimientos" },
+    { title: "Estancias", path: "/estancias" },
     { title: "Eliminados" },
   ],
 
-  potreros: [
+  parcelas: [
     { title: "Infraestructura" },
     { title: "Parcelas" },
   ],
 
-  potreroCrear: [
+  parcelaCrear: [
     { title: "Infraestructura" },
-    { title: "Parcelas", path: "/potreros" },
+    { title: "Parcelas", path: "/parcelas" },
     { title: "Nueva Parcela" },
   ],
 
-  potreroEditar: [
+  parcelaEditar: [
     { title: "Infraestructura" },
-    { title: "Parcelas", path: "/potreros" },
+    { title: "Parcelas", path: "/parcelas" },
     { title: "Editar Parcela" },
   ],
 
-  potreroDetalle: [
+  parcelaDetalle: [
     { title: "Infraestructura" },
-    { title: "Parcelas", path: "/potreros" },
+    { title: "Parcelas", path: "/parcelas" },
     { title: "Detalle" },
   ],
 
-  potrerosEliminados: [
+  parcelasEliminadas: [
     { title: "Infraestructura" },
-    { title: "Parcelas", path: "/potreros" },
+    { title: "Parcelas", path: "/parcelas" },
     { title: "Eliminados" },
   ],
 
-  lotes: [
+  potreros: [
     { title: "Ganadería" },
     { title: "Potreros" },
   ],
 
-  loteCrear: [
+  potreroCrear: [
     { title: "Ganadería" },
-    { title: "Potreros", path: "/lotes" },
+    { title: "Potreros", path: "/potreros" },
     { title: "Nuevo Potrero" },
   ],
 
-  loteEditar: [
+  potreroEditar: [
     { title: "Ganadería" },
-    { title: "Potreros", path: "/lotes" },
+    { title: "Potreros", path: "/potreros" },
     { title: "Editar Potrero" },
   ],
 
-  loteDetalle: [
+  potreroDetalle: [
     { title: "Ganadería" },
-    { title: "Potreros", path: "/lotes" },
+    { title: "Potreros", path: "/potreros" },
     { title: "Detalle" },
   ],
 
-  lotesEliminados: [
+  potrerosEliminados: [
     { title: "Ganadería" },
-    { title: "Potreros", path: "/lotes" },
+    { title: "Potreros", path: "/potreros" },
     { title: "Eliminados" },
   ],
 

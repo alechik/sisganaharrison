@@ -2,104 +2,103 @@
 
 namespace Database\Seeders;
 
-use App\Models\Establecimiento;
 use App\Models\Potrero;
+use App\Models\Parcela;
 use Illuminate\Database\Seeder;
 
 class PotreroSeeder extends Seeder
 {
     /**
-     * Catálogo inicial de potreros por establecimiento.
+     * Catálogo inicial de potreros por parcela.
      *
      * @var list<array<string, mixed>>
      */
     public const POTREROS = [
         [
-            'establecimiento_codigo' => 'HAC_EL_CARMEN',
-            'codigo' => 'POT_CARMEN_N',
-            'nombre' => 'Potrero Norte',
-            'area_ha' => 120.50,
-            'tipo_pasto' => 'Brachiaria',
-            'descripcion' => 'Potrero principal de engorde en sector norte.',
+            'parcela_codigo' => 'PAR_CARMEN_N',
+            'codigo' => 'POT_CARMEN_ENG',
+            'nombre' => 'Potrero Engorde Norte',
+            'capacidad_animales' => 120,
+            'area_ha' => 45.50,
+            'observaciones' => 'Potrero principal de engorde en parcela norte.',
         ],
         [
-            'establecimiento_codigo' => 'HAC_EL_CARMEN',
-            'codigo' => 'POT_CARMEN_S',
-            'nombre' => 'Potrero Sur',
-            'area_ha' => 95.00,
-            'tipo_pasto' => 'Gamba',
-            'descripcion' => 'Potrero de descanso y recuperación forrajera.',
+            'parcela_codigo' => 'PAR_CARMEN_S',
+            'codigo' => 'POT_CARMEN_CRIA',
+            'nombre' => 'Potrero Cría Sur',
+            'capacidad_animales' => 80,
+            'area_ha' => 35.00,
+            'observaciones' => 'Potrero de cría en parcela sur.',
         ],
         [
-            'establecimiento_codigo' => 'EST_SAN_JOSE',
-            'codigo' => 'POT_SJ_01',
-            'nombre' => 'Potrero San José 1',
-            'area_ha' => 80.25,
-            'tipo_pasto' => 'Natural',
-            'descripcion' => 'División extensiva con aguadas naturales.',
+            'parcela_codigo' => 'PAR_SJ_01',
+            'codigo' => 'POT_SJ_A',
+            'nombre' => 'Potrero San José A',
+            'capacidad_animales' => 60,
+            'area_ha' => 28.25,
+            'observaciones' => 'Primer potrero operativo de San José.',
         ],
         [
-            'establecimiento_codigo' => 'EST_SAN_JOSE',
-            'codigo' => 'POT_SJ_02',
-            'nombre' => 'Potrero San José 2',
-            'area_ha' => 65.75,
-            'tipo_pasto' => 'Mezclado',
-            'descripcion' => 'Potrero para manejo rotacional.',
+            'parcela_codigo' => 'PAR_SJ_02',
+            'codigo' => 'POT_SJ_B',
+            'nombre' => 'Potrero San José B',
+            'capacidad_animales' => 55,
+            'area_ha' => 22.50,
+            'observaciones' => 'Potrero para manejo rotacional.',
         ],
         [
-            'establecimiento_codigo' => 'AGRO_HARRISON',
-            'codigo' => 'POT_HARR_A',
-            'nombre' => 'Potrero Alpha',
-            'area_ha' => 45.00,
-            'tipo_pasto' => 'Brachiaria',
-            'descripcion' => 'Potrero cercano al corral de ordeño.',
+            'parcela_codigo' => 'PAR_HARR_A',
+            'codigo' => 'POT_HARR_ORO',
+            'nombre' => 'Potrero Ordeño Alpha',
+            'capacidad_animales' => 40,
+            'area_ha' => 15.00,
+            'observaciones' => 'Potrero cercano al corral de ordeño.',
         ],
         [
-            'establecimiento_codigo' => 'HAC_LOS_ALEROS',
-            'codigo' => 'POT_ALEROS_1',
-            'nombre' => 'Los Aleros 1',
-            'area_ha' => 110.00,
-            'tipo_pasto' => 'Gamba',
-            'descripcion' => 'Potrero de cría en sistema extensivo.',
+            'parcela_codigo' => 'PAR_ALEROS_1',
+            'codigo' => 'POT_ALEROS_CRIA',
+            'nombre' => 'Potrero Cría Los Aleros',
+            'capacidad_animales' => 100,
+            'area_ha' => 50.00,
+            'observaciones' => 'Potrero extensivo de cría.',
         ],
         [
-            'establecimiento_codigo' => 'EST_EL_PROGRESO',
-            'codigo' => 'POT_PROG_E',
-            'nombre' => 'El Progreso Este',
-            'area_ha' => 150.00,
-            'tipo_pasto' => 'Brachiaria',
-            'descripcion' => 'Potrero de mayor capacidad del establecimiento.',
+            'parcela_codigo' => 'PAR_PROG_E',
+            'codigo' => 'POT_PROG_01',
+            'nombre' => 'Potrero El Progreso 1',
+            'capacidad_animales' => 150,
+            'area_ha' => 70.00,
+            'observaciones' => 'Potrero de mayor capacidad de la estancia.',
         ],
         [
-            'establecimiento_codigo' => 'HAC_SANTA_ROSA',
-            'codigo' => 'POT_SROSA_1',
-            'nombre' => 'Santa Rosa Principal',
-            'area_ha' => 200.00,
-            'tipo_pasto' => 'Natural',
-            'descripcion' => 'Potrero de pastoreo en temporada de lluvias.',
+            'parcela_codigo' => 'PAR_SROSA_1',
+            'codigo' => 'POT_SROSA_INV',
+            'nombre' => 'Potrero Santa Rosa Invierno',
+            'capacidad_animales' => 90,
+            'area_ha' => 55.00,
+            'observaciones' => 'Potrero de pastoreo en temporada seca.',
         ],
     ];
 
     public function run(): void
     {
         foreach (self::POTREROS as $potrero) {
-            $establecimiento = Establecimiento::query()
-                ->where('codigo', $potrero['establecimiento_codigo'])
+            $parcela = Parcela::query()
+                ->where('codigo', $potrero['parcela_codigo'])
                 ->first();
 
-            if (! $establecimiento) {
+            if (! $parcela) {
                 continue;
             }
 
             Potrero::firstOrCreate(
                 ['codigo' => $potrero['codigo']],
                 [
-                    'establecimiento_id' => $establecimiento->id,
+                    'parcela_id' => $parcela->id,
                     'nombre' => $potrero['nombre'],
+                    'capacidad_animales' => $potrero['capacidad_animales'],
                     'area_ha' => $potrero['area_ha'],
-                    'tipo_pasto' => $potrero['tipo_pasto'],
-                    'descripcion' => $potrero['descripcion'],
-                    'disponibilidad' => true,
+                    'observaciones' => $potrero['observaciones'],
                     'activo' => true,
                 ]
             );

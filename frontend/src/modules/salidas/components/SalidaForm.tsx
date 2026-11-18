@@ -23,9 +23,9 @@ interface LineState {
   sexo: string;
   edad_meses: number | null;
   categoria_nombre: string;
-  lote_nombre: string;
-  grupo_nombre: string;
   potrero_nombre: string;
+  grupo_nombre: string;
+  parcela_nombre: string;
   peso: number;
   precio: number;
   observaciones: string;
@@ -38,9 +38,9 @@ const emptyLine = (): LineState => ({
   sexo: "",
   edad_meses: null,
   categoria_nombre: "",
-  lote_nombre: "",
-  grupo_nombre: "",
   potrero_nombre: "",
+  grupo_nombre: "",
+  parcela_nombre: "",
   peso: 0,
   precio: 0,
   observaciones: "",
@@ -58,9 +58,9 @@ const fromAnimal = (animal: AnimalDisponibleSalida, precio = 0, observaciones = 
   sexo: animal.sexo,
   edad_meses: animal.edad_meses ?? null,
   categoria_nombre: animal.categoria_nombre ?? animal.categoria_codigo ?? "",
-  lote_nombre: animal.lote_nombre ?? "",
-  grupo_nombre: animal.grupo_nombre ?? "",
   potrero_nombre: animal.potrero_nombre ?? "",
+  grupo_nombre: animal.grupo_nombre ?? "",
+  parcela_nombre: animal.parcela_nombre ?? "",
   peso: animal.peso ?? 0,
   precio,
   observaciones,
@@ -73,9 +73,9 @@ const fromExcel = (fila: SalidaExcelFila): LineState => ({
   sexo: fila.sexo ?? "",
   edad_meses: fila.edad_meses ?? null,
   categoria_nombre: fila.categoria_nombre ?? fila.categoria_codigo ?? "",
-  lote_nombre: fila.lote_nombre ?? "",
-  grupo_nombre: fila.grupo_nombre ?? "",
   potrero_nombre: fila.potrero_nombre ?? "",
+  grupo_nombre: fila.grupo_nombre ?? "",
+  parcela_nombre: fila.parcela_nombre ?? "",
   peso: fila.peso ?? 0,
   precio: fila.precio ?? 0,
   observaciones: "",
@@ -331,7 +331,7 @@ export default function SalidaForm() {
           <div>
             <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90">Detalle de animales</h3>
             <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-              Solo animales activos. Lote, sexo, edad, peso y categoría se completan al seleccionar el arete.
+              Solo animales activos. Potrero, sexo, edad, peso y categoría se completan al seleccionar el arete.
             </p>
           </div>
           <div className="inline-flex shrink-0 rounded-lg border border-gray-200 p-1 dark:border-white/[0.08]">
@@ -396,7 +396,7 @@ export default function SalidaForm() {
                       <th className="w-14 px-2 py-2 font-medium">Edad</th>
                       <th className="w-16 px-2 py-2 font-medium">Peso</th>
                       <th className="w-20 px-2 py-2 font-medium">Precio</th>
-                      <th className="px-2 py-2 font-medium">Lote</th>
+                      <th className="px-2 py-2 font-medium">Potrero</th>
                       <th className="px-2 py-2 font-medium">Categoría</th>
                       <th className="px-2 py-2 font-medium">Estado</th>
                       <th className="w-16 px-2 py-2 font-medium"></th>
@@ -418,7 +418,7 @@ export default function SalidaForm() {
                         <td className="whitespace-nowrap px-2 py-2">{fila.edad_meses ?? "—"}</td>
                         <td className="whitespace-nowrap px-2 py-2">{fila.peso ?? "—"}</td>
                         <td className="whitespace-nowrap px-2 py-2">{fila.precio}</td>
-                        <td className="px-2 py-2">{fila.lote_nombre || "—"}</td>
+                        <td className="px-2 py-2">{fila.potrero_nombre || "—"}</td>
                         <td className="px-2 py-2">{fila.categoria_nombre || "—"}</td>
                         <td className="px-2 py-2">
                           {fila.valida ? "Lista" : fila.errores.join(" ")}
@@ -501,11 +501,11 @@ export default function SalidaForm() {
                     <InputField type="text" value={linea.edad_meses != null ? String(linea.edad_meses) : ""} disabled />
                   </div>
                   <div className="min-w-0 w-full sm:min-w-[11rem] sm:flex-[1_1_11rem]">
-                    <Label>Lote</Label>
+                    <Label>Potrero</Label>
                     <InputField
                       type="text"
                       value={
-                        [linea.lote_nombre, linea.grupo_nombre].filter(Boolean).join(" / ") || ""
+                        [linea.potrero_nombre, linea.grupo_nombre].filter(Boolean).join(" / ") || ""
                       }
                       disabled
                     />

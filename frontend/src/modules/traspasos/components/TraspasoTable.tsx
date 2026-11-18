@@ -14,7 +14,7 @@ import { EyeIcon, PencilIcon } from "@/icons";
 import { TRASPASO_ROUTES } from "../constants";
 import { TRASPASOS_PERMISSIONS } from "../permissions";
 import { Traspaso } from "../types";
-import { formatDate, formatMoney, formatPeso, loteLabel } from "../utils";
+import { formatDate, formatMoney, formatPeso, potreroLabel } from "../utils";
 
 interface Props {
   traspasos: Traspaso[];
@@ -32,8 +32,8 @@ export default function TraspasoTable({ traspasos, meta, onPageChange, onDownloa
             <TableRow>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">ID</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">Fecha</TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start">Potrero salida</TableCell>
-              <TableCell isHeader className="px-5 py-4 font-semibold text-start">Potrero ingreso</TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">Parcela salida</TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">Parcela ingreso</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">Animales</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">Total peso</TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">Monto total</TableCell>
@@ -54,10 +54,10 @@ export default function TraspasoTable({ traspasos, meta, onPageChange, onDownloa
                   <TableCell className="px-5 py-4 font-medium">{traspaso.id}</TableCell>
                   <TableCell className="px-5 py-4 text-gray-500">{formatDate(traspaso.fecha_traspaso)}</TableCell>
                   <TableCell className="px-5 py-4 text-gray-500">
-                    {loteLabel(traspaso.lote_salida_codigo, traspaso.lote_salida_nombre)}
+                    {potreroLabel(traspaso.potrero_salida_codigo, traspaso.potrero_salida_nombre)}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-gray-500">
-                    {loteLabel(traspaso.lote_ingreso_codigo, traspaso.lote_ingreso_nombre)}
+                    {potreroLabel(traspaso.potrero_ingreso_codigo, traspaso.potrero_ingreso_nombre)}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-gray-500">{traspaso.cantidad_animales ?? 0}</TableCell>
                   <TableCell className="px-5 py-4 text-gray-500">{formatPeso(traspaso.total_peso)}</TableCell>

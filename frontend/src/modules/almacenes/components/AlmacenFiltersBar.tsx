@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import DebouncedSearchField from "@/components/form/DebouncedSearchField";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
-import { getEstablecimientos } from "@/modules/establecimientos/services";
+import { getEstancias } from "@/modules/estancias/services";
 import { ALMACEN_SORT_OPTIONS } from "../constants";
 import { AlmacenFilters, AlmacenSortDirection } from "../types";
 
@@ -16,7 +16,7 @@ export default function AlmacenFiltersBar({ filters, onChange }: Props) {
   const [estancias, setEstancias] = useState<{ value: string; label: string }[]>([]);
 
   useEffect(() => {
-    getEstablecimientos({ per_page: 100, sort_by: "nombre", sort_dir: "asc" })
+    getEstancias({ per_page: 100, sort_by: "nombre", sort_dir: "asc" })
       .then((res) => setEstancias(res.data.map((item) => ({ value: String(item.id), label: item.nombre }))))
       .catch(console.error);
   }, []);
@@ -35,12 +35,12 @@ export default function AlmacenFiltersBar({ filters, onChange }: Props) {
       <div>
         <Label>Estancia</Label>
         <Select
-          value={filters.establecimiento_id ? String(filters.establecimiento_id) : "all"}
+          value={filters.estancia_id ? String(filters.estancia_id) : "all"}
           placeholder="Todas"
           options={[{ value: "all", label: "Todas" }, ...estancias]}
           onChange={(value) =>
             onChange({
-              establecimiento_id: value === "all" ? undefined : Number(value),
+              estancia_id: value === "all" ? undefined : Number(value),
             })
           }
         />

@@ -15,7 +15,7 @@ class PresentacionFactory extends Factory
     public function definition(): array
     {
         return [
-            'descripcion' => fake()->unique()->words(2, true),
+            'nombre' => fake()->unique()->lexify('Pres??????'),
         ];
     }
 }

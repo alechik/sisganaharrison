@@ -7,8 +7,8 @@ import RegistradoPorField from "@/components/form/RegistradoPorField";
 import Select from "@/components/form/Select";
 import Button from "@/components/ui/button/Button";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
-import { getLotes } from "@/modules/lotes/services";
 import { getPotreros } from "@/modules/potreros/services";
+import { getParcelas } from "@/modules/parcelas/services";
 import { getSocios } from "@/modules/socios-de-negocio/services";
 import { VENTA_ROUTES } from "../constants";
 import { useCreateVenta, useUpdateVenta } from "../hooks";
@@ -17,8 +17,8 @@ import { AnimalDisponibleVenta, VentaCreateRequest } from "../types";
 import { formatMoney, formatPeso, isPendiente, lineSubtotal } from "../utils";
 
 interface LineState {
+  parcela_id: number | null;
   potrero_id: number | null;
-  lote_id: number | null;
   categoria_id: number | null;
   animal_id: number | null;
   peso: number;
@@ -31,8 +31,8 @@ interface Props {
 }
 
 const emptyLine = (): LineState => ({
+  parcela_id: null,
   potrero_id: null,
-  lote_id: null,
   categoria_id: null,
   animal_id: null,
   peso: 0,
@@ -54,9 +54,9 @@ export default function VentaForm({ ventaId }: Props) {
   const [descuento, setDescuento] = useState(0);
   const [lines, setLines] = useState<LineState[]>([emptyLine()]);
   const [clientes, setClientes] = useState<{ value: string; label: string }[]>([]);
-  const [potreros, setPotreros] = useState<{ value: string; label: string }[]>([]);
+  const [parcelas, setParcelas] = useState<{ value: string; label: string }[]>([]);
   const [categorias, setCategorias] = useState<{ value: string; label: string }[]>([]);
-  const [lotesByPotrero, setLotesByPotrero] = useState<Record<number, { value: string; label: string }[]>>({});
+  const [parcelasByParcela, setPotrerosByParcela] = useState<Record<number, { value: string; label: string }[]>>({});
   const [animales, setAnimales] = useState<AnimalDisponibleVenta[]>([]);
   const [loadingEdit, setLoadingEdit] = useState(isEdit);
   const [registradoPorNombre, setRegistradoPorNombre] = useState<string | null>(null);
@@ -64,13 +64,13 @@ export default function VentaForm({ ventaId }: Props) {
   useEffect(() => {
     const load = async () => {
       try {
-        const [socios, potreroRes, categoriaRes] = await Promise.all([
+        const [socios, parcelaRes, categoriaRes] = await Promise.all([
           getSocios({ tiene_tipo: "CLIENTE", per_page: 100, page: 1 }),
-          getPotreros({ activo: true, per_page: 100, page: 1 }),
+          getParcelas({ activo: true, per_page: 100, page: 1 }),
           getCategoriasAnimales({ activo: true, per_page: 100, page: 1 }),
         ]);
         setClientes(socios.data.map((item) => ({ value: String(item.id), label: item.razon_social })));
-        setPotreros(potreroRes.data.map((item) => ({ value: String(item.id), label: item.nombre })));
+        setParcelas(parcelaRes.data.map((item) => ({ value: String(item.id), label: item.nombre })));
         setCategorias(
           categoriaRes.data.map((item) => ({
             value: String(item.id),
@@ -106,8 +106,8 @@ export default function VentaForm({ ventaId }: Props) {
         setDescuento(venta.descuento ?? 0);
         setLines(
           (venta.detalles ?? []).map((detalle) => ({
-            potrero_id: null,
-            lote_id: detalle.lote_id ?? null,
+            parcela_id: null,
+            potrero_id: detalle.potrero_id ?? null,
             categoria_id: null,
             animal_id: detalle.animal_id,
             peso: detalle.peso,
@@ -122,15 +122,15 @@ export default function VentaForm({ ventaId }: Props) {
             const animal = disponibles.find((item) => item.id === line.animal_id);
             return {
               ...line,
+              parcela_id: animal?.parcela_id ?? line.parcela_id,
               potrero_id: animal?.potrero_id ?? line.potrero_id,
-              lote_id: animal?.lote_id ?? line.lote_id,
               categoria_id: animal?.categoria_id ?? line.categoria_id,
             };
           })
         );
         for (const animal of disponibles) {
-          if (animal.potrero_id) {
-            await loadLotes(animal.potrero_id);
+          if (animal.parcela_id) {
+            await loadPotreros(animal.parcela_id);
           }
         }
       } catch (err) {
@@ -144,30 +144,30 @@ export default function VentaForm({ ventaId }: Props) {
     loadVenta();
   }, [ventaId, navigate, setCreateError]);
 
-  const loadLotes = async (potreroId: number) => {
-    if (lotesByPotrero[potreroId]) {
+  const loadPotreros = async (parcelaId: number) => {
+    if (parcelasByParcela[parcelaId]) {
       return;
     }
-    const response = await getLotes({ potrero_id: potreroId, activo: true, per_page: 100, page: 1 });
-    setLotesByPotrero((current) => ({
+    const response = await getPotreros({ parcela_id: parcelaId, activo: true, per_page: 100, page: 1 });
+    setPotrerosByParcela((current) => ({
       ...current,
-      [potreroId]: response.data.map((item) => ({
+      [parcelaId]: response.data.map((item) => ({
         value: String(item.id),
         label: item.nombre,
       })),
     }));
   };
 
-  const loadAnimales = async (potreroId?: number | null) => {
-    if (!potreroId) {
+  const loadAnimales = async (parcelaId?: number | null) => {
+    if (!parcelaId) {
       return;
     }
     const data = await getAnimalesDisponiblesVenta({
-      potrero_id: potreroId,
+      parcela_id: parcelaId,
       venta_id: ventaId,
     });
     setAnimales((current) => {
-      const others = current.filter((animal) => animal.potrero_id !== potreroId);
+      const others = current.filter((animal) => animal.parcela_id !== parcelaId);
       return [...others, ...data];
     });
   };
@@ -181,22 +181,22 @@ export default function VentaForm({ ventaId }: Props) {
     setLines((current) => current.map((line, i) => (i === index ? { ...line, ...patch } : line)));
   };
 
-  const handlePotreroChange = async (index: number, value: string) => {
-    const potreroId = value ? Number(value) : null;
+  const handleParcelaChange = async (index: number, value: string) => {
+    const parcelaId = value ? Number(value) : null;
     updateLine(index, {
-      potrero_id: potreroId,
-      lote_id: null,
+      parcela_id: parcelaId,
+      potrero_id: null,
       animal_id: null,
     });
-    if (potreroId) {
-      await loadLotes(potreroId);
-      await loadAnimales(potreroId);
+    if (parcelaId) {
+      await loadPotreros(parcelaId);
+      await loadAnimales(parcelaId);
     }
   };
 
-  const handleLoteChange = (index: number, value: string) => {
-    const loteId = value ? Number(value) : null;
-    updateLine(index, { lote_id: loteId, animal_id: null });
+  const handlePotreroChange = (index: number, value: string) => {
+    const potreroId = value ? Number(value) : null;
+    updateLine(index, { potrero_id: potreroId, animal_id: null });
   };
 
   const handleCategoriaChange = (index: number, value: string) => {
@@ -209,7 +209,7 @@ export default function VentaForm({ ventaId }: Props) {
     const animal = animales.find((item) => item.id === animalId);
     updateLine(index, {
       animal_id: animalId,
-      lote_id: animal?.lote_id ?? lines[index].lote_id,
+      potrero_id: animal?.potrero_id ?? lines[index].potrero_id,
       peso: animal?.peso ?? 0,
       precio:
         animal?.precio_kilo && animal.peso
@@ -299,17 +299,17 @@ export default function VentaForm({ ventaId }: Props) {
           </Button>
         </div>
         <p className="text-sm text-gray-500">
-          Seleccione parcela, potrero y categoría para listar únicamente animales ACTIVO disponibles para venta.
+          Seleccione parcela, parcela y categoría para listar únicamente animales ACTIVO disponibles para venta.
         </p>
 
         {lines.map((line, index) => {
-          const loteOptions = line.potrero_id ? lotesByPotrero[line.potrero_id] ?? [] : [];
+          const potreroOptions = line.parcela_id ? parcelasByParcela[line.parcela_id] ?? [] : [];
           const animalOptions = animales
             .filter((animal) => {
-              if (line.potrero_id && animal.potrero_id !== line.potrero_id) {
+              if (line.parcela_id && animal.parcela_id !== line.parcela_id) {
                 return false;
               }
-              if (line.lote_id && animal.lote_id !== line.lote_id) {
+              if (line.potrero_id && animal.potrero_id !== line.potrero_id) {
                 return false;
               }
               if (line.categoria_id && animal.categoria_id !== line.categoria_id) {
@@ -322,7 +322,7 @@ export default function VentaForm({ ventaId }: Props) {
             })
             .map((animal) => ({
               value: String(animal.id),
-              label: `${animal.codigo}${animal.arete ? ` · ${animal.arete}` : ""} · ${animal.lote_nombre ?? "Sin potrero"}`,
+              label: `${animal.codigo}${animal.arete ? ` · ${animal.arete}` : ""} · ${animal.potrero_nombre ?? "Sin potrero"}`,
             }));
 
           return (
@@ -333,19 +333,19 @@ export default function VentaForm({ ventaId }: Props) {
               <div>
                 <Label>Parcela *</Label>
                 <Select
-                  value={line.potrero_id ? String(line.potrero_id) : ""}
+                  value={line.parcela_id ? String(line.parcela_id) : ""}
                   placeholder="Parcela"
-                  options={potreros}
-                  onChange={(value) => handlePotreroChange(index, value)}
+                  options={parcelas}
+                  onChange={(value) => handleParcelaChange(index, value)}
                 />
               </div>
               <div>
                 <Label>Potrero</Label>
                 <Select
-                  value={line.lote_id ? String(line.lote_id) : ""}
+                  value={line.potrero_id ? String(line.potrero_id) : ""}
                   placeholder="Todos los potreros"
-                  options={[{ value: "", label: "Todos los potreros" }, ...loteOptions]}
-                  onChange={(value) => handleLoteChange(index, value)}
+                  options={[{ value: "", label: "Todos los potreros" }, ...potreroOptions]}
+                  onChange={(value) => handlePotreroChange(index, value)}
                 />
               </div>
               <div>
@@ -361,7 +361,7 @@ export default function VentaForm({ ventaId }: Props) {
                 <Label>Animal *</Label>
                 <Select
                   value={line.animal_id ? String(line.animal_id) : ""}
-                  placeholder={line.potrero_id ? "Seleccione animal" : "Elija una parcela"}
+                  placeholder={line.parcela_id ? "Seleccione animal" : "Elija una parcela"}
                   options={animalOptions}
                   onChange={(value) => handleAnimalChange(index, value)}
                 />

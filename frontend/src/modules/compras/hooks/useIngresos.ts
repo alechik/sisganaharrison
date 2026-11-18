@@ -62,7 +62,7 @@ export const useIngresos = () => {
     filters.codigo,
     filters.proveedor_id,
     filters.tipo_ingreso_id,
-    filters.lote_id,
+    filters.potrero_id,
     filters.fecha,
     filters.sort_by,
     filters.sort_dir,

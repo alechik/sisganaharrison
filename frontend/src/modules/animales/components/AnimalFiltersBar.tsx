@@ -14,7 +14,7 @@ export default function AnimalFiltersBar({ filters, onChange }: Props) {
   const {
     razaOptions,
     categoriaOptions,
-    loteOptions,
+    potreroOptions,
     loading,
   } = useAnimalReferenceOptions();
 
@@ -56,11 +56,11 @@ export default function AnimalFiltersBar({ filters, onChange }: Props) {
       <div>
         <Label>Potrero</Label>
         <Select
-          value={filters.lote_id ? String(filters.lote_id) : "all"}
+          value={filters.potrero_id ? String(filters.potrero_id) : "all"}
           placeholder={loading ? "Cargando..." : "Todos"}
-          options={[{ value: "all", label: "Todos" }, ...loteOptions]}
+          options={[{ value: "all", label: "Todos" }, ...potreroOptions]}
           onChange={(value) =>
-            onChange({ lote_id: value === "all" ? undefined : Number(value) })
+            onChange({ potrero_id: value === "all" ? undefined : Number(value) })
           }
         />
       </div>

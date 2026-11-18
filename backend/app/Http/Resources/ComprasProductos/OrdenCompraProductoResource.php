@@ -29,9 +29,9 @@ class OrdenCompraProductoResource extends JsonResource
             'detalles' => $this->whenLoaded('detalles', function () {
                 return $this->detalles->map(fn ($detalle) => [
                     'id' => $detalle->id,
-                    'medicamento_id' => $detalle->medicamento_id,
-                    'producto_codigo' => $detalle->medicamento?->codigo,
-                    'producto_nombre' => $detalle->medicamento?->nombre,
+                    'producto_id' => $detalle->producto_id,
+                    'producto_codigo' => $detalle->producto?->codigo,
+                    'producto_nombre' => $detalle->producto?->nombre,
                     'cantidad' => $detalle->cantidad,
                     'cantidad_pendiente' => $detalle->cantidad_pendiente ?? null,
                     'precio' => (float) $detalle->precio,

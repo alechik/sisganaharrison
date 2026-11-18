@@ -111,7 +111,7 @@ class ServicioReproductivoController extends Controller
             'hembra:id,codigo,arete,sexo',
             'macho:id,codigo,arete,sexo',
             'usuario:id,nombre,apellido',
-            'insumos.medicamento:id,codigo,nombre,precio',
+            'insumos.producto:id,codigo,nombre,precio',
             'insumos.almacen:id,nombre',
             'gestacion.parto.nacimientos',
         ]);

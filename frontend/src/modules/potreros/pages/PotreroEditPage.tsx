@@ -12,10 +12,10 @@ export default function PotreroEditPage() {
   return (
     <div className="space-y-6">
       <PageBreadCrumb
-        pageTitle="Editar parcela"
+        pageTitle="Editar potrero"
         items={breadcrumbs.potreroEditar}
       />
-      <ComponentCard title="Formulario de parcela">
+      <ComponentCard title="Formulario de potrero">
         <PotreroForm potreroId={potreroId} />
       </ComponentCard>
     </div>

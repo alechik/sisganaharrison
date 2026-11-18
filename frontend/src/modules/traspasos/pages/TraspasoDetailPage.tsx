@@ -16,7 +16,7 @@ import { TRASPASO_ROUTES } from "../constants";
 import { TRASPASOS_PERMISSIONS } from "../permissions";
 import { downloadTraspasoPdf, getTraspaso, viewTraspasoPdf } from "../services";
 import { Traspaso } from "../types";
-import { formatDate, formatMoney, formatPeso, formatSexo, loteLabel } from "../utils";
+import { formatDate, formatMoney, formatPeso, formatSexo, potreroLabel } from "../utils";
 
 export default function TraspasoDetailPage() {
   const { id } = useParams();
@@ -102,11 +102,11 @@ export default function TraspasoDetailPage() {
           </div>
           <div>
             <dt className="text-sm text-gray-500">Potrero de salida</dt>
-            <dd className="font-medium">{loteLabel(traspaso.lote_salida_codigo, traspaso.lote_salida_nombre)}</dd>
+            <dd className="font-medium">{potreroLabel(traspaso.potrero_salida_codigo, traspaso.potrero_salida_nombre)}</dd>
           </div>
           <div>
             <dt className="text-sm text-gray-500">Potrero de ingreso</dt>
-            <dd className="font-medium">{loteLabel(traspaso.lote_ingreso_codigo, traspaso.lote_ingreso_nombre)}</dd>
+            <dd className="font-medium">{potreroLabel(traspaso.potrero_ingreso_codigo, traspaso.potrero_ingreso_nombre)}</dd>
           </div>
           <div>
             <dt className="text-sm text-gray-500">Cantidad de animales</dt>

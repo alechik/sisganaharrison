@@ -25,8 +25,8 @@ return new class extends Migration
             $table->foreignId('estado_productivo_id')
                 ->constrained('estados_productivos')
                 ->restrictOnDelete();
-            $table->foreignId('lote_id')
-                ->constrained('lotes')
+            $table->foreignId('potrero_id')
+                ->constrained('potreros')
                 ->restrictOnDelete();
             $table->foreignId('madre_id')
                 ->nullable()
@@ -45,7 +45,7 @@ return new class extends Migration
             $table->index('raza_id');
             $table->index('categoria_id');
             $table->index('estado_productivo_id');
-            $table->index('lote_id');
+            $table->index('potrero_id');
             $table->index('activo');
             $table->index('nombre');
 

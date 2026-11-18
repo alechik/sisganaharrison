@@ -12,7 +12,7 @@ const paramsDe = (filtros: ReporteFiltros, incluirPagina: boolean) => {
     if (filtros.raza_id !== "all") params.raza_id = filtros.raza_id;
     if (filtros.categoria_id !== "all") params.categoria_id = filtros.categoria_id;
     if (filtros.estado_productivo_id !== "all") params.estado_productivo_id = filtros.estado_productivo_id;
-    if (filtros.lote_id !== "all") params.lote_id = filtros.lote_id;
+    if (filtros.potrero_id !== "all") params.potrero_id = filtros.potrero_id;
     if (filtros.estado !== "all") params.estado = filtros.estado;
   }
   if (filtros.tipo === "sanidad") {

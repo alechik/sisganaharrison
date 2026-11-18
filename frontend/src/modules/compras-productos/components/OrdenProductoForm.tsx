@@ -6,7 +6,7 @@ import Label from "@/components/form/Label";
 import RegistradoPorField from "@/components/form/RegistradoPorField";
 import Select from "@/components/form/Select";
 import Button from "@/components/ui/button/Button";
-import { getMedicamentos } from "@/modules/medicamentos/services";
+import { getProductos } from "@/modules/productos/services";
 import { getSocios } from "@/modules/socios-de-negocio/services";
 import { ORDEN_PRODUCTO_ROUTES } from "../constants";
 import { useCreateOrdenProducto, useUpdateOrdenProducto } from "../hooks";
@@ -19,7 +19,7 @@ interface Props {
 }
 
 const emptyLine = (): OrdenCompraProductoDetalleRequest => ({
-  medicamento_id: 0,
+  producto_id: 0,
   cantidad: 1,
   precio: 0,
   descuento: 0,
@@ -54,7 +54,7 @@ export default function OrdenProductoForm({ ordenId }: Props) {
       try {
         const [socios, meds] = await Promise.all([
           getSocios({ tiene_tipo: "PROVEEDOR", per_page: 100, page: 1 }),
-          getMedicamentos({ activo: true, per_page: 100, page: 1 }),
+          getProductos({ activo: true, per_page: 100, page: 1 }),
         ]);
         setProveedores(
           socios.data.map((socio) => ({
@@ -95,7 +95,7 @@ export default function OrdenProductoForm({ ordenId }: Props) {
           fecha: orden.fecha,
           descuento: orden.descuento,
           detalles: (orden.detalles ?? []).map((detalle) => ({
-            medicamento_id: detalle.medicamento_id,
+            producto_id: detalle.producto_id,
             cantidad: detalle.cantidad,
             precio: detalle.precio,
             descuento: detalle.descuento,
@@ -153,7 +153,7 @@ export default function OrdenProductoForm({ ordenId }: Props) {
       return;
     }
 
-    if (form.detalles.some((line) => !line.medicamento_id || line.cantidad < 1 || line.precio < 0)) {
+    if (form.detalles.some((line) => !line.producto_id || line.cantidad < 1 || line.precio < 0)) {
       setCreateError("Cada línea debe tener producto, cantidad mayor a cero y precio válido.");
       return;
     }
@@ -162,7 +162,7 @@ export default function OrdenProductoForm({ ordenId }: Props) {
       ...form,
       descuento: form.descuento ?? 0,
       detalles: form.detalles.map((line) => ({
-        medicamento_id: line.medicamento_id,
+        producto_id: line.producto_id,
         cantidad: line.cantidad,
         precio: line.precio,
         descuento: line.descuento ?? 0,
@@ -242,13 +242,13 @@ export default function OrdenProductoForm({ ordenId }: Props) {
             <div className="md:col-span-2">
               <Label>Producto</Label>
               <Select
-                value={line.medicamento_id ? String(line.medicamento_id) : ""}
+                value={line.producto_id ? String(line.producto_id) : ""}
                 placeholder="Seleccione un producto"
                 options={productos.map((item) => ({ value: String(item.id), label: item.nombre }))}
                 onChange={(value) => {
                   const prod = productos.find((item) => item.id === Number(value));
                   updateLine(index, {
-                    medicamento_id: Number(value),
+                    producto_id: Number(value),
                     precio: prod?.precio ?? line.precio,
                   });
                 }}

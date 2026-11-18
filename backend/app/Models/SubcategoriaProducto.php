@@ -48,10 +48,10 @@ class SubcategoriaProducto extends Model
     }
 
     /**
-     * @return HasMany<Medicamento, $this>
+     * @return HasMany<Producto, $this>
      */
-    public function medicamentos(): HasMany
+    public function productos(): HasMany
     {
-        return $this->hasMany(Medicamento::class, 'subcategoria_producto_id');
+        return $this->hasMany(Producto::class, 'subcategoria_producto_id');
     }
 }

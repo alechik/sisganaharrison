@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\CategoriaProducto;
-use App\Models\Medicamento;
+use App\Models\Producto;
 use App\Models\SubcategoriaProducto;
 use Illuminate\Database\Seeder;
 
@@ -60,7 +60,7 @@ class CategoriaProductoSeeder extends Seeder
         ],
         'Reproducción y maternidad' => [
             'Productos reproductivos',
-            'Semen bovino',
+            'Semen de Bovino',
             'Hormonas reproductivas',
             'Catéteres y fundas de inseminación',
             'Lubricantes obstétricos',
@@ -87,25 +87,28 @@ class CategoriaProductoSeeder extends Seeder
         ],
     ];
 
-    public const MAPA_MEDICAMENTOS = [
+    public const MAPA_PRODUCTOS = [
         'AFTOSA' => ['Vacunas y prevención de enfermedades', 'Otras vacunas'],
         'BRUCELOSIS' => ['Vacunas y prevención de enfermedades', 'Vacunas reproductivas'],
         'CLOSTRIDIOSIS' => ['Vacunas y prevención de enfermedades', 'Vacunas clostridiales'],
         'IVERMECTINA' => ['Antiparasitarios', 'Antiparasitarios internos'],
         'OXITETRA' => ['Medicamentos veterinarios', 'Antibióticos'],
         'DORAMECTINA' => ['Antiparasitarios', 'Antiparasitarios combinados'],
+        'SEM_BRAHMAN' => ['Reproducción y maternidad', 'Semen de Bovino'],
+        'SEM_NELORE' => ['Reproducción y maternidad', 'Semen de Bovino'],
+        'SEM_ANGUS' => ['Reproducción y maternidad', 'Semen de Bovino'],
     ];
 
     public function run(): void
     {
         foreach (self::CLASIFICACION as $categoriaNombre => $subcategorias) {
-            $categoria = CategoriaProducto::query()->firstOrCreate(
+            $categoria = CategoriaProducto::query()->updateOrCreate(
                 ['nombre' => $categoriaNombre],
                 ['activo' => true]
             );
 
             foreach ($subcategorias as $subNombre) {
-                SubcategoriaProducto::query()->firstOrCreate(
+                SubcategoriaProducto::query()->updateOrCreate(
                     [
                         'categoria_producto_id' => $categoria->id,
                         'nombre' => $subNombre,
@@ -120,7 +123,7 @@ class CategoriaProductoSeeder extends Seeder
             ->where('nombre', 'Medicamentos específicos')
             ->first();
 
-        foreach (self::MAPA_MEDICAMENTOS as $codigo => [$cat, $sub]) {
+        foreach (self::MAPA_PRODUCTOS as $codigo => [$cat, $sub]) {
             $subcategoria = SubcategoriaProducto::query()
                 ->where('nombre', $sub)
                 ->whereHas('categoria', fn ($q) => $q->where('nombre', $cat))
@@ -128,12 +131,12 @@ class CategoriaProductoSeeder extends Seeder
             if (! $subcategoria) {
                 continue;
             }
-            Medicamento::query()->where('codigo', $codigo)->whereNull('subcategoria_producto_id')
+            Producto::query()->where('codigo', $codigo)
                 ->update(['subcategoria_producto_id' => $subcategoria->id]);
         }
 
         if ($fallback) {
-            Medicamento::query()->whereNull('subcategoria_producto_id')
+            Producto::query()->whereNull('subcategoria_producto_id')
                 ->update(['subcategoria_producto_id' => $fallback->id]);
         }
     }

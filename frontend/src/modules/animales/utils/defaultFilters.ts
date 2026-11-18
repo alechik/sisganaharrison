@@ -8,7 +8,7 @@ export const defaultAnimalFilters = (): AnimalFilters => ({
   raza_id: undefined,
   categoria_id: undefined,
   estado_productivo_id: undefined,
-  lote_id: undefined,
+  potrero_id: undefined,
   sexo: undefined,
   activo: undefined,
   sort_by: "codigo",

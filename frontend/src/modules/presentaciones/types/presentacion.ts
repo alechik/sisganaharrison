@@ -1,13 +1,13 @@
 ﻿export interface Presentacion {
   id: number;
-  descripcion: string;
+  nombre: string;
   created_at?: string | null;
   updated_at?: string | null;
   deleted_at?: string | null;
 }
 
 export interface PresentacionCreateRequest {
-  descripcion: string;
+  nombre: string;
 }
 
 export interface PresentacionUpdateRequest extends PresentacionCreateRequest {}

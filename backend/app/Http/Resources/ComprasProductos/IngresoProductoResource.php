@@ -28,10 +28,10 @@ class IngresoProductoResource extends JsonResource
             'detalles' => $this->whenLoaded('detalles', function () {
                 return $this->detalles->map(fn ($detalle) => [
                     'id' => $detalle->id,
-                    'medicamento_id' => $detalle->medicamento_id,
-                    'producto_codigo' => $detalle->medicamento?->codigo,
-                    'producto_nombre' => $detalle->medicamento?->nombre,
-                    'unidad' => $detalle->medicamento?->presentacion?->descripcion,
+                    'producto_id' => $detalle->producto_id,
+                    'producto_codigo' => $detalle->producto?->codigo,
+                    'producto_nombre' => $detalle->producto?->nombre,
+                    'unidad' => $detalle->producto?->presentacion?->nombre,
                     'cantidad' => $detalle->cantidad,
                     'precio' => (float) $detalle->precio,
                     'descuento' => (float) $detalle->descuento,

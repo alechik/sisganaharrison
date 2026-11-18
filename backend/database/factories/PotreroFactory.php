@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Establecimiento;
 use App\Models\Potrero;
+use App\Models\Parcela;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -19,13 +19,12 @@ class PotreroFactory extends Factory
         $nombre = fake()->unique()->words(2, true);
 
         return [
-            'establecimiento_id' => Establecimiento::factory(),
-            'codigo' => Str::upper(Str::slug($nombre, '_')),
+            'parcela_id' => Parcela::factory(),
+            'codigo' => 'POT_'.strtoupper(Str::random(8)),
             'nombre' => Str::title($nombre),
-            'area_ha' => fake()->optional()->randomFloat(2, 10, 500),
-            'tipo_pasto' => fake()->optional()->randomElement(['Brachiaria', 'Gamba', 'Natural', 'Mezclado']),
-            'disponibilidad' => true,
-            'descripcion' => fake()->optional()->sentence(),
+            'capacidad_animales' => fake()->numberBetween(20, 200),
+            'area_ha' => fake()->optional()->randomFloat(2, 5, 100),
+            'observaciones' => fake()->optional()->sentence(),
             'activo' => true,
         ];
     }

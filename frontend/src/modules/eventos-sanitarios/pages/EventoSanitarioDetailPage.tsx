@@ -136,7 +136,7 @@ export default function EventoSanitarioDetailPage() {
         </dl>
       </ComponentCard>
 
-      <ComponentCard title="Detalle histórico (animales, potreros y medicamentos)">
+      <ComponentCard title="Detalle histórico (animales, potreros y productos)">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -162,22 +162,22 @@ export default function EventoSanitarioDetailPage() {
                 </TableRow>
               ) : (
                 (evento.detalles ?? []).map((detalle) => (
-                  <TableRow key={detalle.id ?? `${detalle.animal_id}-${detalle.medicamento_id}`}>
+                  <TableRow key={detalle.id ?? `${detalle.animal_id}-${detalle.producto_id}`}>
                     <TableCell className="px-4 py-3 text-sm">
                       {formatAnimalLabel(detalle.animal_codigo, detalle.animal_arete)}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-sm">{detalle.animal_codigo || "—"}</TableCell>
                     <TableCell className="px-4 py-3 text-sm">{detalle.animal_arete || "Sin arete"}</TableCell>
-                    <TableCell className="px-4 py-3 text-sm">{detalle.lote_nombre || "—"}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{detalle.potrero_nombre || "—"}</TableCell>
                     <TableCell className="px-4 py-3 text-sm">{detalle.peso_animal}</TableCell>
                     <TableCell className="px-4 py-3 text-sm">
-                      {detalle.medicamento_nombre || "—"}
-                      {detalle.medicamento_codigo ? ` (${detalle.medicamento_codigo})` : ""}
+                      {detalle.producto_nombre || "—"}
+                      {detalle.producto_codigo ? ` (${detalle.producto_codigo})` : ""}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-sm">{detalle.presentacion_descripcion || "—"}</TableCell>
                     <TableCell className="px-4 py-3 text-sm">{detalle.almacen_nombre || "—"}</TableCell>
                     <TableCell className="px-4 py-3 text-sm">{detalle.cantidad ?? 1}</TableCell>
-                    <TableCell className="px-4 py-3 text-sm">{formatMoney(detalle.precio_medicamento)}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm">{formatMoney(detalle.precio_producto)}</TableCell>
                   </TableRow>
                 ))
               )}

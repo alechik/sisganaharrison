@@ -3,7 +3,7 @@
 namespace App\Services\Almacenes;
 
 use App\Models\Almacen;
-use App\Models\Establecimiento;
+use App\Models\Estancia;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
@@ -30,16 +30,16 @@ class AlmacenService
 
     public function find(int $id): Almacen
     {
-        return Almacen::query()->with('establecimiento:id,codigo,nombre')->findOrFail($id);
+        return Almacen::query()->with('estancia:id,codigo,nombre')->findOrFail($id);
     }
 
-    public function asegurarParaEstablecimiento(Establecimiento $establecimiento): Almacen
+    public function asegurarParaEstancia(Estancia $estancia): Almacen
     {
         return Almacen::query()->firstOrCreate(
-            ['establecimiento_id' => $establecimiento->id],
+            ['estancia_id' => $estancia->id],
             [
-                'nombre' => 'Almacén '.$establecimiento->nombre,
-                'direccion' => $establecimiento->direccion,
+                'nombre' => 'Almacén '.$estancia->nombre,
+                'direccion' => $estancia->direccion,
                 'observacion' => 'Almacén principal de la estancia',
                 'activo' => true,
             ]
@@ -51,9 +51,9 @@ class AlmacenService
      */
     public function create(array $data): Almacen
     {
-        $this->assertEstablecimientoLibre((int) $data['establecimiento_id']);
+        $this->assertEstanciaLibre((int) $data['estancia_id']);
 
-        return Almacen::query()->create($data)->load('establecimiento:id,codigo,nombre');
+        return Almacen::query()->create($data)->load('estancia:id,codigo,nombre');
     }
 
     /**
@@ -61,12 +61,12 @@ class AlmacenService
      */
     public function update(Almacen $almacen, array $data): Almacen
     {
-        if ((int) $data['establecimiento_id'] !== (int) $almacen->establecimiento_id) {
-            $this->assertEstablecimientoLibre((int) $data['establecimiento_id'], $almacen->id);
+        if ((int) $data['estancia_id'] !== (int) $almacen->estancia_id) {
+            $this->assertEstanciaLibre((int) $data['estancia_id'], $almacen->id);
         }
         $almacen->update($data);
 
-        return $almacen->fresh(['establecimiento:id,codigo,nombre']);
+        return $almacen->fresh(['estancia:id,codigo,nombre']);
     }
 
     public function delete(Almacen $almacen): void
@@ -84,10 +84,10 @@ class AlmacenService
     public function restore(int $id): Almacen
     {
         $almacen = Almacen::onlyTrashed()->findOrFail($id);
-        $this->assertEstablecimientoLibre((int) $almacen->establecimiento_id, $almacen->id);
+        $this->assertEstanciaLibre((int) $almacen->estancia_id, $almacen->id);
         $almacen->restore();
 
-        return $almacen->fresh(['establecimiento:id,codigo,nombre']);
+        return $almacen->fresh(['estancia:id,codigo,nombre']);
     }
 
     public function toggleStatus(Almacen $almacen): Almacen
@@ -95,24 +95,24 @@ class AlmacenService
         $almacen->activo = ! $almacen->activo;
         $almacen->save();
 
-        return $almacen->fresh(['establecimiento:id,codigo,nombre']);
+        return $almacen->fresh(['estancia:id,codigo,nombre']);
     }
 
-    private function assertEstablecimientoLibre(int $establecimientoId, ?int $ignoreId = null): void
+    private function assertEstanciaLibre(int $estanciaId, ?int $ignoreId = null): void
     {
-        $query = Almacen::query()->where('establecimiento_id', $establecimientoId);
+        $query = Almacen::query()->where('estancia_id', $estanciaId);
         if ($ignoreId) {
             $query->where('id', '!=', $ignoreId);
         }
         if ($query->exists()) {
             throw ValidationException::withMessages([
-                'establecimiento_id' => 'La estancia ya tiene un almacén asignado.',
+                'estancia_id' => 'La estancia ya tiene un almacén asignado.',
             ]);
         }
-        $existe = Establecimiento::query()->whereKey($establecimientoId)->whereNull('deleted_at')->exists();
+        $existe = Estancia::query()->whereKey($estanciaId)->whereNull('deleted_at')->exists();
         if (! $existe) {
             throw ValidationException::withMessages([
-                'establecimiento_id' => 'La estancia seleccionada no existe.',
+                'estancia_id' => 'La estancia seleccionada no existe.',
             ]);
         }
     }
@@ -124,17 +124,17 @@ class AlmacenService
     private function buildQuery(array $filters, bool $onlyTrashed = false): Builder
     {
         $query = $onlyTrashed ? Almacen::onlyTrashed() : Almacen::query();
-        $query->with('establecimiento:id,codigo,nombre');
+        $query->with('estancia:id,codigo,nombre');
 
         if (! empty($filters['search'])) {
             $search = (string) $filters['search'];
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('nombre', 'ilike', '%'.$search.'%')
-                    ->orWhereHas('establecimiento', fn (Builder $q) => $q->where('nombre', 'ilike', '%'.$search.'%')->orWhere('codigo', 'ilike', '%'.$search.'%'));
+                    ->orWhereHas('estancia', fn (Builder $q) => $q->where('nombre', 'ilike', '%'.$search.'%')->orWhere('codigo', 'ilike', '%'.$search.'%'));
             });
         }
-        if (! empty($filters['establecimiento_id'])) {
-            $query->where('establecimiento_id', (int) $filters['establecimiento_id']);
+        if (! empty($filters['estancia_id'])) {
+            $query->where('estancia_id', (int) $filters['estancia_id']);
         }
         if (array_key_exists('activo', $filters) && $filters['activo'] !== null && $filters['activo'] !== '') {
             $query->where('activo', filter_var($filters['activo'], FILTER_VALIDATE_BOOLEAN));

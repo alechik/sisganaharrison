@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $user_id
  * @property int|null $cuarentena_id
  * @property int $tipo_ingreso_id
- * @property int $lote_id
+ * @property int $potrero_id
  * @property int|null $grupo_id
  * @property \Illuminate\Support\Carbon $fecha_ingreso
  * @property string $estado
@@ -41,7 +41,7 @@ class Ingreso extends Model
         'user_id',
         'cuarentena_id',
         'tipo_ingreso_id',
-        'lote_id',
+        'potrero_id',
         'grupo_id',
         'fecha_ingreso',
         'estado',
@@ -94,11 +94,11 @@ class Ingreso extends Model
     }
 
     /**
-     * @return BelongsTo<Lote, $this>
+     * @return BelongsTo<Potrero, $this>
      */
-    public function lote(): BelongsTo
+    public function potrero(): BelongsTo
     {
-        return $this->belongsTo(Lote::class, 'lote_id');
+        return $this->belongsTo(Potrero::class, 'potrero_id');
     }
 
     /**
