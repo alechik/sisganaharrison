@@ -10,6 +10,7 @@ import { CATEGORIA_ANIMAL_ROUTES } from "../constants";
 import { CATEGORIAS_ANIMALES_PERMISSIONS } from "../permissions";
 import { getCategoriaAnimal } from "../services";
 import { CategoriaAnimal } from "../types";
+import { textoPesoReferencia, textoRegla } from "../utils";
 
 export default function CategoriaAnimalDetailPage() {
   const { id } = useParams();
@@ -83,6 +84,48 @@ export default function CategoriaAnimalDetailPage() {
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Nombre</dt>
             <dd className="font-medium text-gray-800 dark:text-white/90">{categoria.nombre}</dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Sexo</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {categoria.sexo === "H" ? "Hembra" : categoria.sexo === "M" ? "Macho" : "Ambos / no aplica"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Edad</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {categoria.regla
+                ? categoria.regla.edad_max_meses == null
+                  ? `${categoria.regla.edad_min_meses}+ meses`
+                  : `${categoria.regla.edad_min_meses}–${categoria.regla.edad_max_meses} meses`
+                : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Característica</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {categoria.caracteristica || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Peso de referencia</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {textoPesoReferencia(categoria.regla) || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Cambio de peso / índice</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {categoria.indice_aumento != null
+                ? `${categoria.indice_aumento} kg cada ${categoria.cambio_peso_meses ?? 2} meses (referencia de categoría)`
+                : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-gray-500 dark:text-gray-400">Regla de asignación</dt>
+            <dd className="font-medium text-gray-800 dark:text-white/90">
+              {textoRegla(categoria.regla) || "—"}
+            </dd>
           </div>
           <div>
             <dt className="text-sm text-gray-500 dark:text-gray-400">Estado</dt>

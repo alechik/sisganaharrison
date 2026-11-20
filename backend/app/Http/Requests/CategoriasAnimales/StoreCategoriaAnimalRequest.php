@@ -31,6 +31,16 @@ class StoreCategoriaAnimalRequest extends FormRequest
             'codigo' => 'required|string|max:20|unique:categorias_animales,codigo|regex:/^[A-Z0-9_]+$/',
             'nombre' => 'required|string|max:100',
             'descripcion' => 'nullable|string|max:1000',
+            'sexo' => 'nullable|in:M,H',
+            'edad_min_meses' => 'nullable|integer|min:0|max:600',
+            'edad_max_meses' => 'nullable|integer|min:0|max:600|gte:edad_min_meses',
+            'castrado' => 'nullable|boolean',
+            'caracteristica' => 'nullable|string|max:255',
+            'peso_min_kg' => 'nullable|numeric|min:0|max:9999.99',
+            'peso_max_kg' => 'nullable|numeric|min:0|max:9999.99|gte:peso_min_kg',
+            'peso_referencia_meses' => 'nullable|integer|min:0|max:600',
+            'cambio_peso_meses' => 'nullable|integer|min:1|max:24',
+            'indice_aumento' => 'nullable|numeric|min:0|max:9999.99',
         ];
     }
 

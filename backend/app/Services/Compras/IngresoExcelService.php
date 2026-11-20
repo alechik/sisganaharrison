@@ -45,7 +45,7 @@ class IngresoExcelService
             '8',
             '180.50',
             '1500.00',
-            'DESTETES',
+            'DESTETES_H',
             'BRAHMAN',
             'Colorado',
             '',

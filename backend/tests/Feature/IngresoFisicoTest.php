@@ -92,9 +92,10 @@ class IngresoFisicoTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonPath('data.codigo', 'INCO000001')
             ->assertJsonPath('data.cantidad_total', 2)
             ->assertJsonPath('data.user_id', $user->id);
+        $codigoPrimero = (string) $response->json('data.codigo');
+        $this->assertMatchesRegularExpression('/^INCO\d{6}$/', $codigoPrimero);
 
         $ingreso = Ingreso::query()->findOrFail($response->json('data.id'));
         $this->assertSame(2, $ingreso->detalles()->count());
@@ -126,7 +127,11 @@ class IngresoFisicoTest extends TestCase
                 $this->detalle('AR-IN-003', 'H', 8, 170, 1400, $categoria->id, $raza->id),
             ],
         ]);
-        $segundo->assertCreated()->assertJsonPath('data.codigo', 'INCO000002');
+        $segundo->assertCreated();
+        $this->assertSame(
+            'INCO'.str_pad((string) ((int) substr($codigoPrimero, 4) + 1), 6, '0', STR_PAD_LEFT),
+            $segundo->json('data.codigo')
+        );
     }
 
     public function test_regalo_no_exige_proveedor(): void
@@ -296,7 +301,7 @@ class IngresoFisicoTest extends TestCase
             ['Encontrado', 'ENCONTRADO', 'EN', false],
             ['Otros', 'OTROS', 'OT', false],
         ] as [$nombre, $codigo, $iniciales, $requiere]) {
-            TipoIngreso::query()->updateOrCreate(
+            $tipo = TipoIngreso::withTrashed()->updateOrCreate(
                 ['codigo' => $codigo],
                 [
                     'nombre' => $nombre,
@@ -305,6 +310,9 @@ class IngresoFisicoTest extends TestCase
                     'estado' => true,
                 ]
             );
+            if ($tipo->trashed()) {
+                $tipo->restore();
+            }
         }
     }
 

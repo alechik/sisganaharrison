@@ -9,6 +9,7 @@ import { useAnimalReferenceOptions } from "@/modules/animales/hooks/useAnimalRef
 import { getAnimal, getSiguienteCodigoAnimal } from "@/modules/animales/services";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
 import { CategoriaAnimal } from "@/modules/categorias-animales/types";
+import { categoriaCria } from "@/modules/categorias-animales/utils";
 import RegistradoPorField from "@/components/form/RegistradoPorField";
 import {
   useCreateNacimiento,
@@ -76,9 +77,10 @@ export default function NacimientoForm({ nacimientoId }: Props) {
   const esVivo = form.estado_nacimiento === "VIVO";
   const esMuerto = form.estado_nacimiento === "MUERTO";
 
-  const categoriaCria = useMemo(() => {
-    return categorias.find((item) => item.codigo === "TERNEROS") ?? null;
-  }, [categorias]);
+  const categoriaCriaSeleccionada = useMemo(
+    () => categoriaCria(categorias, form.sexo),
+    [categorias, form.sexo]
+  );
 
   const fechaNacimiento = useMemo(() => {
     const parto = partos.find((item) => item.id === form.parto_id);
@@ -146,7 +148,7 @@ export default function NacimientoForm({ nacimientoId }: Props) {
   }, [nacimientoId, setUpdateError]);
 
   useEffect(() => {
-    if (!esVivo || !categoriaCria || isEdit) {
+    if (!esVivo || !categoriaCriaSeleccionada || isEdit) {
       if (!esVivo) {
         setCodigoPreview("");
       }
@@ -155,14 +157,14 @@ export default function NacimientoForm({ nacimientoId }: Props) {
 
     const loadCodigo = async () => {
       try {
-        setCodigoPreview(await getSiguienteCodigoAnimal(categoriaCria.id));
+        setCodigoPreview(await getSiguienteCodigoAnimal(categoriaCriaSeleccionada.id));
       } catch (err) {
         console.error(err);
         setCodigoPreview("");
       }
     };
     loadCodigo();
-  }, [categoriaCria, esVivo, isEdit]);
+  }, [categoriaCriaSeleccionada, esVivo, isEdit]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -316,7 +318,13 @@ export default function NacimientoForm({ nacimientoId }: Props) {
               <Label>Categoría</Label>
               <InputField
                 type="text"
-                value={categoriaCria ? `${categoriaCria.codigo} — ${categoriaCria.nombre}` : "TERNEROS"}
+                value={
+                  categoriaCriaSeleccionada
+                    ? `${categoriaCriaSeleccionada.codigo} — ${categoriaCriaSeleccionada.nombre}`
+                    : form.sexo
+                      ? "Sin categoría de ternero para el sexo"
+                      : "Seleccione el sexo"
+                }
                 disabled
               />
             </div>

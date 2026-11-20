@@ -7,6 +7,7 @@ use App\Models\CategoriaAnimal;
 use App\Models\Nacimiento;
 use App\Models\TipoPersona;
 use App\Models\User;
+use App\Support\CategoriaAnimalReglas;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
@@ -31,7 +32,7 @@ class RegistradorUsuarioTest extends TestCase
 
         $response = $this->postJson('/api/animales', [
             'sexo' => 'M',
-            'categoria_id' => CategoriaAnimal::query()->value('id'),
+            'categoria_id' => $this->categoriaIdParaSexo('M'),
             'user_id' => $ajeno->id,
         ]);
 
@@ -48,7 +49,7 @@ class RegistradorUsuarioTest extends TestCase
 
         $created = $this->postJson('/api/animales', [
             'sexo' => 'H',
-            'categoria_id' => CategoriaAnimal::query()->value('id'),
+            'categoria_id' => $this->categoriaIdParaSexo('H'),
             'user_id' => $editor->id,
         ])->assertCreated();
         $id = $created->json('data.id');
@@ -58,7 +59,7 @@ class RegistradorUsuarioTest extends TestCase
         $this->putJson('/api/animales/'.$id, [
             'codigo' => $codigo,
             'sexo' => 'H',
-            'categoria_id' => CategoriaAnimal::query()->value('id'),
+            'categoria_id' => $this->categoriaIdParaSexo('H'),
             'nombre' => 'Editado',
             'user_id' => $editor->id,
         ])->assertOk()
@@ -100,6 +101,19 @@ class RegistradorUsuarioTest extends TestCase
         ])->assertOk()
             ->assertJsonPath('data.registrado_por', $autor->id)
             ->assertJsonPath('data.causa_muerte', 'Actualizada en prueba');
+    }
+
+    private function categoriaIdParaSexo(string $sexo): int
+    {
+        $codigo = CategoriaAnimalReglas::codigoCria($sexo);
+        $regla = CategoriaAnimalReglas::para($codigo);
+
+        return CategoriaAnimal::query()->updateOrCreate(
+            ['codigo' => $codigo],
+            $regla
+                ? CategoriaAnimalReglas::atributosPersistibles($regla)
+                : ['nombre' => $codigo, 'activo' => true]
+        )->id;
     }
 
     /**

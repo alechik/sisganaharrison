@@ -15,6 +15,7 @@ use App\Models\Persona;
 use App\Models\Pesaje;
 use App\Models\Raza;
 use App\Models\TipoIngreso;
+use App\Support\CategoriaAnimalReglas;
 use App\Services\Animales\AnimalService;
 use App\Services\Documentos\PdfGenerator;
 use App\Services\Pesajes\PesajeService;
@@ -553,9 +554,7 @@ class IngresoService
             $errores[] = 'El peso en kg debe ser mayor a cero.';
         }
 
-        $categoria = $categoriaCodigo !== ''
-            ? CategoriaAnimal::query()->whereRaw('upper(codigo) = ?', [$categoriaCodigo])->where('activo', true)->whereNull('deleted_at')->first()
-            : null;
+        $categoria = $this->resolverCategoriaExcel($categoriaCodigo, $sexo);
         if (! $categoria) {
             $errores[] = 'La categoría no existe o no está activa. Use el código del catálogo.';
         }
@@ -593,6 +592,29 @@ class IngresoService
             'errores' => $errores,
             'valida' => $errores === [],
         ];
+    }
+
+    private function resolverCategoriaExcel(string $codigo, ?string $sexo): ?CategoriaAnimal
+    {
+        if ($codigo === '') {
+            return null;
+        }
+
+        $codigos = array_values(array_unique(array_filter([
+            CategoriaAnimalReglas::codigoResuelto($codigo, $sexo),
+            $codigo,
+        ])));
+
+        return CategoriaAnimal::query()
+            ->where(function (Builder $builder) use ($codigos) {
+                foreach ($codigos as $candidato) {
+                    $builder->orWhereRaw('upper(codigo) = ?', [strtoupper((string) $candidato)]);
+                }
+            })
+            ->where('activo', true)
+            ->whereNull('deleted_at')
+            ->orderByRaw('length(codigo) desc')
+            ->first();
     }
 
     private function normalizarSexo(string $value): ?string

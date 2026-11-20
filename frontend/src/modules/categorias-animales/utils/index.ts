@@ -3,4 +3,7 @@ export {
   edadEnMeses,
   mensajeCategoriaIncompatible,
   textoRegla,
+  textoPesoReferencia,
+  categoriaCria,
+  categoriaCriaCodigo,
 } from "./reglasCategoria";

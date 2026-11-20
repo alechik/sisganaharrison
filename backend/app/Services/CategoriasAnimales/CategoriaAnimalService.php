@@ -90,7 +90,8 @@ class CategoriaAnimalService
             $query->where(function (Builder $builder) use ($search) {
                 $builder->where('nombre', 'like', "%{$search}%")
                     ->orWhere('codigo', 'like', "%{$search}%")
-                    ->orWhere('descripcion', 'like', "%{$search}%");
+                    ->orWhere('descripcion', 'like', "%{$search}%")
+                    ->orWhere('caracteristica', 'like', "%{$search}%");
             });
         }
 

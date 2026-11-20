@@ -86,5 +86,44 @@ export function textoRegla(regla?: CategoriaAnimalRegla | null): string | null {
     regla.edad_max_meses === null
       ? `${regla.edad_min_meses}+ meses`
       : `${regla.edad_min_meses}-${regla.edad_max_meses} meses`;
-  return `${edad} · ${sexo} · ${regla.condicion}`;
+  const caracteristica = regla.caracteristica || regla.condicion;
+  const partes = [`${edad}`, sexo, caracteristica].filter(Boolean);
+  const peso = textoPesoReferencia(regla);
+  if (peso) {
+    partes.push(`ref. ${peso}`);
+  }
+  if (regla.indice_aumento != null) {
+    partes.push(`índice ${regla.indice_aumento} kg / ${regla.cambio_peso_meses ?? 2} meses`);
+  }
+  return partes.join(" · ");
+}
+
+export function textoPesoReferencia(regla?: CategoriaAnimalRegla | null): string | null {
+  if (!regla || (regla.peso_min_kg == null && regla.peso_max_kg == null)) {
+    return null;
+  }
+  const min = regla.peso_min_kg;
+  const max = regla.peso_max_kg;
+  const rango =
+    min != null && max != null && min !== max ? `${min}–${max} kg` : `${min ?? max} kg`;
+  return regla.peso_referencia_meses
+    ? `${rango} a los ${regla.peso_referencia_meses} meses`
+    : rango;
+}
+
+export function categoriaCriaCodigo(sexo?: string | null): "TERNEROS_H" | "TERNEROS_M" {
+  return (sexo ?? "").toUpperCase() === "H" ? "TERNEROS_H" : "TERNEROS_M";
+}
+
+export function categoriaCria(
+  categorias: CategoriaAnimal[],
+  sexo?: string | null
+): CategoriaAnimal | null {
+  const preferido = categoriaCriaCodigo(sexo);
+  return (
+    categorias.find((item) => item.codigo === preferido) ??
+    categorias.find((item) => item.codigo === "TERNEROS") ??
+    categorias.find((item) => item.codigo === (preferido === "TERNEROS_H" ? "TERNERA" : "TERNERO")) ??
+    null
+  );
 }

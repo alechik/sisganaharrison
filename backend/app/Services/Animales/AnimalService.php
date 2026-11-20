@@ -133,15 +133,17 @@ class AnimalService
     public function asegurarDesdeNacimiento(?int $animalId, array $contexto): Animal
     {
         $sexo = strtoupper((string) ($contexto['sexo'] ?? ''));
+        $codigosCria = CategoriaAnimalReglas::codigosCria($sexo);
         $categoria = CategoriaAnimal::query()
-            ->whereIn('codigo', ['TERNEROS', $sexo === 'H' ? 'TERNERA' : 'TERNERO'])
+            ->whereIn('codigo', $codigosCria)
             ->whereNull('deleted_at')
-            ->orderByRaw("case when codigo = 'TERNEROS' then 0 else 1 end")
+            ->where('activo', true)
+            ->orderByRaw("case when codigo in ('TERNEROS_H','TERNEROS_M') then 0 when codigo = 'TERNEROS' then 1 else 2 end")
             ->first();
 
         if (! $categoria) {
             throw ValidationException::withMessages([
-                'categoria_id' => 'No existe la categoría TERNEROS para registrar la cría.',
+                'categoria_id' => 'No existe la categoría de terneros para registrar la cría.',
             ]);
         }
 

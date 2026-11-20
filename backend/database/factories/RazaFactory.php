@@ -19,7 +19,7 @@ class RazaFactory extends Factory
 
         return [
             'nombre' => Str::title($nombre),
-            'codigo' => Str::upper(Str::slug($nombre, '_')),
+            'codigo' => Str::upper(Str::substr(Str::slug($nombre, '_'), 0, 20)),
             'descripcion' => fake()->optional()->sentence(),
             'estado' => true,
         ];

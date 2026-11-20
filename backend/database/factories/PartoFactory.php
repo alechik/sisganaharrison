@@ -17,7 +17,7 @@ class PartoFactory extends Factory
     {
         return [
             'gestacion_id' => Gestacion::factory(),
-            'fecha_parto' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
+            'fecha_parto' => now()->toDateString(),
             'estado' => Parto::ESTADO_PENDIENTE,
             'observaciones' => fake()->optional()->sentence(),
         ];

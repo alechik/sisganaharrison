@@ -10,6 +10,7 @@ import { useAnimalReferenceOptions } from "@/modules/animales/hooks/useAnimalRef
 import { getSiguienteCodigoAnimal } from "@/modules/animales/services";
 import { getCategoriasAnimales } from "@/modules/categorias-animales/services";
 import { CategoriaAnimal } from "@/modules/categorias-animales/types";
+import { categoriaCria } from "@/modules/categorias-animales/utils";
 import { useGruposByPotrero } from "@/modules/grupos/hooks";
 import { ESTADOS_NACIMIENTO, SEXOS_NACIMIENTO } from "@/modules/nacimientos/constants";
 import { NacimientoAnimalPayload } from "@/modules/nacimientos/types";
@@ -65,9 +66,9 @@ export default function RegistrarPartoNacimientoModal({
 
   const esVivo = estadoNacimiento === "VIVO";
   const esMuerto = estadoNacimiento === "MUERTO";
-  const categoriaCria = useMemo(
-    () => categorias.find((item) => item.codigo === "TERNEROS") ?? null,
-    [categorias]
+  const categoriaCriaSeleccionada = useMemo(
+    () => categoriaCria(categorias, sexo),
+    [categorias, sexo]
   );
 
   useEffect(() => {
@@ -94,14 +95,14 @@ export default function RegistrarPartoNacimientoModal({
   }, []);
 
   useEffect(() => {
-    if (!esVivo || !categoriaCria) {
+    if (!esVivo || !categoriaCriaSeleccionada) {
       setCodigoPreview("");
       return;
     }
-    getSiguienteCodigoAnimal(categoriaCria.id)
+    getSiguienteCodigoAnimal(categoriaCriaSeleccionada.id)
       .then(setCodigoPreview)
       .catch(() => setCodigoPreview(""));
-  }, [categoriaCria, esVivo]);
+  }, [categoriaCriaSeleccionada, esVivo]);
 
   const handleAnimalChange = (partial: NacimientoAnimalPayload) => {
     setAnimal((current) => ({ ...current, ...partial }));
@@ -251,7 +252,13 @@ export default function RegistrarPartoNacimientoModal({
                 <Label>Categoría</Label>
                 <InputField
                   type="text"
-                  value={categoriaCria ? `${categoriaCria.codigo} — ${categoriaCria.nombre}` : "TERNEROS"}
+                  value={
+                    categoriaCriaSeleccionada
+                      ? `${categoriaCriaSeleccionada.codigo} — ${categoriaCriaSeleccionada.nombre}`
+                      : sexo
+                        ? "Sin categoría de ternero para el sexo"
+                        : "Seleccione el sexo"
+                  }
                   disabled
                 />
               </div>

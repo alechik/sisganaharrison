@@ -54,7 +54,7 @@ class IngresoProductoFisicoTest extends TestCase
             ->assertJsonPath('data.orden_compra_id', null);
         $this->assertMatchesRegularExpression('/^INCO\d{6}$/', (string) $response->json('data.cod_ingreso'));
 
-        $ingreso = IngresoProducto::query()->findOrFail($response->json('data.id'));
+        $ingreso = IngresoProducto::query()->with('detalles')->findOrFail($response->json('data.id'));
         $this->assertSame($user->id, (int) $ingreso->user_id);
         $this->assertEquals(10, (float) AlmacenProducto::query()
             ->where('almacen_id', $almacen->id)
@@ -63,6 +63,7 @@ class IngresoProductoFisicoTest extends TestCase
         $this->assertSame(1, MovimientoInventario::query()
             ->where('tipo', MovimientoInventario::TIPO_INGRESO_COMPRA)
             ->where('origen_type', 'ingreso_producto')
+            ->whereIn('origen_id', $ingreso->detalles->pluck('id'))
             ->count());
         $producto->refresh();
         $this->assertEquals(8.0, (float) $producto->precio);
@@ -138,6 +139,7 @@ class IngresoProductoFisicoTest extends TestCase
     {
         Sanctum::actingAs($this->userWithPermissions(['compras_productos.create', 'compras_productos.view']));
         $producto = Producto::factory()->create(['codigo' => 'MED-XL-001']);
+        $antesIngresos = IngresoProducto::query()->count();
 
         $this->get('/api/compras-productos/ingresos/plantilla-excel')
             ->assertOk()
@@ -158,7 +160,7 @@ class IngresoProductoFisicoTest extends TestCase
         $preview->assertOk();
         $this->assertSame(1, $preview->json('data.validas'));
         $this->assertSame(2, $preview->json('data.con_errores'));
-        $this->assertSame(0, IngresoProducto::query()->count());
+        $this->assertSame($antesIngresos, IngresoProducto::query()->count());
         $this->assertEquals(0, (float) (AlmacenProducto::query()
             ->where('producto_id', $producto->id)
             ->value('stock') ?? 0));

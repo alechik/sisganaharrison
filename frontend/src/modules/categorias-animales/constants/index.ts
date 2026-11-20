@@ -6,7 +6,7 @@ export const CATEGORIA_ANIMAL_ROUTES = {
   edit: (id: number | string) => `/categorias-animales/${id}/editar`,
 } as const;
 
-export const CATEGORIA_ANIMAL_DEFAULT_PAGE_SIZE = 10;
+export const CATEGORIA_ANIMAL_DEFAULT_PAGE_SIZE = 15;
 
 export const CATEGORIA_ANIMAL_SORT_OPTIONS = [
   { value: "nombre", label: "Nombre" },

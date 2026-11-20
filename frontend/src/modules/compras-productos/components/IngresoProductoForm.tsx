@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import InputField from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import TextArea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import { INGRESO_PRODUCTO_ROUTES } from "../constants";
 import { useCreateIngresoProducto } from "../hooks";
@@ -92,6 +93,7 @@ export default function IngresoProductoForm() {
   const [almacen, setAlmacen] = useState<AlmacenOption | null>(null);
   const [fecha, setFecha] = useState(today());
   const [descuento, setDescuento] = useState("0");
+  const [observaciones, setObservaciones] = useState("");
   const [lines, setLines] = useState<LineState[]>([emptyLine()]);
 
   const selectedIds = useMemo(
@@ -100,15 +102,19 @@ export default function IngresoProductoForm() {
   );
 
   const preview = useMemo(() => {
-    const validas = lines.filter((line) => line.producto_id && line.cantidad > 0);
-    const suma = validas.reduce((acc, line) => acc + line.cantidad * (Number(line.precio) || 0), 0);
+    const origen =
+      modo === "excel"
+        ? excelFilas.filter((fila) => fila.valida).map(fromExcel)
+        : lines.filter((line) => line.producto_id && line.cantidad > 0);
+    const suma = origen.reduce((acc, line) => acc + line.cantidad * (Number(line.precio) || 0), 0);
     const desc = Number(descuento) || 0;
     return {
-      unidades: validas.reduce((acc, line) => acc + line.cantidad, 0),
+      unidades: origen.reduce((acc, line) => acc + (Number(line.cantidad) || 0), 0),
+      lineas: origen.length,
       suma,
       total: Math.max(suma - desc, 0),
     };
-  }, [lines, descuento]);
+  }, [lines, descuento, modo, excelFilas]);
 
   const updateLine = (index: number, partial: Partial<LineState>) => {
     setLines((current) => current.map((line, i) => (i === index ? { ...line, ...partial } : line)));
@@ -141,6 +147,9 @@ export default function IngresoProductoForm() {
     try {
       const data = await previewIngresoProductoExcel(file);
       setExcelFilas(data.filas);
+      const validas = data.filas.filter((fila) => fila.valida && fila.producto_id);
+      setLines(validas.length ? validas.map(fromExcel) : [emptyLine()]);
+      setModo("excel");
     } catch (err: unknown) {
       const payload = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
         ?.response?.data;
@@ -184,6 +193,7 @@ export default function IngresoProductoForm() {
         almacen_id: almacen.value,
         fecha,
         descuento: Number(descuento) || 0,
+        observaciones: observaciones || null,
         detalles: payload.map((line) => ({
           producto_id: line.producto_id as number,
           cantidad: line.cantidad,
@@ -208,7 +218,7 @@ export default function IngresoProductoForm() {
         <div>
           <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90">Cabecera</h3>
           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-            El código se genera al confirmar. El total se calcula con el detalle y el descuento.
+            Datos generales del ingreso. El código se genera al confirmar. El total se calcula con el detalle y el descuento.
           </p>
         </div>
 
@@ -240,6 +250,16 @@ export default function IngresoProductoForm() {
             <AlmacenSelect value={almacen} onChange={setAlmacen} />
           </div>
         </div>
+
+        <div className="min-w-0 w-full">
+          <Label>Observación general</Label>
+          <TextArea
+            rows={2}
+            value={observaciones}
+            onChange={setObservaciones}
+            placeholder="Notas del ingreso, si corresponde"
+          />
+        </div>
       </section>
 
       <section className={`${sectionClass} space-y-4`}>
@@ -247,7 +267,7 @@ export default function IngresoProductoForm() {
           <div>
             <h3 className="text-sm font-semibold text-gray-800 dark:text-white/90">Detalle de productos</h3>
             <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-              La unidad se obtiene del producto. El subtotal es precio × cantidad.
+              Cada fila ingresa un producto al almacén. La unidad sale de la presentación; el subtotal es precio × cantidad.
             </p>
           </div>
           <div className="inline-flex shrink-0 rounded-lg border border-gray-200 p-1 dark:border-white/[0.08]">
@@ -375,52 +395,22 @@ export default function IngresoProductoForm() {
         )}
 
         {modo === "manual" && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {lines.map((linea, index) => {
               const subtotal = Math.max((linea.cantidad || 0) * (linea.precio || 0), 0);
               return (
-                <div key={index} className="flex flex-wrap items-end gap-x-3 gap-y-2">
-                  <div className="relative z-10 min-w-0 w-full overflow-visible sm:min-w-[16rem] sm:flex-[1.8_1_16rem]">
-                    {index === 0 ? <Label>Código / Nombre</Label> : null}
-                    <ProductoSelect
-                      value={linea.option}
-                      excludedIds={selectedIds.filter((id) => id !== linea.producto_id)}
-                      onChange={(option) => handleSelectProducto(index, option)}
-                    />
-                  </div>
-                  <div className="w-full shrink-0 sm:w-[7.5rem]">
-                    {index === 0 ? <Label>Unidad</Label> : null}
-                    <InputField type="text" value={linea.unidad} disabled />
-                  </div>
-                  <div className="w-full shrink-0 sm:w-[7rem]">
-                    {index === 0 ? <Label>Precio</Label> : null}
-                    <InputField
-                      type="number"
-                      min="0"
-                      step={0.01}
-                      value={linea.precio ? String(linea.precio) : ""}
-                      onChange={(e) => updateLine(index, { precio: Number(e.target.value) || 0 })}
-                    />
-                  </div>
-                  <div className="w-full shrink-0 sm:w-[6.5rem]">
-                    {index === 0 ? <Label>Cantidad</Label> : null}
-                    <InputField
-                      type="number"
-                      min="1"
-                      step={1}
-                      value={linea.cantidad ? String(linea.cantidad) : ""}
-                      onChange={(e) => updateLine(index, { cantidad: Number(e.target.value) || 0 })}
-                    />
-                  </div>
-                  <div className="w-full shrink-0 sm:w-[7.5rem]">
-                    {index === 0 ? <Label>Subtotal</Label> : null}
-                    <InputField type="text" value={formatMoney(subtotal)} disabled />
-                  </div>
-                  <div className={`shrink-0 pb-2 ${index === 0 ? "sm:pb-0 sm:pt-6" : ""}`}>
-                    {lines.length > 1 ? (
+                <div
+                  key={index}
+                  className="rounded-lg border border-gray-200 bg-white p-3 dark:border-white/[0.06] dark:bg-white/[0.02] sm:p-4"
+                >
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
+                      Producto {index + 1}
+                    </h4>
+                    {lines.length > 1 && (
                       <button
                         type="button"
-                        className="text-sm text-red-600 hover:underline dark:text-red-300"
+                        className="shrink-0 text-sm text-red-600 hover:underline dark:text-red-300"
                         onClick={() =>
                           setLines((current) =>
                             current.length === 1 ? [emptyLine()] : current.filter((_, i) => i !== index)
@@ -429,9 +419,45 @@ export default function IngresoProductoForm() {
                       >
                         Quitar
                       </button>
-                    ) : (
-                      <span className="inline-block w-12" />
                     )}
+                  </div>
+                  <div className="flex flex-wrap items-end gap-x-3 gap-y-3">
+                    <div className="relative z-10 min-w-0 w-full overflow-visible sm:min-w-[16rem] sm:flex-[1.8_1_16rem]">
+                      <Label>Código / Nombre</Label>
+                      <ProductoSelect
+                        value={linea.option}
+                        excludedIds={selectedIds.filter((id) => id !== linea.producto_id)}
+                        onChange={(option) => handleSelectProducto(index, option)}
+                      />
+                    </div>
+                    <div className="w-full shrink-0 sm:w-[7.5rem]">
+                      <Label>Unidad</Label>
+                      <InputField type="text" value={linea.unidad} disabled />
+                    </div>
+                    <div className="w-full shrink-0 sm:w-[7rem]">
+                      <Label>Precio (Bs)</Label>
+                      <InputField
+                        type="number"
+                        min="0"
+                        step={0.01}
+                        value={linea.precio ? String(linea.precio) : ""}
+                        onChange={(e) => updateLine(index, { precio: Number(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div className="w-full shrink-0 sm:w-[6.5rem]">
+                      <Label>Cantidad</Label>
+                      <InputField
+                        type="number"
+                        min="1"
+                        step={1}
+                        value={linea.cantidad ? String(linea.cantidad) : ""}
+                        onChange={(e) => updateLine(index, { cantidad: Number(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div className="w-full shrink-0 sm:w-[7.5rem]">
+                      <Label>Subtotal</Label>
+                      <InputField type="text" value={formatMoney(subtotal)} disabled />
+                    </div>
                   </div>
                 </div>
               );
@@ -441,26 +467,24 @@ export default function IngresoProductoForm() {
             </Button>
           </div>
         )}
-
-        <div className="mt-2 flex justify-end">
-          <div className="min-w-[14rem] space-y-1 text-right text-sm text-gray-600 dark:text-gray-300">
-            <p>Unidades: {preview.unidades}</p>
-            <p>Suma de líneas: {formatMoney(preview.suma)}</p>
-            <p>Descuento: {formatMoney(Number(descuento) || 0)}</p>
-            <p className="text-base font-semibold text-gray-800 dark:text-white">
-              Monto total: {formatMoney(preview.total)}
-            </p>
-          </div>
-        </div>
       </section>
 
-      <div className="flex justify-end gap-3">
-        <Button type="button" variant="outline" onClick={() => navigate(INGRESO_PRODUCTO_ROUTES.list)}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando..." : "Registrar ingreso"}
-        </Button>
+      <div className="flex flex-col gap-4 border-t border-gray-100 pt-4 dark:border-white/[0.06] sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="font-medium text-gray-800 dark:text-white/90">{preview.lineas}</span> productos
+          <span className="mx-2">·</span>
+          {preview.unidades} unidades
+          <span className="mx-2">·</span>
+          {formatMoney(preview.total)}
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button size="sm" variant="outline" type="button" onClick={() => navigate(INGRESO_PRODUCTO_ROUTES.list)}>
+            Cancelar
+          </Button>
+          <Button size="sm" type="submit" disabled={loading}>
+            {loading ? "Guardando..." : "Registrar ingreso"}
+          </Button>
+        </div>
       </div>
     </form>
   );

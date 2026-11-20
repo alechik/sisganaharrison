@@ -16,6 +16,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $codigo
  * @property string $nombre
  * @property string|null $descripcion
+ * @property string|null $sexo
+ * @property int|null $edad_min_meses
+ * @property int|null $edad_max_meses
+ * @property bool|null $castrado
+ * @property string|null $caracteristica
+ * @property string|null $peso_min_kg
+ * @property string|null $peso_max_kg
+ * @property int|null $peso_referencia_meses
+ * @property int|null $cambio_peso_meses
+ * @property string|null $indice_aumento
  * @property bool $activo
  */
 class CategoriaAnimal extends Model
@@ -29,6 +39,16 @@ class CategoriaAnimal extends Model
         'codigo',
         'nombre',
         'descripcion',
+        'sexo',
+        'edad_min_meses',
+        'edad_max_meses',
+        'castrado',
+        'caracteristica',
+        'peso_min_kg',
+        'peso_max_kg',
+        'peso_referencia_meses',
+        'cambio_peso_meses',
+        'indice_aumento',
         'activo',
     ];
 
@@ -36,6 +56,14 @@ class CategoriaAnimal extends Model
     {
         return [
             'activo' => 'boolean',
+            'castrado' => 'boolean',
+            'edad_min_meses' => 'integer',
+            'edad_max_meses' => 'integer',
+            'peso_referencia_meses' => 'integer',
+            'cambio_peso_meses' => 'integer',
+            'peso_min_kg' => 'decimal:2',
+            'peso_max_kg' => 'decimal:2',
+            'indice_aumento' => 'decimal:2',
         ];
     }
 

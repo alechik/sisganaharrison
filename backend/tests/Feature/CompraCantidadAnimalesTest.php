@@ -26,7 +26,7 @@ class CompraCantidadAnimalesTest extends TestCase
     public function test_cantidad_genera_un_animal_por_ejemplar(): void
     {
         Sanctum::actingAs($this->userWithPermissions(['animales.create']));
-        $categoria = $this->categoria('DESTETES');
+        $categoria = $this->categoria('DESTETES_M');
 
         $lineas = app(AnimalService::class)->identificarEnDetalles([
             [
@@ -54,7 +54,7 @@ class CompraCantidadAnimalesTest extends TestCase
     public function test_cantidad_con_animal_ya_identificado_debe_ser_uno(): void
     {
         Sanctum::actingAs($this->userWithPermissions(['animales.create']));
-        $categoria = $this->categoria('DESTETES');
+        $categoria = $this->categoria('DESTETES_H');
         $animal = app(AnimalService::class)->create([
             'sexo' => 'H',
             'categoria_id' => $categoria->id,
@@ -76,14 +76,13 @@ class CompraCantidadAnimalesTest extends TestCase
     private function categoria(string $codigo): CategoriaAnimal
     {
         $regla = CategoriaAnimalReglas::para($codigo);
+        $payload = $regla
+            ? CategoriaAnimalReglas::atributosPersistibles($regla)
+            : ['nombre' => $codigo, 'descripcion' => $codigo, 'activo' => true];
 
         return CategoriaAnimal::query()->updateOrCreate(
             ['codigo' => $codigo],
-            [
-                'nombre' => $regla['nombre'],
-                'descripcion' => $regla['descripcion'],
-                'activo' => true,
-            ]
+            $payload
         );
     }
 

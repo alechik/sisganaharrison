@@ -92,6 +92,18 @@ class CategoriaAnimalReglasTest extends TestCase
         ]);
     }
 
+    public function test_ternero_hembra_no_admite_categoria_macho(): void
+    {
+        Sanctum::actingAs($this->userWithPermissions(['animales.create']));
+
+        $this->expectException(ValidationException::class);
+        app(AnimalService::class)->create([
+            'sexo' => 'H',
+            'categoria_id' => $this->categoria('TERNEROS_M')->id,
+            'edad_inicial' => 4,
+        ]);
+    }
+
     public function test_vaquillas_rechaza_sexo_macho(): void
     {
         Sanctum::actingAs($this->userWithPermissions(['animales.create']));
@@ -104,6 +116,32 @@ class CategoriaAnimalReglasTest extends TestCase
         ]);
     }
 
+    public function test_acepta_ternero_macho_de_ocho_meses(): void
+    {
+        Sanctum::actingAs($this->userWithPermissions(['animales.create']));
+
+        $animal = app(AnimalService::class)->create([
+            'sexo' => 'M',
+            'castrado' => false,
+            'categoria_id' => $this->categoria('TERNEROS_M')->id,
+            'edad_inicial' => 8,
+        ]);
+
+        $this->assertSame('M', $animal->sexo);
+    }
+
+    public function test_rechaza_ternero_de_nueve_meses(): void
+    {
+        Sanctum::actingAs($this->userWithPermissions(['animales.create']));
+
+        $this->expectException(ValidationException::class);
+        app(AnimalService::class)->create([
+            'sexo' => 'M',
+            'categoria_id' => $this->categoria('TERNEROS_M')->id,
+            'edad_inicial' => 9,
+        ]);
+    }
+
     public function test_edad_se_calcula_desde_fecha_de_nacimiento(): void
     {
         $meses = CategoriaAnimalReglas::edadEnMeses(now()->subMonths(8)->toDateString(), 99);
@@ -113,14 +151,13 @@ class CategoriaAnimalReglasTest extends TestCase
     private function categoria(string $codigo): CategoriaAnimal
     {
         $regla = CategoriaAnimalReglas::para($codigo);
+        $payload = $regla
+            ? CategoriaAnimalReglas::atributosPersistibles($regla)
+            : ['nombre' => $codigo, 'descripcion' => $codigo, 'activo' => true];
 
         return CategoriaAnimal::query()->updateOrCreate(
             ['codigo' => $codigo],
-            [
-                'nombre' => $regla['nombre'],
-                'descripcion' => $regla['descripcion'],
-                'activo' => true,
-            ]
+            $payload
         );
     }
 

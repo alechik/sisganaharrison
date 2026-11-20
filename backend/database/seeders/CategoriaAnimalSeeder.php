@@ -17,7 +17,8 @@ class CategoriaAnimalSeeder extends Seeder
      * @var array<string, string>
      */
     private const RENAME_FROM = [
-        'TERNEROS' => 'TERNERO',
+        'TERNEROS_M' => 'TERNERO',
+        'TERNEROS_H' => 'TERNERA',
         'NOVILLOS' => 'NOVILLO',
         'VAQUILLAS' => 'NOVILLA',
         'TOROS' => 'TORO',
@@ -30,7 +31,6 @@ class CategoriaAnimalSeeder extends Seeder
      * @var array<string, string>
      */
     private const REASSIGN = [
-        'TERNERA' => 'TERNEROS',
         'VAQUILLONA' => 'VAQUILLAS',
         'REPRODUCTOR' => 'TOROS',
         'REPRODUCTORA' => 'VACAS',
@@ -47,13 +47,10 @@ class CategoriaAnimalSeeder extends Seeder
                     ->first();
             }
 
-            $payload = [
-                'codigo' => $codigo,
-                'nombre' => $regla['nombre'],
-                'descripcion' => $regla['descripcion'],
-                'activo' => true,
-                'deleted_at' => null,
-            ];
+            $payload = array_merge(
+                ['codigo' => $codigo],
+                CategoriaAnimalReglas::atributosPersistibles($regla)
+            );
 
             if ($existente) {
                 $existente->fill($payload)->save();
@@ -62,26 +59,55 @@ class CategoriaAnimalSeeder extends Seeder
             }
         }
 
+        $this->reasignarPorSexo('TERNEROS', 'TERNEROS_M', 'TERNEROS_H');
+        $this->reasignarPorSexo('DESTETES', 'DESTETES_M', 'DESTETES_H');
+
         foreach (self::REASSIGN as $codigoOrigen => $codigoDestino) {
             $origen = CategoriaAnimal::withTrashed()->where('codigo', $codigoOrigen)->first();
             $destino = CategoriaAnimal::withTrashed()->where('codigo', $codigoDestino)->first();
-
             if (! $origen || ! $destino || $origen->id === $destino->id) {
                 continue;
             }
-
-            Animal::withTrashed()
-                ->where('categoria_id', $origen->id)
-                ->update(['categoria_id' => $destino->id]);
-
-            $this->reasignarDetallesComerciales($origen->id, $destino->id);
-
+            $this->moverAnimalesYDetalles($origen->id, $destino->id);
             $origen->activo = false;
             $origen->save();
         }
     }
 
-    private function reasignarDetallesComerciales(int $origenId, int $destinoId): void
+    private function reasignarPorSexo(string $origenCodigo, string $machoCodigo, string $hembraCodigo): void
+    {
+        $origen = CategoriaAnimal::withTrashed()->where('codigo', $origenCodigo)->first();
+        $macho = CategoriaAnimal::withTrashed()->where('codigo', $machoCodigo)->first();
+        $hembra = CategoriaAnimal::withTrashed()->where('codigo', $hembraCodigo)->first();
+
+        if (! $origen || ! $macho || ! $hembra) {
+            return;
+        }
+
+        Animal::withTrashed()
+            ->where('categoria_id', $origen->id)
+            ->where('sexo', 'M')
+            ->update(['categoria_id' => $macho->id]);
+
+        Animal::withTrashed()
+            ->where('categoria_id', $origen->id)
+            ->where('sexo', 'H')
+            ->update(['categoria_id' => $hembra->id]);
+
+        $origen->activo = false;
+        $origen->save();
+    }
+
+    private function moverAnimalesYDetalles(int $origenId, int $destinoId): void
+    {
+        Animal::withTrashed()
+            ->where('categoria_id', $origenId)
+            ->update(['categoria_id' => $destinoId]);
+
+        $this->moverDetallesComerciales($origenId, $destinoId);
+    }
+
+    private function moverDetallesComerciales(int $origenId, int $destinoId): void
     {
         $tablas = [
             'detalle_orden_compra',

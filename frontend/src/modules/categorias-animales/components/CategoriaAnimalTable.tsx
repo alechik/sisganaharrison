@@ -48,7 +48,13 @@ export default function CategoriaAnimalTable({
                 Código
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
-                Descripción
+                Edad
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+                Sexo
+              </TableCell>
+              <TableCell isHeader className="px-5 py-4 font-semibold text-start">
+                Característica
               </TableCell>
               <TableCell isHeader className="px-5 py-4 font-semibold text-start">
                 Estado
@@ -62,7 +68,7 @@ export default function CategoriaAnimalTable({
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {categorias.length === 0 ? (
               <TableRow>
-                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={5}>
+                <TableCell className="px-5 py-8 text-center text-gray-500" colSpan={7}>
                   No hay categorías para mostrar.
                 </TableCell>
               </TableRow>
@@ -88,7 +94,17 @@ export default function CategoriaAnimalTable({
                   </TableCell>
 
                   <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
-                    {categoria.descripcion || "Sin descripción"}
+                    {categoria.regla
+                      ? categoria.regla.edad_max_meses == null
+                        ? `${categoria.regla.edad_min_meses}+ meses`
+                        : `${categoria.regla.edad_min_meses}–${categoria.regla.edad_max_meses} meses`
+                      : "—"}
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {categoria.sexo === "H" ? "Hembra" : categoria.sexo === "M" ? "Macho" : "Ambos"}
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400">
+                    {categoria.caracteristica || categoria.descripcion || "—"}
                   </TableCell>
 
                   <TableCell className="px-5 py-4">
